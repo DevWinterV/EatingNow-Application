@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1F5351DC-5039-44DB-A680-6306A5A988EC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DaiPhucVinh.Server.Data</RootNamespace>
+    <AssemblyName>DaiPhucVinh.Server.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CaptchaMvc, Version=2.5.0.0, Culture=neutral, PublicKeyToken=fe46ad421dd3b0e6, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CaptchaMvc.Mvc5.1.5.0\lib\net45-full\CaptchaMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Falcon.Web.Core">
+      <HintPath>..\..\Framework\Falcon.Web.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DaiPhucVinh\EN_Account.cs" />
+    <Compile Include="DaiPhucVinh\EN_CategoryList.cs" />
+    <Compile Include="DaiPhucVinh\EN_FoodList.cs" />
+    <Compile Include="DaiPhucVinh\EN_Customer.cs" />
+    <Compile Include="DaiPhucVinh\EN_OrderHeader.cs" />
+    <Compile Include="DaiPhucVinh\EN_OrderLine.cs" />
+    <Compile Include="DaiPhucVinh\EN_Store.cs" />
+    <Compile Include="DaiPhucVinh\EN_Cuisine.cs" />
+    <Compile Include="DaiPhucVinh\EN_AccountType.cs" />
+    <Compile Include="DaiPhucVinh\EN_Ward.cs" />
+    <Compile Include="DaiPhucVinh\EN_District.cs" />
+    <Compile Include="DaiPhucVinh\EN_Province.cs" />
+    <Compile Include="DaiPhucVinh\FSW_ChatLuong.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Attendances.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Catalogs.cs" />
+    <Compile Include="DaiPhucVinh\FUV_ChatDescriptions.cs" />
+    <Compile Include="DaiPhucVinh\FUV_ChatRoom.cs" />
+    <Compile Include="DaiPhucVinh\FUV_ChatRoomMember.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Checkin.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Dayoffs.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Feedbacks.cs" />
+    <Compile Include="DaiPhucVinh\FUV_MobileDevices.cs" />
+    <Compile Include="DaiPhucVinh\FUV_NotificationGroups.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Notifications.cs" />
+    <Compile Include="DaiPhucVinh\FUV_NotificationTypes.cs" />
+    <Compile Include="DaiPhucVinh\FUV_ProjectImages.cs" />
+    <Compile Include="DaiPhucVinh\FUV_TaskResult.cs" />
+    <Compile Include="DaiPhucVinh\FUV_TaskSteps.cs" />
+    <Compile Include="DaiPhucVinh\FUV_TaskTypes.cs" />
+    <Compile Include="DaiPhucVinh\FUV_TaskWatchs.cs" />
+    <Compile Include="DaiPhucVinh\FUV_TaskStatus.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Tasks.cs" />
+    <Compile Include="DaiPhucVinh\FUV_UserGuides.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Videos.cs" />
+    <Compile Include="DaiPhucVinh\FUV_WorkLog.cs" />
+    <Compile Include="DaiPhucVinh\WMS_AutoGenCodeConfig.cs" />
+    <Compile Include="DaiPhucVinh\WMS_HopDong_ChiTiet.cs" />
+    <Compile Include="DaiPhucVinh\WMS_InventoryItem.cs" />
+    <Compile Include="DaiPhucVinh\WMS_ItemCategory.cs" />
+    <Compile Include="DaiPhucVinh\WMS_LoaiDanhGia.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Province.cs" />
+    <Compile Include="DaiPhucVinh\FUV_Posts.cs" />
+    <Compile Include="DaiPhucVinh\WMS_TransactionType.cs" />
+    <Compile Include="DaiPhucVinh\WMS_TransactionInformation.cs" />
+    <Compile Include="DaiPhucVinh\WMS_QuotationLine.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Customer.cs" />
+    <Compile Include="DaiPhucVinh\WMS_CustomersType.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Employee.cs" />
+    <Compile Include="DaiPhucVinh\WMS_HopDong.cs" />
+    <Compile Include="DaiPhucVinh\WMS_HopDong_Template.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Item.cs" />
+    <Compile Include="DaiPhucVinh\WMS_ItemGroup.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Item_Image.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Location.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Quotation.cs" />
+    <Compile Include="DaiPhucVinh\WMS_Quotation_Templete.cs" />
+    <Compile Include="DaiPhucVinh\WMS_UnitOfMeasure.cs" />
+    <Compile Include="DaiPhucVinh\WMS_UnitPrice.cs" />
+    <Compile Include="Entity\ImageRecord.cs" />
+    <Compile Include="Entity\Logs.cs" />
+    <Compile Include="Entity\z_Role.cs" />
+    <Compile Include="Entity\z_Setting.cs" />
+    <Compile Include="Entity\z_User.cs" />
+    <Compile Include="Entity\z_UserClaim.cs" />
+    <Compile Include="FES\ACL_User.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

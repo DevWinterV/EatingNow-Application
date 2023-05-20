@@ -1,0 +1,1 @@
+Muốn in file báo giá thì yêu cầu server phải có cài word.

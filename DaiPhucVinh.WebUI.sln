@@ -1,0 +1,77 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32802.440
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Presentation", "1 Presentation", "{7E2E9A7C-550F-4F15-BB73-8E8AA7FF4F49}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Library", "2 Library", "{07102429-7A54-4BCF-A1C9-D819955F397C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Shared", "3 Shared", "{C31C7021-686C-455A-8F3D-0746251331DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh", "DaiPhucVinh\WebUI\DaiPhucVinh.csproj", "{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh.Shared", "Server\Server.Shared\DaiPhucVinh.Shared.csproj", "{1D9FC869-B2BF-4381-92E2-C25360BDA137}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh.Server.Data", "Server\Server.Data\DaiPhucVinh.Server.Data.csproj", "{1F5351DC-5039-44DB-A680-6306A5A988EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh.Services", "DaiPhucVinh\Services\DaiPhucVinh.Services.csproj", "{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Debug|x86.Build.0 = Debug|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Release|x86.ActiveCfg = Release|x86
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D}.Release|x86.Build.0 = Release|x86
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Release|x86.ActiveCfg = Release|x86
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137}.Release|x86.Build.0 = Release|x86
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Debug|x86.Build.0 = Debug|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Release|x86.ActiveCfg = Release|x86
+		{1F5351DC-5039-44DB-A680-6306A5A988EC}.Release|x86.Build.0 = Release|x86
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Debug|x86.Build.0 = Debug|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|x86.ActiveCfg = Release|x86
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F66B85DC-14C2-4EB1-A7FB-C94DDD2F0B1D} = {7E2E9A7C-550F-4F15-BB73-8E8AA7FF4F49}
+		{1D9FC869-B2BF-4381-92E2-C25360BDA137} = {C31C7021-686C-455A-8F3D-0746251331DA}
+		{1F5351DC-5039-44DB-A680-6306A5A988EC} = {07102429-7A54-4BCF-A1C9-D819955F397C}
+		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5} = {07102429-7A54-4BCF-A1C9-D819955F397C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CB3DAC4-47A9-481C-A5B6-0296BEFAF516}
+		VisualSVNWorkingCopyRoot = .
+	EndGlobalSection
+	GlobalSection(NDepend) = preSolution
+		Project = ".\FalconCommerce.ndproj"
+	EndGlobalSection
+EndGlobal

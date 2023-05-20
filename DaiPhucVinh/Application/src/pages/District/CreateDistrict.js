@@ -1,0 +1,220 @@
+import * as React from "react";
+import { Breadcrumb } from "../../controls";
+import Swal from "sweetalert2";
+import { useLocation, useNavigate } from "react-router-dom";
+import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
+import {
+  CreateNewDistrict,
+  UpdateNewDistrict,
+  TakeDistrictById,
+} from "../../api/district/districtService";
+import { TakeAllProvince } from "../../api/province/provinceService";
+import Select from "react-select";
+export default function CreateProvince() {
+  const history = useNavigate();
+  const { state } = useLocation();
+  const breadcrumbSources = [
+    {
+      name: "Danh sách huyện",
+      href: "/district",
+    },
+    {
+      name: state?.data?.DistrictId > 0 ? "Cập nhật" : "Thêm mới",
+      active: true,
+    },
+  ];
+  const [request, setRequest] = React.useState({
+    DistrictId: 0,
+    Name: "",
+    ItemProvinceCode: "",
+  });
+  const [itemProvince, setItemProvince] = React.useState([]);
+  const [defaultItemProvince, setDefaultItemProvince] = React.useState({
+    value: "",
+    label: "Vui lòng chọn tỉnh",
+  });
+  async function onFillItemProvince() {
+    let itemProvinceResponse = await TakeAllProvince();
+    if (itemProvinceResponse.success) {
+      setItemProvince([
+        {
+          value: "",
+          label: "Vui lòng chọn tỉnh",
+        },
+        ...itemProvinceResponse.data.map((e) => {
+          return {
+            value: e.ProvinceId,
+            label: e.Name,
+          };
+        }),
+      ]);
+    }
+  }
+
+  function onBack() {
+    history("/district");
+  }
+  async function onSubmit() {
+    if (request.Name.length == 0) {
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Tên không được để trống!",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+    if (request.DistrictId == 0) {
+      let response = await CreateNewDistrict(request);
+      if (!response.success) {
+        Swal.fire({
+          title: "Lỗi!",
+          text: "Lưu dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+      let confirm = await Swal.fire({
+        title: "Thành công!",
+        text: "Lưu dữ liệu thành công!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      if (confirm.isConfirmed) {
+        if (request.DistrictId == 0) {
+          onBack();
+        } else {
+          // ở lại trang
+        }
+      }
+    } else {
+      let response = await UpdateNewDistrict(request);
+      if (!response.success) {
+        Swal.fire({
+          title: "Lỗi!",
+          text: "Lưu dữ liệu không thành công , vui lòng kiểm tra lại dữ liệu đã nhập !",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+      let confirm = await Swal.fire({
+        title: "Thành công!",
+        text: "Lưu dữ liệu thành công!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      if (confirm.isConfirmed) {
+        if (request.DistrictId == 0) {
+          onBack();
+        } else {
+          onViewAppearing();
+          // ở lại trang
+        }
+      }
+    }
+  }
+  async function onViewAppearing() {
+    if (state?.data) {
+      var response = await TakeDistrictById(state?.data.DistrictId);
+      setRequest({
+        DistrictId: response.Item.DistrictId,
+        Name: response.Item.Name || "",
+      });
+    }
+  }
+  React.useEffect(() => {
+    onViewAppearing();
+    onFillItemProvince();
+  }, []);
+  return (
+    <>
+      <Breadcrumb
+        title={request.DistrictId > 0 ? "Cập nhật huyện" : "Thêm mới huyện"}
+        sources={breadcrumbSources}
+      />
+      <div className="row">
+        <div className="col-sm-4">
+          <label style={{ fontSize: "12px" }} className="form-label fw-bold">
+            Thông tin huyện
+          </label>
+        </div>
+      </div>
+      <div className="card" style={{ fontSize: "12px" }}>
+        <div className="card-body">
+          <div className="row">
+            {request.DistrictId == 0 ? (
+              <div className="col-lg-12">
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Tỉnh thành</label>
+                  <Select
+                    options={itemProvince}
+                    value={defaultItemProvince}
+                    onChange={(e) => {
+                      setDefaultItemProvince({
+                        value: e.value,
+                        label: e.label,
+                      });
+                      setRequest({
+                        ...request,
+                        ItemProvinceCode: e.value,
+                      });
+                    }}
+                    style={{ fontSize: "12px" }}
+                  />
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+
+            <div className="col-lg-12">
+              <div className="mb-3">
+                <label className="form-label fw-bold">Tên huyện</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Tên huyện..."
+                  defaultValue={request.Name}
+                  onChange={(e) => {
+                    setRequest({
+                      ...request,
+                      Name: e.target.value,
+                    });
+                  }}
+                  style={{ fontSize: "12px" }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row mt-3 mb-4 fixed-bottom">
+        <div className="col d-flex justify-content-end align-items-right">
+          <div className="text-sm-end">
+            <div className="col me-2 d-flex">
+              <button
+                type="button"
+                className="btn btn-success  me-2"
+                onClick={onSubmit}
+                style={{ fontSize: "12px" }}
+              >
+                Lưu
+              </button>
+              <button
+                type="button"
+                className="btn btn-warning   me-2"
+                onClick={onBack}
+                style={{ fontSize: "12px" }}
+              >
+                Trở lại
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

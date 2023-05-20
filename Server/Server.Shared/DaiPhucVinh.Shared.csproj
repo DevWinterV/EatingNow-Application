@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1D9FC869-B2BF-4381-92E2-C25360BDA137}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DaiPhucVinh.Shared</RootNamespace>
+    <AssemblyName>DaiPhucVinh.Shared</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs7EBD.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs43E9.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\Debug\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs7EBD.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs43E9.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\x86\Debug\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\x86\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CaptchaMvc, Version=2.5.0.0, Culture=neutral, PublicKeyToken=fe46ad421dd3b0e6, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CaptchaMvc.Mvc5.1.5.0\lib\net45-full\CaptchaMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Falcon.Web.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Framework\Falcon.Web.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\PosReportApp\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\PosReportApp\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\PosReportApp\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attendances\AttendancesRequest.cs" />
+    <Compile Include="Attendances\AttendancesResponse.cs" />
+    <Compile Include="Attendances\ExportAttendancesResponse.cs" />
+    <Compile Include="Auth\RoleDto.cs" />
+    <Compile Include="Auth\RoleRequest.cs" />
+    <Compile Include="Auth\Ticket.cs" />
+    <Compile Include="Auth\TokenRequest.cs" />
+    <Compile Include="Auth\TokenResponse.cs" />
+    <Compile Include="Auth\UserClaimDto.cs" />
+    <Compile Include="Auth\UserDto.cs" />
+    <Compile Include="Auth\UserLocalRequest.cs" />
+    <Compile Include="Catalogue\CatalogueDto.cs" />
+    <Compile Include="Catalogue\CatalogueImageResponse.cs" />
+    <Compile Include="Catalogue\CatalogueRequest.cs" />
+    <Compile Include="Catalogue\CatalogueResponse.cs" />
+    <Compile Include="CategoryItem\CategoryDto.cs" />
+    <Compile Include="CategoryItem\CategoryItemRequest.cs" />
+    <Compile Include="CategoryItem\CategoryItemResponse.cs" />
+    <Compile Include="Account\AccountRequest.cs" />
+    <Compile Include="Account\AccountResponse.cs" />
+    <Compile Include="CategoryList\CategoryListRequest.cs" />
+    <Compile Include="CategoryList\CategoryListResponse.cs" />
+    <Compile Include="Chart\ItemResponse.cs" />
+    <Compile Include="Chart\RevenueResponse.cs" />
+    <Compile Include="Chart\ChartRequest.cs" />
+    <Compile Include="Chart\PriceQuoteResponse.cs" />
+    <Compile Include="ChatRoom\ChatDescriptionRequest.cs" />
+    <Compile Include="ChatRoom\ChatDescriptionResponse.cs" />
+    <Compile Include="ChatRoom\ChatRoomRequest.cs" />
+    <Compile Include="ChatRoom\ChatRoomResponse.cs" />
+    <Compile Include="Checkin\CheckinRequest.cs" />
+    <Compile Include="Checkin\CheckinResponse.cs" />
+    <Compile Include="Common\BaseRequest.cs" />
+    <Compile Include="Common\BaseResponse.cs" />
+    <Compile Include="Common\Image\ImageDto.cs" />
+    <Compile Include="Common\Image\ImageResizeModes.cs" />
+    <Compile Include="Common\Image\ImageResponse.cs" />
+    <Compile Include="Common\Languages\LanguageRequest.cs" />
+    <Compile Include="Common\Languages\LanguageResourceRequest.cs" />
+    <Compile Include="Common\Languages\LanguageResourceResponse.cs" />
+    <Compile Include="Common\Languages\LanguageResponse.cs" />
+    <Compile Include="Common\SharedValues.cs" />
+    <Compile Include="Common\UploadFileDto.cs" />
+    <Compile Include="Common\UploadingResponse.cs" />
+    <Compile Include="Constants\GlobalMessage.cs" />
+    <Compile Include="Core\CommonErrorStatus.cs" />
+    <Compile Include="Core\CrudResult.cs" />
+    <Compile Include="Core\ListDto.cs" />
+    <Compile Include="Core\ResultDto.cs" />
+    <Compile Include="CustomerDto\EN_CustomerRequest.cs" />
+    <Compile Include="CustomerDto\EN_CustomerResponse.cs" />
+    <Compile Include="CustomerDto\FoodListOrder.cs" />
+    <Compile Include="FoodList\FoodListRequest.cs" />
+    <Compile Include="FoodList\FoodListResponse.cs" />
+    <Compile Include="Cuisine\CuisineRequest.cs" />
+    <Compile Include="Cuisine\CuisineResponse.cs" />
+    <Compile Include="AccountType\AccountTypeRequest.cs" />
+    <Compile Include="AccountType\AccountTypeResponse.cs" />
+    <Compile Include="OrderHeader\OrderLineReponse.cs" />
+    <Compile Include="Province\ProvinceRequest.cs" />
+    <Compile Include="Province\ProvinceResponse.cs" />
+    <Compile Include="Store\FilterStoreByCusineRequest.cs" />
+    <Compile Include="Store\StatisticalRequest.cs" />
+    <Compile Include="Store\StatisticalResponse.cs" />
+    <Compile Include="Store\StoreRequest.cs" />
+    <Compile Include="Store\StoreResponse.cs" />
+    <Compile Include="Ward\WardRequest.cs" />
+    <Compile Include="Ward\WardResponse.cs" />
+    <Compile Include="Employee\EmployeeRequest.cs" />
+    <Compile Include="Feedback\FeedbackRequest.cs" />
+    <Compile Include="Feedback\FeedbackResponse.cs" />
+    <Compile Include="ImageRecords\ImageRecordsRequest.cs" />
+    <Compile Include="ImageRecords\ImageRecordsResponse.cs" />
+    <Compile Include="Inventoryitem\InventoryItemExportResponse.cs" />
+    <Compile Include="ItemImages\ItemImageResponse.cs" />
+    <Compile Include="Notification\NotificationGroupRequest.cs" />
+    <Compile Include="Notification\NotificationGroupResponse.cs" />
+    <Compile Include="Notification\NotificationRequest.cs" />
+    <Compile Include="Notification\NotificationResponse.cs" />
+    <Compile Include="Notification\NotificationTypeRequest.cs" />
+    <Compile Include="Notification\NotificationTypeResponse.cs" />
+    <Compile Include="Post\PostMobileRequest.cs" />
+    <Compile Include="Post\PostMobileResponse.cs" />
+    <Compile Include="Product\ProductByCustomerDto.cs" />
+    <Compile Include="Product\ProductByCustomerResponse.cs" />
+    <Compile Include="Product\ProductDto.cs" />
+    <Compile Include="Product\ProductGroupMobileResponse.cs" />
+    <Compile Include="Product\ProductImageDto.cs" />
+    <Compile Include="Product\ProductSyncImage.cs" />
+    <Compile Include="ProjectImages\ImageResponse.cs" />
+    <Compile Include="ProjectImages\ProjectImageRequest.cs" />
+    <Compile Include="ProjectImages\ProjectImagesResponse.cs" />
+    <Compile Include="District\DistrictRequest.cs" />
+    <Compile Include="District\DistrictResponse.cs" />
+    <Compile Include="Quality\QualityRequest.cs" />
+    <Compile Include="Quality\QualityResponse.cs" />
+    <Compile Include="Report\ReportRequest.cs" />
+    <Compile Include="Report\ReportResponse.cs" />
+    <Compile Include="Task\TaskRequest.cs" />
+    <Compile Include="Task\TaskMobileResponse.cs" />
+    <Compile Include="Task\TaskResponse.cs" />
+    <Compile Include="Task\TaskResultRequest.cs" />
+    <Compile Include="Task\TaskResultResponse.cs" />
+    <Compile Include="Task\TaskStatusRequest.cs" />
+    <Compile Include="Task\TaskStatusResponse.cs" />
+    <Compile Include="Task\TaskTypeRequest .cs" />
+    <Compile Include="Task\TaskTypeResponse.cs" />
+    <Compile Include="TransactionInformation\TransactionHistoryTypeRequest.cs" />
+    <Compile Include="TransactionInformation\TransactionHistoryTypeResponse.cs" />
+    <Compile Include="UnitOfMeasure\UnitOfMeasureRequest.cs" />
+    <Compile Include="UnitOfMeasure\UnitOfMeasureResponse.cs" />
+    <Compile Include="UserGuides\UserGuidesRequest.cs" />
+    <Compile Include="UserGuides\UserGuidesResponse.cs" />
+    <Compile Include="User\RolesRequest.cs" />
+    <Compile Include="User\RolesResponse.cs" />
+    <Compile Include="Video\VideoRequest.cs" />
+    <Compile Include="Video\VideoResponse.cs" />
+    <Compile Include="Post\PostRequest.cs" />
+    <Compile Include="Post\PostResponse.cs" />
+    <Compile Include="Dayoffs\DayoffsRequest.cs" />
+    <Compile Include="Dayoffs\DayoffsResponse.cs" />
+    <Compile Include="User\UserRequest.cs" />
+    <Compile Include="User\UserResponse.cs" />
+    <Compile Include="Customer\CustomerTypeResponse.cs" />
+    <Compile Include="Employee\EmployeeResponse.cs" />
+    <Compile Include="HopDong\CR_HopDong.cs" />
+    <Compile Include="HopDong\HopDongRequest.cs" />
+    <Compile Include="HopDong\HopDongResponse.cs" />
+    <Compile Include="HopDong\HopDong_ChiTietRequest.cs" />
+    <Compile Include="HopDong\HopDong_ChiTietResponse.cs" />
+    <Compile Include="HopDong\HopDong_TemplateRequest.cs" />
+    <Compile Include="HopDong\HopDong_TemplateResponse.cs" />
+    <Compile Include="HopDong\WordStreamHopDongRequest.cs" />
+    <Compile Include="HopDong\WordStreamHopDongResponse.cs" />
+    <Compile Include="Inventoryitem\InventoryitemRequest.cs" />
+    <Compile Include="Inventoryitem\InventoryitemResponse.cs" />
+    <Compile Include="Location\LocationRequest.cs" />
+    <Compile Include="Location\LocationResponse.cs" />
+    <Compile Include="Customer\CustomerRequest.cs" />
+    <Compile Include="Customer\CustomerResponse.cs" />
+    <Compile Include="Excel\CustomerModel.cs" />
+    <Compile Include="Product\ProductImageRequest.cs" />
+    <Compile Include="Product\ProductImageResponse.cs" />
+    <Compile Include="Product\ProductItemGroupResponse.cs" />
+    <Compile Include="Product\ProductRequest.cs" />
+    <Compile Include="Product\ProductResponse.cs" />
+    <Compile Include="Product\QuestionProductRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LoaiDanhGia\LoaiDanhGiaRequest.cs" />
+    <Compile Include="LoaiDanhGia\LoaiDanhGiaResponse.cs" />
+    <Compile Include="Quotation\CR_BangBaoGia.cs" />
+    <Compile Include="Quotation\QuotationRequest.cs" />
+    <Compile Include="Quotation\QuotationResponse.cs" />
+    <Compile Include="OrderHeader\OrderHeaderRequest.cs" />
+    <Compile Include="OrderHeader\OrderHeaderResponse.cs" />
+    <Compile Include="Quotation\WordStreamRequest.cs" />
+    <Compile Include="Quotation\WordStreamResponse.cs" />
+    <Compile Include="TransactionInformation\AppointmentTrackingRequest.cs" />
+    <Compile Include="TransactionInformation\TransactionInformationRequest.cs" />
+    <Compile Include="TransactionInformation\AppointmentTrackingResponse.cs" />
+    <Compile Include="TransactionInformation\TransactionModalResponse.cs" />
+    <Compile Include="TransactionInformation\TransactionInformationResponse.cs" />
+    <Compile Include="Quotation\Quotation_LineResponse.cs" />
+    <Compile Include="Quotation\Quotation_TemplateRequest.cs" />
+    <Compile Include="Quotation\Quotation_TemplateResponse.cs" />
+    <Compile Include="WorkLog\WorkLogRequest.cs" />
+    <Compile Include="WorkLog\WorkLogResponse.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Server.Data\DaiPhucVinh.Server.Data.csproj">
+      <Project>{1F5351DC-5039-44DB-A680-6306A5A988EC}</Project>
+      <Name>DaiPhucVinh.Server.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
