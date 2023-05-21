@@ -69,7 +69,7 @@ export default function FormSection({ navigation }) {
   }
   return (
     <Div flex={1}>
-      <Text fontWeight="700" fontSize="3xl" mt={60}>
+      <Text fontWeight="700" fontSize="3xl" color="#ea5b10" mt={60}>
         Đăng nhập
       </Text>
 
@@ -101,14 +101,14 @@ export default function FormSection({ navigation }) {
           </Pressable>
         }
       />
-      <Text fontSize="md" color="red500" textAlign="right">
+      <Text fontSize="md" color="#ea5b10" textAlign="right">
         Quên mật khẩu?
       </Text>
 
       <Div row justifyContent="center" mt={32}>
         <Button
           block
-          bg="primary"
+          bg="#ea5b10"
           shadow="md"
           onPress={onLogin}
           h={50}
@@ -146,7 +146,7 @@ export default function FormSection({ navigation }) {
         Bạn chưa có tài khoản?{" "}
         <Text
           fontSize="lg"
-          color="primary"
+          color="#ea5b10"
           fontWeight="bold"
           onPress={() => navigation.navigate("Signup")}
         >

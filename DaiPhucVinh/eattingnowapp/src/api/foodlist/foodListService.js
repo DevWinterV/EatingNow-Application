@@ -7,6 +7,8 @@ const API = {
   DeleteFoodList: "/DeleteFoodList",
   UpdateFoodList: "/UpdateFoodList",
   TakeFoodListById: "/TakeFoodListById",
+  ChangeIsNoiBatFoodList: "/ChangeIsNoiBatFoodList",
+  ChangeIsNewFoodList: "/ChangeIsNewFoodList",
 };
 
 const CreateFoodItem = async (request) => {
@@ -83,4 +85,43 @@ const TakeFoodListById = async (FoodListId) => {
   return result;
 };
 
-export { CreateFoodItem, DeleteFoodList, UpdateFoodList, TakeFoodListById };
+const ChangeIsNoiBatFoodList = async (e) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.ChangeIsNoiBatFoodList,
+      {
+        FoodListId: e,
+      },
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const ChangeIsNewFoodList = async (e) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.ChangeIsNewFoodList,
+      {
+        FoodListId: e,
+      },
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+export { CreateFoodItem, DeleteFoodList, UpdateFoodList, TakeFoodListById, ChangeIsNoiBatFoodList, ChangeIsNewFoodList };

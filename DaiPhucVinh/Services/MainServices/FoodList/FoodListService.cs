@@ -26,8 +26,10 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<bool>> CreateFoodItem(FoodListRequest request, HttpPostedFile file);
         Task<BaseResponse<bool>> UpdateFoodListHaveImage(FoodListRequest request, HttpPostedFile file);
         Task<BaseResponse<bool>> UpdateFoodListNotImage(FoodListRequest request); 
-         Task<BaseResponse<bool>> DeleteFoodList(FoodListRequest request);
-         Task<BaseResponse<FoodListResponse>> TakeFoodListById(int FoodListId);
+        Task<BaseResponse<bool>> DeleteFoodList(FoodListRequest request);
+        Task<BaseResponse<FoodListResponse>> TakeFoodListById(int FoodListId);
+        Task<BaseResponse<bool>> ChangeIsNoiBatFoodList(FoodListRequest request);
+        Task<BaseResponse<bool>> ChangeIsNewFoodList(FoodListRequest request);
     }
     public class FoodListService : IFoodListService
     {
@@ -189,6 +191,40 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             {
                 var foodList = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId == request.FoodListId);
                 _datacontext.EN_FoodList.Remove(foodList);
+                await _datacontext.SaveChangesAsync();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public async Task<BaseResponse<bool>> ChangeIsNoiBatFoodList(FoodListRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var foodList = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId == request.FoodListId);
+                foodList.IsNoiBat = !request.IsNoiBat;
+                await _datacontext.SaveChangesAsync();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public async Task<BaseResponse<bool>> ChangeIsNewFoodList(FoodListRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var foodList = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId == request.FoodListId);
+                foodList.IsNew = !request.IsNew;
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
             }

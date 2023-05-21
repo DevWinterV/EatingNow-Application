@@ -22,7 +22,7 @@ export default function PhoenixInput({
     <Div my={8} flex={flex}>
       {verticalLabel && (
         <Div row>
-          <Text mb={4} fontSize={"lg"}>
+          <Text mb={4} fontSize={"lg"} color="#ea5b10">
             {label}{" "}
           </Text>
           {required && <Text color="red">*</Text>}

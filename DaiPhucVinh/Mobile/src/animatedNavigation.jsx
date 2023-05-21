@@ -42,12 +42,12 @@ const AnimatedNavigation = () => {
         icon = "person-outline";
         title = "Cá nhân";
         break;
-      case "Location":
-        title = "Chi nhánh";
+      case "Store":
+        title = "Cửa hàng";
         icon = "map-outline";
         break;
-      case "Booking":
-        title = "Đặt hẹn";
+      case "Order":
+        title = "Đơn hàng";
         icon = "ribbon-outline";
         break;
       case "CustomerAccount":
@@ -77,8 +77,8 @@ const AnimatedNavigation = () => {
               pb: 16,
             })}
           >
-            <Icon name={icon} fontSize="4xl" fontFamily="Ionicons" color={"primary"} />
-            <Text fontSize={"sm"} color="primary">
+            <Icon name={icon} fontSize="4xl" fontFamily="Ionicons" color={"#ea5b10"} />
+            <Text fontSize={"sm"} color="#ea5b10">
               {title}
             </Text>
           </Div>
@@ -180,7 +180,7 @@ const AnimatedNavigation = () => {
       strokeWidth={0.5}
       height={iOSPlatform ? 65 : 55}
       circleWidth={55}
-      bgColor="white"
+      bgColor="#ffedd5"
       swipeEnabled
       renderCircle={({ selectedTab, navigate }) => (
         <Animated.View style={styles.btnCircle}>
@@ -204,6 +204,18 @@ const AnimatedNavigation = () => {
         options={{ headerShown: false }}
         component={HomePage}
         position="LEFT"
+      />
+      <CurvedBottomBar.Screen
+        name="Store"
+        options={{ headerShown: false }}
+        component={LocationPage}
+        position="LEFT"
+      />
+      <CurvedBottomBar.Screen
+        name="Order"
+        options={{ headerShown: false }}
+        component={LocationPage}
+        position="RIGHT"
       />
       <CurvedBottomBar.Screen
         name="Profile"
@@ -245,7 +257,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#119ca6",
+    backgroundColor: "#ea5b10",
     padding: 10,
     shadowColor: "#000",
     shadowOffset: {
