@@ -97,5 +97,18 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("ChangeIsNewFoodList")]
         public async Task<BaseResponse<bool>> ChangeIsNewFoodList([FromBody] FoodListRequest request) => await _foodListService.ChangeIsNewFoodList(request);
+
+        [HttpPost]
+        [Route("TakeFoodListByHint")]
+        public async Task<BaseResponse<FoodListResponse>> TakeFoodListByHint() => await _foodListService.TakeFoodListByHint();
+
+        [HttpPost]
+        [Route("TakeBestSeller")]
+        public async Task<BaseResponse<FoodListResponse>> TakeBestSeller() => await _foodListService.TakeBestSeller();
+
+        [HttpPost]
+        [Route("TakeNewFood")]
+        public async Task<BaseResponse<FoodListResponse>> TakeNewFood() => await _foodListService.TakeNewFood();
+
     }
 }

@@ -36,9 +36,7 @@ import { AppKey, getCache } from "../framework/cache";
 // };
 
 export const Proxy = async (method, api, request) => {
-  console.log("method", method);
-  console.log("api", api);
-  console.log("request", request);
+  console.log(method, api, request);
   try {
     if (method.toLowerCase() === "get") {
       let requestMethod = {
@@ -51,6 +49,7 @@ export const Proxy = async (method, api, request) => {
       return reponse;
     }
   } catch (err) {
+    console.log(err);
     return null;
   }
 };

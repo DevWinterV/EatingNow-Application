@@ -8,6 +8,7 @@ using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
 using DaiPhucVinh.Shared.Province;
 using DaiPhucVinh.Shared.Store;
+using DaiPhucVinh.Shared.User;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Web;
@@ -87,5 +88,18 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeStatisticalByStoreId")]
         public async Task<BaseResponse<StatisticalResponse>> TakeStatisticalByStoreId([FromBody] StatisticalRequest request) => await _storeService.TakeStatisticalByStoreId(request);
+
+        [HttpPost]
+        [Route("TakeStoreByUserLogin")]
+        public async Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter) => await _storeService.TakeStoreByUserLogin(filter);
+        
+        [HttpPost]
+        [Route("TakeStoreByCuisineUserLogin")]
+        public async Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter) => await _storeService.TakeStoreByCuisineUserLogin(filter);
+        
+        [HttpPost]
+        [Route("PostAllFoodListByStoreId")]
+        public async Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId([FromBody] SimpleUserRequest request) => await _storeService.PostAllFoodListByStoreId(request);
+
     }
 }

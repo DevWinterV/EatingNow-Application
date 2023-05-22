@@ -1,38 +1,64 @@
 import * as React from "react";
-import { Div, Icon, StatusBar, Text } from "react-native-magnus";
+import { Button, Div, Icon, StatusBar, Text } from "react-native-magnus";
 import { AuthContext } from "../../framework/context";
 import { GetCurrentUser } from "../../api/auth";
 import { AppKey, setCache } from "../../framework/cache";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeNavigation() {
-  const { role } = React.useContext(AuthContext);
-  const [authUser, setAuthUser] = React.useState(null);
+  // const { role } = React.useContext(AuthContext);
+  // const [authUser, setAuthUser] = React.useState(null);
+  const [cartItems, setCartItems] = React.useState([]);
+  const role = "user";
+  const authUser = {
+    CustomerName: "...",
+  };
   async function onViewAppearing() {
-    var response = await GetCurrentUser();
-    if (response.success) {
-      setAuthUser(response.data);
-      await setCache(AppKey.CURRENTUSER, response.data);
-    }
+    // var response = await GetCurrentUser();
+    // if (response.success) {
+    //   setAuthUser(response.data);
+    //   await setCache(AppKey.CURRENTUSER, response.data);
+    // }
   }
   React.useEffect(() => {
     onViewAppearing();
   }, [role]);
+  React.useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const storedCartItems = await AsyncStorage.getItem("cartItems");
+        if (storedCartItems) {
+          setCartItems(JSON.parse(storedCartItems));
+        }
+      } catch (error) {
+        console.log("Error retrieving cart items:", error);
+      }
+    };
+    fetchCartItems();
+  }, []);
   return (
-    <Div mt={12} bg="body">
+    <Div mt={12} bg="transparent" minH={40} justifyContent="space-between" row>
       <StatusBar translucent backgroundColor={"transparent"} barStyle={"dark-content"} />
       {role && (
-        <Div row>
-          <Div flex={1}>
-            <Text fontSize={"xl"} fontWeight="bold">
-              Chào, {authUser?.CustomerName}
-            </Text>
-            <Div row my={4}>
-              <Icon name="location" fontFamily="Ionicons" color="orange500" />
-              <Text>{[authUser?.CustomerAddress, authUser?.CustomerDistrictName].join(", ")}</Text>
-            </Div>
-          </Div>
+        <Div flex={1}>
+          <Text fontSize={"xl"} fontWeight="bold">
+            Chào, {authUser?.CustomerName}
+          </Text>
         </Div>
       )}
+      <Button
+        bg="transparent"
+        prefix={
+          <React.Fragment>
+            <Icon color="orange" name="shopping-cart" fontFamily="Feather" fontSize={"5xl"} />
+            {cartItems.length > 0 && (
+              <Text color="orange" top={-15} fontSize={14} fontWeight="bold">
+                {cartItems.length}
+              </Text>
+            )}
+          </React.Fragment>
+        }
+      />
       {/* <PhoenixInput
         verticalLabel={false}
         bg={"gray200"}

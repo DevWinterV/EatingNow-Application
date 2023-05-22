@@ -12,5 +12,7 @@ namespace DaiPhucVinh.Shared.Store
         public double? revenueWeek { get; set; }
         public double? revenueMonth { get; set; }
         public double? revenueYear { get; set; }
+        public List<StatisticalChart> listChart { get; set; }
+
     }
 }

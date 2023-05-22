@@ -12,6 +12,7 @@ using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
 using DaiPhucVinh.Shared.Province;
 using DaiPhucVinh.Shared.Store;
+using DaiPhucVinh.Shared.User;
 using Falcon.Core.Domain.Messages;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
@@ -46,6 +47,9 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id);
         Task<BaseResponse<OrderLineReponse>> GetListOrderLineDetails(string Id);
         Task<BaseResponse<StatisticalResponse>> TakeStatisticalByStoreId(StatisticalRequest request);
+        Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter);
+        Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter);
+        Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId(SimpleUserRequest request);
     }
     public class StoreService : IStoreService
     {
@@ -64,6 +68,45 @@ namespace DaiPhucVinh.Services.MainServices.Province
             _commonService = commonService;
             _settingService = settingService;
             _logger = logger;
+        }
+
+        public async Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter)
+        {
+            var result = new BaseResponse<StoreResponse> { };
+            try
+            {
+                var query = _datacontext.EN_Store.Where(x => x.Status && x.CuisineId == filter.CuisineId).AsQueryable();
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, filter.Count).MapTo<StoreResponse>();
+                result.Data = resultList;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public async Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter)
+        {
+            var result = new BaseResponse<StoreResponse> { };
+            try
+            {
+                var query = _datacontext.EN_Store.Where(x => x.Status).AsQueryable();
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, filter.Count).MapTo<StoreResponse>();
+                result.Data = resultList;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
         }
         public async Task<BaseResponse<StoreResponse>> TakeAllStore(StoreRequest request)
         {
@@ -131,6 +174,28 @@ namespace DaiPhucVinh.Services.MainServices.Province
             {
                 var query = _datacontext.EN_FoodList.AsQueryable();
                 query = query.Where(d => d.UserId == Id);
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                var resultList = data.MapTo<FoodListResponse>();
+                result.Data = resultList;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId(SimpleUserRequest request)
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                if (request.Id == null) return result;
+                var query = _datacontext.EN_FoodList.AsQueryable();
+                query = query.Where(d => d.UserId == request.Id);
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = data.MapTo<FoodListResponse>();
@@ -322,10 +387,14 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {
                 result.Item = new StatisticalResponse();
+                result.Item.listChart = new List<StatisticalChart>();
+                List<StatisticalChart> statisticalCharts = new List<StatisticalChart>();
+
                 DateTime now = DateTime.Now; // get current date and time
-                //Doanh thu ngày
-                double? getStatisticalStoreDate = await _datacontext.EN_OrderHeader.Where(x => x.UserId == request.storeId && x.CreationDate.Value.Day == now.Day).SumAsync(x => x.IntoMoney);
-                result.Item.revenueDate = getStatisticalStoreDate;
+                double? getStatisticalStoreDate = await _datacontext.EN_OrderHeader
+                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Day == now.Day)
+                    .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                result.Item.revenueDate = getStatisticalStoreDate ?? 0;
 
                 //Doanh thu tuần
                 int currentWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(now, CalendarWeekRule.FirstDay, DayOfWeek.Sunday);
@@ -336,17 +405,37 @@ namespace DaiPhucVinh.Services.MainServices.Province
 
                 double? getStatisticalStoreWeek = ordersInCurrentWeek
                     .Where(x => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(x.CreationDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Sunday) == currentWeek)
-                    .Sum(x => x.IntoMoney);
+                    .Sum(x => (double?)x.IntoMoney ?? 0);
 
-                result.Item.revenueWeek = getStatisticalStoreWeek;
+                result.Item.revenueWeek = getStatisticalStoreWeek ?? 0;
 
                 //Doanh thu tháng
-                double? getStatisticalStoreMonth = await _datacontext.EN_OrderHeader.Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == now.Month).SumAsync(x => x.IntoMoney);
-                result.Item.revenueMonth = getStatisticalStoreMonth;
+                double? getStatisticalStoreMonth = await _datacontext.EN_OrderHeader
+                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == now.Month)
+                .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
 
                 //Doanh thu năm
-                double? getStatisticalStoreYear = await _datacontext.EN_OrderHeader.Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year).SumAsync(x => x.IntoMoney);
-                result.Item.revenueYear = getStatisticalStoreYear;
+                double? getStatisticalStoreYear = await _datacontext.EN_OrderHeader
+                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year)
+                .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                result.Item.revenueYear = getStatisticalStoreYear ?? 0;
+
+                //Thong ke chart
+                for (int i = 1; i <= 12; i++)
+                {
+                    double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
+                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i)
+                    .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                    result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
+
+                    StatisticalChart chart = new StatisticalChart()
+                    {
+                        revenueMonth = getStatisticalChartMonth,
+                        nameMonth = $"Thang " + i,
+                    };
+                    result.Item.listChart.Add(chart);
+                }
 
                 result.Success = true;
             }

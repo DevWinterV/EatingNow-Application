@@ -1,16 +1,16 @@
 import * as React from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import { Div, Image, ScrollDiv, Text } from "react-native-magnus";
 import { TakeAllsPost, TakeAllsService } from "../../api/service/service";
 import { useState } from "react";
+import { TakeAllCuisine } from "../../api/Cuisine/cuisineService";
+import { useNavigation } from "@react-navigation/native";
 export default function HomeCategories() {
+  const navigation = useNavigation();
   const [services, setServices] = useState(null);
 
   async function ControlInit() {
-    let response = await TakeAllsService({
-      page: 0,
-      pageSize: 100,
-    });
+    let response = await TakeAllCuisine({});
     if (response.success) {
       setServices(response.data);
     }
@@ -27,23 +27,29 @@ export default function HomeCategories() {
 
   const ItemTemplate = (props) => {
     return (
-      <Div mr={16} my={16} alignItems="center">
-        <Image
-          source={{ uri: props?.ImageMainAbsolutePath?.replace("localhost", "192.168.1.28") }}
-          h={64}
-          w={64}
-        />
-        <Text textAlign="center" my={8}>
-          {props.Title}
-        </Text>
+      <Div mr={24} my={16} alignItems="center">
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("StoreByCuisine", { dataCuisine: props });
+          }}
+        >
+          <Image
+            source={{ uri: props?.AbsoluteImage?.replace("localhost", "192.168.1.50") }}
+            h={96}
+            w={96}
+          />
+          <Text textAlign="center" fontWeight="500" my={8}>
+            {props.Name}
+          </Text>
+        </TouchableOpacity>
       </Div>
     );
   };
   return (
     <Div my={8}>
       <Div row justifyContent="center" alignItems="center">
-        <Text flex={1} fontWeight="bold" fontSize={"2xl"}>
-          Dịch vụ
+        <Text flex={1} fontWeight={700} fontSize={"2xl"}>
+          Menu
         </Text>
         {/* <Text color="sky">Xem tất cả</Text> */}
       </Div>

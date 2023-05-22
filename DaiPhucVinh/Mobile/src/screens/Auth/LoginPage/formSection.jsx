@@ -8,9 +8,12 @@ import GoogleSVG from "../../../../assets/svg/google.svg";
 import { Login } from "../../../api/auth";
 import { AppKey, setCache } from "../../../framework/cache";
 import { LoginInFront } from "../../../api/authThen/authService";
+import auth from "@react-native-firebase/auth";
+import SmsAndroid from "react-native-sms";
 
 export default function FormSection({ navigation }) {
-  const [username, setUsername] = React.useState("0383311707");
+  const [confirmation, setConfirmation] = React.useState(null);
+  const [username, setUsername] = React.useState("0976112470");
   const [password, setPassword] = React.useState("123456");
   const [isSecure, setSecure] = React.useState(true);
   const [isBusy, setIsBusy] = React.useState(false);
@@ -67,6 +70,32 @@ export default function FormSection({ navigation }) {
       return false;
     }
   }
+
+  const sendVerificationCode = async () => {
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(username);
+      setConfirmation(confirmation); // Store the confirmation object
+      console.log("confirmation", confirmation);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  function sendOTP() {
+    const phoneNumber = "0976112470"; // Replace with the desired phone number
+    const message = "Your OTP is: 123456"; // Replace with the actual OTP
+    console.log("phoneNumber", phoneNumber);
+    SmsAndroid.autoSend(
+      phoneNumber,
+      message,
+      (fail) => {
+        console.log("Failed to send OTP:", fail);
+      },
+      (success) => {
+        console.log("OTP sent successfully!", success);
+      }
+    );
+  }
   return (
     <Div flex={1}>
       <Text fontWeight="700" fontSize="3xl" color="#ea5b10" mt={60}>
@@ -82,35 +111,12 @@ export default function FormSection({ navigation }) {
         prefix={<Icon name="phone" fontFamily="Feather" fontSize={16} />}
       />
       <Div my={4} />
-      <PhoenixInput
-        verticalLabel
-        label={"Mật khẩu"}
-        placeholder="Mật khẩu"
-        secure={isSecure}
-        value={password}
-        onChangeText={(e) => setPassword(e)}
-        prefix={<Icon name="lock" fontFamily="Feather" fontSize={16} />}
-        suffix={
-          <Pressable onPress={() => setSecure(!isSecure)}>
-            <Icon
-              name={isSecure ? "eye-off" : "eye"}
-              fontFamily="Feather"
-              fontSize={16}
-              color="black"
-            />
-          </Pressable>
-        }
-      />
-      <Text fontSize="md" color="#ea5b10" textAlign="right">
-        Quên mật khẩu?
-      </Text>
-
       <Div row justifyContent="center" mt={32}>
         <Button
           block
           bg="#ea5b10"
           shadow="md"
-          onPress={onLogin}
+          onPress={sendOTP}
           h={50}
           rounded={12}
           loading={isBusy}

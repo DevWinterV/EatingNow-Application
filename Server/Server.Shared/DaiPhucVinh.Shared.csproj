@@ -142,10 +142,12 @@
     <Compile Include="Province\ProvinceRequest.cs" />
     <Compile Include="Province\ProvinceResponse.cs" />
     <Compile Include="Store\FilterStoreByCusineRequest.cs" />
+    <Compile Include="Store\StatisticalChart.cs" />
     <Compile Include="Store\StatisticalRequest.cs" />
     <Compile Include="Store\StatisticalResponse.cs" />
     <Compile Include="Store\StoreRequest.cs" />
     <Compile Include="Store\StoreResponse.cs" />
+    <Compile Include="User\SimpleUserRequest.cs" />
     <Compile Include="Ward\WardRequest.cs" />
     <Compile Include="Ward\WardResponse.cs" />
     <Compile Include="Employee\EmployeeRequest.cs" />

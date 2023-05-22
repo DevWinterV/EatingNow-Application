@@ -9,6 +9,7 @@ import {
   CustomerTrackingServicePage,
 } from "../Customer";
 import HomePostDetailPage from "../HomePage/HomePostDetailPage";
+import StoreByCuisine from "../HomePage/StoreByCuisine";
 import LocationPage from "../LocationPage";
 import { DocumentWithAttachPage, PartnerAccountPage } from "../Partner";
 const SiteMap = [
@@ -63,6 +64,10 @@ const SiteMap = [
   {
     name: "DeleteAccount",
     component: DeleteAccountPage,
+  },
+  {
+    name: "StoreByCuisine",
+    component: StoreByCuisine,
   },
 ];
 export { SiteMap };

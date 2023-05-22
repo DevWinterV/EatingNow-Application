@@ -23,8 +23,8 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public string Description { get; set; }
         public int UserId { get; set; }
         public bool Status { get; set; }
-        public int Hint { get; set; }
-        public bool IsNew { get; set; }
-        public bool IsNoiBat { get; set; }
+        public int? Hint { get; set; }
+        public bool? IsNew { get; set; }
+        public bool? IsNoiBat { get; set; }
     }
 }

@@ -7,11 +7,9 @@ const API = {
 };
 
 const LoginInFront = async (request) => {
-  console.log("request", request);
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy("post", ServiceEndPoint + API.LoginInFront, request, true);
-    console.log("response", response);
     if (response.data.Success) {
       result.success = true;
       result.data = response.data.Data;

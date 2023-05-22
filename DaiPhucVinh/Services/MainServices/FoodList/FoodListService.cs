@@ -30,6 +30,9 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<FoodListResponse>> TakeFoodListById(int FoodListId);
         Task<BaseResponse<bool>> ChangeIsNoiBatFoodList(FoodListRequest request);
         Task<BaseResponse<bool>> ChangeIsNewFoodList(FoodListRequest request);
+        Task<BaseResponse<FoodListResponse>> TakeFoodListByHint();
+        Task<BaseResponse<FoodListResponse>> TakeBestSeller();
+        Task<BaseResponse<FoodListResponse>> TakeNewFood();
     }
     public class FoodListService : IFoodListService
     {
@@ -48,6 +51,77 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             _commonService = commonService;
             _settingService = settingService;
             _logger = logger;
+        }
+
+        public async Task<BaseResponse<FoodListResponse>> TakeFoodListByHint()
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var data = await _datacontext.EN_FoodList.Where(x => x.Hint != null).OrderBy(d => d.Hint).Take(10).ToListAsync();
+                result.Data = data.MapTo<FoodListResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<FoodListResponse>> TakeBestSeller()
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var query = _datacontext.EN_FoodList.Where(s => s.IsNoiBat == true).GroupBy(x => x.UserId).Select(d => new
+                {
+                    UserId = d.Key,
+                    Items = d.Take(2).ToList()
+                }).ToList();
+                var data = new List<FoodListResponse>();
+                foreach (var item in query)
+                {
+                    if (item.Items != null && item.Items.Count > 0)
+                        data.AddRange(item.Items.MapTo<FoodListResponse>());
+                }
+                result.Data = data;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<FoodListResponse>> TakeNewFood()
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var query = _datacontext.EN_FoodList.Where(s => s.IsNew == true).GroupBy(x => x.UserId).Select(d => new
+                {
+                    UserId = d.Key,
+                    Items = d.Take(2).ToList()
+                }).ToList();
+                var data = new List<FoodListResponse>();
+                foreach (var item in query)
+                {
+                    if (item.Items != null && item.Items.Count > 0)
+                        data.AddRange(item.Items.MapTo<FoodListResponse>());
+                }
+                result.Data = data;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
         }
         public async Task<BaseResponse<bool>> CreateFoodItem(FoodListRequest request, HttpPostedFile file)
         {

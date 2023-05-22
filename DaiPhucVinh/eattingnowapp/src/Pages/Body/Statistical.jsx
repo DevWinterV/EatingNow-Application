@@ -15,7 +15,7 @@ import { TakeStatisticalByStoreId } from "../../api/store/storeService";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Statistical = () => {
-  const [dataLoaiTaiSan, setDataLoaiTaiSan] = React.useState({
+  const [thongKeThang, setThongKeThang] = React.useState({
     labels: [],
     datasets: [
       {
@@ -48,17 +48,37 @@ const Statistical = () => {
     revenueMonth: 0,
     revenueWeek: 0,
     revenueYear: 0,
+    listChart: {}
   });
   const [{ user }] = useStateValue();
   async function onViewAppearing() {
     if (user) {
       let response = await TakeStatisticalByStoreId({...data, storeId: user?.UserId});
+      const chartLabelsMonth =
+      response.item.listChart.map(
+          (item) => item.nameMonth
+        );
+      const dataChartSoLuongKhachHangTheoNgay =
+      response.item.listChart.map(
+          (item) => item.revenueMonth
+        );
+        setThongKeThang({
+        labels: chartLabelsMonth,
+        datasets: [
+          {
+            label: "Tổng số lượng được tạo trong ngày ",
+            data: dataChartSoLuongKhachHangTheoNgay,
+            backgroundColor: ['#29e916'],
+          },
+        ],
+      });
       setData(response.item);
     }
   }
   useEffect(() => {
     onViewAppearing();
   }, []);
+  console.log("data", data)
   return (
     <div className="bg-bodyBg h-[100%] basis-80 p-8 overflow-x-scroll scrollbar-none">
       <div className="flex items-center justify-between">
@@ -91,25 +111,25 @@ const Statistical = () => {
       <div className="w-full h-40 flex items-center gap-5 scroll-smooth overflow-hidden justify-center mb-12 backdrop-blur">
         <div className="border-4 border-orange-100 w-275 h-full min-w-[275px] md:w-200 md:min-w-[200px] rounded-3xl py-1 px-2 my-2 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-evenly relative">
           <h6 className="text-[18px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">Doanh thu hôm nay</h6>
-          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data.revenueDate.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
+          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueDate?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
         <div className="border-4 border-orange-100 w-275 h-full min-w-[275px] md:w-200 md:min-w-[200px] rounded-3xl py-1 px-2 my-2 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-evenly relative">
           <h6 className="text-[18px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">Doanh thu tuần này</h6>
-          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data.revenueWeek.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
+          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueWeek?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
         <div className="border-4 border-orange-100 w-275 h-full min-w-[275px] md:w-200 md:min-w-[200px] rounded-3xl py-1 px-2 my-2 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-evenly relative">
           <h6 className="text-[18px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">Doanh thu tháng này</h6>
-          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data.revenueMonth.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
+          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueMonth?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
         <div className="border-4 border-orange-100 w-275 h-full min-w-[275px] md:w-200 md:min-w-[200px] rounded-3xl py-1 px-2 my-2 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-evenly relative">
           <h6 className="text-[18px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">Doanh thu năm nay</h6>
-          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data.revenueYear.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
+          <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueYear?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
       </div>
       <div className="w-full">
         <Bar
           height="auto"
-          data={dataTop10TaiSan}
+          data={thongKeThang}
           options={{
             indexAxis: "x",
             plugins: {
