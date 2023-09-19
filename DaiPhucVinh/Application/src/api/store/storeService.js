@@ -4,6 +4,8 @@ import { BaseResponse } from "../BaseResponse";
 const ServiceEndPoint = ServerEndPoint + "/store";
 const API = {
   TakeAllStore: "/TakeAllStore",
+  TakeAllDeliveryDriver: "/TakeAllDeliveryDriver",
+  TakeAllOrder: "/TakeAllOrder",
   CreateNewStore: "/CreateNewStore",
   UpdateNewStore: "/UpdateNewStore",
   DeleteStore: "/DeleteStore",
@@ -18,6 +20,27 @@ const TakeAllStore = async (request) => {
     let response = await Proxy(
       "post",
       ServiceEndPoint + API.TakeAllStore,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+
+const TakeAllDeliveryDriver = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeAllDeliveryDriver,
       request,
       true
     );
@@ -146,6 +169,7 @@ const ApproveStore = async (request) => {
 
 export {
   TakeAllStore,
+  TakeAllDeliveryDriver,
   CreateNewStore,
   UpdateNewStore,
   DeleteStore,

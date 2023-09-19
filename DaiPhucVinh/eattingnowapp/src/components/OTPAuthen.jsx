@@ -78,6 +78,7 @@ const OTPAuthen = () => {
           customer: res.user.uid,
         });
         localStorage.setItem("customer", JSON.stringify(res.user.uid));
+        
         dispatch({
           type: actionType.SET_LINKED,
           linked: !linked,

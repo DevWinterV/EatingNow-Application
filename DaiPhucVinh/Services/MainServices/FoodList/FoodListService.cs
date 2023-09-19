@@ -5,6 +5,7 @@ using DaiPhucVinh.Services.Helper;
 using DaiPhucVinh.Services.MainServices.Common;
 using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.FoodList;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
@@ -33,6 +34,8 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<FoodListResponse>> TakeFoodListByHint();
         Task<BaseResponse<FoodListResponse>> TakeBestSeller();
         Task<BaseResponse<FoodListResponse>> TakeNewFood();
+        Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request);
+
     }
     public class FoodListService : IFoodListService
     {
@@ -366,5 +369,118 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     return false;
             }
         }
+        /// <summary>
+        /// Rạng Đông - 0766837068
+        /// API gọi ý món ăn yêu thích dựa trên lịch sử mua hàng của khách hàng. Lọc ra những loại món ăn yêu thích
+        /// của khách hàng và lọc ra những cửa hàng gần với tọa độ vị trí của khách hàng nhất trong phạm vi 8 km
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request)
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var recommendedFoods = new List<EN_FoodList>();
+                // Lấy danh sách các cửa hàng 
+                var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
+                // Nếu khách hàng đã đăng nhập
+                if (request.CustomerId != null)
+                {
+                    // Lịch sử mua của khách hàng
+
+                    var query = from orderLine in _datacontext.EN_OrderLine
+                                join orderHeader in _datacontext.EN_OrderHeader on orderLine.OrderHeaderId equals orderHeader.OrderHeaderId
+                                where orderHeader.CustomerId == request.CustomerId
+                                select orderLine;
+                    var orderlines = query.ToList();
+                    if(orderlines.Count > 0)
+                    {
+                        // lấy Danh sách các loại món ăn yêu thich dựa vào phân tích 
+                        var userPreferences = AnalyzeUserPreferences(orderlines);
+
+                        // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
+                        var newStores = new List<EN_Store>();
+                        foreach (var store in stores)
+                        {
+                            if (Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude) <= 8)
+                            {
+                                newStores.Add(store);
+                            }
+                        }
+                        // Lấy danh sách món ăn đề xuất dựa trên loại món ăn yêu thích, gần với  tọa độ người dùng và đánh giá của cửa hàng >= 4*
+                        foreach (var userPreference in userPreferences)
+                        {
+                            foreach (var store in stores)
+                            {
+                                var results = _datacontext.EN_FoodList.Where(x => x.CategoryId == userPreference && x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
+                                recommendedFoods.AddRange(results);
+                            }
+                        }
+                    }else{
+                        foreach (var store in stores)
+                        {
+                            var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
+                            recommendedFoods.AddRange(results);
+                        }
+                    }    
+    
+                    //
+                    result.Data = recommendedFoods.MapTo<FoodListResponse>();
+                    result.Success = true;
+                }   
+                // Nếu khách hàng là người mới chưa có tài khoản
+                else
+                {
+                    foreach (var store in stores)
+                    {
+                        var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
+                        recommendedFoods.AddRange(results);
+                    }
+                    result.Data = recommendedFoods.MapTo<FoodListResponse>();
+                    result.Success = true;
+                }    
+             }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        // Phân tích dữ liệu sở thích món ăn của người dùng 
+        static List<int> AnalyzeUserPreferences(List<EN_OrderLine> orderLines)
+        {
+            var userPreferences = orderLines
+                .GroupBy(ol => ol.CategoryId)
+                .OrderByDescending(group => group.Count())
+                .Select(group => group.Key)
+                .ToList();
+
+            return userPreferences;
+        }
+
+
+
+        public static double ToRadians(double degree)
+        {
+            return degree * Math.PI / 180;
+        }
+
+        //Tính khoảng cách giữa 2 toạ độ
+        public static double Distance(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371; // đường kính trái đất (km)
+            var dLat = ToRadians(lat2 - lat1);
+            var dLon = ToRadians(lon2 - lon1);
+            var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                    Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                    Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            var c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
+            var distance = R * c; // khoảng cách giữa hai điểm (km)
+            return Math.Round(distance, 1);
+        }
+
     }
 }

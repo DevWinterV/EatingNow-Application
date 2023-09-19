@@ -110,7 +110,7 @@ const MenuContainer = ({ data, state }) => {
               <Loader />
             </div>
           ) : (
-            <RowContainer flag={false} rowData={rowData} />
+            <RowContainer flag={true} rowData={rowData} />
           )}
         </div>
       </div>

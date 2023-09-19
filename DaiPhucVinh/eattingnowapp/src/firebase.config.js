@@ -1,22 +1,50 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
+import {getAuth} from "firebase/auth";
+import { getMessaging, getToken ,onMessage} from "firebase/messaging";
+import Notification from "react-push-notification";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCOoS_wgIPkSIExHRzJoij7I2n1QXhsEZ8",
-  authDomain: "otp-project-59628.firebaseapp.com",
-  projectId: "otp-project-59628",
-  storageBucket: "otp-project-59628.appspot.com",
-  messagingSenderId: "712142032339",
-  appId: "1:712142032339:web:882b41d5cbcc7a5f407326",
-  measurementId: "G-P4ZGJSTJY5",
+  apiKey: "AIzaSyBerAmPafM3WcAH_lTtM3af7u5xDWSjvEI",
+  authDomain: "eating-now.firebaseapp.com",
+  projectId: "eating-now",
+  storageBucket: "eating-now.appspot.com",
+  messagingSenderId: "334588390943",
+  appId: "1:334588390943:web:4404c6edf638bae7f6ef2a",
+  measurementId: "G-0TQ4V1JGW7"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
+const analytics = getAnalytics(app);
+const firestore = getFirestore(app);
+// Initialize Firebase Cloud Messaging and get a reference to the service
 export const auth = getAuth(app);
+// Get registration token. Initially this makes a network call, once retrieved
+// subsequent calls to getToken will return from cache.
+
+
+// Get registration token. Initially this makes a network call, once retrieved
+// subsequent calls to getToken will return from cache.
+export const messaging = getMessaging();
+
+
+onMessage(messaging, (payload) => {
+  console.log('Message received. ', payload);
+  Notification({
+    title: payload.data.title,
+    message: payload.data.body,
+    duration: 5000,
+    icon: payload.data.icon,
+    native: true,
+    onClick: ()=> window.location = payload.data.action_link,
+  })
+});
+

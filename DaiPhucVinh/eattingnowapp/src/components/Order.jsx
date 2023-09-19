@@ -9,6 +9,7 @@ import SelectWard from "./SelectWard";
 import CartItem from "./CartItem";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
+
 import {
   CheckCustomer,
   CreateOrderCustomer,
@@ -35,9 +36,20 @@ const Order = () => {
     TransportFee: 0,
     IntoMoney: 0,
     UserId: 0,
+    TokenWeb: "",
+    TokenApp:"",
     OrderLine: {},
   });
 
+    const [notification, setNotification] = useState({
+      to: "",
+      notification: {
+        body: "",
+        title: "",
+        icon: "",
+        click_action: "",
+      },
+    });
   async function onChangeCustomer() {
     let checkCustomer = await CheckCustomer(request);
     if (checkCustomer.success) {

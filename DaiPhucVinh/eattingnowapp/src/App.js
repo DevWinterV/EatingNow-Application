@@ -10,8 +10,10 @@ const App = () => {
     <StateProvider initialState={initialState} reducer={reducer}>
       <AnimatePresence>
         <Routers />
+       
       </AnimatePresence>
     </StateProvider>
+    
   );
 };
 

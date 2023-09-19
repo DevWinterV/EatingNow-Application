@@ -55,6 +55,7 @@ using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
+using DaiPhucVinh.Shared.DeliveryDriver;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -386,6 +387,8 @@ namespace DaiPhucVinh.Services.Infrastructure
             CreateMap<EN_Customer, EN_CustomerResponse>();
             CreateMap<EN_OrderLine, OrderLineReponse>()
                 .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.qty * s.Price));
+            CreateMap<EN_DeliveryDiver, DeliveryDriverResponse>();
+
         }
         #region private methods
         private byte[] FindImgFromId(WMS_InventoryItem item)

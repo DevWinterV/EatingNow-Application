@@ -10,6 +10,23 @@ const SiteMap = [
         isShow: false,
       },
       {
+        name: "Bản đồ",
+        icon: <Fc.FcTodoList />,
+        isShow: false,
+        tabs: [
+          {
+            name: "Xem vị trí cửa hàng",
+            href: "/maps",
+            role: "BANDO",
+          },
+          {
+            name: "Xem tài xế đang hoạt động",
+            href: "/mapsdlv",
+            role: "BANDO",
+          },
+        ],
+      },
+      {
         name: "Cửa hàng",
         icon: <Fc.FcTodoList />,
         isShow: false,
@@ -55,8 +72,8 @@ const SiteMap = [
         tabs: [
           {
             name: "Danh sách đơn hàng",
-            href: "/cuisine",
-            role: "NHOMSANPHAM",
+            href: "/order",
+            role: "DONHANG",
           },
           {
             name: "Người giao hàng",
@@ -72,8 +89,8 @@ const SiteMap = [
         tabs: [
           {
             name: "Thông tin khách hàng",
-            href: "/cuisine",
-            role: "NHOMSANPHAM",
+            href: "/customer",
+            role: "KHACHHANG",
           },
         ],
       },
@@ -86,11 +103,6 @@ const SiteMap = [
             name: "Loại tài khoản",
             href: "/accounttype",
             role: "LOAITAIKHOAN",
-          },
-          {
-            name: "Tài khoản",
-            href: "/account",
-            role: "TAIKHOAN",
           },
         ],
       },

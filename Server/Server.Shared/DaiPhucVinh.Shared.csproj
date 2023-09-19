@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DaiPhucVinh.Shared</RootNamespace>
     <AssemblyName>DaiPhucVinh.Shared</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs7EBD.tmp\Debug\</IntermediateOutputPath>
     <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs43E9.tmp\Debug\</IntermediateOutputPath>
-    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\HP\AppData\Local\Temp\vsEC4F.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
     <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs7EBD.tmp\Release\</IntermediateOutputPath>
     <IntermediateOutputPath>C:\Users\Thuanvd\AppData\Local\Temp\vs43E9.tmp\Release\</IntermediateOutputPath>
-    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\HP\AppData\Local\Temp\vsEC4F.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +44,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\x86\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\HP\AppData\Local\Temp\vsEC4F.tmp\x86\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -53,7 +54,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <IntermediateOutputPath>C:\Users\DELL\AppData\Local\Temp\vsB831.tmp\x86\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\HP\AppData\Local\Temp\vsEC4F.tmp\x86\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CaptchaMvc, Version=2.5.0.0, Culture=neutral, PublicKeyToken=fe46ad421dd3b0e6, processorArchitecture=MSIL">
@@ -129,9 +130,12 @@
     <Compile Include="Core\CrudResult.cs" />
     <Compile Include="Core\ListDto.cs" />
     <Compile Include="Core\ResultDto.cs" />
+    <Compile Include="CustomerDto\EN_CustomerLocationRequest.cs" />
     <Compile Include="CustomerDto\EN_CustomerRequest.cs" />
     <Compile Include="CustomerDto\EN_CustomerResponse.cs" />
     <Compile Include="CustomerDto\FoodListOrder.cs" />
+    <Compile Include="DeliveryDriver\DeliveryDriverRequest.cs" />
+    <Compile Include="DeliveryDriver\DeliveryDriverResponse.cs" />
     <Compile Include="FoodList\FoodListRequest.cs" />
     <Compile Include="FoodList\FoodListResponse.cs" />
     <Compile Include="Cuisine\CuisineRequest.cs" />

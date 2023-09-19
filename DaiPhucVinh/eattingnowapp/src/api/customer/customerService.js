@@ -5,6 +5,7 @@ const ServiceEndPoint = ServerEndPoint + "/customer";
 const API = {
   CheckCustomer: "/CheckCustomer",
   CreateOrderCustomer: "/CreateOrderCustomer",
+  UpdateToken: "/UpdateToken",
 };
 
 const CheckCustomer = async (request) => {
@@ -27,6 +28,7 @@ const CheckCustomer = async (request) => {
   return result;
 };
 
+
 const CreateOrderCustomer = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -45,5 +47,23 @@ const CreateOrderCustomer = async (request) => {
   }
   return result;
 };
+const UpdateToken = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.UpdateToken,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.message = response.data.Message;
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 
-export { CheckCustomer, CreateOrderCustomer };
+export { CheckCustomer, CreateOrderCustomer, UpdateToken };

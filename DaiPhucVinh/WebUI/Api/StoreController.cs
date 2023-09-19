@@ -2,6 +2,7 @@
 using DaiPhucVinh.Services.MainServices.Province;
 using DaiPhucVinh.Shared.CategoryList;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.DeliveryDriver;
 using DaiPhucVinh.Shared.FoodList;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
@@ -27,6 +28,18 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeAllStore")]
         public async Task<BaseResponse<StoreResponse>> TakeAllStore([FromBody] StoreRequest request) => await _storeService.TakeAllStore(request);
+
+        [HttpPost]
+        [Route("TakeAllOrder")]
+        public async Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder([FromBody] OrderHeaderRequest request) => await _storeService.TakeAllOrder(request);
+
+        [HttpPost]
+        [Route("TakeAllDeliveryDriver")]
+        public async Task<BaseResponse<DeliveryDriverResponse>> TakeAllDeliveryDriver([FromBody] DeliveryDriverRequest request) => await _storeService.TakeAllDeliveryDriver(request);
+        [HttpPost]
+        [Route("ApproveOrder")]
+        public async Task<BaseResponse<bool>> ApproveOrder([FromBody] OrderHeaderRequest request) => await _storeService.ApproveOrder(request);
+
 
         [HttpPost]
         [Route("CreateNewStore")]

@@ -23,5 +23,6 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual EN_Store EN_Store { get; set; }
+        public bool Status { get; set; }
     }
 }

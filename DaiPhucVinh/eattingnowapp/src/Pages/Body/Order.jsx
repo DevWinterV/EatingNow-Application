@@ -3,7 +3,7 @@ import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
 import { TbListDetails } from "react-icons/tb";
 import { useStateValue } from "../../context/StateProvider";
-
+import {SendNotification} from "../../api/fcm/fcmService";
 import { Loader } from "../../components";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
@@ -19,6 +19,28 @@ const Order = () => {
   const [{ user }] = useStateValue();
   const [isShown, setIsShown] = React.useState(false);
   const [orderHeaderId, setOrderHeaderId] = React.useState("");
+
+  const [notification, setNotification] = React.useState(
+    {
+      to: "eTJisEPaU-1EcGWqszCe7h:APA91bF3Edu6l2AwYf3g86qMA6dHgCgh0XpfloZVMJxD4AR740DkoyU5E_eFnFdTFI4gptkAqGpSDig13ptm7wPm2hucR6eQdrDs9la8ZtW5WlUG4xyFqJZapu0eFZ6nlulF8_mSqD-p",
+      data: 
+      {
+        body: "Đơn hàng đã được xác nhận",
+        title: "Thông báo",
+        icon: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        action_link: "localhost:3001",
+      },
+      notification: 
+      {
+        body: "Đơn hàng đã được xác nhận",
+        title: "Thông báo",
+        icon: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        action_link: "localhost:3001",
+      },
+
+    });
 
   async function onViewAppearing() {
     setIsLoading(true);
@@ -229,6 +251,9 @@ const Order = () => {
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                       Chi tiết
                     </Th>
+                    <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                      Hành động
+                    </Th>
                   </Tr>
                 </Thead>
                 <Tbody className="bg-orange-50">
@@ -262,6 +287,16 @@ const Order = () => {
                             onClick={() => {
                               setOrderHeaderId(item.OrderHeaderId);
                               GetOrderLineDetails();
+                            }}
+                          >
+                            <TbListDetails className="text-2xl" />
+                          </button>
+                        </Td>
+                        <Td className="capitalize p-3 text-sm font-bold text-green-600 whitespace-nowrap text-center">
+                          <button
+                            className="p-1.5 text-xs font-medium uppercase tracking-wider text-green-800 bg-green-200 rounded-lg bg-opacity-50"
+                            onClick={() => {
+                              SendNotification(notification);
                             }}
                           >
                             <TbListDetails className="text-2xl" />

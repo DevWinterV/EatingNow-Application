@@ -21,6 +21,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
     {
         Task<BaseResponse<EN_CustomerResponse>> CheckCustomer(EN_CustomerRequest request);
         Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request);
+        Task<BaseResponse<bool>> UpdateToken(EN_CustomerRequest request);
+
     }
     public class ENCustomerService : IENCustomerService
     {
@@ -51,6 +53,41 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             }
             return result;
         }
+
+        public async Task<BaseResponse<bool>> UpdateToken(EN_CustomerRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerId).FirstOrDefaultAsync();
+                if (checkCustomer != null)
+                {
+                    if (request.TokenApp != null)
+                    {
+                        checkCustomer.TokenApp = request.TokenApp;
+                    }
+                    else
+                    {
+                        checkCustomer.TokenWeb = request.TokenWeb;
+                    }
+                    _datacontext.SaveChangesAsync();
+                    result.Success = true;
+                }
+                else
+                {
+                    result.Success = false;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
         public async Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request)
         {
             var result = new BaseResponse<bool> { };

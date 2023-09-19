@@ -24,7 +24,12 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         [ForeignKey("WardId")]
         public virtual EN_Ward Ward { get; set; }
         public string Phone { get; set; }
+        public string Email { get; set; }
+
         public string Address { get; set; }
         public bool Status { get; set; }
+        public string TokenWeb { get; set; }
+        public string TokenApp { get; set; }
+
     }
 }

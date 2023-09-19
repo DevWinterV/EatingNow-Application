@@ -6,6 +6,7 @@ using DaiPhucVinh.Services.MainServices.Common;
 using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.CategoryList;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.DeliveryDriver;
 using DaiPhucVinh.Shared.FoodList;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
@@ -29,12 +30,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
+using System;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using DotNetty.Common.Utilities;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
     public interface IStoreService
     {
         Task<BaseResponse<StoreResponse>> TakeAllStore(StoreRequest request);
+        Task<BaseResponse<DeliveryDriverResponse>> TakeAllDeliveryDriver(DeliveryDriverRequest request);
+        Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder(OrderHeaderRequest request);
+
         Task<BaseResponse<bool>> CreateNewStore(StoreRequest request, HttpPostedFile file);
         Task<BaseResponse<bool>> UpdateNewStore(StoreRequest request);
         Task<BaseResponse<bool>> DeleteStore(StoreRequest request);
@@ -44,6 +53,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<FoodListResponse>> TakeFoodListByStoreId(int Id);
         Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(int Id);
         Task<BaseResponse<bool>> ApproveStore(StoreRequest request);
+        Task<BaseResponse<bool>> ApproveOrder(OrderHeaderRequest request);
+
         Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id);
         Task<BaseResponse<OrderLineReponse>> GetListOrderLineDetails(string Id);
         Task<BaseResponse<StatisticalResponse>> TakeStatisticalByStoreId(StatisticalRequest request);
@@ -69,7 +80,30 @@ namespace DaiPhucVinh.Services.MainServices.Province
             _settingService = settingService;
             _logger = logger;
         }
-
+        /// <summary>
+        /// Lấy tất cả các tài xế trên hệ thống
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse<DeliveryDriverResponse>> TakeAllDeliveryDriver(DeliveryDriverRequest request)
+        {
+            var result = new BaseResponse<DeliveryDriverResponse> { };
+            try
+            {
+                var query = _datacontext.EN_DeliveryDriver.Where(x => x.Status == true);
+                query = query.OrderBy(d => d.CompleteName);
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<DeliveryDriverResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
         public async Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter)
         {
             var result = new BaseResponse<StoreResponse> { };
@@ -98,7 +132,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, filter.Count).MapTo<StoreResponse>();
-                result.Data = resultList;
+                result.Data = (IList<StoreResponse>)resultList;
                 result.Success = true;
             }
             catch (Exception ex)
@@ -351,7 +385,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, 40).MapTo<StoreResponse>();
-                result.Data = resultList;
+                result.Data = (IList<StoreResponse>)resultList;
                 result.Success = true;
             }
             catch (Exception ex)
@@ -361,6 +395,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id)
         {
             var result = new BaseResponse<OrderHeaderResponse> { };
@@ -583,6 +618,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             return degree * Math.PI / 180;
         }
 
+
         public static List<StoreResponse> FindNearestStores(List<StoreResponse> stores, double lat, double lng, int count)
         {
             var nearestStores = new List<StoreResponse>();
@@ -593,7 +629,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             {
                 double Lat = Math.Round(store.Latitude, 7);
                 double Lon = Math.Round(store.Longitude, 7);
-                var distance = Distance(/*lat*/10.370979346894824, /*lng*/105.4306737195795, Lat, Lon);
+                var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
                 store.Distance = distance;
                 store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
                 distances[store] = distance;
@@ -641,5 +677,111 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return hash.ToString();
         }
+
+        /// <summary>
+        /// Xác nhận đơn hàng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse<bool>> ApproveOrder(OrderHeaderRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var orderHeader = await _datacontext.EN_OrderHeader
+                    .Where(x => x.OrderHeaderId == request.OrderHeaderId)
+                    .FirstOrDefaultAsync();
+
+                var account = await _datacontext.EN_Customer
+                    .Where(x => x.CustomerId == request.CustomerId)
+                    .FirstOrDefaultAsync();
+
+                var store = await _datacontext.EN_Store
+                    .Where(x => x.UserId == request.UserId)
+                    .FirstOrDefaultAsync();
+
+                if (orderHeader != null && account != null && store != null)
+                {
+                    if (!orderHeader.Status)
+                    {
+                        orderHeader.Status = true;
+                        // Gửi thông báo đến email của khách hàng
+                        if(account.Email != null)
+                        {
+                                                    try
+                        {
+                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            {
+                                smtp.EnableSsl = true;
+                                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                smtp.UseDefaultCredentials = false;
+                                smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
+
+                                MailMessage mail = new MailMessage();
+                                mail.To.Add(account.Email);  // Email của khách hàng
+                                mail.From = new MailAddress("chauvanrangdong4440@gmail.com");  // Email của bạn
+                                mail.Subject = "ĐƠN HÀNG ĐƯỢC DUYỆT";
+
+                                mail.Body = "Subject: Xác nhận Đơn Hàng: Đã Duyệt Thành Công 🎉\r\n\r\nChào quý khách hàng thân mến,\r\n\r\nChúc mừng! Đơn hàng của bạn đã được xác nhận và duyệt thành công tại EatingNow. Dưới đây là chi tiết đơn hàng để quý khách tham khảo:\r\n\r\n━━━━━━━━━━━━━━━\r\n📦 THÔNG TIN ĐƠN HÀNG:\r\n━━━━━━━━━━━━━━━\r\n📅 Ngày tạo đơn hàng: " + orderHeader.CreationDate + "\r\n💰 Tổng giá trị sản phẩm: " + orderHeader.TotalAmt + "\r\n🚚 Phí giao hàng: " + orderHeader.TransportFee + "\r\n💳 Tổng cộng cần thanh toán: " + orderHeader.IntoMoney + "\r\n\r\n🔗 Quý khách có thể xem chi tiết đơn hàng tại: eatingnow.com/orders/{{orderHeader.OrderHeaderId}}\r\n\r\n📞 Liên hệ với chúng tôi qua số điện thoại của Chủ cửa hàng " + store.OwnerName + " tại " + store.Phone + " nếu cần hỗ trợ hoặc có câu hỏi liên quan đến đơn hàng.\r\n\r\n🛍️ Chúng tôi rất biết ơn vì quý khách đã lựa chọn EatingNow để mua sắm. Chúc quý khách có một trải nghiệm mua sắm thú vị!\r\n\r\nTrân trọng,\r\nEatingNow Team 🍔\U0001f6d2\r\n━━━━━━━━━━━━━━━\r\n";
+
+
+                                smtp.Send(mail);
+                            }
+                        }
+                        catch
+                        {
+                            result.Success = false;
+                        }
+
+                        }
+                        result.Success = true;
+                    }
+                    else
+                    {
+                        orderHeader.Status = false;
+                        result.Success = true;
+                    }
+                    await _datacontext.SaveChangesAsync();
+                }
+                else
+                {
+                    result.Message = "Không tìm thấy đơn hàng hoặc tài khoản.";
+                    result.Success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+
+            return result;
+        }
+
+        public async Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder(OrderHeaderRequest request)
+        {
+            var result = new BaseResponse<OrderHeaderResponse> { };
+            try
+            {
+                var query = _datacontext.EN_OrderHeader.AsQueryable();
+                result.DataCount = await query.CountAsync();
+                if (request.PageSize != 0)
+                {
+                    query = query.OrderBy(d => d.OrderHeaderId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                }
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<OrderHeaderResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+
+
     }
 }

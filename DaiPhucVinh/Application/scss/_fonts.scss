@@ -6,3 +6,7 @@
     font-family: "BoxIcons";
     src:  url("./../assets/fonts/boxicons.woff");
 }
+.map-container {
+    width: 100%; /* Kích thước chiều rộng tối ưu cho container */
+    height: 600px; /* Đặt kích thước chiều cao theo mong muốn */
+  }

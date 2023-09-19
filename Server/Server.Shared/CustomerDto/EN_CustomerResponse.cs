@@ -16,5 +16,7 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public string Phone { get; set; }
         public string Address { get; set; }
         public bool Status { get; set; }
+        public string TokenWeb { get; set; }
+        public string TokenApp { get; set; }
     }
 }

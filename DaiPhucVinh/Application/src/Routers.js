@@ -3,6 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/dashboard/HomePage";
 import { LoginPage } from "./pages/auth";
 import { DetailCustomerPage, ListCustomerPage } from "./pages/customer";
+import { MapsPage, MapsDeliverPage} from "./pages/Maps";
+import { OrderPage, OrderDetailDialog} from "./pages/order";
 import { ListCuisine, CreateCuisine } from "./pages/Cuisine";
 import { ListStorePage, DetailStorePage } from "./pages/Store";
 import { CreateProvince, ListProvince } from "./pages/Province";
@@ -20,6 +22,9 @@ const Routers = ({ auth }) => {
       ) : (
         <>
           <Route path="/" element={<HomePage />} />
+          <Route path="/order" element={<OrderPage />} />
+          <Route path="/maps" element={<MapsPage />} />
+          <Route path="/mapsdlv" element={<MapsDeliverPage/>} />
           <Route path="/store" element={<ListStorePage />} />
           <Route path="/store/create" element={<DetailStorePage />} />
           <Route path="/store/detail/:id" element={<DetailStorePage />} />

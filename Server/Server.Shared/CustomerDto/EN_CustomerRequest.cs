@@ -24,6 +24,8 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public double TransportFee { get; set; }
         public double IntoMoney { get; set; }
         public int UserId { get; set; }
+        public string TokenWeb { get; set; }
+        public string TokenApp { get; set; }
         public List<EN_OrderLine> OrderLine { get; set; }
     }
 }

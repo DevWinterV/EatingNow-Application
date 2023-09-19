@@ -22,7 +22,7 @@ namespace DaiPhucVinh.Services.Framework
                         //CreatedAt = DateTime.Now,
                         //IpAddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0].ToString(),
                         FullMessage = fullMessage,
-                        ShortMessage = shortMessage,
+                        //ShortMessage = shortMessage,
                         CreatedOnUtc = DateTime.Now
                     });
                     db.SaveChanges();

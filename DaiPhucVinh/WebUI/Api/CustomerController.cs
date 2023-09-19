@@ -25,5 +25,10 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("CreateOrderCustomer")]
         public async Task<BaseResponse<bool>> CreateOrderCustomer([FromBody] EN_CustomerRequest request) => await _customerService.CreateOrderCustomer(request);
+
+        [HttpPost]
+        [Route("UpdateToken")]
+        public async Task<BaseResponse<bool>> UpdateToken([FromBody] EN_CustomerRequest request) => await _customerService.UpdateToken(request);
+
     }
 }

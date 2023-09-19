@@ -1,6 +1,7 @@
 ﻿using DaiPhucVinh.Api;
 using DaiPhucVinh.Services.MainServices.FoodList;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.FoodList;
 using Newtonsoft.Json;
 using System;
@@ -109,6 +110,10 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeNewFood")]
         public async Task<BaseResponse<FoodListResponse>> TakeNewFood() => await _foodListService.TakeNewFood();
+
+        [HttpPost]
+        [Route("TakeRecommendedFoodList")]
+        public async Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList([FromBody] EN_CustomerLocationRequest request) => await _foodListService.TakeRecommendedFoodList(request);
 
     }
 }

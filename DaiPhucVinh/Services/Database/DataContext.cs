@@ -79,5 +79,7 @@ namespace DaiPhucVinh.Services.Database
         public DbSet<EN_OrderHeader> EN_OrderHeader { get; set; }
         public DbSet<EN_Customer> EN_Customer { get; set; }
         public DbSet<EN_OrderLine> EN_OrderLine { get; set; }
+        public DbSet<EN_DeliveryDiver> EN_DeliveryDriver { get; set; }
+
     }
 }
