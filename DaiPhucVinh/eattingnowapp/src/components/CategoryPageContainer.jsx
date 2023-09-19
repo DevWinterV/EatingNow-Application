@@ -1,20 +1,104 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { BsClock } from "react-icons/bs";
 import { RxDotFilled } from "react-icons/rx";
+import React, { useEffect,  useState } from "react";
+import axios from 'axios';
+import Loader from "./Loader";
 
-const CategoryPageContainer = ({ data }) => {
+const CategoryPageContainer = ({ datas }) => {
+
   function getRandomFloat(min, max, decimals) {
     const str = (Math.random() * (max - min) + min).toFixed(decimals);
     return parseFloat(str);
   }
+  const [loading, setLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState([10.3759, 105.4185]);
+  const [data, setData] = useState([]);
+  
+  useEffect(() => {
+    const fetchCurrentLocation = async () => {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        const { latitude, longitude } = position.coords;
+        setCurrentLocation([latitude, longitude]);
+      } catch (error) {
+        console.error("Error getting current location:", error);
+      }
+    };
+    fetchCurrentLocation();
+  }, []);
+
+
+// sử dụng API của OSRM
+async function calculateTimeAndDistance(startPoint, endPoint) {
+  const OSRM_SERVER_URL = 'http://router.project-osrm.org/'; 
+  try {
+    const response = await axios.get(`${OSRM_SERVER_URL}route/v1/driving/${startPoint[1]},${startPoint[0]};${endPoint[1]},${endPoint[0]}`);
+    
+    if (response.status === 200) {
+      const route = response.data.routes[0];
+      const distanceInKm = route.distance / 1000; // Khoảng cách tính bằng kilômét
+      const timeInMinutes = (distanceInKm / 40)*60; // Thời gian tính bằng phút
+      return { timeInMinutes, distanceInKm };
+    } else {
+      throw new Error('Error calculating time and distance');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+// Sử dụng hàm để tính thời gian và khoảng cách giữa currentLocation và một địa điểm cụ thể
+async function fetchTimeAndDistanceForLocation(currentLocation, location) {
+  try {
+    const { Latitude, Longitude } = location;
+    const result = await calculateTimeAndDistance(currentLocation, [Latitude, Longitude]);
+    return result;
+  } catch (error) {
+    console.error("Error calculating time and distance:", error);
+    return { timeInMinutes: null, distanceInKm: null };
+  }
+}
+
+useEffect(() => {
+  const fetchTimeAndDistanceForLocations = async () => {
+    try{
+    setLoading(true);
+    const updatedLocations = await Promise.all(
+      datas.map(async (location) => {
+        const ketqua = await fetchTimeAndDistanceForLocation(currentLocation, location);
+        const roundedTime = Math.round(ketqua.timeInMinutes * 10) / 10;
+        const roundedDistance = Math.round(ketqua.distanceInKm * 10) / 10;
+        return { ...location, Time: roundedTime, Distance: roundedDistance };
+      })
+    );
+    setData(updatedLocations);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+  };
+  fetchTimeAndDistanceForLocations();
+}, [datas, currentLocation]);
 
   const history = useNavigate();
   return (
-    <div className="w-full h-full flex items-center gap-3 my-12 scroll-smooth overflow-hidden flex-wrap justify-center">
-      {data &&
-        data.map((n) => (
+
+
+    loading ? (
+      <div className="text-center pt-20">
+        <Loader />
+      </div>
+    ) : (
+      <div className="w-full h-full flex items-center gap-3 my-12 scroll-smooth overflow-hidden flex-wrap justify-center">
+      {data && data.length > 0 ? (
+        data.map((n) => 
+        (
           <div
             key={n.UserId}
             style={{ height: "300px" }}
@@ -60,8 +144,16 @@ const CategoryPageContainer = ({ data }) => {
               </div>
             </div>
           </div>
-        ))}
-    </div>
+        ))
+      ):
+       (
+        <div className="text-center">
+          <span>Chưa có cửa hàng hoạt động trên hệ thống gần khu vực của bạn 😣!</span>
+        </div>
+      )
+      }
+    </div>    )
+
   );
 };
 

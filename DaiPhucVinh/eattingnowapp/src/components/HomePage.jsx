@@ -14,9 +14,10 @@ import Loader from "./Loader";
 import L from "leaflet";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.js";
-const HomePage = () => {
+import { actionType } from "../context/reducer";
 
-  const [{ cartShow,customer }] = useStateValue();
+const HomePage = () => {
+  const [{ customer,cartShow,token}, dispatch] = useStateValue();
   const [loading, setLoading] = React.useState(false);
   // Loading của gợi ý món ăn yêu thích
   const [loadingrecommendedfood, setLoadingrecommendedfood] = React.useState(false);
@@ -27,18 +28,17 @@ const HomePage = () => {
     pageSize: 20,
     term: "",
   });
-
-  const [currentLocation, setCurrentLocation] = useState([10.3759, 105.4185]);
-
   const [request, setRequest] = useState({
     CustomerId: "",
     Latitude: "",
     Longittude:"",
+  });
+  const [requestToken, setRequestToken] = useState({
+    CustomerId: "",
     TokenWeb: "",
   });
   // Data nhận từ reponse của api TakeRecommendedFoodlist
   const [datafoodlist, setDatafoodlist] = useState([]);
-
 
   useEffect(() => {
     // Lấy vị trí hiện tại của người dùng
@@ -49,20 +49,26 @@ const HomePage = () => {
           navigator.geolocation.getCurrentPosition(resolve, reject);
         });
         const { latitude, longitude } = position.coords;
-        setCurrentLocation([latitude, longitude]);
+        setRequest({
+          ...request,
+          CustomerId: customer,
+          Latitude: latitude,
+          Longittude:longitude,
+        });
         setLoadingrecommendedfood(false);
-
         getToken(messaging, { vapidKey: 'BEk8bm2SlIuRZyiG5peYbc6jS2C0oqzK5w-wcT4TUTOsyAvZLVGM_5wxd8_f6sPSZZ_3v2tmT7n1jyXUjhpgriQ'}).then((currentToken) => {
           if (currentToken) {
             // Send the token to your server and update the UI if necessary
             console.log(currentToken);
-            setRequest({
-              ...request,
+            setRequestToken({
               CustomerId: customer,
-              Latitude: 10.493838,
-              Longittude: 105.83838,
-              TokenWeb: currentToken
+              TokenWeb: currentToken,
             });
+            dispatch({
+              type: actionType.SET_TOKEN,
+              token: currentToken,  
+            });
+            localStorage.setItem("token", JSON.stringify(currentToken));
           } else {
             // Show permission request UI
             console.log('No registration token available. Request permission to generate one.');
@@ -92,23 +98,16 @@ const HomePage = () => {
     if (responseRecommen.success) {
       setDatafoodlist(responseRecommen.data);
     }
-    let reponseUpdateToken = await UpdateToken(request);
-    if (reponseUpdateToken.success) {
-      console.log("Cập nhật token thành công");
+    let responseUpdateToken = await UpdateToken(requestToken);
+    if (responseUpdateToken.success) {
+      console.log("Update Token Successfull");
     }
     setLoading(false);
   }
 
-
-  function onPageChange(e) {
-    setFilter({
-      ...filter,
-      page: e.selected,
-    });
-  }
   React.useEffect(() => {
     onViewAppearing();
-  }, [filter.page, filter.pageSize, request]);
+  }, [filter.page, filter.pageSize, request, requestToken]);
 
   return (
     <div className="w-full h-auto flex flex-col items-center justify-center">

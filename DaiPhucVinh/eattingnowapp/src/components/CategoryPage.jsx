@@ -83,7 +83,7 @@ const CategoryPage = () => {
             <Loader />
           </div>
         ) : (
-          <CategoryPageContainer data={data} />
+          <CategoryPageContainer datas={data} />
         )}
       </section>
     </div>

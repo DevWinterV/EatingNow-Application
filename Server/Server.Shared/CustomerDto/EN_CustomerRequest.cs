@@ -17,6 +17,7 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public int DistrictId { get; set; }
         public int WardId { get; set; }
         public string Phone { get; set; }
+        public string Email { get; set; }
         public string Payment { get; set; }
         public string Address { get; set; }
         public bool Status { get; set; }
@@ -26,6 +27,8 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public int UserId { get; set; }
         public string TokenWeb { get; set; }
         public string TokenApp { get; set; }
+        public string ImageProfile { get; set; }
+
         public List<EN_OrderLine> OrderLine { get; set; }
     }
 }

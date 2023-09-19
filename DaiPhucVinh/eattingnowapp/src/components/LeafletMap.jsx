@@ -9,7 +9,6 @@ import { BsClock } from "react-icons/bs";
 import axios from 'axios';
 import { RxDotFilled } from "react-icons/rx";
 import { useStateValue } from "../context/StateProvider";
-import { TakeRecommendedFoodList } from "../api/foodlist/foodListService";
 
 function LeafletMap({ locations }) {
   const history = useNavigate();
@@ -25,11 +24,9 @@ function LeafletMap({ locations }) {
   });
 
   const greenIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    tooltipAnchor: [16, -28],
+    iconUrl: 'https://img.icons8.com/?size=1x&id=9uHKZ60VvWW2&format=png',
+    iconSize: [33, 40],
+
     shadowSize: [41, 41],
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
   });
@@ -38,7 +35,6 @@ function LeafletMap({ locations }) {
 
   const [currentLocation, setCurrentLocation] = useState([10.3759, 105.4185]);
   const [data, setData] = useState([]);
-  const [datafoodlist, setDatafoodlist] = useState([]);
   
   useEffect(() => {
     const fetchCurrentLocation = async () => {
@@ -48,6 +44,7 @@ function LeafletMap({ locations }) {
         });
         const { latitude, longitude } = position.coords;
         setCurrentLocation([latitude, longitude]);
+        mapInstance.current?.flyTo([latitude, longitude], 10); // Di chuyển đến vị trí hiện tại
         setRequest({
           ...request,
           CustomerId: customer,
@@ -58,7 +55,6 @@ function LeafletMap({ locations }) {
         console.error("Error getting current location:", error);
       }
     };
-
     fetchCurrentLocation();
   }, []);
 
@@ -66,15 +62,14 @@ function LeafletMap({ locations }) {
 // sử dụng API của OSRM
 async function calculateTimeAndDistance(startPoint, endPoint) {
   const OSRM_SERVER_URL = 'http://router.project-osrm.org/';
-  
   try {
     const response = await axios.get(`${OSRM_SERVER_URL}route/v1/driving/${startPoint[1]},${startPoint[0]};${endPoint[1]},${endPoint[0]}`);
     
     if (response.status === 200) {
       const route = response.data.routes[0];
-      const timeInMinutes = route.duration / 60; // Thời gian tính bằng phút
       const distanceInKm = route.distance / 1000; // Khoảng cách tính bằng kilômét
-      
+      // Tốc độ chạy trung bình của tài xế là 40Km/h
+      const timeInMinutes = (distanceInKm / 40)*60; // Thời gian tính bằng phút
       return { timeInMinutes, distanceInKm };
     } else {
       throw new Error('Error calculating time and distance');
@@ -108,15 +103,10 @@ useEffect(() => {
         return { ...location, Time: roundedTime, Distance: roundedDistance };
       })
     );
-    const response = await TakeRecommendedFoodList(request);
-    setDatafoodlist(response.data);
     setData(updatedLocations);
   };
-
   fetchTimeAndDistanceForLocations();
 }, [locations, currentLocation, request]);
-
-
 
   return (
     <div>
@@ -193,7 +183,7 @@ useEffect(() => {
 
 let DefaultIcon = L.icon({
   iconUrl: 'https://img.icons8.com/?size=1x&id=pmzAHWwbZBIP&format=png',
-  iconSize: [25, 39],
+  iconSize: [33, 40],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   tooltipAnchor: [16, -28],

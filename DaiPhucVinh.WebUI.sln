@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Presentation", "1 Presentation", "{7E2E9A7C-550F-4F15-BB73-8E8AA7FF4F49}"
 EndProject
@@ -68,8 +68,8 @@ Global
 		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5} = {07102429-7A54-4BCF-A1C9-D819955F397C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {2CB3DAC4-47A9-481C-A5B6-0296BEFAF516}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {2CB3DAC4-47A9-481C-A5B6-0296BEFAF516}
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
 		Project = ".\FalconCommerce.ndproj"

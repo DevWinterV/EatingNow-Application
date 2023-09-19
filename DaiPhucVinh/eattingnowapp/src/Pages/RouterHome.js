@@ -7,7 +7,8 @@ import {
   HomePage,
   MainContainer,
   Order,
-  OTPAuthen,
+  Account,
+  ProfileForm
 } from "../components";
 
 const RouterHome = () => {
@@ -19,10 +20,10 @@ const RouterHome = () => {
           <Route path="/*" element={<HomePage />} />
           <Route path="/restaurant" element={<MainContainer />} />
           <Route path="/restaurant/:id" element={<MainContainer />} />
-          
           <Route path="/createItem" element={<CreateContainer />} />
           <Route path="/categorypage/:id" element={<CategoryPage />} />
           <Route path="/orderdetail" element={<Order />} />
+          <Route path="/account" element={< ProfileForm/>} />
         </Routes>
       </main>
     </div>

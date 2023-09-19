@@ -49,6 +49,7 @@ using DaiPhucVinh.Services.MainServices.CategoryList;
 using DaiPhucVinh.Services.MainServices.FoodList;
 using DaiPhucVinh.Services.MainServices.OrderHeader;
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
+using Microsoft.ML;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -120,8 +121,10 @@ namespace DaiPhucVinh.Services.Infrastructure
             container.Register<IStoreService, StoreService>(Lifestyle.Scoped);
             container.Register<ICategoryListService, CategoryListService>(Lifestyle.Scoped);
             container.Register<IFoodListService, FoodListService>(Lifestyle.Scoped);
+
             container.Register<IOrderHeaderService, OrderHeaderService>(Lifestyle.Scoped);
             container.Register<IENCustomerService, ENCustomerService>(Lifestyle.Scoped);
+
         }
         public static void ApiServerRegister(Container container)
         {

@@ -530,12 +530,11 @@ namespace DaiPhucVinh.Services.MainServices.Province
                             smtp.EnableSsl = true;
                             smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                             smtp.UseDefaultCredentials = false;
-                            smtp.Credentials = new NetworkCredential("vinhky0167@gmail.com", "zthangqlxnqwuobv");
+                            smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
 
-                            MailMessage mail = new MailMessage();
-                            mail.To.Add(request.Email);
-                            mail.From = new MailAddress("vinhky0167@gmail.com");
-                            mail.Subject = "BẠN ĐÃ ĐƯỢC CẤP MẬT KHẨU BÁN HÀNG";
+                                MailMessage mail = new MailMessage();
+                                mail.To.Add(request.Email);  // Email của khách hàng
+                                mail.From = new MailAddress("chauvanrangdong4440@gmail.com");    mail.Subject = "BẠN ĐÃ ĐƯỢC CẤP MẬT KHẨU BÁN HÀNG";
                             mail.Body = $"Mật khẩu của bạn là: {newPass}.Vui lòng đăng nhập thay đổi mật khẩu mới. Trân trọng !";
 
                             smtp.Send(mail);
@@ -622,7 +621,6 @@ namespace DaiPhucVinh.Services.MainServices.Province
         public static List<StoreResponse> FindNearestStores(List<StoreResponse> stores, double lat, double lng, int count)
         {
             var nearestStores = new List<StoreResponse>();
-            var distances = new Dictionary<StoreResponse, double>();
 
             // Tính khoảng cách từ điểm đầu tiên đến tất cả các điểm còn lại trong danh sách
             foreach (var store in stores)
@@ -631,20 +629,14 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 double Lon = Math.Round(store.Longitude, 7);
                 var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
                 store.Distance = distance;
-                store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
-                distances[store] = distance;
+                //store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
             }
 
-            // Chọn cửa hàng gần nhất và loại bỏ nó khỏi danh sách
-            for (int i = 0; i < count; i++)
+            foreach(var fillStore in stores)
             {
-                var nearestStore = distances.OrderBy(d => d.Value).FirstOrDefault().Key;
-                if (nearestStore != null)
-                {
-                    nearestStores.Add(nearestStore);
-                    distances.Remove(nearestStore);
-                }
-            }
+                if(fillStore.Distance <=10 )
+                    nearestStores.Add(fillStore);
+            }    
 
             return nearestStores;
         }
@@ -691,21 +683,17 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 var orderHeader = await _datacontext.EN_OrderHeader
                     .Where(x => x.OrderHeaderId == request.OrderHeaderId)
                     .FirstOrDefaultAsync();
-
-                var account = await _datacontext.EN_Customer
-                    .Where(x => x.CustomerId == request.CustomerId)
-                    .FirstOrDefaultAsync();
-
                 var store = await _datacontext.EN_Store
                     .Where(x => x.UserId == request.UserId)
                     .FirstOrDefaultAsync();
 
-                if (orderHeader != null && account != null && store != null)
+                if (orderHeader != null      && store != null)
                 {
                     if (!orderHeader.Status)
                     {
                         orderHeader.Status = true;
                         // Gửi thông báo đến email của khách hàng
+                        /*
                         if(account.Email != null)
                         {
                                                     try
@@ -734,6 +722,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
                         }
 
                         }
+                        */
+                        
                         result.Success = true;
                     }
                     else

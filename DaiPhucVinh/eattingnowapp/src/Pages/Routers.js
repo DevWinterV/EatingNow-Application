@@ -4,7 +4,7 @@ import { useStateValue } from "../context/StateProvider";
 import RouterAuth from "./RouterAuth";
 import RouterHome from "./RouterHome";
 
-const Routers = () => {
+const   Routers = () => {
   const [{ linked }] = useStateValue();
   return (
     <Routes>

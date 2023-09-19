@@ -30,6 +30,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public bool Status { get; set; }
         public string TokenWeb { get; set; }
         public string TokenApp { get; set; }
+        public string ImageProfile { get; set; }
 
     }
 }

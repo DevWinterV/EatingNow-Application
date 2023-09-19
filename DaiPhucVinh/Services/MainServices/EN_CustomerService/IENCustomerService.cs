@@ -2,8 +2,10 @@
 using DaiPhucVinh.Services.Database;
 using DaiPhucVinh.Services.Framework;
 using DaiPhucVinh.Services.Helper;
+using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using Falcon.Web.Core.Settings;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,8 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Hosting;
 
 namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
 {
@@ -22,17 +26,25 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         Task<BaseResponse<EN_CustomerResponse>> CheckCustomer(EN_CustomerRequest request);
         Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request);
         Task<BaseResponse<bool>> UpdateToken(EN_CustomerRequest request);
+        Task<BaseResponse<EN_CustomerResponse>> CheckCustomerEmail(EN_CustomerRequest request);
+
+        Task<BaseResponse<bool>> UpdateInfoCustomer(EN_CustomerRequest request, HttpPostedFile file);
+
 
     }
     public class ENCustomerService : IENCustomerService
     {
         private readonly DataContext _datacontext;
         private readonly ILogService _logService;
+        private readonly ISettingService _settingService;
+        public string HostAddress => HttpContext.Current.Request.Url.ToString().Replace(HttpContext.Current.Request.Url.PathAndQuery, "");
 
-        public ENCustomerService(DataContext datacontext, ILogService logService)
+
+        public ENCustomerService(DataContext datacontext, ILogService logService, ISettingService settingService)
         {
             _datacontext = datacontext;
             _logService = logService;
+            _settingService = settingService;
         }
         public async Task<BaseResponse<EN_CustomerResponse>> CheckCustomer(EN_CustomerRequest request)
         {
@@ -70,13 +82,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     {
                         checkCustomer.TokenWeb = request.TokenWeb;
                     }
-                    _datacontext.SaveChangesAsync();
+                    await _datacontext.SaveChangesAsync();
                     result.Success = true;
                 }
                 else
                 {
                     result.Success = false;
-
                 }
 
             }
@@ -86,6 +97,68 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 _logService.InsertLog(ex);
             }
             return result;
+        }
+        public async Task<BaseResponse<bool>> UpdateInfoCustomer(EN_CustomerRequest request, HttpPostedFile file)
+        {
+            var relativePath = "";
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    if (file != null)
+                    {
+                        file.InputStream.CopyTo(ms);
+                        byte[] pictureBinary = ms.GetBuffer();
+                        string CustomerName = "DaiPhucVinh\\image";
+                        var storageFolder = $@"\uploads\{CustomerName}";
+                        if (!Directory.Exists(LocalMapPath(storageFolder)))
+                            Directory.CreateDirectory(LocalMapPath(storageFolder));
+
+                        string fileName = Path.GetFileName(file.FileName);
+                        string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}" + "-" + $"{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
+                        var storageFolderPath = Path.Combine(LocalMapPath(storageFolder), newFileName);
+                        File.WriteAllBytes(storageFolderPath, pictureBinary);
+
+                        relativePath = Path.Combine(storageFolder, newFileName);
+                    }
+
+                    var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerId).FirstOrDefaultAsync();
+                    
+                    if (checkCustomer != null)
+                    {
+                        checkCustomer.CompleteName = request.CompleteName;
+                        checkCustomer.Address = request.Address;
+                        checkCustomer.Phone = request.Phone;
+                        checkCustomer.Email = request.Email;
+                        if (file != null)
+                            checkCustomer.ImageProfile = HostAddress + GenAbsolutePath(relativePath);
+                        else
+                            checkCustomer.ImageProfile = request.ImageProfile;
+                        await _datacontext.SaveChangesAsync();
+                        result.Success = true;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                    }
+                }
+            
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public string GenAbsolutePath(string relativePath)
+        {
+            var systemSettings = _settingService.LoadSetting<SystemSettings>();
+            var path = systemSettings.Domain + relativePath.Replace("\\", "/");
+            path = path.Replace("//", "/");
+            return path;
         }
 
         public async Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request)
@@ -525,6 +598,39 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     return e.Message;
                 }
             }
+        }
+        private string LocalMapPath(string path)
+        {
+            if (HostingEnvironment.IsHosted)
+            {
+                //hosted
+                return HostingEnvironment.MapPath(path);
+            }
+
+            //not hosted. For example, run in unit tests
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            path = path.Replace("~/", "").TrimStart('/').Replace('/', '\\');
+            return Path.Combine(baseDirectory, path);
+        }
+
+        public async Task<BaseResponse<EN_CustomerResponse>> CheckCustomerEmail(EN_CustomerRequest request)
+        {
+            var result = new BaseResponse<EN_CustomerResponse> { };
+            try
+            {
+                var query = _datacontext.EN_Customer.Where(x => x.Email == request.Email).AsQueryable();
+                query = query.OrderBy(d => d.CustomerId);
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<EN_CustomerResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
         }
     }
 }

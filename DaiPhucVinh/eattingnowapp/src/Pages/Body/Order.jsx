@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect ,useState} from "react";
+
 import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
-import { TbListDetails } from "react-icons/tb";
+import { TbAddressBook, TbCandle, TbCheck, TbCircleX, TbHomeCancel, TbHomeX, TbInfoCircle, TbListDetails, TbNotificationOff, TbPhoneCall, TbPhotoCancel } from "react-icons/tb";
 import { useStateValue } from "../../context/StateProvider";
 import {SendNotification} from "../../api/fcm/fcmService";
 import { Loader } from "../../components";
@@ -9,11 +10,20 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import {
   GetListOrderLineDetails,
+  ApproveOrder,
   TakeOrderHeaderByStoreId,
 } from "../../api/store/storeService";
+import Swal from "sweetalert2";
+import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
+import { realtime_database} from "../../firebase.config";
+
 
 const Order = () => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [status, setStatus] = useState('1');
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const [isDriverAvailabel, setisDriverAvailabel] = useState(false);
+
   const [data, setData] = React.useState([]);
   const [dataDetails, setDataDetails] = React.useState([]);
   const [{ user }] = useStateValue();
@@ -22,12 +32,12 @@ const Order = () => {
 
   const [notification, setNotification] = React.useState(
     {
-      to: "eTJisEPaU-1EcGWqszCe7h:APA91bF3Edu6l2AwYf3g86qMA6dHgCgh0XpfloZVMJxD4AR740DkoyU5E_eFnFdTFI4gptkAqGpSDig13ptm7wPm2hucR6eQdrDs9la8ZtW5WlUG4xyFqJZapu0eFZ6nlulF8_mSqD-p",
+      to: "",
       data: 
       {
         body: "Đơn hàng đã được xác nhận",
         title: "Thông báo",
-        icon: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
         image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
         action_link: "localhost:3001",
       },
@@ -35,12 +45,50 @@ const Order = () => {
       {
         body: "Đơn hàng đã được xác nhận",
         title: "Thông báo",
-        icon: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
         image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
-        action_link: "localhost:3001",
       },
-
     });
+    const [customerDetail, setCustomerDetail] = React.useState(
+      {
+          customerName: "",
+          customerPhone: "",
+          customerAddress: "",
+      });
+ // Xử lý khi nút "Yêu cầu tài xế" được nhấn
+  async function handleButtonClick() {
+      setisDriverAvailabel(true);
+  }
+
+    const [notificationCancle, setNotificationCancle] = React.useState(
+      {
+        to: "",
+        data: 
+        {
+          body: "Đơn hàng của bạn đã bị hủy",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+          action_link: "localhost:3001",
+        },
+        notification: 
+        {
+          body: "Đơn hàng của bạn đã bị hủy",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        },
+      });
+      const handleStatusChange = (event) => {
+        const selectedStatus = event.target.value;
+        setStatus(selectedStatus);
+    
+        if (selectedStatus === '2') {
+          setIsButtonEnabled(true);
+        } else {
+          setIsButtonEnabled(false);
+        }
+      };
 
   async function onViewAppearing() {
     setIsLoading(true);
@@ -79,9 +127,53 @@ const Order = () => {
     setIsLoading(false);
   }
 
+// Sử dụng useEffect để theo dõi sự thay đổi trong notification và gửi thông báo khi nó thay đổi
   useEffect(() => {
     onViewAppearing();
-  }, []);
+    SendNotification(notificationCancle).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo hủy đơn hàng thành công.",
+            "success"
+          );
+          setNotificationCancle({...notificationCancle, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo hủy đơn hàng.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+    SendNotification(notification).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo xác nhận thành công.",
+            "success"
+          );
+          setNotification({...notification, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo xác nhận đơn hàng!",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+
+  }, [notification, notificationCancle]);
 
   useEffect(() => {
     GetOrderLineDetails();
@@ -119,11 +211,82 @@ const Order = () => {
                     <h2 className="text-2xl font-semibold">
                       Danh sách chi tiết đơn hàng
                     </h2>
-                    <button className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none">
-                      <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                        ×
-                      </span>
+                    
+                    <button className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                      class="bg-red"
+                      onClick={() => {
+                        setIsShown(false);
+                      }}>
+                          <TbCircleX className="text-2xl" />
+                 </button>
+                  </div>
+
+                  <div class="flex items-center justify-end p-6 bg-gray-200">
+                    <label for="cb_statusOrder" class="mr-2">Trạng thái:</label>
+                    <select
+                        name="cb_statusOrder"
+                        id="cb_statusOrder"
+                        className="border rounded-md px-2 py-1"
+                      >                 
+                      <option value="1">Đang chuẩn bị</option>
+                      <option value="2">
+                        Hoàn thành sản phẩm</option>
+                      <option value="3">Đã giao cho tài xế</option>
+                      <option value="4">Đã nhận hàng</option>
+                    </select>
+                 
+                  </div>
+                  <div class="flex items-center justify-start p-6 bg-gray-200">
+                    <label for="cb_statusOrder" class="mr-2">Thông tin khách hàng:</label>
+                    <button
+                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      type="button"
+                      onClick={handleButtonClick}
+                    >
+                      <TbInfoCircle className="text-2x1" />{customerDetail.customerName}
                     </button>
+                    <button
+                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      type="button"
+                      onClick={handleButtonClick}
+                    >
+                      <a href={`tel:${customerDetail.customerPhone}`}>
+                      <TbPhoneCall className="text-2x1" />
+                        {customerDetail.customerPhone}
+                      </a>
+
+                    </button>
+                    <button
+                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      type="button"
+                      onClick={handleButtonClick}
+                    >
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customerDetail.customerAddress)}`} target="_blank">
+                      <TbAddressBook className="text-2x1" />
+                      {customerDetail.customerAddress}
+                      </a>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-start p-6 bg-gray-200">
+                    <label for="cb_statusOrder" class="mr-2">Thông tin tài xế:</label>
+                    {isDriverAvailabel ? (
+                      // Hiển thị nội dung khi isDriverAvailabel là true
+                      <div>
+                        {/* Thêm nội dung ở đây */}
+                      </div>
+                    ) : (
+                      // Hiển thị nút "Yêu cầu tài xế" khi isDriverAvailabel là false
+                      <button
+                        className="bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
+                        type="button"
+                        onClick={handleButtonClick}
+                      >
+                        Yêu cầu tài xế
+                      </button>
+                    )}
+
+                    
+                
                   </div>
                   {/*body*/}
                   <div className="w-full table-auto">
@@ -151,6 +314,9 @@ const Order = () => {
                             </Th>
                             <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                               Tổng tiền
+                            </Th>
+                            <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                              Hành động
                             </Th>
                           </Tr>
                         </Thead>
@@ -191,6 +357,11 @@ const Order = () => {
                                 </Td>
                                 <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                                   {formatMoney(item.TotalPrice)}
+                                </Td>
+                                <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
+                                <button>
+                                    <TbCircleX className="text-2xl" />
+                                </button>
                                 </Td>
                               </Tr>
                             ))
@@ -252,7 +423,7 @@ const Order = () => {
                       Chi tiết
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                      Hành động
+                      Xác nhận
                     </Th>
                   </Tr>
                 </Thead>
@@ -287,26 +458,95 @@ const Order = () => {
                             onClick={() => {
                               setOrderHeaderId(item.OrderHeaderId);
                               GetOrderLineDetails();
+                              setCustomerDetail({
+                                customerName: item.CustomerName,
+                                customerAddress: item.Address,
+                                customerPhone: item.Phone
+                              })
                             }}
                           >
                             <TbListDetails className="text-2xl" />
                           </button>
                         </Td>
-                        <Td className="capitalize p-3 text-sm font-bold text-green-600 whitespace-nowrap text-center">
-                          <button
-                            className="p-1.5 text-xs font-medium uppercase tracking-wider text-green-800 bg-green-200 rounded-lg bg-opacity-50"
+                        {item.Status === false ? (
+                        <Td className="p-3 gap-10 flex text-sm text-orange-900 whitespace-nowrap justify-center">
+                        <button
+                            className="p-1.5 text-xs font-medium uppercase tracking-wider text-red-800 bg-red-500 rounded-lg bg-opacity-50"
                             onClick={() => {
-                              SendNotification(notification);
+                              Swal.fire({
+                                title: "Xác nhận đơn hàng ?",
+                                text: "Bạn muốn xác nhận đơn hàng "+item.OrderHeaderId+" ?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Xác nhận !",
+                              }).then((result) => {
+                                if (result.isConfirmed) { 
+                                  ApproveOrder(item).then((response) => {
+                                    if (response.success) {
+                                      setNotification({ ...notification, 
+                                        to: item.TokenWeb,
+                                        data: { ...notification.data,            
+                                                body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                            }, 
+                                            notification: { ...notification.notification,            
+                                              body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                          } 
+                                          
+                                          });
+                                    }
+                                  })
+                                }
+                              });
                             }}
                           >
-                            <TbListDetails className="text-2xl" />
+                            <TbCircleX className="text-2xl" />
                           </button>
                         </Td>
+                        ):(
+                          <Td className="capitalize p-3 text-sm font-bold text-green-600 whitespace-nowrap text-center">
+                          <button
+                            className="p-1.5 text-xs font-medium uppercase tracking-wider text-green-800 bg-green-500 rounded-lg bg-opacity-50"
+                            onClick={() => {
+                              Swal.fire({
+                                title: "Hủy đơn hàng ?",
+                                text: "Bạn muốn hủy đơn hàng "+item.OrderHeaderId+" ?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Xác nhận !",
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  console.log(item.TokenWeb);
+                                  ApproveOrder(item).then((response) => {
+                                    if (response.success) {
+                                      setNotificationCancle({ ...notification, 
+                                        to: item.TokenWeb,
+                                        data: { ...notification.data,            
+                                                body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
+                                            }, 
+                                            notification: { ...notification.notification,            
+                                              body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
+                                          } 
+                                          });
+                                    }
+                                  })
+                                }
+                              });
+                            }}
+                          >
+                            <TbCheck className="text-2xl" />
+                          </button>
+                        </Td>
+                        )
+                        }
                       </Tr>
                     ))
                   ) : (
                     <div className="text-center">
-                      <span>Không có dữ liệu!</span>
+                      <span>Không có dữ liệu đơn hàng!</span>
                     </div>
                   )}
                 </Tbody>

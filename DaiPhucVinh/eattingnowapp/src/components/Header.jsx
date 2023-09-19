@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Logo, Avatar } from "../assets";
-import { MdShoppingBasket, MdAdd, MdLogout, MdLogin } from "react-icons/md";
+import { MdShoppingBasket, MdAdd, MdLogout, MdLogin, MdAccountBox, MdAccountCircle, MdSettings } from "react-icons/md";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useStateValue } from "../context/StateProvider";
@@ -27,7 +27,14 @@ const Header = () => {
       type: actionType.SET_LINKED,
       linked: !linked,
     });
-    <Link to={"/"}></Link>;
+    <Link to={"/otpauthen"}></Link>;
+  };
+  const handleAccount = () => {
+    dispatch({
+      type: actionType.SET_LINKED,
+      linked: !linked,
+    });
+    <Link to={"/personalaccount"}></Link>;
   };
 
   const handleLogout = () => {
@@ -36,10 +43,10 @@ const Header = () => {
       customer: null,
     });
     localStorage.setItem("customer", JSON.stringify(null));
+
   };
 
   console.log("customer", customer);
-
   return (
     <header className="fixed z-50 w-screen p-3 px-8 md:p-6 md:px-16 bg-orange-50">
       {/* desktop & tablet  */}
@@ -73,6 +80,7 @@ const Header = () => {
               </div>
             )}
           </div>
+          
 
           <div className="relative">
             <motion.img
@@ -93,13 +101,22 @@ const Header = () => {
                 {/* <p className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-all duration-100 ease-in-out text-textColor text-base justify-between">
                   Thông tin <MdAdd />
                 </p> */}
+            <div>
                 {customer !== null ? (
-                  <p
-                    onClick={handleLogout}
-                    className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-all duration-100 ease-in-out text-textColor text-base justify-between"
-                  >
-                    Đăng xuất <MdLogout />
-                  </p>
+                  <div>
+                    <a href="/account">
+                      <p
+                        className="m-2 p-2 rounded-md shadow-md flex items-center justify-center bg-gray-200 gap-3 cursor-pointer hover:bg-slate-300 transition-all duration-100 ease-in-out text-textColor text-base"
+                      >
+                        Tài khoản <MdAccountCircle />
+                      </p>
+                    </a>
+                    <p
+                      onClick={handleLogout}
+                      className="m-2 p-2 rounded-md shadow-md flex items-center justify-center bg-gray-200 gap-3 cursor-pointer hover:bg-slate-300 transition-all duration-100 ease-in-out text-textColor text-base">
+                        Đăng xuất <MdLogout />
+                      </p>
+                  </div>
                 ) : (
                   <div>
                     <p
@@ -110,6 +127,8 @@ const Header = () => {
                     </p>
                   </div>
                 )}
+              </div>
+
               </motion.div>
             )}
           </div>
@@ -147,20 +166,33 @@ const Header = () => {
 
           {isMenu && (
             <motion.div className="w-40 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 right-0">
-              <p className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-all duration-100 ease-in-out text-textColor text-base">
-                Thông tin <MdAdd />
-              </p>
-              <ul className="flex flex-col">
-                <li className="text-base text-textColor hover:text-headingColor duration-100 transition-all ease-in-out cursor-pointer hover:bg-slate-100 px-4 py-2">
-                  Trang chủ
-                </li>
-                <li className="text-base text-textColor hover:text-headingColor duration-100 transition-all ease-in-out cursor-pointer hover:bg-slate-100 px-4 py-2">
-                  Đăng nhập
-                </li>
+              <ul className="flex flex-col">   
+                <div>
+                  {customer ? (
+                    <div>
+                    <a href="/account">
+                      <p
+                      className="m-2 p-2 rounded-md shadow-md flex items-center justify-center bg-gray-200 gap-3 cursor-pointer hover:bg-slate-300 transition-all duration-100 ease-in-out text-textColor text-base">
+                        Tài khoản <MdAccountCircle />
+                      </p>
+                      </a>
+                      <p
+                      onClick={handleLogout}
+                      className="m-2 p-2 rounded-md shadow-md flex items-center justify-center bg-gray-200 gap-3 cursor-pointer hover:bg-slate-300 transition-all duration-100 ease-in-out text-textColor text-base">
+                        Đăng xuất <MdLogout />
+                      </p>
+                    </div>
+                  ) : (
+                    <p
+                    onClick={handleLogin}
+                    className="px-4 py-2 flex items-center gap-3 cursor-pointer hover:bg-slate-100 transition-all duration-100 ease-in-out text-textColor text-base justify-between"
+                    >
+                      Đăng nhập <MdLogin />
+                    </p>
+                  )}
+                </div>
               </ul>
-              <p className="m-2 p-2 rounded-md shadow-md flex items-center justify-center bg-gray-200 gap-3 cursor-pointer hover:bg-slate-300 transition-all duration-100 ease-in-out text-textColor text-base">
-                Đăng xuất <MdLogout />
-              </p>
+             
             </motion.div>
           )}
         </div>

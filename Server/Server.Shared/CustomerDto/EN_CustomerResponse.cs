@@ -14,9 +14,13 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public string DistrictId { get; set; }
         public string WardId { get; set; }
         public string Phone { get; set; }
+        public string Email { get; set; }
+
         public string Address { get; set; }
         public bool Status { get; set; }
         public string TokenWeb { get; set; }
         public string TokenApp { get; set; }
+        public string ImageProfile { get; set; }
+
     }
 }

@@ -383,7 +383,10 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Store.AbsoluteImage))
                 .ForMember(d => d.StoreName, o => o.MapFrom(s => s.Store.FullName));
             CreateMap<EN_OrderHeader, OrderHeaderResponse>()
-                .ForMember(d => d.CustomerName, o => o.MapFrom(s => s.EN_Customer.CompleteName));
+                .ForMember(d => d.CustomerName, o => o.MapFrom(s => s.EN_Customer.CompleteName))
+                .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_Customer.Phone))
+                .ForMember(d => d.TokenWeb, o => o.MapFrom(s => s.EN_Customer.TokenWeb))
+                .ForMember(d => d.Address, o => o.MapFrom(s => s.EN_Customer.Address));
             CreateMap<EN_Customer, EN_CustomerResponse>();
             CreateMap<EN_OrderLine, OrderLineReponse>()
                 .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.qty * s.Price));

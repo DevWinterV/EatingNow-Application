@@ -5,7 +5,6 @@ import { Breadcrumb } from "../../controls";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { TakeAllOrder, ApproveOrder , GetListOrderLineDetails} from "../../api/order/orderService";
 import { Modal, Button } from 'react-bootstrap';
-
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";

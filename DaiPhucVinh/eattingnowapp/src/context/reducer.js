@@ -8,11 +8,12 @@ export const actionType = {
   SET_LINKED: "SET_LINKED",
   SET_CUSTOMER: "SET_CUSTOMER",
   SET_CARTSTORE: "SET_CARTSTORE",
+  SET_TOKEN: "SET_TOKEN",
+  SET_EMAIL: "SET_EMAIL"
 };
 
 const reducer = (state, action) => {
-  // console.log(action);
-
+   console.log(action);
   switch (action.type) {
     case actionType.SET_USER:
       return {
@@ -62,7 +63,16 @@ const reducer = (state, action) => {
         ...state,
         cartStore: action.cartStore,
       };
-
+      case actionType.SET_TOKEN:
+        return {
+          ...state,
+          token: action.token,
+        };
+        case actionType.SET_EMAIL:
+        return {
+          ...state,
+          email: action.email,
+        };
     default:
       return state;
   }

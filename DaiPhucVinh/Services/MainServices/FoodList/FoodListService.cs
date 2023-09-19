@@ -370,7 +370,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             }
         }
         /// <summary>
-        /// Rạng Đông - 0766837068
+        /// Rạng Đông 
         /// API gọi ý món ăn yêu thích dựa trên lịch sử mua hàng của khách hàng. Lọc ra những loại món ăn yêu thích
         /// của khách hàng và lọc ra những cửa hàng gần với tọa độ vị trí của khách hàng nhất trong phạm vi 8 km
         /// </summary>
@@ -384,60 +384,74 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                 var recommendedFoods = new List<EN_FoodList>();
                 // Lấy danh sách các cửa hàng 
                 var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
+                // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
+                var newStores = new List<EN_Store>();
+                foreach (   var store in stores)
+                {
+                    var distance = Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude);
+                    if (distance <= 10)
+                    {
+                        newStores.Add(store);
+                    }
+                }
+
                 // Nếu khách hàng đã đăng nhập
                 if (request.CustomerId != null)
                 {
                     // Lịch sử mua của khách hàng
-
                     var query = from orderLine in _datacontext.EN_OrderLine
                                 join orderHeader in _datacontext.EN_OrderHeader on orderLine.OrderHeaderId equals orderHeader.OrderHeaderId
                                 where orderHeader.CustomerId == request.CustomerId
                                 select orderLine;
                     var orderlines = query.ToList();
+
                     if(orderlines.Count > 0)
                     {
-                        // lấy Danh sách các loại món ăn yêu thich dựa vào phân tích 
-                        var userPreferences = AnalyzeUserPreferences(orderlines);
-
-                        // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
-                        var newStores = new List<EN_Store>();
-                        foreach (var store in stores)
-                        {
-                            if (Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude) <= 8)
-                            {
-                                newStores.Add(store);
-                            }
-                        }
+                        // lấy Danh sách tên các loại món ăn yêu thich dựa vào phân tích 
+                        var userPreferences_nameCatagoryfood = AnalyzeUserPreferences(orderlines);
                         // Lấy danh sách món ăn đề xuất dựa trên loại món ăn yêu thích, gần với  tọa độ người dùng và đánh giá của cửa hàng >= 4*
-                        foreach (var userPreference in userPreferences)
+                        foreach(var catagoryName in userPreferences_nameCatagoryfood)
                         {
-                            foreach (var store in stores)
+                            foreach(var store in newStores)
                             {
-                                var results = _datacontext.EN_FoodList.Where(x => x.CategoryId == userPreference && x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
+                                // sử dụng so sánh like % trong SQL
+                                var results = _datacontext.EN_FoodList
+                               .Where(x => x.Category.CategoryName.Contains(catagoryName.CategoryName) && x.UserId == store.UserId)
+                               .OrderBy(x => x.Price).ToList();
                                 recommendedFoods.AddRange(results);
-                            }
+                            }    
                         }
-                    }else{
-                        foreach (var store in stores)
+                        //
+                        var fianlrecommendFoods = recommendedFoods
+                          .GroupBy(x => x.FoodListId)
+                          .Select(group => group.First()) // Lấy một lần xuất hiện đầu tiên của mỗi nhóm
+                          .ToList();
+                        result.Data = fianlrecommendFoods.MapTo<FoodListResponse>();
+                        result.DataCount = fianlrecommendFoods.Count;
+                    }
+                    else
+                    {
+                        foreach (var store in newStores)
                         {
                             var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
                             recommendedFoods.AddRange(results);
                         }
-                    }    
-    
-                    //
-                    result.Data = recommendedFoods.MapTo<FoodListResponse>();
+                        result.Data = recommendedFoods.MapTo<FoodListResponse>();
+                        result.DataCount = recommendedFoods.Count;
+
+                    }
                     result.Success = true;
                 }   
                 // Nếu khách hàng là người mới chưa có tài khoản
                 else
                 {
-                    foreach (var store in stores)
+                    foreach (var store in newStores)
                     {
                         var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
                         recommendedFoods.AddRange(results);
                     }
                     result.Data = recommendedFoods.MapTo<FoodListResponse>();
+                    result.DataCount = recommendedFoods.Count;
                     result.Success = true;
                 }    
              }
@@ -449,8 +463,10 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             return result;
         }
 
+
+
         // Phân tích dữ liệu sở thích món ăn của người dùng 
-        static List<int> AnalyzeUserPreferences(List<EN_OrderLine> orderLines)
+        public List<EN_CategoryList> AnalyzeUserPreferences(List<EN_OrderLine> orderLines)
         {
             var userPreferences = orderLines
                 .GroupBy(ol => ol.CategoryId)
@@ -458,7 +474,13 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                 .Select(group => group.Key)
                 .ToList();
 
-            return userPreferences;
+            var Catagorys = new List<EN_CategoryList>();
+            foreach (var category in userPreferences)
+            {
+                var results = _datacontext.EN_CategoryList.Where(x => x.CategoryId == category).ToList();
+                Catagorys.AddRange(results);
+            }
+            return Catagorys;
         }
 
 

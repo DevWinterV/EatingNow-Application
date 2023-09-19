@@ -14,6 +14,7 @@ const API = {
   TakeOrderHeaderByStoreId: "/TakeOrderHeaderByStoreId",
   GetListOrderLineDetails: "/GetListOrderLineDetails",
   TakeStatisticalByStoreId: "/TakeStatisticalByStoreId",
+  ApproveOrder: "/ApproveOrder",
 };
 
 const TakeAllStore = async (request) => {
@@ -183,6 +184,24 @@ const TakeOrderHeaderByStoreId = async (Id) => {
   }
   return result;
 };
+const ApproveOrder = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.ApproveOrder,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.item = response.data.Item;
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 const GetListOrderLineDetails = async (Id) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -247,4 +266,5 @@ export {
   TakeOrderHeaderByStoreId,
   GetListOrderLineDetails,
   TakeStatisticalByStoreId,
+  ApproveOrder,
 };

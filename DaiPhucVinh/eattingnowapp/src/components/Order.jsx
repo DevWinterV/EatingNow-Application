@@ -9,13 +9,19 @@ import SelectWard from "./SelectWard";
 import CartItem from "./CartItem";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-
+import App from "./DeliveryAddress";
 import {
   CheckCustomer,
   CreateOrderCustomer,
 } from "../api/customer/customerService";
+import MyApp from "./DeliveryAddress";
+
 let delivery = 15000;
 const Order = () => {
+  const key = 'AIzaSyC-N1CyjegpbGvp_PO666Ie9sNQy9xW2Fo'
+  const [formData, setFormData] = useState({
+    CompleteAddress: "",
+  });
   const [tot, setTot] = useState(0);
   const [flag, setFlag] = useState(1);
   const [{ cartItems }] = useStateValue();
@@ -57,10 +63,17 @@ const Order = () => {
     }
   }
 
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+  };
+
   async function order() {
     let response = await CreateOrderCustomer(request);
     if (response.success) {
-      console.log("hahhahahahahh");
       if (response.message != "") {
         window.location.href = `${response.message}`;
       } else {
@@ -76,6 +89,7 @@ const Order = () => {
     { label: "Thanh toán ví Momo", value: "MOMO" },
   ]);
   const [value, setValue] = React.useState("PaymentOnDelivery");
+
   useEffect(() => {
     let totalPrice = cartItems.reduce(function (accumulator, item) {
       return accumulator + item.qty * item.Price;
@@ -93,8 +107,9 @@ const Order = () => {
     });
     onChangeCustomer();
   }, [tot, flag, customer, value]);
+
   return (
-    <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+    <section className="bg-min-h-screen flex items-center justify-center">
       <div className="bg-green-200 h-610 flex rounded-2xl shadow-lg max-w-3xl p-5 gap-6 items-start text-center">
         <div className="w-1/2 px-8">
           <h2 className="font-bold text-2xl text-[#171a1f] text-left capitalize">
@@ -106,7 +121,7 @@ const Order = () => {
             {cartItems &&
               cartItems.map((item) => (
                 <CartItem
-                  key={item?.FoodListId}
+                key={item?.FoodListId}
                   item={item}
                   setFlag={setFlag}
                   flag={flag}
@@ -145,7 +160,7 @@ const Order = () => {
             {checkCustomer > 0 && (
               <>
                 <RadioGroup
-                  label="Permissions"
+                  label="Phương thức thanh toán"
                   size={16}
                   value={value}
                   options={options}
@@ -261,6 +276,17 @@ const Order = () => {
             </div>
           </div>
         )}
+      <div className="flex justify-center">
+
+      <div className="w-full max-w-3xl p-4">
+        <MyApp
+          googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`}
+          loadingElement={<div style={{ height: `100%` }} />}
+          containerElement={<div style={{ height: `30vh`, margin: `auto`, border: '2px solid black' }} />}
+          mapElement={<div style={{ height: `100%` }} />}
+        />
+      </div>
+    </div>
       </div>
 
       {cartShow && <CartContainer />}
