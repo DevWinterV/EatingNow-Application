@@ -374,8 +374,9 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         }
         /// <summary>
         /// Rạng Đông 
-        /// API gọi ý món ăn yêu thích dựa trên lịch sử mua hàng của khách hàng. Lọc ra những loại món ăn yêu thích
-        /// của khách hàng và lọc ra những cửa hàng gần với tọa độ vị trí của khách hàng nhất trong phạm vi 8 km
+        /// API gợi ý món ăn cho khách hàng dựa vào lịch sử mua hàng và đánh giá của người dùng sử dụng Machine Learning (ML.NET)
+        /// Thuật toán Matrix Factorization
+        /// của khách hàng và lọc ra những cửa hàng gần với tọa độ vị trí của khách hàng nhất trong phạm vi 10 km
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>

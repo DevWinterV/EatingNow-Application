@@ -27,6 +27,7 @@ namespace AI.FoodList
             EvaluateModel();
 
         }
+        // Thực thi 
         public static void Execute()
         {
             LoadData();
@@ -36,6 +37,7 @@ namespace AI.FoodList
             Predicvalue1();
         }
 
+        // Dự doán kết quả 
         public List<ResultModel> Predicvalue(List<InputData> inputdata)
         {
             List<ResultModel> results = new List<ResultModel>();
@@ -107,17 +109,19 @@ namespace AI.FoodList
             }
             ));
         }
-
+        //In kết quả gợi ý dựa trên Score
         private static void PrintResult(ResultModel result)
         {
             Console.WriteLine($"CustomerId: {result.CustomerId} | FoodId: {result.FoodListId} | Score: {result.Score} : Is Recommended: {result.Score > 3}");
         }
 
+        // Đánh giá mô hình
         private static void EvaluateModel()
         {
             var predictions = model.Transform(splitData.TestSet);
             var metrics = context.Recommendation().Evaluate(predictions, labelColumnName: nameof(InputData.Rating));
         }
+        // Xây dựng mô hình. Thuật toán Matrix Factirization
         public static void CreateModel()
         {
             var options = new MatrixFactorizationTrainer.Options
@@ -132,7 +136,7 @@ namespace AI.FoodList
             var pipeline = estimator.Append(trainer);
             model = pipeline.Fit(splitData.TrainSet);
         }
-
+        // Dữ liệu trước tiến trình
         public static void PreProgressData()
         {
             estimator = context.Transforms.Conversion.MapValueToKey(
@@ -144,7 +148,7 @@ namespace AI.FoodList
 
             splitData = context.Data.TrainTestSplit(PreProgressData, 0.05);
         }
-
+        // Load dữ liệu đầu vào 
         public static void LoadData()
         {
             /*
