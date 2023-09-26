@@ -51,7 +51,7 @@ namespace AI.FoodList
                     FoodListId = data.FoodListId
                 });
 
-                if (resultmodel.Score >= 1.0)
+                if (resultmodel.Score >= 1.5)
                 {   
                     results.Add(resultmodel);
                 }
@@ -121,21 +121,23 @@ namespace AI.FoodList
             var predictions = model.Transform(splitData.TestSet);
             var metrics = context.Recommendation().Evaluate(predictions, labelColumnName: nameof(InputData.Rating));
         }
-        // Xây dựng mô hình. Thuật toán Matrix Factirization
+        // Xây dựng mô hình. Thuật toán Matrix Factorization. Khoảng đánh giá món ăn từ 1 đến 5 sao
         public static void CreateModel()
         {
             var options = new MatrixFactorizationTrainer.Options
             {
-                LabelColumnName = nameof(InputData.Rating),
-                MatrixColumnIndexColumnName = "Encoded_CustomerId",
-                MatrixRowIndexColumnName = "Encoded_FoodListId",
-                NumberOfIterations =100,
-                ApproximationRank = 100
+                LabelColumnName = nameof(InputData.Rating),// Cột dữ liệu chứa điểm đánh giá
+                MatrixColumnIndexColumnName = "Encoded_CustomerId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
+                MatrixRowIndexColumnName = "Encoded_FoodListId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
+                NumberOfIterations = 90,//Số lần lặp trong quá trình đào tạo.
+                ApproximationRank = 100,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
             };
             var trainer = context.Recommendation().Trainers.MatrixFactorization(options);
             var pipeline = estimator.Append(trainer);
             model = pipeline.Fit(splitData.TrainSet);
         }
+
+
         // Dữ liệu trước tiến trình
         public static void PreProgressData()
         {

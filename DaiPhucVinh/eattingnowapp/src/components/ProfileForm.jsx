@@ -38,6 +38,7 @@ function ProfileForm() {
       }else if (selectedTab === 'banking') {
         return <BankAccountForm />;
       }
+      /*
       else
       {
           return(
@@ -93,7 +94,9 @@ function ProfileForm() {
           </form>
   
           )
-      }}
+      }
+    */
+   }
   };
 
   const [passwordData, setPasswordData] = useState({
@@ -130,12 +133,17 @@ function ProfileForm() {
               >
                 Tài khoản ngân hàng
               </li>
+              {
+                /*
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'changepassword' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
-                onClick={() => setSelectedTab('changepassword')}
+              className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'changepassword' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+              onClick={() => setSelectedTab('changepassword')}
               >
                 Đổi mật khẩu
               </li>
+              */
+              }
+           
               <li
                 className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'setting' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                 onClick={() => setSelectedTab('setting')}
