@@ -15,14 +15,11 @@ const handleSearchAddress = async (searchAddress) => {
       const firstResult = response.data.results[0];
       const location = firstResult.geometry.location;
       const name = firstResult.name;
-      console.log('Location:', location);
-      console.log('Name:', name);
     } else {
       return response.data.status ==="DOK"
     }
     return response;
   } catch (error) {
-    console.error('Lỗi khi tìm kiếm địa chỉ:', error);
     alert('Có lỗi xảy ra khi tìm kiếm địa chỉ. Vui lòng thử lại sau.');
   }
 };

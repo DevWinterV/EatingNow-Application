@@ -37,13 +37,13 @@ const HomePage = () => {
     CustomerId: "",
     TokenWeb: "",
   });
+
   // Data nhận từ reponse của api TakeRecommendedFoodlist
   const [datafoodlist, setDatafoodlist] = useState([]);
 
   useEffect(() => {
     // Lấy vị trí hiện tại của người dùng
     const fetchCurrentLocation = async () => {
-      setLoadingrecommendedfood(true);
       try {
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -55,7 +55,6 @@ const HomePage = () => {
           Latitude: latitude,
           Longittude:longitude,
         });
-        setLoadingrecommendedfood(false);
         getToken(messaging, { vapidKey: 'BEk8bm2SlIuRZyiG5peYbc6jS2C0oqzK5w-wcT4TUTOsyAvZLVGM_5wxd8_f6sPSZZ_3v2tmT7n1jyXUjhpgriQ'}).then((currentToken) => {
           if (currentToken) {
             // Send the token to your server and update the UI if necessary
@@ -86,17 +85,23 @@ const HomePage = () => {
   }, []);
 
 
+      // Gọi api Gợi ý món ăn AI
+  async function FechDataFoodReccomend(){
+    setLoadingrecommendedfood(true);
+    let responseRecommen = await TakeRecommendedFoodList(request);
+    if (responseRecommen.success) {
+      setDatafoodlist(responseRecommen.data);
+      setLoadingrecommendedfood(false);
+    }
+  }
+
+  //Load danh mục loại hình ăn uống
   async function onViewAppearing() {
     setLoading(true);
     let response = await TakeAllCuisine(filter);
     if (response.success) {
       setData(response.data);
       setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
-    }
-    // Gọi api Gợi ý món ăn
-    let responseRecommen = await TakeRecommendedFoodList(request);
-    if (responseRecommen.success) {
-      setDatafoodlist(responseRecommen.data);
     }
     let responseUpdateToken = await UpdateToken(requestToken);
     if (responseUpdateToken.success) {
@@ -107,6 +112,7 @@ const HomePage = () => {
 
   React.useEffect(() => {
     onViewAppearing();
+    FechDataFoodReccomend();
   }, [filter.page, filter.pageSize, request, requestToken]);
 
   return (
@@ -126,7 +132,7 @@ const HomePage = () => {
       </section>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
-          Có thể bạn sẽ thích
+          Món ngon cho bạn
         </p>
         {loadingrecommendedfood ? (
           <div className="text-center pt-20">

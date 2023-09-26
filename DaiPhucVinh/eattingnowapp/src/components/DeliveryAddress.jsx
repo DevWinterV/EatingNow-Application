@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { withGoogleMap, withScriptjs, GoogleMap, Marker } from 'react-google-maps';
 import { FaExchangeAlt, FaLocationArrow, FaSearch, FaServer } from 'react-icons/fa';
 import { handleSearchAddress } from "../api/googleSearchApi/googleApiService";
+import debounce from 'lodash/debounce';
 
 const Map = () => {
   const [currentLocation, setCurrentLocation] = useState({ lat: 10.776889, lng: 106.700897 });
@@ -52,7 +53,18 @@ const Map = () => {
     }
   };
   
-
+  const handleDebouncedSearch = debounce((searchValue) => {
+    // Thực hiện tìm kiếm với giá trị searchValue ở đây
+    handleSearch(searchValue);
+  }, 1000); // Đợi 1 giây trước khi thực hiện tìm kiếm
+  
+  const handleInputChange = (event) => {
+    const searchValue = event.target.value;
+    setSearchAddress(event.target.value);
+  
+    // Sử dụng hàm xử lý tìm kiếm với độ trễ
+    handleDebouncedSearch(searchValue);
+  };
 
   const handleChangeAddress =() =>{
     setisAddress(!isAddress)
@@ -78,8 +90,6 @@ const Map = () => {
         setselectedAddress(
           newSelectedAddress
         )
-
-
   };
 
   const [searchData, setsearchData] = useState([]);
@@ -108,20 +118,19 @@ const Map = () => {
           bounds.extend(new window.google.maps.LatLng(currentLocation.lat, currentLocation.lng));
           mapRef.current.fitBounds(bounds);
         }
-    handleSearch(searchAddress)
-    }, [searchAddress, currentLocation]); // Empty dependency array to run this effect once when the component is mounted
+    }, [ currentLocation]); // Empty dependency array to run this effect once when the component is mounted
 
   return (
     <div>
        
-        
+       <h2 className="font-bold text-2xl text-[#171a1f] text-center capitalize mb-4 mt-2">
+    Địa chỉ nhận hàng:
+       </h2>
         {
   !isAddress ? (
 
     <div>
-          <h2 className="font-bold text-2xl text-[#171a1f] text-left capitalize mb-4">
-    Chọn địa chỉ nhận hàng:
-  </h2>
+
       <button
         id="getcurrentlocation"
         name="getcurrentlocation"
@@ -132,14 +141,14 @@ const Map = () => {
       >
         <FaLocationArrow className="text-2xl" /> Sử dụng vị trí hiện tại
       </button>
-      <input
+        <div>  <input
         className="p-2 mt-4 rounded-xl border w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         type="text"
         placeholder="Nhập địa chỉ cần tìm kiếm..."
         value={searchAddress}
-        onChange={(e) => setSearchAddress(e.target.value)}
+        onChange={(e) => handleInputChange(e)}
       />
-      <div className="max-h-60 overflow-y-auto mt-4">
+      <div className="max-h-60 overflow-y-auto mt-2">
         <ul className="list-none p-0 m-0">
           {searchData && searchData.length > 0 ? (
             searchData.map((result, index) => (
@@ -160,22 +169,23 @@ const Map = () => {
             ))
           ) : null}
         </ul>
-      </div>
+      </div></div>
     </div>
   ) : (
     <div>
-     <h2 className="font-bold text-2xl text-[#171a1f] text-left capitalize mb-4">
-        Địa chỉ nhận hàng:
-      </h2>
+      <div className='text-center'>
       {selectedAddress.formatted_address && (
           <span className="text-blue-500 ml-2">
             {selectedAddress.formatted_address}
           </span>
         )}
+
+      </div>
+  
         <button
         id="getcurrentlocation"
         name="getcurrentlocation"
-        className="ml-2 p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
+        className="ml-2 mt-2 p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
         onClick={() => {
           handleChangeAddress();
         }}
@@ -191,7 +201,7 @@ const Map = () => {
 
             
     <GoogleMap
-      defaultZoom={5}
+      defaultZoom={8}
       defaultCenter={{ lat: 10.3716558, lng: 105.4323389 }}
       ref={mapRef}
       style={{ borderRadius: 4 }} // Remove rounded corners

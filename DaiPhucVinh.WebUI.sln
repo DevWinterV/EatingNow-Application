@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh.Server.Data", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaiPhucVinh.Services", "DaiPhucVinh\Services\DaiPhucVinh.Services.csproj", "{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 AI", "4 AI", "{B779CA87-010F-4994-8228-0C3D09D368A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangDong.AI", "RangDong.AI\RangDong.AI.csproj", "{5BC72CAE-9464-4B40-8EFE-47999A655419}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|x86.ActiveCfg = Release|x86
 		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5}.Release|x86.Build.0 = Release|x86
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Debug|x86.Build.0 = Debug|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Release|x86.ActiveCfg = Release|Any CPU
+		{5BC72CAE-9464-4B40-8EFE-47999A655419}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,10 +78,11 @@ Global
 		{1D9FC869-B2BF-4381-92E2-C25360BDA137} = {C31C7021-686C-455A-8F3D-0746251331DA}
 		{1F5351DC-5039-44DB-A680-6306A5A988EC} = {07102429-7A54-4BCF-A1C9-D819955F397C}
 		{6F5F34D9-FD2D-4164-AC6C-B3CDDC1D9CA5} = {07102429-7A54-4BCF-A1C9-D819955F397C}
+		{5BC72CAE-9464-4B40-8EFE-47999A655419} = {B779CA87-010F-4994-8228-0C3D09D368A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {2CB3DAC4-47A9-481C-A5B6-0296BEFAF516}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 	GlobalSection(NDepend) = preSolution
 		Project = ".\FalconCommerce.ndproj"

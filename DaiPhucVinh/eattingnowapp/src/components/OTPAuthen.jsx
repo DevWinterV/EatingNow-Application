@@ -14,6 +14,8 @@ import  { useEffect, useRef, useState } from "react";
 import { TbBrandFacebook, TbBrandGoogle, TbFaceId, TbLogin } from "react-icons/tb";
 import { provider} from "../firebase.config";
 import { getAuth,signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const OTPAuthen = () => {
   const [{ customer, linked, token }, dispatch] = useStateValue();
@@ -118,19 +120,20 @@ const OTPAuthen = () => {
       const userData = await faceioInstance.authenticate({
         locale: "auto",
       })
-      if(userData!= null){
+      if(userData != null){
         localStorage.setItem("customer", JSON.stringify(userData.payload.userId));
+        window.location.href = "/*";  
       }
-      console.log('Unique Facial ID: ', userData.facialId)
-      console.log('User ID: ', userData.payload.userId)
-      console.log('PayLoad: ', userData.payload)
+      else
+      {
+        toast.success('Chưa đăng ký gương mặt !', { autoClose: 3000 });
+
+      }
       dispatch({
         type: actionType.SET_LINKED,
         linked: !linked,
       });
-      navigate("/");
     } catch (errorCode) {
-      console.log(errorCode)
       handleError(errorCode)
     }
   }
@@ -159,7 +162,6 @@ const OTPAuthen = () => {
       const appVerifier = window.recaptchaVerifier;
 
       const formatPh = "+" + ph;
-
       signInWithPhoneNumber(auth, formatPh, appVerifier)
         .then((confirmationResult) => {
           window.confirmationResult = confirmationResult;
@@ -190,6 +192,7 @@ const OTPAuthen = () => {
           customer: res.user.uid,
         });
         localStorage.setItem("customer", JSON.stringify(res.user.uid));
+        toast.success('Đăng nhập thành công', { autoClose: 3000 });
         // UPdate token again when login succes
         let reponse = await UpdateToken({
           CustomerId: res.user.uid,
@@ -207,8 +210,8 @@ const OTPAuthen = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err);
         setLoading(false);
+        toast.warning('Vui lòng nhập đúng mã OTP', { autoClose: 3000 });
       });
   }
 
@@ -235,6 +238,7 @@ const OTPAuthen = () => {
        const token = credential.accessToken;
        // The signed-in user info.
        const user = result.user;
+       console.log(user.email)
        dispatch({
          type: actionType.SET_EMAIL,
          email: user.email,
@@ -245,9 +249,13 @@ const OTPAuthen = () => {
            Email: user.email,
          })
          if(reponse.success){
-           console.log(reponse)
+          console.log(result)
+          window.location.href = "/*";
            localStorage.setItem("customer", JSON.stringify(reponse.data[0].CustomerId));
-           window.location.href = "/*";
+         }
+         else
+         {
+          window.location.href = "/*";
          }
 
      }).catch((error) => {
@@ -265,8 +273,9 @@ const OTPAuthen = () => {
   return (
     <section className="bg-orange-100 flex items-center justify-center h-screen">
       <div>
+      <ToastContainer />
         <div id="recaptcha-container"></div>
-        {user ? (
+        {user != null ? (
           <h2 className="text-center text-white font-medium text-2xl">
             👍Login Success
           </h2>
@@ -336,14 +345,18 @@ const OTPAuthen = () => {
               >
                 <TbBrandFacebook className="text-2xl" /> Facebook
               </button>
-              <button
+              {
+                      /* Đăng nhập bằng google
+                <button
                 className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
                 onClick={() => {
                   signInGoogle()
                 }}
               >
                 <TbBrandGoogle className="text-2xl" /> Google
-              </button>
+              </button>*/
+              }
+       
               <button
                 className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
                 onClick={() => {
@@ -358,7 +371,7 @@ const OTPAuthen = () => {
                   faceSignIn()
                 }}
               >
-                <TbFaceId className="text-2xl" /> FACE IO
+                <TbFaceId className="text-2xl" /> Khuôn mặt
               </button>
             </div>
 

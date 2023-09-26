@@ -414,6 +414,10 @@
     <Folder Include="Installation\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\RangDong.AI\RangDong.AI.csproj">
+      <Project>{5bc72cae-9464-4b40-8efe-47999a655419}</Project>
+      <Name>RangDong.AI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Server\Server.Data\DaiPhucVinh.Server.Data.csproj">
       <Project>{1f5351dc-5039-44db-a680-6306a5a988ec}</Project>
       <Name>DaiPhucVinh.Server.Data</Name>

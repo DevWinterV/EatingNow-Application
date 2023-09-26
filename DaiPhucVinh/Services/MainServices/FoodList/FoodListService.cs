@@ -1,4 +1,5 @@
-﻿using DaiPhucVinh.Server.Data.DaiPhucVinh;
+﻿using AI.FoodList;
+using DaiPhucVinh.Server.Data.DaiPhucVinh;
 using DaiPhucVinh.Services.Database;
 using DaiPhucVinh.Services.Framework;
 using DaiPhucVinh.Services.Helper;
@@ -7,6 +8,8 @@ using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.FoodList;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.VariantTypes;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
 using System;
@@ -381,6 +384,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             var result = new BaseResponse<FoodListResponse> { };
             try
             {
+                /*
                 var recommendedFoods = new List<EN_FoodList>();
                 // Lấy danh sách các cửa hàng 
                 var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
@@ -454,7 +458,66 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     result.DataCount = recommendedFoods.Count;
                     result.Success = true;
                 }    
-             }
+                */
+                var newfoodlist = new List<EN_FoodList>();
+                var recommendPrediction = new RecommendedFoodList();
+                var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
+                // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
+                var newStores = new List<EN_Store>();
+                var foodlistNearS = new List<EN_FoodList>();
+                foreach (var store in stores)
+                {
+                    var distance = Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude);
+                    if (distance <= 10)
+                    {
+                        newStores.Add(store);
+                        var foodlistNear = _datacontext.EN_FoodList
+                            .Where(food => food.UserId == store.UserId)
+                            .ToList();
+                        foodlistNearS.AddRange(foodlistNear);
+                    }
+                }
+                var inputDatas = new List<InputData>();
+
+                if (request.CustomerId != null)
+                {
+                    foreach (var food in foodlistNearS)
+                    {
+                        inputDatas.Add(new InputData
+                        {
+                            CustomerId = request.CustomerId,
+                            FoodListId = food.FoodListId,
+                        });
+                    }
+                    List<ResultModel> data = recommendPrediction.Predicvalue(inputDatas);
+                    if(data.Count > 5)
+                    {
+                        foreach (var inputData in data)
+                        {
+                            var matchingFood = foodlistNearS.FirstOrDefault(x => x.FoodListId == inputData.FoodListId);
+                            if (matchingFood != null)
+                            {
+                                newfoodlist.Add(matchingFood);
+                            }
+                        }
+                        result.Data = newfoodlist.MapTo<FoodListResponse>();
+                        result.DataCount = newfoodlist.Count;
+
+                    }
+                    else
+                    {
+                        result.Data = foodlistNearS.MapTo<FoodListResponse>();
+                        result.DataCount = foodlistNearS.Count;
+                    } 
+                }
+                else
+                {
+                    // Show hết các sản phẩm hiện có
+                    result.Data = foodlistNearS.MapTo<FoodListResponse>();
+                    result.DataCount = foodlistNearS.Count;
+                }
+                result.Success = true;
+            }
             catch (Exception ex)
             {
                 result.Message = ex.ToString();

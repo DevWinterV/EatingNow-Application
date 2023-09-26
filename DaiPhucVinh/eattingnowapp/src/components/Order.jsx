@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStateValue } from "../context/StateProvider";
 import CartContainer from "./CartContainer";
-import { RadioGroup, TextInput, toaster } from "evergreen-ui";
+import { RadioGroup, TextInput } from "evergreen-ui";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import SelectProvince from "./SelectProvince";
 import SelectDistrict from "./SelectDistrict";
 import SelectWard from "./SelectWard";
 import CartItem from "./CartItem";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import App from "./DeliveryAddress";
 import {
   CheckCustomer,
   CreateOrderCustomer,
 } from "../api/customer/customerService";
 import MyApp from "./DeliveryAddress";
+import { actionType } from "../context/reducer";
 
 let delivery = 15000;
 const Order = () => {
@@ -24,7 +26,7 @@ const Order = () => {
   });
   const [tot, setTot] = useState(0);
   const [flag, setFlag] = useState(1);
-  const [{ cartItems }] = useStateValue();
+  const [{ cartItems,linked }] = useStateValue();
   const navigate = useNavigate();
   const [{ cartShow, customer }, dispatch] = useStateValue();
   const [checkCustomer, setCheckCustomer] = useState(0);
@@ -71,19 +73,27 @@ const Order = () => {
       });
   };
 
-  async function order() {
-    let response = await CreateOrderCustomer(request);
-    if (response.success) {
-      if (response.message != "") {
-        window.location.href = `${response.message}`;
-      } else {
-        toaster.success("Đặt món thành công", {
-          duration: 3,
-          description: "Món ăn sẽ được giao đến bạn sớm nhất.",
-        });
-      }
+async function order() {
+  let response = await CreateOrderCustomer(request);
+  if (response.success) {
+    if (response.message == "") {
+      toast.success('Đặt món ăn thành công!', { autoClose: 3000 });
+      localStorage.setItem("cartItems", JSON.stringify(null));
+      dispatch({  
+        type: actionType.SET_CARTITEMS,
+        cartItems: null,
+      });
+      // Đợi 2 giây trước khi chuyển về "/"
+      setTimeout(function() {
+        window.location.href = "/";
+      }, 2000);
     }
+  } else {
+    toast.error('Vui lòng điền đầy đủ thông tin!', { autoClose: 3000 });
   }
+}
+  
+
   const [options] = React.useState([
     { label: "Thanh toán khi nhận hàng", value: "PaymentOnDelivery" },
     { label: "Thanh toán ví Momo", value: "MOMO" },
@@ -110,7 +120,8 @@ const Order = () => {
 
   return (
     <section className="bg-min-h-screen flex items-center justify-center">
-      <div className="bg-green-200 h-610 flex rounded-2xl shadow-lg max-w-3xl p-5 gap-6 items-start text-center">
+      <ToastContainer />
+      <div className="bg-green-200 h-610 flex rounded-2xl shadow-lg max-w-6xl p-5 gap-6 items-start text-center">
         <div className="w-1/2 px-8">
           <h2 className="font-bold text-2xl text-[#171a1f] text-left capitalize">
             Danh sách món ăn
@@ -276,16 +287,14 @@ const Order = () => {
             </div>
           </div>
         )}
-      <div className="flex justify-center">
+        <div className="w-1/2 px-8">
 
-      <div className="w-full max-w-3xl p-4">
         <MyApp
           googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`}
           loadingElement={<div style={{ height: `100%` }} />}
           containerElement={<div style={{ height: `30vh`, margin: `auto`, border: '2px solid black' }} />}
           mapElement={<div style={{ height: `100%` }} />}
         />
-      </div>
     </div>
       </div>
 

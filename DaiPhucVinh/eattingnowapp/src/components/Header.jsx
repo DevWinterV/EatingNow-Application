@@ -43,7 +43,6 @@ const Header = () => {
       customer: null,
     });
     localStorage.setItem("customer", JSON.stringify(null));
-
   };
 
   console.log("customer", customer);

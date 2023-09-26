@@ -10,7 +10,10 @@ namespace DaiPhucVinh
         {
             // Web API configuration and services    
             config.SuppressDefaultHostAuthentication();
+
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+
+           
             // Web API routes
             config.MapHttpAttributeRoutes();
 

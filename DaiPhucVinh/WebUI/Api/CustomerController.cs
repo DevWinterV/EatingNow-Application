@@ -26,7 +26,7 @@ namespace PCheck.WebUI.Api
         public async Task<BaseResponse<EN_CustomerResponse>> CheckCustomer([FromBody] EN_CustomerRequest request) => await _customerService.CheckCustomer(request);
 
         [HttpPost]
-        [Route("CheckCustomerEmail  ")]
+        [Route("CheckCustomerEmail")]
         public async Task<BaseResponse<EN_CustomerResponse>> CheckCustomerEmail([FromBody] EN_CustomerRequest request) => await _customerService.CheckCustomerEmail(request);
 
         [HttpPost]

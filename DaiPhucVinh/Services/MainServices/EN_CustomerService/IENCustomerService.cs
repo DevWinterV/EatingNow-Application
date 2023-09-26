@@ -54,9 +54,38 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var query = _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerId).AsQueryable();
                 query = query.OrderBy(d => d.CustomerId);
                 result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<EN_CustomerResponse>();
-                result.Success = true;
+                if(result.DataCount > 0)
+                {
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<EN_CustomerResponse>();
+                    result.Success = true;
+                }
+                else
+                {
+                    query = _datacontext.EN_Customer.Where(x => x.Email == request.Email).AsQueryable();
+                    query = query.OrderBy(d => d.CustomerId);
+                    result.DataCount = await query.CountAsync();
+                    if( result.DataCount > 0)
+                    {
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<EN_CustomerResponse>();
+                        result.Success = true;
+                       
+                    }
+                    else
+                    {
+                        query = _datacontext.EN_Customer.Where(x => x.Phone == request.Phone).AsQueryable();
+                        query = query.OrderBy(d => d.CustomerId);
+                        result.DataCount = await query.CountAsync(); 
+                        if (result.DataCount > 0)
+                        {
+                            var data = await query.ToListAsync();
+                            result.Data = data.MapTo<EN_CustomerResponse>();
+                            result.Success = true;
+                        }
+
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -166,6 +195,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             var result = new BaseResponse<bool> { };
             try
             {
+                if(request.CustomerId == null)
+                {
+                    result.Success = false;
+                    result.Message = "No order!";
+                    return result;
+                }
                 string url = "";
                 string OrderHeaderId = "EattingNowOrder_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
                 var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerId).FirstOrDefaultAsync();
@@ -430,7 +465,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
                 }
                 await _datacontext.SaveChangesAsync();
-                result.Message = url != "" ? url : "";
+                result.Message = url != "/*" ? url : "/*";
                 result.Success = true;
             }
             catch (Exception ex)
@@ -621,9 +656,16 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var query = _datacontext.EN_Customer.Where(x => x.Email == request.Email).AsQueryable();
                 query = query.OrderBy(d => d.CustomerId);
                 result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<EN_CustomerResponse>();
-                result.Success = true;
+                if(result.DataCount > 0)
+                {
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<EN_CustomerResponse>();
+                    result.Success = true;
+                }
+                else
+                {
+                    result.Success = false;
+                }
             }
             catch (Exception ex)
             {
