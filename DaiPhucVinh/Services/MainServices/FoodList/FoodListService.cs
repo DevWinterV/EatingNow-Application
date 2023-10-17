@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.VariantTypes;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -38,6 +39,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<FoodListResponse>> TakeBestSeller();
         Task<BaseResponse<FoodListResponse>> TakeNewFood();
         Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request);
+        Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser(EN_CustomerLocationRequest request);
 
     }
     public class FoodListService : IFoodListService
@@ -87,11 +89,14 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     Items = d.Take(2).ToList()
                 }).ToList();
                 var data = new List<FoodListResponse>();
-                foreach (var item in query)
+                if(data.Count > 0)
                 {
-                    if (item.Items != null && item.Items.Count > 0)
-                        data.AddRange(item.Items.MapTo<FoodListResponse>());
-                }
+                    foreach (var item in query)
+                    {
+                        if (item.Items != null && item.Items.Count > 0)
+                            data.AddRange(item.Items.MapTo<FoodListResponse>());
+                    }
+                } 
                 result.Data = data;
                 result.Success = true;
             }
@@ -568,5 +573,32 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             return Math.Round(distance, 1);
         }
 
+        public async Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser(EN_CustomerLocationRequest request)
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var data = new List<EN_FoodList>();
+                var favoriteFoods = _datacontext.EN_FavoriteFoods.Where(s => s.CustomerID.Equals(request.CustomerId)).ToList();
+                if (favoriteFoods.Count > 0)
+                {
+                    foreach (var foodFvr in favoriteFoods)
+                    {
+                        var food = await _datacontext.EN_FoodList.Where(x => x.FoodListId.Equals(foodFvr.FoodID)).OrderBy(d => d.FoodListId).Take(10).ToListAsync();
+                        data.AddRange(food);
+                    }
+                    result.Data = data.MapTo<FoodListResponse>();
+                }
+                else
+                    result.Data = null;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
     }
 }

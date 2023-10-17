@@ -40,6 +40,7 @@ provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
 export const messaging = getMessaging();
+
 onMessage(messaging, (payload) => {
   console.log('Message received. ', payload);
   //Customize notification form payload
@@ -54,6 +55,7 @@ onMessage(messaging, (payload) => {
     }
   )
 });
+
 // Initialize Realtime Database and get a reference to the service
 export const  realtime_database = getDatabase(app);
 

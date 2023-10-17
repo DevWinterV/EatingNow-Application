@@ -55,14 +55,14 @@ const CartContainer = () => {
           <MdOutlineKeyboardBackspace className="text-textColor text-3xl" />
         </motion.div>
 
-        <p className="text-textColor text-lg font-semibold">Cart</p>
+        <p className="text-textColor text-lg font-semibold">Giỏ hàng</p>
 
         <motion.p
           whileTap={{ scale: 0.75 }}
           className="flex items-center gap-2 p-1 px-2 my-2 bg-gray-100 rounded-md hover:shadow-md  cursor-pointer text-textColor text-base"
           onClick={clearCart}
         >
-          Clear <RiRefreshFill />
+          Xóa<RiRefreshFill />
         </motion.p>
       </div>
 
@@ -110,13 +110,15 @@ const CartContainer = () => {
             </div>
 
             {customer != null ? (
-              <motion.button
-                whileTap={{ scale: 0.8 }}
-                type="button"
-                className="w-full p-2 rounded-full bg-gradient-to-tr from-orange-400 to-orange-600 text-gray-50 text-lg my-2 hover:shadow-lg"
-              >
-                <Link to={`/orderdetail`}>Đặt hàng</Link>
-              </motion.button>
+              <Link  className="w-full" to={`/orderdetail`}>
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
+                  type="button"
+                  className="w-full p-2 rounded-full bg-gradient-to-tr from-orange-400 to-orange-600 text-gray-50 text-lg my-2 hover:shadow-lg"
+                >
+                Đặt hàng
+                </motion.button>
+              </Link>
             ) : (
               <motion.button
                 whileTap={{ scale: 0.8 }}

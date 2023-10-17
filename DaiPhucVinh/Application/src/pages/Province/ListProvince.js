@@ -71,7 +71,7 @@ export default function ListProvince() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên sản phẩm, Model..."
+                    placeholder="Tên tỉnh thành..."
                     value={filter.term}
                     onChange={changeSearch}
                     onKeyDown={(e) => {

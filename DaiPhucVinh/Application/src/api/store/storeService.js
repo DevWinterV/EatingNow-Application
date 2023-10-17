@@ -12,6 +12,15 @@ const API = {
   TakeStoreByCuisineId: "/TakeStoreByCuisineId",
   TakeFoodListByStoreId: "/TakeFoodListByStoreId",
   ApproveStore: "/ApproveStore",
+  ApproveDelvery: "/ApproveDelvery",
+  TakeStoreById: "/TakeStoreById",
+  SearchStore: "/SearchStore",
+  TakeAllOrderLineByCustomerId: "/TakeAllOrderLineByCustomerId",
+  TakeDriverById:"/TakeDriverById",
+  CreateNewDeliver:"/CreateNewDeliver",
+  RemoveDriver: "/RemoveDriver",
+  GetListOrderLineDetails: "/GetListOrderLineDetails",
+
 };
 
 const TakeAllStore = async (request) => {
@@ -20,6 +29,26 @@ const TakeAllStore = async (request) => {
     let response = await Proxy(
       "post",
       ServiceEndPoint + API.TakeAllStore,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const SearchStore = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.SearchStore,
       request,
       true
     );
@@ -61,6 +90,24 @@ const CreateNewStore = async (request) => {
     let response = await Proxy(
       "post",
       ServiceEndPoint + API.CreateNewStore,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.item = response.data.Item;
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const CreateNewDeliver = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.CreateNewDeliver,
       request,
       true
     );
@@ -148,6 +195,46 @@ const TakeFoodListByStoreId = async (Id) => {
   }
   return result;
 };
+const TakeStoreById = async (Id) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.TakeStoreById,
+      { params: { Id: Id } },
+      true
+    );
+    if (response.Success) {
+      result.success = true;
+      result.item = response.Item;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const TakeDriverById = async (Id) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.TakeDriverById,
+      { params: { Id: Id } },
+      true
+    );
+    if (response.Success) {
+      result.success = true;
+      result.item = response.Item;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+
 const ApproveStore = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -167,6 +254,78 @@ const ApproveStore = async (request) => {
   return result;
 };
 
+const ApproveDelvery = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.ApproveDelvery,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.item = response.data.Item;
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const RemoveDriver = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.RemoveDriver,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.item = response.data.Item;
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const TakeAllOrderLineByCustomerId = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeAllOrderLineByCustomerId,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const GetListOrderLineDetails = async (Id) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.GetListOrderLineDetails,
+      { params: { Id: Id } },
+      true
+    );
+    result.data = response.Data;
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 export {
   TakeAllStore,
   TakeAllDeliveryDriver,
@@ -176,4 +335,12 @@ export {
   TakeStoreByCuisineId,
   TakeFoodListByStoreId,
   ApproveStore,
+  TakeStoreById,
+  SearchStore,
+  TakeAllOrderLineByCustomerId,
+  CreateNewDeliver,
+  TakeDriverById,
+  ApproveDelvery,
+  RemoveDriver,
+  GetListOrderLineDetails
 };

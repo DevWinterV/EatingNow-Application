@@ -10,7 +10,9 @@ namespace DaiPhucVinh.Shared.Store
         public string Description { get; set; }
         public string OpenTime { get; set; }
         public string Province { get; set; }
+        public int ProvinceId { get; set; } 
         public string Cuisine { get; set; }
+        public int   CuisineId { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
         public string OwnerName { get; set; }

@@ -2,6 +2,7 @@
 using DaiPhucVinh.Services.MainServices.Province;
 using DaiPhucVinh.Shared.CategoryList;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.DeliveryDriver;
 using DaiPhucVinh.Shared.FoodList;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
@@ -30,6 +31,10 @@ namespace PCheck.WebUI.Api
         public async Task<BaseResponse<StoreResponse>> TakeAllStore([FromBody] StoreRequest request) => await _storeService.TakeAllStore(request);
 
         [HttpPost]
+        [Route("SearchStore")]
+        public async Task<BaseResponse<StoreResponse>> SearchStore([FromBody] StoreRequest request) => await _storeService.SearchStore(request);
+
+        [HttpPost]
         [Route("TakeAllOrder")]
         public async Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder([FromBody] OrderHeaderRequest request) => await _storeService.TakeAllOrder(request);
 
@@ -39,7 +44,9 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("ApproveOrder")]
         public async Task<BaseResponse<bool>> ApproveOrder([FromBody] OrderHeaderRequest request) => await _storeService.ApproveOrder(request);
-
+        [HttpPost]
+        [Route("ApproveDelvery")]
+        public async Task<BaseResponse<bool>> ApproveDelvery([FromBody] DeliveryDriverRequest request) => await _storeService.ApproveDelvery(request);
 
         [HttpPost]
         [Route("CreateNewStore")]
@@ -67,8 +74,29 @@ namespace PCheck.WebUI.Api
         }
 
         [HttpPost]
-        [Route("UpdateNewStore")]
-        public async Task<BaseResponse<bool>> UpdateNewStore([FromBody] StoreRequest request) => await _storeService.UpdateNewStore(request);
+        [Route("CreateNewDeliver")]
+        public async Task<BaseResponse<bool>> CreateNewDeliver()
+        {
+            var httpRequest = HttpContext.Current.Request;
+            HttpPostedFile img = null;
+            //file
+            if (httpRequest.Files.Count > 0)
+            {
+                img = httpRequest.Files[0];
+            }
+            if (httpRequest.Form.Count > 0)
+            {
+                var jsonRequest = httpRequest.Form[0];
+
+                var request = JsonConvert.DeserializeObject<DeliveryDriverRequest>(jsonRequest);
+                return await _storeService.CreateNewDeliver(request, img);
+            }
+            else return new BaseResponse<bool>
+            {
+                Success = false,
+                Message = "File not found!"
+            };
+        }
 
         [HttpPost]
         [Route("DeleteStore")]
@@ -77,6 +105,10 @@ namespace PCheck.WebUI.Api
         [HttpGet]
         [Route("TakeStoreById")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreById(int Id) => await _storeService.TakeStoreById(Id);
+        [HttpGet]
+        [Route("TakeDriverById")]
+        public async Task<BaseResponse<DeliveryDriverResponse>> TakeDriverById(int Id) => await _storeService.TakeDriverById(Id);
+        
         [HttpPost]
         [Route("TakeStoreByCuisineId")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreByCuisineId(FilterStoreByCusineRequest filter) => await _storeService.TakeStoreByCuisineId(filter);
@@ -113,6 +145,13 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("PostAllFoodListByStoreId")]
         public async Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId([FromBody] SimpleUserRequest request) => await _storeService.PostAllFoodListByStoreId(request);
+
+        [HttpPost]
+        [Route("TakeAllOrderLineByCustomerId")]
+        public async Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId([FromBody] EN_CustomerRequest request) => await _storeService.TakeAllOrderLineByCustomerId(request);
+        [HttpPost]
+        [Route("RemoveDriver")]
+        public async Task<BaseResponse<bool>> RemoveDriverr([FromBody] DeliveryDriverRequest request) => await _storeService.RemoveDriverr(request);
 
     }
 }

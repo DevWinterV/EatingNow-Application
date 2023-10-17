@@ -48,7 +48,7 @@ export default function ListProvince() {
   const [itemProvince, setItemProvince] = React.useState([]);
   const [defaultItemProvince, setDefaultItemProvince] = React.useState({
     value: "",
-    label: "Vui lòng chọn tỉnh",
+    label: "Chọn tỉnh",
   });
   async function onFillItemProvince() {
     let itemProvinceResponse = await TakeAllProvince();
@@ -56,7 +56,7 @@ export default function ListProvince() {
       setItemProvince([
         {
           value: "",
-          label: "Vui lòng chọn tỉnh",
+          label: "Tất cả",
         },
         ...itemProvinceResponse.data.map((e) => {
           return {
@@ -76,7 +76,7 @@ export default function ListProvince() {
   }
   React.useEffect(() => {
     onViewAppearing();
-  }, [filter.page, filter.pageSize, filter.ItemProvinceCode]);
+  }, [filter.page, filter.pageSize, filter.ProvinceId]);
 
   React.useEffect(() => {
     onFillItemProvince();
@@ -96,7 +96,7 @@ export default function ListProvince() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên nhóm sản phẩm..."
+                    placeholder="Tên huyện..."
                     value={filter.term}
                     onChange={(e) => {
                       setFilter({ ...filter, term: e.target.value });
@@ -141,7 +141,7 @@ export default function ListProvince() {
                       setFilter({
                         ...filter,
                         page: 0,
-                        ItemProvinceCode: e.value,
+                        ProvinceId: e.value,
                       });
                     }}
                     style={{ fontSize: "12px" }}

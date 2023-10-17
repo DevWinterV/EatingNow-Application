@@ -35,14 +35,29 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<ProvinceResponse> { };
             try
             {
-                var query = _datacontext.EN_Province.AsQueryable();
-                result.DataCount = await query.CountAsync();
-                if (request.PageSize != 0)
+                if(request.Term == null)
                 {
-                    query = query.OrderByDescending(d => d.ProvinceId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    var query = _datacontext.EN_Province.AsQueryable();
+                    result.DataCount = await query.CountAsync();
+                    if (request.PageSize != 0)
+                    {
+                        query = query.OrderByDescending(d => d.ProvinceId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    }
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<ProvinceResponse>();
                 }
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<ProvinceResponse>();
+                else
+                {
+                    var query = _datacontext.EN_Province.Where(x=> x.Name.Contains(request.Term)).AsQueryable();
+                    result.DataCount = await query.CountAsync();
+                    if (request.PageSize != 0)
+                    {
+                        query = query.OrderByDescending(d => d.ProvinceId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    }
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<ProvinceResponse>();
+
+                }
                 result.Success = true;
             }
             catch (Exception ex)

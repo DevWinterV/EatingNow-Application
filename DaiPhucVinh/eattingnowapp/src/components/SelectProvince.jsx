@@ -41,7 +41,7 @@ export default function SelectProvince({
   return (
     <Pane width="100%" marginTop={marginTop}>
       <SelectMenu
-        title="Chọn tỉnh thành"
+        title="Chọn tỉnh/thành phố"
         filterPlaceholder="Tìm..."
         options={options}
         selected={defaultSelected?.value || ""}

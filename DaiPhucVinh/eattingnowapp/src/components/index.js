@@ -23,6 +23,11 @@ export { default as Setting } from "./Account";
 export { default as ProfileForm } from "./ProfileForm";
 export { default as BankAccountForm } from "./BankAccountForm";
 export { default as MyApp } from "./DeliveryAddress";
+export { default as CustomerAddressContainer } from "./CustomerAddressContainer";
+export { default as OrderofCustomer } from "./OrderofCustomer";
+
+
+
 
 
 

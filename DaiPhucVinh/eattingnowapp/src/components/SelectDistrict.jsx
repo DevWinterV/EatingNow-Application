@@ -41,7 +41,7 @@ export default function SelectDistrict({
   return (
     <Pane width="100%" marginTop={marginTop}>
       <SelectMenu
-        title="Chọn huyện"
+        title="Chọn quận/huyện"
         filterPlaceholder="Tìm..."
         options={options}
         selected={defaultSelected?.value || ""}

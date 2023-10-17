@@ -5,8 +5,9 @@ using Microsoft.Owin.Security.Jwt;
 using Owin;
 using DaiPhucVinh.Services.Constants;
 using System.Text;
+using Microsoft.AspNet.SignalR;
+using Microsoft.Owin.Cors;
 
-[assembly: OwinStartup(typeof(DaiPhucVinh.Infrastructure.Startup))]
 
 namespace DaiPhucVinh.Infrastructure
 {

@@ -41,7 +41,7 @@ export default function SelectWard({
   return (
     <Pane width="100%" marginTop={marginTop}>
       <SelectMenu
-        title="Chọn xã"
+        title="Chọn phường/xã"
         filterPlaceholder="Tìm..."
         options={options}
         selected={defaultSelected?.value || ""}

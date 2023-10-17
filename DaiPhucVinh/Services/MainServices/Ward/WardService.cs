@@ -36,11 +36,34 @@ namespace DaiPhucVinh.Services.MainServices.District
             var result = new BaseResponse<WardResponse> { };
             try
             {
-                var query = _datacontext.EN_Ward.AsQueryable();
-                query = query.OrderBy(d => d.Name);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<WardResponse>();
+                if(request.Term == null)
+                {
+                    var query = _datacontext.EN_Ward.AsQueryable();
+                    query = query.OrderBy(d => d.Name);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<WardResponse>();
+                }
+                else
+                {
+                    if(request.ItemDistrictCode == 0 || request.ItemDistrictCode == null) {
+                        var query = _datacontext.EN_Ward.Where(x => x.Name.Contains(request.Term)).AsQueryable();
+                        query = query.OrderBy(d => d.Name);
+                        result.DataCount = await query.CountAsync();
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<WardResponse>();
+                    }
+                    else
+                    {
+                            var query = _datacontext.EN_Ward.Where(x => x.Name.Contains(request.Term) && x.DistrictId.Equals(request.ItemDistrictCode)).AsQueryable();
+                            query = query.OrderBy(d => d.Name);
+                            result.DataCount = await query.CountAsync();
+                            var data = await query.ToListAsync();
+                            result.Data = data.MapTo<WardResponse>();
+                    }    
+                
+                }
+          
                 result.Success = true;
             }
             catch (Exception ex)

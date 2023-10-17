@@ -30,22 +30,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
-using System;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotNetty.Common.Utilities;
+using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.Customer;
+using Microsoft.AspNet.SignalR;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
     public interface IStoreService
     {
         Task<BaseResponse<StoreResponse>> TakeAllStore(StoreRequest request);
+        Task<BaseResponse<StoreResponse>> SearchStore(StoreRequest request);
         Task<BaseResponse<DeliveryDriverResponse>> TakeAllDeliveryDriver(DeliveryDriverRequest request);
         Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder(OrderHeaderRequest request);
 
         Task<BaseResponse<bool>> CreateNewStore(StoreRequest request, HttpPostedFile file);
-        Task<BaseResponse<bool>> UpdateNewStore(StoreRequest request);
         Task<BaseResponse<bool>> DeleteStore(StoreRequest request);
         Task<BaseResponse<StoreResponse>> TakeStoreById(int Id);
         Task<BaseResponse<StoreResponse>> TakeStoreByCuisineId(FilterStoreByCusineRequest filter);
@@ -53,6 +55,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<FoodListResponse>> TakeFoodListByStoreId(int Id);
         Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(int Id);
         Task<BaseResponse<bool>> ApproveStore(StoreRequest request);
+        Task<BaseResponse<bool>> ApproveDelvery(DeliveryDriverRequest request);
+
         Task<BaseResponse<bool>> ApproveOrder(OrderHeaderRequest request);
 
         Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id);
@@ -61,6 +65,11 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter);
         Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter);
         Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId(SimpleUserRequest request);
+        Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId(EN_CustomerRequest request);
+        Task<BaseResponse<bool>> CreateNewDeliver(DeliveryDriverRequest request, HttpPostedFile file);
+        Task<BaseResponse<DeliveryDriverResponse>> TakeDriverById(int Id);
+       Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request);
+
     }
     public class StoreService : IStoreService
     {
@@ -90,12 +99,50 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<DeliveryDriverResponse> { };
             try
             {
-                var query = _datacontext.EN_DeliveryDriver.Where(x => x.Status == true);
-                query = query.OrderBy(d => d.CompleteName);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<DeliveryDriverResponse>();
-                result.Success = true;
+                if(request.Term == null)
+                {
+                    var query = _datacontext.EN_DeliveryDriver.AsQueryable();
+                    if (request.ProvinceId > 0)
+                    {
+                        query = query.Where(x => x.ProvinceId.Equals(request.ProvinceId)).OrderBy(d => d.CompleteName);
+                        result.DataCount = await query.CountAsync();
+                        if (request.PageSize != 0)
+                        {
+                            query = query.OrderBy(d => d.DeliveryDriverId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                        }
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<DeliveryDriverResponse>();
+                    }
+                    else {
+                        query = query.OrderBy(d => d.CompleteName);
+                        result.DataCount = await query.CountAsync();
+                        if (request.PageSize != 0)
+                        {
+                            query = query.OrderBy(d => d.DeliveryDriverId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                        }
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<DeliveryDriverResponse>();
+                    }
+                 
+                    result.Success = true;
+                }
+                else
+                {
+                    var query = _datacontext.EN_DeliveryDriver
+                        .Where(x=> x.CompleteName.Contains(request.Term)
+                        || x.Phone.Contains(request.Term)
+                        || x.Email.Contains(request.Term));
+                    query = query.OrderBy(d => d.CompleteName);
+                    result.DataCount = await query.CountAsync();
+                    if (request.PageSize != 0)
+                    {
+                        query = query.OrderBy(d => d.DeliveryDriverId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    }
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<DeliveryDriverResponse>();
+                    result.Success = true;
+                }
+               
             }
             catch (Exception ex)
             {
@@ -142,17 +189,51 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+
+
         public async Task<BaseResponse<StoreResponse>> TakeAllStore(StoreRequest request)
         {
             var result = new BaseResponse<StoreResponse> { };
             try
             {
-                var query = _datacontext.EN_Store.AsQueryable();
-                query = query.OrderBy(d => d.FullName);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<StoreResponse>();
-                result.Success = true;
+                if(request.ProvinceId == null || request.ProvinceId == 0)
+                {
+                    if (request.ItemCategoryCode == 0)
+                    {
+                        var query = _datacontext.EN_Store.AsQueryable();
+                        query = query.OrderBy(d => d.FullName);
+                        result.DataCount = await query.CountAsync();
+                        if (request.PageSize != 0)
+                        {
+                            query = query.OrderBy(d => d.UserId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                        }
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<StoreResponse>();
+                        result.Success = true;
+                    }
+                    else
+                    {
+                        var query = _datacontext.EN_Store.Where(x => x.CuisineId == request.ItemCategoryCode).AsQueryable();
+                        query = query.OrderBy(d => d.FullName);
+                        result.DataCount = await query.CountAsync();
+                        if (request.PageSize != 0)
+                        {
+                            query = query.OrderBy(d => d.UserId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                        }
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<StoreResponse>();
+                        result.Success = true;
+                    }
+                }
+                else
+                {
+                    var query = _datacontext.EN_Store.Where(x => x.ProvinceId == request.ProvinceId).AsQueryable();
+                    query = query.OrderBy(d => d.FullName);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<StoreResponse>();
+                    result.Success = true;
+                }
             }
             catch (Exception ex)
             {
@@ -161,6 +242,47 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+        /// <summary>
+        /// Chức năng tìm kiếm cửa hàng theo tên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse<StoreResponse>> SearchStore(StoreRequest request)
+        {
+            var result = new BaseResponse<StoreResponse> { };
+            try
+            {
+                if (request.Term == "")
+                {
+                    var query = _datacontext.EN_Store.AsQueryable();
+                    query = query.OrderBy(d => d.FullName);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<StoreResponse>();
+                    result.Success = true;
+                }
+                else
+                {
+                    var query = _datacontext.EN_Store.Where(x => x.FullName.Contains(request.Term ) 
+                    || x.Email.Contains(request.Term) || x.OwnerName.Contains(request.Term) 
+                    || x.Address.Contains(request.Term)
+                    || x.Phone.Contains(request.Term)
+                    || x.Description.Contains(request.Term)).AsQueryable();
+                    query = query.OrderBy(d => d.FullName);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<StoreResponse>();
+                    result.Success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
         public async Task<BaseResponse<CategoryListResponse>> TakeCategoryByStoreId(int Id)
         {
             var result = new BaseResponse<CategoryListResponse> { };
@@ -205,7 +327,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
         {
             var result = new BaseResponse<FoodListResponse> { };
             try
-            {
+            {   
                 var query = _datacontext.EN_FoodList.AsQueryable();
                 query = query.Where(d => d.UserId == Id);
                 result.DataCount = await query.CountAsync();
@@ -248,7 +370,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<StoreResponse> { };
             try
             {
-                var data = await _datacontext.EN_CategoryList.FindAsync(Id);
+                var data = await _datacontext.EN_Store.FindAsync(Id);
                 result.Item = data.MapTo<StoreResponse>();
                 result.Success = true;
             }
@@ -259,6 +381,29 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+
+        public async Task<BaseResponse<DeliveryDriverResponse>> TakeDriverById(int Id)
+        {
+            var result = new BaseResponse<DeliveryDriverResponse> { };
+            try
+            {
+                var data = await _datacontext.EN_DeliveryDriver.FindAsync(Id);
+                result.Item = data.MapTo<DeliveryDriverResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        /// <summary>
+        /// Thêm mới và cập nhật cửa hàng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public async Task<BaseResponse<bool>> CreateNewStore(StoreRequest request, HttpPostedFile file)
         {
             var result = new BaseResponse<bool> { };
@@ -266,20 +411,23 @@ namespace DaiPhucVinh.Services.MainServices.Province
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    file.InputStream.CopyTo(ms);
-                    byte[] pictureBinary = ms.GetBuffer();
-                    string storeName = "DaiPhucVinh\\image";
-                    var storageFolder = $@"\uploads\{storeName}";
-                    if (!Directory.Exists(LocalMapPath(storageFolder)))
-                        Directory.CreateDirectory(LocalMapPath(storageFolder));
+                    var relativePath = "";
+                    if (file != null)
+                    {
+                        file.InputStream.CopyTo(ms);
+                        byte[] pictureBinary = ms.GetBuffer();
+                        string storeName = "DaiPhucVinh\\image";
+                        var storageFolder = $@"\uploads\{storeName}";
+                        if (!Directory.Exists(LocalMapPath(storageFolder)))
+                            Directory.CreateDirectory(LocalMapPath(storageFolder));
 
-                    string fileName = Path.GetFileName(file.FileName);
+                        string fileName = Path.GetFileName(file.FileName);
 
-                    string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}" + "-" + $"{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
-                    var storageFolderPath = Path.Combine(LocalMapPath(storageFolder), newFileName);
-                    File.WriteAllBytes(storageFolderPath, pictureBinary);
-
-                    var relativePath = Path.Combine(storageFolder, newFileName);
+                        string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}" + "-" + $"{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
+                        var storageFolderPath = Path.Combine(LocalMapPath(storageFolder), newFileName);
+                        File.WriteAllBytes(storageFolderPath, pictureBinary);
+                        relativePath = Path.Combine(storageFolder, newFileName);
+                    }
 
                     if (request.UserId == 0)
                     {
@@ -302,9 +450,36 @@ namespace DaiPhucVinh.Services.MainServices.Province
                             AbsoluteImage = HostAddress + GenAbsolutePath(relativePath),
                             Description = request.Description,
                             Status = false,
-                        };
+
+                    };
+                        result.Message = "Add Success";
                         _datacontext.EN_Store.Add(province);
                     }
+                    else
+                    {
+                        var storeUpdate = _datacontext.EN_Store.Where(x => x.UserId == request.UserId).FirstOrDefault();
+                        if (storeUpdate != null)
+                        {
+                            storeUpdate.FullName = request.FullName;
+                            storeUpdate.Email = request.Email;
+                            storeUpdate.Address = request.Address;
+                            storeUpdate.OwnerName = request.OwnerName;
+                            storeUpdate.CuisineId = request.CuisineId;
+                            storeUpdate.ProvinceId= request.ProvinceId;
+                            storeUpdate.Phone = request.Phone;
+                            storeUpdate.Latitude = request.Latitude;
+                            storeUpdate.Longitude = request.Longitude;
+                            if (storeUpdate.AbsoluteImage != request.AbsoluteImage)
+                            {
+                                storeUpdate.AbsoluteImage = HostAddress + GenAbsolutePath(relativePath);
+                            }
+                            storeUpdate.Description = request.Description;
+                            storeUpdate.OpenTime = request.OpenTime;
+                            storeUpdate.Status = request.Status;
+                            result.Message = "Update Success";
+                        }
+                    }
+
                 }
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
@@ -316,21 +491,78 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
-        public async Task<BaseResponse<bool>> UpdateNewStore(StoreRequest request)
+
+        /// <summary>
+        /// Thêm mới và cập nhật tài xế
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse<bool>> CreateNewDeliver(DeliveryDriverRequest request, HttpPostedFile file)
         {
             var result = new BaseResponse<bool> { };
             try
             {
-                if (request.ProvinceId > 0)
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    if (request.FullName == "")
+                    var relativePath = "";
+                    if (file != null)
                     {
-                        request.FullName = null;
+                        file.InputStream.CopyTo(ms);
+                        byte[] pictureBinary = ms.GetBuffer();
+                        string storeName = "DaiPhucVinh\\image";
+                        var storageFolder = $@"\uploads\{storeName}";
+                        if (!Directory.Exists(LocalMapPath(storageFolder)))
+                            Directory.CreateDirectory(LocalMapPath(storageFolder));
+
+                        string fileName = Path.GetFileName(file.FileName);
+
+                        string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}" + "-" + $"{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
+                        var storageFolderPath = Path.Combine(LocalMapPath(storageFolder), newFileName);
+                        File.WriteAllBytes(storageFolderPath, pictureBinary);
+                        relativePath = Path.Combine(storageFolder, newFileName);
                     }
-                    var province = await _datacontext.EN_Store.FindAsync(request.ProvinceId);
+
+                    if (request.DeliveryDriverId == 0)
                     {
-                        province.FullName = request.FullName;
-                    };
+                        var province = new EN_DeliveryDiver
+                        {
+                            CompleteName = request.CompleteName,
+                            ProvinceId = request.ProvinceId,
+                            DistrictId = request.DistrictId,
+                            WardId = request.WardId,
+                            Email = request.Email,
+                            Phone = request.Phone,
+                            Latitude = request.Latitude,
+                            Longitude = request.Longitude,
+                            UploadImage = HostAddress + GenAbsolutePath(relativePath),
+                            Status = false,
+
+                        };
+                        result.Message = "Add Success";
+                        _datacontext.EN_DeliveryDriver.Add(province);
+                    }
+                    else
+                    {
+                        var storeUpdate = _datacontext.EN_DeliveryDriver.Where(x => x.DeliveryDriverId == request.DeliveryDriverId).FirstOrDefault();
+                        if (storeUpdate != null)
+                        {
+                            storeUpdate.CompleteName = request.CompleteName;
+                            storeUpdate.Email = request.Email;
+                            storeUpdate.ProvinceId = request.ProvinceId;
+                            storeUpdate.DistrictId = request.DistrictId;
+                            storeUpdate.WardId = request.WardId;
+                            storeUpdate.Phone = request.Phone;
+                            storeUpdate.Latitude = request.Latitude;
+                            storeUpdate.Longitude = request.Longitude;
+                            if (storeUpdate.UploadImage != request.UploadImage)
+                            {
+                                storeUpdate.UploadImage = HostAddress + GenAbsolutePath(relativePath);
+                            }
+                            storeUpdate.Status = request.Status;
+                            result.Message = "Update Success";
+                        }
+                    }
                 }
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
@@ -342,6 +574,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+
         public async Task<BaseResponse<bool>> DeleteStore(StoreRequest request)
         {
             var result = new BaseResponse<bool> { };
@@ -380,12 +613,24 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<StoreResponse> { };
             try
             {
-                var query = _datacontext.EN_Store.AsQueryable();
-                query = query.Where(d => d.Cuisine.CuisineId == filter.CuisineId && d.Status == true);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, 40).MapTo<StoreResponse>();
-                result.Data = (IList<StoreResponse>)resultList;
+                if(filter.CuisineId != 0)
+                {
+                    var query = _datacontext.EN_Store.AsQueryable();
+                    query = query.Where(d => d.Cuisine.CuisineId == filter.CuisineId && d.Status == true);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, 40).MapTo<StoreResponse>();
+                    result.Data = (IList<StoreResponse>)resultList;
+                }
+                else
+                {
+                    var query = _datacontext.EN_Store.AsQueryable();
+                    query = query.Where(d => d.Status == true);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    var resultList = FindNearestStores(data.MapTo<StoreResponse>(), filter.latitude, filter.longitude, 40).MapTo<StoreResponse>();
+                    result.Data = (IList<StoreResponse>)resultList;
+                }
                 result.Success = true;
             }
             catch (Exception ex)
@@ -402,7 +647,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {
                 var query = _datacontext.EN_OrderHeader.AsQueryable();
-                query = query.Where(d => d.UserId == Id);
+                query = query.Where(d => d.UserId == Id).OrderByDescending(d => d.CreationDate).ThenByDescending(d => d.Status == false);
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = data.MapTo<OrderHeaderResponse>();
@@ -556,6 +801,63 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
+        public async Task<BaseResponse<bool>> ApproveDelvery(DeliveryDriverRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var ApproveStore = await _datacontext.EN_DeliveryDriver.Where(x => x.DeliveryDriverId == request.DeliveryDriverId).FirstOrDefaultAsync();
+                if (ApproveStore != null)
+                {
+                    if (!ApproveStore.Status)
+                    {
+                        int newPass = rand.Next(100000, 999999);
+                        ApproveStore.Username = request.Email;
+                        ApproveStore.Password = MD5Hash(Base64Encode(newPass.ToString()));
+                        ApproveStore.Status = true;
+                        try
+                        {
+                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            {
+                                smtp.EnableSsl = true;
+                                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                smtp.UseDefaultCredentials = false;
+                                smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
+                                MailMessage mail = new MailMessage();
+                                mail.To.Add(request.Email);  // Email của khách hàng
+                                mail.From = new MailAddress("chauvanrangdong4440@gmail.com");
+                                mail.Subject = "ETATINGNOW | BẠN ĐÃ ĐƯỢC CẤP MẬT KHẨU TÀI KHOẢN";
+                                mail.Body = $"Mật khẩu của bạn là: {newPass}.Vui lòng đăng nhập vào ứng dụng và thay đổi mật khẩu mới. Trân trọng!";
+
+                                smtp.Send(mail);
+                            }
+                            result.Message = "Success!";
+                            result.Success = true;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    else
+                    {
+                        result.Success = true;
+                        ApproveStore.Status = !ApproveStore.Status;
+                    }
+                }
+                else
+                {
+                    result.Message = "Id Not Found!";
+                }
+                await _datacontext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
         private string LocalMapPath(string path)
         {
             if (HostingEnvironment.IsHosted)
@@ -629,7 +931,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 double Lon = Math.Round(store.Longitude, 7);
                 var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
                 store.Distance = distance;
-                //store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
+                store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
             }
 
             foreach(var fillStore in stores)
@@ -686,43 +988,39 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 var store = await _datacontext.EN_Store
                     .Where(x => x.UserId == request.UserId)
                     .FirstOrDefaultAsync();
-
-                if (orderHeader != null      && store != null)
+                var account = await _datacontext.EN_Customer
+                  .Where(x => x.CustomerId == request.CustomerId)
+                  .FirstOrDefaultAsync();
+                if (orderHeader != null  && store != null)
                 {
                     if (!orderHeader.Status)
                     {
                         orderHeader.Status = true;
                         // Gửi thông báo đến email của khách hàng
-                        /*
                         if(account.Email != null)
                         {
-                                                    try
-                        {
-                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            try
                             {
-                                smtp.EnableSsl = true;
-                                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                                smtp.UseDefaultCredentials = false;
-                                smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
+                                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                {
+                                    smtp.EnableSsl = true;
+                                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                    smtp.UseDefaultCredentials = false;
+                                    smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
 
-                                MailMessage mail = new MailMessage();
-                                mail.To.Add(account.Email);  // Email của khách hàng
-                                mail.From = new MailAddress("chauvanrangdong4440@gmail.com");  // Email của bạn
-                                mail.Subject = "ĐƠN HÀNG ĐƯỢC DUYỆT";
-
-                                mail.Body = "Subject: Xác nhận Đơn Hàng: Đã Duyệt Thành Công 🎉\r\n\r\nChào quý khách hàng thân mến,\r\n\r\nChúc mừng! Đơn hàng của bạn đã được xác nhận và duyệt thành công tại EatingNow. Dưới đây là chi tiết đơn hàng để quý khách tham khảo:\r\n\r\n━━━━━━━━━━━━━━━\r\n📦 THÔNG TIN ĐƠN HÀNG:\r\n━━━━━━━━━━━━━━━\r\n📅 Ngày tạo đơn hàng: " + orderHeader.CreationDate + "\r\n💰 Tổng giá trị sản phẩm: " + orderHeader.TotalAmt + "\r\n🚚 Phí giao hàng: " + orderHeader.TransportFee + "\r\n💳 Tổng cộng cần thanh toán: " + orderHeader.IntoMoney + "\r\n\r\n🔗 Quý khách có thể xem chi tiết đơn hàng tại: eatingnow.com/orders/{{orderHeader.OrderHeaderId}}\r\n\r\n📞 Liên hệ với chúng tôi qua số điện thoại của Chủ cửa hàng " + store.OwnerName + " tại " + store.Phone + " nếu cần hỗ trợ hoặc có câu hỏi liên quan đến đơn hàng.\r\n\r\n🛍️ Chúng tôi rất biết ơn vì quý khách đã lựa chọn EatingNow để mua sắm. Chúc quý khách có một trải nghiệm mua sắm thú vị!\r\n\r\nTrân trọng,\r\nEatingNow Team 🍔\U0001f6d2\r\n━━━━━━━━━━━━━━━\r\n";
-
-
-                                smtp.Send(mail);
+                                    MailMessage mail = new MailMessage();
+                                    mail.To.Add(account.Email);  // Email của khách hàng
+                                    mail.From = new MailAddress("chauvanrangdong4440@gmail.com");  // Email của bạn
+                                    mail.Subject = "EATINGNOW | ĐƠN HÀNG ĐƯỢC DUYỆT";
+                                    mail.Body = "Subject: Xác nhận Đơn Hàng: Đã Duyệt Thành Công 🎉\r\n\r\nChào quý khách hàng thân mến,\r\n\r\nChúc mừng! Đơn hàng của bạn đã được xác nhận và duyệt thành công tại EatingNow. Dưới đây là chi tiết đơn hàng để quý khách tham khảo:\r\n\r\n━━━━━━━━━━━━━━━\r\n📦 THÔNG TIN ĐƠN HÀNG:\r\n━━━━━━━━━━━━━━━\r\n📅 Ngày tạo đơn hàng: " + orderHeader.CreationDate + "\r\n💰 Tổng giá trị sản phẩm: " + orderHeader.TotalAmt + "\r\n🚚 Phí giao hàng: " + orderHeader.TransportFee + "\r\n💳 Tổng cộng cần thanh toán: " + orderHeader.IntoMoney + "\r\n\r\n🔗 Quý khách có thể xem chi tiết đơn hàng tại: eatingnow.com/orders/{{orderHeader.OrderHeaderId}}\r\n\r\n📞 Liên hệ với chúng tôi qua số điện thoại của Chủ cửa hàng " + store.OwnerName + " tại " + store.Phone + " nếu cần hỗ trợ hoặc có câu hỏi liên quan đến đơn hàng.\r\n\r\n🛍️ Chúng tôi rất biết ơn vì quý khách đã lựa chọn EatingNow để mua sắm. Chúc quý khách có một trải nghiệm mua sắm thú vị!\r\n\r\nTrân trọng,\r\nEatingNow Team 🍔\U0001f6d2\r\n━━━━━━━━━━━━━━━\r\n";
+                                    smtp.Send(mail);
+                                }
+                            }
+                            catch
+                            {
+                                result.Success = false;
                             }
                         }
-                        catch
-                        {
-                            result.Success = false;
-                        }
-
-                        }
-                        */
                         
                         result.Success = true;
                     }
@@ -748,23 +1046,106 @@ namespace DaiPhucVinh.Services.MainServices.Province
             return result;
         }
 
+
         public async Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder(OrderHeaderRequest request)
         {
-            var result = new BaseResponse<OrderHeaderResponse> { };
+            var result = new BaseResponse<OrderHeaderResponse>();
             try
             {
                 var query = _datacontext.EN_OrderHeader.AsQueryable();
+
+                if (!string.IsNullOrEmpty(request.Term))
+                {
+                    query = query.Where(x => x.OrderHeaderId.Contains(request.Term)
+                        || x.EN_Customer.CompleteName.Contains(request.Term)
+                        || x.EN_Customer.CompleteName.Contains(request.Term)
+                        || x.EN_Customer.Phone.Contains(request.Term)
+                        || x.EN_Customer.Email.Contains(request.Term)
+                        || x.FormatAddress.Contains(request.Term)
+                        || x.NameAddress.Contains(request.Term)
+                    );
+                }
+
                 result.DataCount = await query.CountAsync();
+
                 if (request.PageSize != 0)
                 {
-                    query = query.OrderBy(d => d.OrderHeaderId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    query = query.OrderByDescending(d => d.CreationDate).ThenByDescending(d => !d.Status)
+                        .Skip(request.Page * request.PageSize)
+                        .Take(request.PageSize);
                 }
+
                 var data = await query.ToListAsync();
                 result.Data = data.MapTo<OrderHeaderResponse>();
                 result.Success = true;
             }
             catch (Exception ex)
             {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+                result.Success = false; // Set Success to false in case of an exception
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Lấy tất cả các sản phẩm của khách hàng đã mua
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+
+        public async Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId(EN_CustomerRequest request)
+        {
+            var result = new BaseResponse<OrderLineReponse> { };
+            try
+            {
+                var query = from od in _datacontext.EN_OrderHeader
+                            join odl in _datacontext.EN_OrderLine on od.OrderHeaderId equals odl.OrderHeaderId
+                            where od.CustomerId == request.CustomerId
+                            select odl;
+                result.DataCount = query.ToList().Count();  
+                if (request.PageSize != 0)
+                {
+                    query = query.OrderBy(d => d.OrderHeaderId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                }
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<OrderLineReponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+      
+        public async Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var driver = await _datacontext.EN_DeliveryDriver.SingleOrDefaultAsync(x => x.DeliveryDriverId == request.DeliveryDriverId);
+                try
+                {
+                    if (driver != null)
+                    {
+                        _datacontext.EN_DeliveryDriver.Remove(driver);
+                        await _datacontext.SaveChangesAsync();
+                        result.Success = true;
+                        result.Message = "Success!";
+                    }
+                }
+                catch
+                {
+                    result.Message = "Không thể xóa!";
+                    result.Success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+
                 result.Message = ex.ToString();
                 _logService.InsertLog(ex);
             }

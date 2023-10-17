@@ -32,12 +32,18 @@ export default function CreateVideosPage() {
     history("/cuisine");
   }
   const [selectedImage, setSelectedImage] = React.useState();
+  const [selectedImageURL, setselectedImageURL] = React.useState();
+
   function onChange(e) {
     setSelectedImage(e.target.files[0]);
     setRequest({
       ...request,
       AbsoluteImage: e.target.files[0].name,
     });
+    const file = e.target.files[0]; // Lấy tệp hình ảnh đầu tiên từ sự kiện
+    if (file) {
+      setselectedImageURL(URL.createObjectURL(file))
+    } 
   }
   async function onSubmit() {
     if (request.Name.length == 0) {
@@ -128,6 +134,7 @@ export default function CreateVideosPage() {
         Name: response.item.Name || "",
         AbsoluteImage: response.item.AbsoluteImage || "",
       });
+      setselectedImageURL(response.item.AbsoluteImage || "")
     }
   }
   React.useEffect(() => {
@@ -192,9 +199,9 @@ export default function CreateVideosPage() {
           <div className="row">
             <div className="col-lg-4">
               <label className="form-label fw-bold">Hình ảnh</label>
-              {request.AbsoluteImage ? (
+              {selectedImageURL ? (
                 <div>
-                  <img width="100%" src={request.AbsoluteImage} />
+                  <img width="100%" src={selectedImageURL} />
                 </div>
               ) : (
                 <div>không có hình ảnh</div>

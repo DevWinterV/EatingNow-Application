@@ -116,5 +116,9 @@ namespace PCheck.WebUI.Api
         [Route("TakeRecommendedFoodList")]
         public async Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList([FromBody] EN_CustomerLocationRequest request) => await _foodListService.TakeRecommendedFoodList(request);
 
+        [HttpPost]
+        [Route("TakeFavoriteFoodListOfUser")]
+        public async Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser([FromBody] EN_CustomerLocationRequest request) => await _foodListService.TakeFavoriteFoodListOfUser(request);
+
     }
 }

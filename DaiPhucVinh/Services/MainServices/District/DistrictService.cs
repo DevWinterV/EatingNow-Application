@@ -36,11 +36,35 @@ namespace DaiPhucVinh.Services.MainServices.District
             var result = new BaseResponse<DistrictResponse> { };
             try
             {
-                var query = _datacontext.EN_District.AsQueryable();
-                query = query.OrderBy(d => d.Name);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                result.Data = data.MapTo<DistrictResponse>();
+                if(request.Term == null)
+                {
+                    var query = _datacontext.EN_District.AsQueryable();
+                    query = query.OrderBy(d => d.Name);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<DistrictResponse>();
+                }
+                else
+                {
+                    if(request.ProvinceId == 0 || request.ProvinceId == null)
+                    {
+                        var query = _datacontext.EN_District.Where(x => x.Name.Contains(request.Term)).AsQueryable();
+                        query = query.OrderBy(d => d.Name);
+                        result.DataCount = await query.CountAsync();
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<DistrictResponse>();
+                    }
+                    else
+                    {
+                        var query = _datacontext.EN_District.Where(x => x.Name.Contains(request.Term) && x.ProvinceId.Equals(request.ProvinceId)).AsQueryable();
+                        query = query.OrderBy(d => d.Name);
+                        result.DataCount = await query.CountAsync();
+                        var data = await query.ToListAsync();
+                        result.Data = data.MapTo<DistrictResponse>();
+                    }
+                   
+                }
+        
                 result.Success = true;
             }
             catch (Exception ex)

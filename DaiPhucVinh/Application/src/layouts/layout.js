@@ -5,11 +5,12 @@ import { BrowserRouter as Router } from "react-router-dom";
 import LeftSidebar from "./leftSideBar";
 import { decrypt } from "../framework/encrypt";
 import moment from "moment";
-
+import { useEffect, useState } from "react";
 const AuthContext = React.createContext();
 export { AuthContext };
 
 const Layout = () => {
+ 
   const [auth, setAuth] = React.useState();
   const value = React.useMemo(() => ({ auth, setAuth }), [auth]);
   async function onViewAppearing() {
@@ -28,8 +29,11 @@ const Layout = () => {
       }
     }
   }
+
+
   React.useEffect(() => {
     onViewAppearing();
+
   }, []);
 
   return (

@@ -21,30 +21,49 @@ export default function Account() {
     Address: "",
     Email: "",
     ImageProfile: "",
-  });
+    ProvinceId: 0,
+    DistrictId: 0,
+    WardId: 0,
+    });
   const [{ cartShow, customer }, dispatch] = useStateValue();
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageShow, setimageShow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [checkCustomer, setCheckCustomer] = useState([]);
+  let phonecustomer = JSON.parse(localStorage.getItem('phone'));
+  if (phonecustomer!= null &&  phonecustomer.startsWith('84')) {
+      phonecustomer = phonecustomer.slice(2); // Bỏ đi 2 ký tự đầu (84)
+  }
 
 
   async function onChangeCustomer() {
     setLoading(true);
     const checkCustomer = await CheckCustomer({
       CustomerId: customer,
+      Phone: JSON.parse(localStorage.getItem('phone'))
     });
     if (checkCustomer.success) {
       setCheckCustomer(checkCustomer);
-      setFormData({
-        CustomerId: checkCustomer.data[0].CustomerId,
-        CompleteName: checkCustomer.data[0].CompleteName,
-        Phone: checkCustomer.data[0].Phone,
-        Address: checkCustomer.data[0].Address,
-        Email: checkCustomer.data[0].Email,
-        ImageProfile: checkCustomer.data[0].ImageProfile,
-      });
-      setimageShow( checkCustomer.data[0].ImageProfile)
+      if(checkCustomer.data.length > 0){
+        setFormData({
+          CustomerId: checkCustomer.data[0].CustomerId,
+          CompleteName: checkCustomer.data[0].CompleteName,
+          Phone: checkCustomer.data[0].Phone,
+          Address: checkCustomer.data[0].Address,
+          Email: checkCustomer.data[0].Email,
+          ImageProfile: checkCustomer.data[0].ImageProfile,
+          ProvinceId: checkCustomer.data[0].ProvinceId,
+          DistrictId: checkCustomer.data[0].DistrictId,
+          WardId: checkCustomer.data[0].WardId,
+        });
+        setimageShow( checkCustomer.data[0].ImageProfile)
+      }
+      else{
+        setFormData({
+          CustomerId: customer,
+          Phone: phonecustomer,
+        });
+      }
       setLoading(false);
     }
   }
@@ -196,7 +215,6 @@ export default function Account() {
 
   return (
     <div className="bg-white min-h-screen p-5 overflow-y-auto scrollbar py-2 px-2">
-      {cartShow && <CartContainer />}
       {loading ? (
         <div className="text-center pt-20">
           <Loader />
@@ -233,7 +251,9 @@ export default function Account() {
                     type="text"
                     id="CompleteName"
                     name="CompleteName"
-                    value={formData.CompleteName}
+                    value={
+                      formData.CompleteName
+                    }
                     onChange={handleInputChange}
                     className="mt-1 p-2 border rounded-md flex-1"
                   />
@@ -286,8 +306,9 @@ export default function Account() {
                     </div>
                   </div>
                 </div>
-
-                <div className="mb-4">
+                {
+                  /*
+                   <div className="mb-4">
                   <label
                     htmlFor="Address"
                     className="block text-sm font-medium text-gray-700"
@@ -303,6 +324,9 @@ export default function Account() {
                     className="mt-1 p-2 border rounded-md w-full"
                   />
                 </div>
+                  */
+                }
+               
                 <div className="mb-4">
                   <label
                     htmlFor="Phone"
@@ -314,10 +338,14 @@ export default function Account() {
                     type="tel"
                     id="Phone"
                     name="Phone"
-                    value={formData.Phone}
+                    value={
+                      formData.Phone != "" ?
+                      formData.Phone : (phonecustomer != "undefined" ||phonecustomer != null ? phonecustomer: "")
+                    }
                     onChange={handleInputChange}
                     className="mt-1 p-2 border rounded-md w-full"
                     required
+                    disabled
                   />
                 </div>
                 <div className="mt-4">

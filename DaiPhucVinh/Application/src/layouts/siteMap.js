@@ -20,7 +20,7 @@ const SiteMap = [
             role: "BANDO",
           },
           {
-            name: "Xem tài xế đang hoạt động",
+            name: "Xem vị trí tài xế",
             href: "/mapsdlv",
             role: "BANDO",
           },
@@ -77,8 +77,8 @@ const SiteMap = [
           },
           {
             name: "Người giao hàng",
-            href: "/products",
-            role: "SANPHAM",
+            href: "/delivery",
+            role: "SHIPPER",
           },
         ],
       },
@@ -103,6 +103,11 @@ const SiteMap = [
             name: "Loại tài khoản",
             href: "/accounttype",
             role: "LOAITAIKHOAN",
+          },
+          {
+            name: "Tài khoản",
+            href: "/accounts",
+            role: "TAIKHOAN",
           },
         ],
       },

@@ -28,7 +28,12 @@ namespace DaiPhucVinh.Shared.CustomerDto
         public string TokenWeb { get; set; }
         public string TokenApp { get; set; }
         public string ImageProfile { get; set; }
-
         public List<EN_OrderLine> OrderLine { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public string Format_Address { get; set; }
+        public string Name_Address { get; set; }
+        public string RecipientName { get; set; }
+        public string RecipientPhone { get; set; }
     }
 }

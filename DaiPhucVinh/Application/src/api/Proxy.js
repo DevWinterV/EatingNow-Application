@@ -11,7 +11,7 @@ export const Proxy = async (method, api, request, isUseToken = false) => {
         headers: { Authorization: `Bearer ${auth.AccessToken}` },
       };
       const reponse = await axios.get(api, requestMethod || {});
-      return reponse.Data;
+      return reponse.data;
     } else {
       const config = {
         headers: { Authorization: `Bearer ${auth.AccessToken}` },

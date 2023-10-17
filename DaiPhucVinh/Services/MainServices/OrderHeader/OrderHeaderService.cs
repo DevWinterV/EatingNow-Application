@@ -3,9 +3,12 @@ using DaiPhucVinh.Services.Database;
 using DaiPhucVinh.Services.Framework;
 using DaiPhucVinh.Services.Helper;
 using DaiPhucVinh.Shared.Common;
+using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
+using DaiPhucVinh.Shared.OrderLineResponse;
 using DaiPhucVinh.Shared.Province;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -17,6 +20,7 @@ namespace DaiPhucVinh.Services.MainServices.OrderHeader
     {
         Task<BaseResponse<OrderHeaderResponse>> CreateOrderHeader(OrderHeaderRequest request);
         Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int UserId);
+
     }
     public class OrderHeaderService : IOrderHeaderService
     {
@@ -53,6 +57,8 @@ namespace DaiPhucVinh.Services.MainServices.OrderHeader
             }
             return result;
         }
+
+    
 
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int UserId)
         {

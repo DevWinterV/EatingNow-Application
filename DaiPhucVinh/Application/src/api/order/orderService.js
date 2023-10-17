@@ -60,7 +60,6 @@ const TakeAllOrder = async (request) => {
     }
     return result;
   };
-  
 
 export {
   TakeAllOrder,

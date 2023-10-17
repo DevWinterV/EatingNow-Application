@@ -13,7 +13,6 @@ namespace DaiPhucVinh
 
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
 
-           
             // Web API routes
             config.MapHttpAttributeRoutes();
 

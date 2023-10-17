@@ -3,18 +3,39 @@ import { ServerEndPoint } from "../ServerEndPoint";
 import { BaseResponse } from "../BaseResponse";
 const ServiceEndPoint = ServerEndPoint + "/customer";
 const API = {
-  TakeAlls: "/TakeAlls",
-  TakeAllCustomerType: "/TakeAllCustomerType",
+  TakeAlls: "/TakeAllCustomer",
   TakeCustomerById: "/TakeCustomerById",
-  TakeContractByCustomerCode: "/TakeContractByCustomerCode",
-  TakeContractByContractLineCode: "/TakeContractByContractLineCode",
   CreateCustomer: "/CreateCustomer",
-  UpdateCustomer: "/UpdateCustomer",
+  UpdateCustomer: "/UpdateInfoCustomer",
   RemoveCustomer: "/RemoveCustomer",
   SearchCustomer: "/SearchCustomer",
+  TakeAllCustomerByProvinceId: "/TakeAllCustomerByProvinceId",
+  TakeOrderByCustomer: "/TakeOrderByCustomer",
+  RemoveOrderLine: "/RemoveOrderLine",
+  RemoveOrderHeader: "/RemoveOrderHeader"
+};
+const TakeOrderByCustomer = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeOrderByCustomer,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+      result.message = response.data.Message;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
 };
 
-const TakeAllsCustomer = async (request) => {
+const TakeAllCustomer = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
@@ -33,18 +54,19 @@ const TakeAllsCustomer = async (request) => {
   }
   return result;
 };
-const TakeAllCustomerType = async (request) => {
+const TakeAllCustomerByProvinceId = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
       "post",
-      ServiceEndPoint + API.TakeAllCustomerType,
+      ServiceEndPoint + API.TakeAllCustomerByProvinceId,
       request,
       true
     );
     if (response.data.Success) {
       result.success = true;
       result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
     }
   } catch (e) {
     result.message = e.toString();
@@ -71,44 +93,8 @@ const TakeCustomerById = async (Id) => {
   }
   return result;
 };
-const TakeContractByCustomerCode = async (request, code) => {
-  let result = new BaseResponse(false, "", null);
-  try {
-    let response = await Proxy(
-      "post",
-      ServiceEndPoint + API.TakeContractByCustomerCode + "?code=" + code,
-      request,
-      true
-    );
-    if (response.data.Success) {
-      result.success = true;
-      result.data = response.data.Data;
-      result.dataCount = response.data.DataCount;
-    }
-  } catch (e) {
-    result.message = e.toString();
-  }
-  return result;
-};
-const TakeContractByContractLineCode = async (request, code) => {
-  let result = new BaseResponse(false, "", null);
-  try {
-    let response = await Proxy(
-      "post",
-      ServiceEndPoint + API.TakeContractByContractLineCode + "?code=" + code,
-      request,
-      true
-    );
-    if (response.data.Success) {
-      result.success = true;
-      result.data = response.data.Data;
-      result.dataCount = response.data.DataCount;
-    }
-  } catch (e) {
-    result.message = e.toString();
-  }
-  return result;
-};
+
+
 const CreateCustomer = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -164,6 +150,42 @@ const RemoveCustomer = async (e) => {
   }
   return result;
 };
+const RemoveOrderLine = async (e) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.RemoveOrderLine,
+      e,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.message = response.data.Message;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const RemoveOrderHeader = async (e) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.RemoveOrderHeader,
+      e,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.message = response.data.Message;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 const SearchCustomer = async (request, CustomerCode) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -183,13 +205,14 @@ const SearchCustomer = async (request, CustomerCode) => {
   return result;
 };
 export {
-  TakeAllsCustomer,
-  TakeAllCustomerType,
+  TakeAllCustomer,
   TakeCustomerById,
-  TakeContractByCustomerCode,
-  TakeContractByContractLineCode,
   CreateCustomer,
   RemoveCustomer,
   UpdateCustomer,
   SearchCustomer,
+  TakeAllCustomerByProvinceId,
+  TakeOrderByCustomer,
+  RemoveOrderLine,
+  RemoveOrderHeader
 };

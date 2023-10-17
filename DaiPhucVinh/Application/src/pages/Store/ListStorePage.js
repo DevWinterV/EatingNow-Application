@@ -5,7 +5,7 @@ import { Breadcrumb } from "../../controls";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { TakeAllCuisine } from "../../api/categoryItem/categoryItemService";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
-import { ApproveStore, TakeAllStore } from "../../api/store/storeService";
+import { ApproveStore, TakeAllStore, SearchStore } from "../../api/store/storeService";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -26,28 +26,31 @@ export default function ListStorePage() {
     term: "",
     ItemGroup_Code: "",
     ItemGroup_Name: "",
-    ItemCategoryCode: "",
+    ItemCategoryCode: 0,
     ItemCategoryName: "",
   });
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [pageTotal, setPageTotal] = React.useState(1);
   const [itemCuisine, setItemCuisine] = React.useState([]);
+
   const [defaultItemCategory, setDefaultItemCategory] = React.useState({
-    value: "",
+    value: 0,
     label: "Tất cả",
   });
 
   async function changeSearch(e) {
-    setFilter({ ...filter, term: e.target.value });
-    //    localStorage.term = e.target.value;
+    // Wait for 2 seconds before updating the term property
+      setFilter({ ...filter, term: e.target.value });
+    console.log(filter)
   }
+  
   async function onFillItemCategory() {
     let itemCategoryResponse = await TakeAllCuisine();
     if (itemCategoryResponse.success) {
       setItemCuisine([
         {
-          value: "",
+          value: 0,
           label: "Tất cả",
         },
         ...itemCategoryResponse.data.map((e) => {
@@ -59,6 +62,11 @@ export default function ListStorePage() {
       ]);
     }
   }
+  function handleInputChange(e) {
+    setFilter({ ...filter, term: e.target.value });
+  }
+
+
 
   function onPageChange(e) {
     setFilter({
@@ -68,21 +76,26 @@ export default function ListStorePage() {
   }
   async function onViewAppearing() {
     setLoading(true);
-    let response = await TakeAllStore(filter);
-    if (response.success) {
-      setData(response.data);
-      setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
+    if(filter.term != ""){
+      let response = await SearchStore(filter);
+      if (response.success) {
+        setData(response.data);
+        setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
+      }
+    }else
+    {
+      let response = await TakeAllStore(filter);
+      if (response.success) {
+        setData(response.data);
+        setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
+      }
     }
+
     setLoading(false);
   }
   React.useEffect(() => {
     onViewAppearing();
-  }, [
-    filter.ItemGroup_Code,
-    filter.page,
-    filter.pageSize,
-    filter.ItemCategoryCode,
-  ]);
+  }, [filter]);
 
   React.useEffect(() => {
     onFillItemCategory();
@@ -91,42 +104,35 @@ export default function ListStorePage() {
   return (
     <>
       <Breadcrumb title="Danh sách cửa hàng" sources={breadcrumbSources} />
-      <div className="card" style={{ fontSize: "12px" }}>
+      <div className="card" style={{  fontSize: "12px" }}>
         <div className="card-body">
           <div className="row">
             <div className="col-lg-4">
               <div className="mb-3">
                 <label className="d-flex fw-bold">Tìm kiếm</label>
                 <div className="input-group">
-                  <input
-                    type="search"
-                    className="form-control"
-                    placeholder="Tên sản phẩm, Model..."
-                    value={filter.term}
-                    onChange={changeSearch}
-                    onKeyDown={(e) => {
-                      if (e.code == "Enter") {
-                        onViewAppearing();
-                        setFilter({ ...filter, page: 0 });
-                        changeSearch(e);
-                      }
-                    }}
-                    style={{ fontSize: "12px" }}
-                  />
-                  <button
-                    className="btn btn-success"
-                    type="button"
-                    onClick={() => {
-                      onViewAppearing();
-                      setFilter({
-                        ...filter,
-                        page: 0,
-                      });
-                    }}
-                  >
-                    <i className="bx bx-search-alt-2"></i>
-                  </button>
-                </div>
+                <input
+                  type="search"
+                  className="form-control"
+                  placeholder="Tên cửa hàng..."
+                  value={filter.term}
+                  onChange={handleInputChange}
+                  style={{ fontSize: "12px" }}
+                />
+                <button
+                  className="btn btn-success"
+                  type="button"
+                  onClick={() => {
+                    onViewAppearing();
+                    setFilter({
+                      ...filter,
+                      page: 0,
+                    });
+                  }}
+                >
+                  <i className="bx bx-search-alt-2"></i>
+                </button>
+              </div>
               </div>
             </div>
             <div className="col-lg-4">
@@ -145,6 +151,7 @@ export default function ListStorePage() {
                       page: 0,
                       ItemCategoryCode: e.value,
                     });
+                    console.log(filter);
                   }}
                   style={{ fontSize: "12px" }}
                 />
@@ -179,7 +186,7 @@ export default function ListStorePage() {
                 <Th className="align-middle">Email</Th>
                 <Th className="align-middle">Địa chỉ</Th>
                 <Th className="align-middle">Trạng thái</Th>
-                <Th className="align-middle"></Th>
+                <Th className="align-middle">Cập nhật</Th>
               </Tr>
             </Thead>
 
@@ -314,7 +321,7 @@ export default function ListStorePage() {
                             <div
                               className="text-success"
                               onClick={() => {
-                                window.open("/products/detail/" + i.Id);
+                                window.open("/store/detail/" + i.UserId);
                                 localStorage.Code = i.Code;
                               }}
                             >

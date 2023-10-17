@@ -56,11 +56,26 @@ namespace DaiPhucVinh.Services.MainServices.Cuisine
             var result = new BaseResponse<CuisineResponse> { };
             try
             {
-                var query = _datacontext.EN_Cuisine.AsQueryable();
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                var resultList = data.MapTo<CuisineResponse>();
-                result.Data = resultList;
+                if(request.Term == null) {
+                    var query = _datacontext.EN_Cuisine.AsQueryable();
+                    result.DataCount = await query.CountAsync();
+                    if (request.PageSize != 0)
+                    {
+                        query = query.OrderBy(d => d.CuisineId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    }
+                    var data = await query.ToListAsync();
+                    var resultList = data.MapTo<CuisineResponse>();
+                    result.Data = resultList;
+                }
+                else
+                {
+                    var query = _datacontext.EN_Cuisine.Where(x => x.Name.Contains(request.Term)).AsQueryable();
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    var resultList = data.MapTo<CuisineResponse>();
+                    result.Data = resultList;
+                }
+              
                 result.Success = true;
             }
             catch (Exception ex)

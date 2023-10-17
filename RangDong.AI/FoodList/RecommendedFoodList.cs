@@ -80,7 +80,7 @@ namespace AI.FoodList
             ));
             PrintResult(predictEngine.Predict(new InputData
             {
-                CustomerId = "an3ciUNfaaOIYJp6ycWeSO4uZIU2",
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
                 FoodListId = 3
             }
             ));
@@ -92,7 +92,7 @@ namespace AI.FoodList
             ));
             PrintResult(predictEngine.Predict(new InputData
             {
-                CustomerId = "an3ciUNfaaOIYJp6ycWeSO4uZIU2",
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
                 FoodListId = 17
             }
             ));
@@ -108,11 +108,22 @@ namespace AI.FoodList
                 FoodListId = 20
             }
             ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2",
+                FoodListId = 1
+            }
+         )); PrintResult(predictEngine.Predict(new InputData
+         {
+             CustomerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2",
+             FoodListId = 11
+         }
+            ));
         }
         //In kết quả gợi ý dựa trên Score
         private static void PrintResult(ResultModel result)
         {
-            Console.WriteLine($"CustomerId: {result.CustomerId} | FoodId: {result.FoodListId} | Score: {result.Score} : Is Recommended: {result.Score > 3}");
+            Console.WriteLine($"CustomerId: {result.CustomerId} | FoodId: {result.FoodListId} | Score: {result.Score} : Is Recommended: {result.Score > 3.5}");
         }
 
         // Đánh giá mô hình
@@ -126,11 +137,11 @@ namespace AI.FoodList
         {
             var options = new MatrixFactorizationTrainer.Options
             {
-                LabelColumnName = nameof(InputData.Rating),// Cột dữ liệu chứa điểm đánh giá
+                LabelColumnName = nameof(InputData.Rating),// Đây là tên cột trong dữ liệu đầu vào (InputData) chứa điểm đánh giá. Tùy chọn này xác định cột dùng để đo lường sự tương quan giữa các yếu tố trong ma trận đánh giá.
                 MatrixColumnIndexColumnName = "Encoded_CustomerId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
                 MatrixRowIndexColumnName = "Encoded_FoodListId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
-                NumberOfIterations = 90,//Số lần lặp trong quá trình đào tạo.
-                ApproximationRank = 100,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
+                NumberOfIterations = 50,//Số lần lặp trong quá trình đào tạo.
+                ApproximationRank = 300,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
             };
             var trainer = context.Recommendation().Trainers.MatrixFactorization(options);
             var pipeline = estimator.Append(trainer);

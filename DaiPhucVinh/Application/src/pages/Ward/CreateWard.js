@@ -47,7 +47,7 @@ export default function CreateProvince() {
     label: "Vui lòng chọn tỉnh",
   });
   async function onFillItemProvince() {
-    let itemProvinceResponse = await TakeAllProvince();
+    let itemProvinceResponse = await TakeAllProvince({    term: "",  });
     console.log("ID : ", itemProvinceResponse);
     if (itemProvinceResponse.success) {
       setItemProvince([
@@ -67,7 +67,7 @@ export default function CreateProvince() {
   const [itemDistrict, setItemDistrict] = React.useState([]);
   const [defaultItemDistrict, setDefaultItemDistrict] = React.useState({
     value: "",
-    label: "Vui lòng chọn xã",
+    label: "Vui lòng chọn huyện",
   });
 
   function onBack() {
@@ -142,7 +142,7 @@ export default function CreateProvince() {
       setItemDistrict([
         {
           value: "",
-          label: "Vui lòng chọn xã",
+          label: "Vui lòng chọn huyện",
         },
         ...responseWard.data.map((e) => {
           return {
@@ -212,7 +212,7 @@ export default function CreateProvince() {
                 </div>
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <label className="form-label fw-bold">Thị Xá</label>
+                    <label className="form-label fw-bold">Huyện</label>
                     <Select
                       options={itemDistrict}
                       value={defaultItemDistrict}
@@ -239,7 +239,7 @@ export default function CreateProvince() {
 
             <div className="col-lg-12">
               <div className="mb-3">
-                <label className="form-label fw-bold">Tên huyện</label>
+                <label className="form-label fw-bold">Tên xã</label>
                 <input
                   type="text"
                   className="form-control"

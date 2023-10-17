@@ -5,17 +5,16 @@ import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import { Paginate } from "../../controls";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Select from "react-select";
 import { Modal } from "react-bootstrap";
+
 import {
-  TakeAllCustomerType,
-  TakeAllsCustomer,
+  TakeAllCustomer,
+  TakeAllCustomerByProvinceId,
   CreateCustomer,
   UpdateCustomer,
   RemoveCustomer,
 } from "../../api/customer/customerService";
-import { TakeAllProvince } from "../../api/province/provinceService";
-import { error } from "jquery";
+
 export default function ListCustomerPage() {
   const history = useNavigate();
   const breadcrumbSources = [
@@ -30,33 +29,16 @@ export default function ListCustomerPage() {
   ];
   const [pageTotal, setPageTotal] = React.useState(1);
   const [data, setData] = React.useState([]);
-  const [province, setProvince] = React.useState([]);
-  const [defaultProvince, setDefaultProvince] = React.useState({
-    value: 0,
-    label: "Tất cả",
-  });
   const [Loading, setLoading] = React.useState(false);
-  const [dropdownEmployeeFilter, setDropdownEmployeeFilter] = React.useState({
-    term: "",
-    page: 0,
-    pageSize: 15,
-  });
-  const [filterEmployee, setFilterEmployee] = React.useState([]);
-  const [employee, setEmployee] = React.useState([]);
-  const [defaultEmployee, setDefaultEmployee] = React.useState({
-    value: "",
-    label: "Tất cả",
-  });
   const [filter, setFilter] = React.useState({
     page: 0,
     pageSize: 20,
     term: "",
-    TinhThanh_Id: 0,
     ProvinceName: "",
     EmployeeCode: "",
     EmployeeName: "",
     FullName: "",
-    customerType,
+    ProvinceId: 0,
   });
   const [account, setAccount] = React.useState({
     Id: 0,
@@ -68,67 +50,32 @@ export default function ListCustomerPage() {
   const [modalAccountVisible, setModalAccountVisible] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [customerType, setCustomerType] = React.useState([]);
-  const [defaultCustomerType, setDefaultCustomerType] = React.useState({
-    value: 0,
-    label: "Chọn loại khách hàng",
-  });
-  const [provinceModal, setProvinceModal] = React.useState([]);
-  const [defaultProvinceModal, setDefaultProvinceModal] = React.useState({
-    value: 0,
-    label: "Chọn tỉnh thành",
-  });
-  const [employeeModal, setEmployeeModal] = React.useState([]);
-  const [defaultEmployeeModal, setDefaultEmployeeModal] = React.useState({
-    value: "",
-    label: "Chọn nhân viên kinh doanh",
-  });
-  const [dataModal, setDataModal] = React.useState({
-    Id: 0,
-    Name: "",
-    Address: "",
-    TaxCode: "", //Mã số thuế
-    PersonRepresent: "", //người đại diện
-    Position: "",
-    PhoneNo: "",
-    FaxNo: "",
-    Email: "",
-    Bank: "", //tên ngân hàng
-    BankAccount: "", //Số tài khoản
-    PersonContact: "", //người liên hệ giao hàng
-    ReciverAddress: "", // địa chỉ giao hàng
-    LienHeKhac: "",
-    CustomerType_Id: 0,
-    TinhThanh_Id: 0,
-    Tinh: "",
-    EmployeeCode: "",
-  });
+  const [selectedImageURL, setselectedImageURL] = React.useState();
 
-  const onOpenCreate = (e) => {
-    setModalAccountVisible(true);
-    setAccount({
-      Id: 0,
-      UserName: "",
-      DisplayName: e.Name,
-      Password: "",
-      NewPassword: "",
-      Active: true,
-      RoleSystem: "KhachHang",
-      CustomerCode: e.Code,
-    });
+  const [dataModal, setDataModal] = React.useState({
+    CustomerId: "",
+    CompleteName: "",
+    Address: "",
+    Phone: "",
+    Email: "",
+    ProvinceId: 0,
+    DistrictId: 0,
+    WardId: 0,
+    Status :true,
+    ImageProfile:"",
+  });
+  const [imageSrc, setImageSrc] = React.useState(); // Đường dẫn đến hình ảnh
+
+  // Xử lý sự kiện khi người dùng chọn hình ảnh mới
+  const handleImageChange = (e) => {
+    setImageSrc(e.target.files[0]);
+    const file = e.target.files[0]; // Lấy tệp hình ảnh đầu tiên từ sự kiện
+    if (file) {
+      setselectedImageURL(URL.createObjectURL(file))
+    } 
   };
-  const onOpenEdit = (e) => {
-    setModalAccountVisible(true);
-    setAccount({
-      Id: e.UserId,
-      UserName: e.UserName,
-      DisplayName: e.DisplayName,
-      Password: "",
-      NewPassword: "",
-      Active: e.Active,
-      RoleSystem: "KhachHang",
-      CustomerCode: e.Code,
-    });
-  };
+
+  // Hàm lưu tài khoản đăng nhập
   async function onSaveAccount() {
     if (account.Id > 0) {
       if (account.DisplayName == "") {
@@ -249,22 +196,24 @@ export default function ListCustomerPage() {
     }
   }
   async function onSave() {
-    if (dataModal.Name == "") {
+    console.log(dataModal);
+    if (dataModal.CompleteName == "" || dataModal.Phone =="") {
       Swal.fire({
         title: "Lỗi!",
-        text: "Vui lòng nhập tên khách hàng",
+        text: "Vui lòng nhập đủ thông tin khách hàng ( Họ tên và số điện thoại)",
         icon: "error",
         confirmButtonText: "OK",
       });
       return;
     }
     let response;
-    if (dataModal.Id == 0) {
-      response = await CreateCustomer(dataModal);
-    } else {
-      response = await UpdateCustomer(dataModal);
+    let data = new FormData();
+    if (imageSrc !== undefined) {
+      data.append("file[]", imageSrc, imageSrc.name);
     }
-
+    data.append("form", JSON.stringify(dataModal));
+    // Thêm mới nếu Id là rỗng
+    response = await UpdateCustomer(data);
     if (!response.success) {
       Swal.fire({
         title: "Lỗi!",
@@ -291,112 +240,21 @@ export default function ListCustomerPage() {
     setModalAccountVisible(false);
     setModalVisible(false);
     setDataModal({
-      Id: 0,
-      Name: "",
+      CustomerId: "",
+      CompleteName: "",
       Address: "",
-      TaxCode: "",
-      PersonRepresent: "",
-      Position: "",
-      PhoneNo: "",
-      FaxNo: "",
+      Phone: "",
       Email: "",
-      Bank: "",
-      BankAccount: "",
-      PersonContact: "",
-      ReciverAddress: "",
-      LienHeKhac: "",
-      CustomerType_Id: 0,
-      TinhThanh_Id: 0,
-      Tinh: "",
-      EmployeeCode: "",
+      ProvinceId: 0,
+      DistrictId: 0,
+      WardId:0,
+      Status :true,
+      ImageProfile:"",
     });
-    setDefaultCustomerType({
-      value: 0,
-      label: "Chọn loại khách hàng",
-    });
-    setDefaultProvinceModal({
-      value: 0,
-      label: "Chọn tỉnh thành",
-    });
-    setDefaultEmployeeModal({
-      value: 0,
-      label: "Chọn nhân viên kinh doanh",
-    });
+    setselectedImageURL('');
   }
-  async function onFillCustomerType() {
-    let customerTypeResponse = await TakeAllCustomerType();
-    if (customerTypeResponse.success) {
-      setCustomerType([
-        ...customerTypeResponse.data.map((e) => {
-          return {
-            value: e.Id,
-            label: e.Name,
-          };
-        }),
-      ]);
-    }
-  }
-  async function onFillProvince() {
-    let ProvinceResponse = await TakeAllProvince();
-    if (ProvinceResponse.success) {
-      setProvince([
-        {
-          value: 0,
-          label: "Tất cả",
-        },
-        ...ProvinceResponse.data.map((e) => {
-          return {
-            value: e.Id,
-            label: e.Name,
-          };
-        }),
-      ]);
-      setProvinceModal([
-        ...ProvinceResponse.data.map((e) => {
-          return {
-            value: e.Id,
-            label: e.Name,
-          };
-        }),
-      ]);
-    }
-  }
-  async function onFillEmployee() {
-    let employeeResponse = await TakeAllEmployeeCode(dropdownEmployeeFilter);
-    if (employeeResponse.success) {
-      setFilterEmployee([
-        {
-          value: "",
-          label: "Tất cả",
-        },
-        ...employee,
-        ...employeeResponse.data.map((e) => {
-          return {
-            value: e.EmployeeCode,
-            label: e.FullName,
-          };
-        }),
-      ]);
-      setEmployee([
-        ...employee,
-        ...employeeResponse.data.map((e) => {
-          return {
-            value: e.EmployeeCode,
-            label: e.FullName,
-          };
-        }),
-      ]);
-      setEmployeeModal([
-        ...employee,
-        ...employeeResponse.data.map((e) => {
-          return {
-            value: e.EmployeeCode,
-            label: e.FullName,
-          };
-        }),
-      ]);
-    }
-  }
+
+
   function onPageChange(e) {
     setFilter({
       ...filter,
@@ -405,29 +263,21 @@ export default function ListCustomerPage() {
   }
   async function onViewAppearing() {
     setLoading(true);
-    let response = await TakeAllsCustomer(filter);
+    let response = await TakeAllCustomer(filter);
     if (response.success) {
       setData(response.data);
       setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
     }
     setLoading(false);
   }
-  React.useEffect(() => {
-    onFillCustomerType();
-  }, []);
-  React.useEffect(() => {
-    onFillEmployee();
-  }, [dropdownEmployeeFilter]);
-  React.useEffect(() => {
-    onFillProvince();
-  }, []);
+
+  //Load dữ liệu khách hàng
   React.useEffect(() => {
     onViewAppearing();
-  }, [filter.TinhThanh_Id, filter.EmployeeCode, filter.page, filter.pageSize]);
+  }, [filter.term, filter.page, filter.pageSize]);
   return (
     <>
       <Breadcrumb title="Danh sách khách hàng" sources={breadcrumbSources} />
-
       <div className="card" style={{ fontSize: "12px" }}>
         <div className="card-body">
           <div className="row">
@@ -438,7 +288,7 @@ export default function ListCustomerPage() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên, điện thoại, mã số thuế..."
+                    placeholder="Tên khách hàng..."
                     value={filter.term}
                     onChange={(e) =>
                       setFilter({ ...filter, term: e.target.value })
@@ -467,7 +317,11 @@ export default function ListCustomerPage() {
                 </div>
               </div>
             </div>
-            <div className="col-lg-3">
+
+          
+            {
+/*
+  <div className="col-lg-3">
               <div className="mb-3">
                 <label className="form-label fw-bold">Tỉnh thành</label>
                 <Select
@@ -481,14 +335,14 @@ export default function ListCustomerPage() {
                     setFilter({
                       ...filter,
                       page: 0,
-                      TinhThanh_Id: e.value,
-                      ProvinceName: e.label,
+                      pageSize:20,
+                      ProvinceId: e.value,
                     });
                   }}
                 />
               </div>
             </div>
-            <div className="col-lg-3">
+         <div className="col-lg-3">
               <div className="mb-3">
                 <label className="form-label fw-bold">Nhân viên KD</label>
                 <Select
@@ -524,6 +378,9 @@ export default function ListCustomerPage() {
                 />
               </div>
             </div>
+*/
+            }
+   
             <div
               className="col d-flex justify-content-end  align-items-right"
               style={{ marginTop: "27px" }}
@@ -535,18 +392,19 @@ export default function ListCustomerPage() {
                   onClick={() => setModalVisible(true)}
                   style={{ fontSize: "12px" }}
                 >
-                  <i className="mdi mdi-plus me-1"></i> Thêm
+                  <i className="mdi mdi-plus me-1"></i> Thêm khách hàng
                 </button>
               </div>
             </div>
           </div>
+          {/* Form cập nhật thông tin khách hàng */}
           <Modal
             size="xl"
             show={modalVisible}
             onEscapeKeyDown={() => setModalVisible(false)}
             backdrop="static"
             keyboard={false}
-            className="fade"
+            className="fade" 
             tabIndex="-1"
             role="dialog"
             aria-labelledby="staticBackdropLabel"
@@ -554,13 +412,13 @@ export default function ListCustomerPage() {
             centered
           >
             <Modal.Header>
-              {dataModal.Id > 0 ? (
+              {dataModal.CustomerId != "" ? (
                 <span
                   style={{ fontSize: "12px" }}
                   className="modal-title fw-bold"
                   id="staticBackdropLabel"
                 >
-                  Thông tin khách hàng
+                  Cập nhật khách hàng
                 </span>
               ) : (
                 <span
@@ -568,9 +426,10 @@ export default function ListCustomerPage() {
                   className="modal-title fw-bold"
                   id="staticBackdropLabel"
                 >
-                  Thêm khách hàng
+                  Thêm mới khách hàng
                 </span>
-              )}
+              )
+              }
               <button
                 type="button"
                 className="btn-close"
@@ -581,7 +440,10 @@ export default function ListCustomerPage() {
             </Modal.Header>
             <Modal.Body style={{ fontSize: "12px" }}>
               <div className="row">
-                <div className="col-lg-4">
+                {
+                  /*
+                  Loại khách hàng
+  <div className="col-lg-4">
                   <div className="mb-3">
                     <label className="form-label fw-bold">
                       Loại khách hàng
@@ -600,24 +462,66 @@ export default function ListCustomerPage() {
                     ></Select>
                   </div>
                 </div>
-                <div className="col-lg-4">
+                  */
+                }
+                {
+                  /*
+       <div className="col-lg-4">
                   <div className="mb-3">
                     <label className="form-label fw-bold">Tỉnh thành</label>
                     <Select
-                      options={provinceModal}
+                      options={province}
                       value={defaultProvinceModal}
                       onChange={(e) => {
                         setDefaultProvinceModal(e);
                         setDataModal({
                           ...dataModal,
-                          TinhThanh_Id: e.value,
-                          Tinh: e.label,
+                          ProvinceId: e.value,
                         });
                       }}
                     />
                   </div>
                 </div>
                 <div className="col-lg-4">
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Huyện</label>
+                    <Select
+                      options={District}
+                      value={defaultDistrictModal}
+                      onChange={(e) => {
+                        setdefaultDistrictModal(e);
+                        setDataModal({
+                          ...dataModal,
+                          DistrictId: e.value,
+                        });
+                      }}
+                    />
+                  </div>
+                </div><div className="col-lg-4">
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Xã/Phường</label>
+                    <Select
+                      options={Ward}
+                      value={defaultWardModal}
+                      onChange={(e) => {
+                        setdefaultWardModal(e);
+                        console.log(e.label);
+                        setDataModal({
+                          ...dataModal,
+                          WardId: e.value,
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+                  */
+                }
+         
+            
+                {
+                  /*
+                  Nhân viên kinh doanh
+      <div className="col-lg-4">
                   <div className="mb-3">
                     <label className="form-label fw-bold">
                       Nhân viên kinh doanh
@@ -650,6 +554,23 @@ export default function ListCustomerPage() {
                     />
                   </div>
                 </div>
+                  */
+                }
+          
+              </div>
+              <div className="row">
+                <div className="col-lg-6">
+                    <div className="mb-3">
+                      {/* Hình ảnh */}
+                      <img 
+                          src={selectedImageURL}
+                          alt={dataModal.CustomerId}
+                          style={{ width: '120px', height: '120px', marginRight: 10 }}
+                        />
+                      {/* Input để chọn hình ảnh */}
+                      <input type="file" accept="image/*" onChange={handleImageChange} />
+                    </div>
+                  </div>
               </div>
               <div className="row">
                 <div className="col-lg-6">
@@ -659,11 +580,11 @@ export default function ListCustomerPage() {
                       type="text"
                       className="form-control"
                       placeholder="Tên khách hàng"
-                      defaultValue={dataModal.Name}
+                      defaultValue={dataModal.CompleteName}
                       onChange={(e) => {
                         setDataModal({
                           ...dataModal,
-                          Name: e.target.value,
+                          CompleteName: e.target.value,
                         });
                       }}
                       style={{ fontSize: "12px" }}
@@ -677,11 +598,11 @@ export default function ListCustomerPage() {
                       type="text"
                       className="form-control"
                       placeholder="Số điện thoại"
-                      defaultValue={dataModal.PhoneNo}
+                      defaultValue={dataModal.Phone}
                       onChange={(e) => {
                         setDataModal({
                           ...dataModal,
-                          PhoneNo: e.target.value,
+                          Phone: e.target.value,
                         });
                       }}
                       style={{ fontSize: "12px" }}
@@ -690,107 +611,13 @@ export default function ListCustomerPage() {
                 </div>
               </div>
               <div className="row">
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Địa chỉ</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Địa chỉ"
-                      defaultValue={dataModal.Address}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          Address: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Mã số thuế</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Mã số thuế"
-                      defaultValue={dataModal.TaxCode}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          TaxCode: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Người đại diện</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Người đại diện"
-                      defaultValue={dataModal.PersonRepresent}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          PersonRepresent: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Chức vụ</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Chức vụ"
-                      defaultValue={dataModal.Position}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          Position: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Số Fax</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Số Fax"
-                      defaultValue={dataModal.FaxNo}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          FaxNo: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
                 <div className="col-lg-6">
                   <div className="mb-3">
                     <label className="form-label fw-bold">Email</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Email"
+                      placeholder="Địa chỉ"
                       defaultValue={dataModal.Email}
                       onChange={(e) => {
                         setDataModal({
@@ -802,7 +629,8 @@ export default function ListCustomerPage() {
                     />
                   </div>
                 </div>
-              </div>
+              </div>            
+              {/*Số tài khoản */}
               <div className="row">
                 <div className="col-lg-6">
                   <div className="mb-3">
@@ -841,7 +669,9 @@ export default function ListCustomerPage() {
                   </div>
                 </div>
               </div>
-              <div className="row">
+              {/*
+              Người liên hệ giao hàng
+                  <div className="row">
                 <div className="col-lg-6">
                   <div className="mb-3">
                     <label className="form-label fw-bold">
@@ -862,49 +692,12 @@ export default function ListCustomerPage() {
                     />
                   </div>
                 </div>
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">
-                      Địa chỉ giao hàng
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Địa chỉ giao hàng"
-                      defaultValue={dataModal.ReciverAddress}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          ReciverAddress: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
               </div>
-              <div className="row">
-                <div className="col-lg-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">
-                      Thông tin liên hệ khác
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Thông tin liên hệ khác"
-                      defaultValue={dataModal.LienHeKhac}
-                      onChange={(e) => {
-                        setDataModal({
-                          ...dataModal,
-                          LienHeKhac: e.target.value,
-                        });
-                      }}
-                      style={{ fontSize: "12px" }}
-                    />
-                  </div>
-                </div>
-              </div>
+                    */}
+          
+              {/*
+              Liên hệ khác */}
+
             </Modal.Body>
             <Modal.Footer>
               <button
@@ -925,17 +718,16 @@ export default function ListCustomerPage() {
               </button>
             </Modal.Footer>
           </Modal>
+
+          {/*Danh sách khách hàng */}
           <Table className="table table-striped">
             <Thead className="table-light">
               <Tr>
                 <Th className="align-middle">STT</Th>
                 <Th className="align-middle">Tên khách hàng</Th>
                 <Th className="align-middle">Điện thoại</Th>
-                <Th className="align-middle">Địa chỉ</Th>
-                <Th className="align-middle">Mã số thuế</Th>
-                <Th className="align-middle">Người liên hệ</Th>
-                <Th className="align-middle">Có tài khoản</Th>
-                <Th className="align-middle">Sp</Th>
+                <Th className="align-middle">Email</Th>
+                <Th className="align-middle">Đơn hàng</Th>
                 <Th className="align-middle">Cập nhật</Th>
                 <Th className="align-middle">Xóa</Th>
               </Tr>
@@ -963,40 +755,15 @@ export default function ListCustomerPage() {
                     data.map((i, idx) => (
                       <Tr key={"row_" + idx}>
                         <Td>{filter.page * filter.pageSize + idx + 1}</Td>
-                        <Td>{i.Name}</Td>
-                        <Td>{i.PhoneNo}</Td>
-                        <Td>{i.Address}</Td>
-                        <Td>{i.TaxCode}</Td>
-                        <Td>{i.PersonContact}</Td>
-                        <Td>
-                          {i.IsExistAccount == true ? (
-                            <div className="d-flex gap-3">
-                              <div
-                                className="text-success"
-                                onClick={() => {
-                                  onOpenEdit(i);
-                                }}
-                              >
-                                <i className="mdi mdi-check-bold font-size-18"></i>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="d-flex gap-3">
-                              <div
-                                className="text-info"
-                                onClick={() => onOpenCreate(i)}
-                              >
-                                <i className="mdi mdi-plus font-size-18"></i>
-                              </div>
-                            </div>
-                          )}
-                        </Td>
+                        <Td>{i.CompleteName}</Td>
+                        <Td>{i.Phone}</Td>
+                        <Td>{i.Email}</Td>
                         <Td>
                           <div className="d-flex gap-3">
                             <div
                               className="text-info"
                               onClick={() => {
-                                history("/customer/edit/" + i.Id, {
+                                history("/customer/detail/" + i.CustomerId, {
                                   state: { data: i },
                                 });
                               }}
@@ -1005,68 +772,21 @@ export default function ListCustomerPage() {
                             </div>
                           </div>
                         </Td>
+                          {/* Cập nhật khách hàng */}
                         <Td>
                           <div className="d-flex gap-3">
                             <div
                               className="text-success"
                               onClick={() => {
                                 setDataModal({
-                                  Id: i.Id,
-                                  Code: i.Code,
-                                  Name: i.Name,
-                                  Address: i.Address,
-                                  TaxCode: i.TaxCode,
-                                  PersonRepresent: i.PersonEpresent,
-                                  Position: i.Position,
-                                  PhoneNo: i.PhoneNo,
-                                  FaxNo: i.FaxNo,
+                                  CustomerId: i.CustomerId,
+                                  CompleteName: i.CompleteName,
+                                  Phone: i.Phone,
                                   Email: i.Email,
-                                  Bank: i.Bank,
-                                  BankAccount: i.BankAccount,
-                                  PersonContact: i.PersonContact,
-                                  ReciverAddress: i.ReciverAddress,
-                                  LienHeKhac: i.LienHeKhac,
-                                  CustomerType_Id: i.CustomerType_Id,
-                                  TinhThanh_Id: i.TinhThanh_Id,
-                                  Tinh: i.Tinh,
-                                  EmployeeCode: i.EmployeeCode,
+                                  Status : i.Status,
+                                  ImageProfile: i.ImageProfile,
                                 });
-                                if (i.TinhThanh_Id == 0) {
-                                  setDefaultProvinceModal({
-                                    value: 0,
-                                    label: "Chọn tỉnh thành",
-                                  });
-                                } else {
-                                  setDefaultProvinceModal({
-                                    value: i.TinhThanh_Id,
-                                    label: i.Tinh,
-                                  });
-                                }
-                                if (
-                                  i.EmployeeCode == "" ||
-                                  i.EmployeeCode == null
-                                ) {
-                                  setDefaultEmployeeModal({
-                                    value: 0,
-                                    label: "Chọn nhân viên kinh doanh",
-                                  });
-                                } else {
-                                  setDefaultEmployeeModal({
-                                    value: i.EmployeeCode,
-                                    label: i.EmployeeName,
-                                  });
-                                }
-                                if (i.CustomerType_Id == 0) {
-                                  setDefaultCustomerType({
-                                    value: 0,
-                                    label: "Chọn loại khách hàng",
-                                  });
-                                } else {
-                                  setDefaultCustomerType({
-                                    value: i.CustomerType_Id,
-                                    label: i.CustomerTypeName,
-                                  });
-                                }
+                                setselectedImageURL(i.ImageProfile || "")
                                 setModalVisible(true);
                               }}
                             >
@@ -1074,6 +794,7 @@ export default function ListCustomerPage() {
                             </div>
                           </div>
                         </Td>
+                          {/*Xóa khách hàng*/}
                         <Td>
                           <div className="d-flex gap-3">
                             <div
@@ -1124,6 +845,7 @@ export default function ListCustomerPage() {
               )}
             </Tbody>
           </Table>
+
           <Modal
             size="md"
             show={modalAccountVisible}
@@ -1165,6 +887,7 @@ export default function ListCustomerPage() {
                 }}
               ></button>
             </Modal.Header>
+            {/* thêm mới tài khoản khách hàng */}
             <Modal.Body>
               <div className="card-body" style={{ padding: 0 }}>
                 <div className="row">

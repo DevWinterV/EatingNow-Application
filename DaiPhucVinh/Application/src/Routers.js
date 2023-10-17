@@ -4,7 +4,7 @@ import HomePage from "./pages/dashboard/HomePage";
 import { LoginPage } from "./pages/auth";
 import { DetailCustomerPage, ListCustomerPage } from "./pages/customer";
 import { MapsPage, MapsDeliverPage} from "./pages/Maps";
-import { OrderPage, OrderDetailDialog} from "./pages/order";
+import { OrderPage, DeliveryPage, DetailDeliveryPage, DetailOrderPage} from "./pages/order";
 import { ListCuisine, CreateCuisine } from "./pages/Cuisine";
 import { ListStorePage, DetailStorePage } from "./pages/Store";
 import { CreateProvince, ListProvince } from "./pages/Province";
@@ -23,13 +23,17 @@ const Routers = ({ auth }) => {
         <>
           <Route path="/" element={<HomePage />} />
           <Route path="/order" element={<OrderPage />} />
+          <Route path="/order/detail/:id" element={<DetailOrderPage />} />
+          <Route path="/delivery" element={<DeliveryPage />} />
+          <Route path="/delivery/create" element={<DetailDeliveryPage />} />
+          <Route path="/delivery/edit/:id" element={<DetailDeliveryPage />} />
           <Route path="/maps" element={<MapsPage />} />
           <Route path="/mapsdlv" element={<MapsDeliverPage/>} />
           <Route path="/store" element={<ListStorePage />} />
           <Route path="/store/create" element={<DetailStorePage />} />
           <Route path="/store/detail/:id" element={<DetailStorePage />} />
           <Route path="/customer" element={<ListCustomerPage />} />
-          <Route path="/customer/edit/:id" element={<DetailCustomerPage />} />
+          <Route path="/customer/detail/:id" element={<DetailCustomerPage />} />
           <Route path="/cuisine" element={<ListCuisine />} />
           <Route path="/cuisine/create" element={<CreateCuisine />} />
           <Route path="/cuisine/edit/:id" element={<CreateCuisine />} />

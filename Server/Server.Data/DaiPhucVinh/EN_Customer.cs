@@ -14,6 +14,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         [Key]
         public string CustomerId { get; set; }
         public string CompleteName { get; set; }
+        /*
         public int ProvinceId { get; set; }
         [ForeignKey("ProvinceId")]
         public virtual EN_Province Province { get; set; }
@@ -23,14 +24,14 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public int WardId { get; set; }
         [ForeignKey("WardId")]
         public virtual EN_Ward Ward { get; set; }
+        */
         public string Phone { get; set; }
         public string Email { get; set; }
 
-        public string Address { get; set; }
+       // public string Address { get; set; }
         public bool Status { get; set; }
         public string TokenWeb { get; set; }
         public string TokenApp { get; set; }
         public string ImageProfile { get; set; }
-
     }
 }

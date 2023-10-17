@@ -74,7 +74,7 @@ export default function ListProvince() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên sản phẩm, Model..."
+                    placeholder="Tên loại tài khoản..."
                     value={filter.term}
                     onChange={changeSearch}
                     onKeyDown={(e) => {
@@ -114,7 +114,7 @@ export default function ListProvince() {
                       onClick={() => {}}
                       style={{ fontSize: "12px" }}
                     >
-                      <i className="mdi mdi-plus me-1"></i> Thêm tỉnh thành
+                      <i className="mdi mdi-plus me-1"></i> Thêm loại tài khoản
                     </button>
                   </Link>
                 </div>

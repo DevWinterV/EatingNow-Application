@@ -24,16 +24,15 @@ function LeafletMap({ locations }) {
   });
 
   const greenIcon = new L.Icon({
-    iconUrl: 'https://img.icons8.com/?size=1x&id=9uHKZ60VvWW2&format=png',
-    iconSize: [33, 40],
-
-    shadowSize: [41, 41],
+    iconUrl: 'https://cdn-icons-png.flaticon.com/128/7945/7945007.png',
+    iconSize: [30, 30],
+    shadowSize: [30, 30],
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
   });
   
   const mapInstance = useRef(null);
 
-  const [currentLocation, setCurrentLocation] = useState([10.3759, 105.4185]);
+  const [currentLocation, setCurrentLocation] = useState([10.3759416, 105.4185406]);// Lomng Xuyên An giang
   const [data, setData] = useState([]);
   
   useEffect(() => {
@@ -182,8 +181,8 @@ useEffect(() => {
 }
 
 let DefaultIcon = L.icon({
-  iconUrl: 'https://img.icons8.com/?size=1x&id=pmzAHWwbZBIP&format=png',
-  iconSize: [33, 40],
+  iconUrl: 'https://cdn-icons-png.flaticon.com/128/5693/5693840.png',
+  iconSize: [40, 40],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   tooltipAnchor: [16, -28],

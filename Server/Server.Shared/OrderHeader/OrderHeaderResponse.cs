@@ -16,8 +16,15 @@ namespace DaiPhucVinh.Shared.OrderHeaderResponse
         public double TransportFee { get; set; }
         public double IntoMoney { get; set; }
         public int UserId { get; set; }
+        public string StoreName { get; set; }
         public bool Status { get; set; }
         public string Email { get; set; }
+        public string RecipientName { get; set; }
+        public string RecipientPhone { get; set; }
+        public string FormatAddress { get; set; }
+        public string NameAddress { get; set; }
 
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

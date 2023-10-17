@@ -41,6 +41,8 @@ export default function ListCuisine() {
     setLoading(false);
   }
 
+    
+
   function onPageChange(e) {
     setFilter({
       ...filter,
@@ -49,7 +51,7 @@ export default function ListCuisine() {
   }
   React.useEffect(() => {
     onViewAppearing();
-  }, [filter.page, filter.pageSize]);
+  }, [filter.page, filter.pageSize, filter.term]);
   return (
     <>
       <Breadcrumb

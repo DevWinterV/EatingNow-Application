@@ -8,7 +8,6 @@ import Select from "react-select";
 import Swal from "sweetalert2";
 import {
   TakeAllDistrict,
-  DeleteDistrict,
 } from "../../api/district/districtService";
 import { TakeAllProvince } from "../../api/province/provinceService";
 import { DeleteWard, TakeAllWard } from "../../api/ward/wardService";
@@ -35,15 +34,22 @@ export default function ListProvince() {
     ItemProvinceCode: "",
     ItemDistrictCode: "",
   });
+  
+  const [itemDistrict, setItemDistrict] = React.useState([]);
+  const [defaultItemDistrict, setDefaultItemDistrict] = React.useState({
+    value: "",
+    label: "Chọn huyện",
+  });
+
 
   async function onViewAppearing() {
     setLoading(true);
-    let response = await TakeAllDistrict(filter);
+    let response = await TakeAllDistrict();
     if (response.success) {
       setItemDistrict([
         {
           value: "",
-          label: "Vui lòng chọn xã",
+          label: "Tất cả",
         },
         ...response.data.map((e) => {
           return {
@@ -70,8 +76,9 @@ export default function ListProvince() {
     value: "",
     label: "Vui lòng chọn tỉnh",
   });
+
   async function onFillItemProvince() {
-    let itemProvinceResponse = await TakeAllProvince();
+    let itemProvinceResponse = await TakeAllProvince({    term: "",  });
     if (itemProvinceResponse.success) {
       setItemProvince([
         {
@@ -88,12 +95,7 @@ export default function ListProvince() {
     }
   }
 
-  const [itemDistrict, setItemDistrict] = React.useState([]);
-  const [defaultItemDistrict, setDefaultItemDistrict] = React.useState({
-    value: "",
-    label: "Vui lòng chọn xã",
-  });
-
+ 
   function onPageChange(e) {
     setFilter({
       ...filter,
@@ -105,8 +107,8 @@ export default function ListProvince() {
   }, [
     filter.page,
     filter.pageSize,
-    filter.ItemProvinceCode,
     filter.ItemDistrictCode,
+    filter.term
   ]);
 
   React.useEffect(() => {
@@ -127,7 +129,7 @@ export default function ListProvince() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên nhóm sản phẩm..."
+                    placeholder="Tên xã..."
                     value={filter.term}
                     onChange={(e) => {
                       setFilter({ ...filter, term: e.target.value });
@@ -157,8 +159,9 @@ export default function ListProvince() {
                     <i className="bx bx-search-alt-2"></i>
                   </button>
                 </div>
-              </div>
-              <div className="col-lg-4">
+              </div>{
+                    /*
+                        <div className="col-lg-4">
                 <div className="mb-3">
                   <label className="form-label fw-bold">Tỉnh thành</label>
                   <Select
@@ -179,9 +182,12 @@ export default function ListProvince() {
                   />
                 </div>
               </div>
+                    */
+              }
+          
               <div className="col-sm-4">
                 <div className="mb-3">
-                  <label className="form-label fw-bold">Thị Xá</label>
+                  <label className="form-label fw-bold">Huyện</label>
                   <Select
                     options={itemDistrict}
                     value={defaultItemDistrict}
@@ -212,7 +218,7 @@ export default function ListProvince() {
                       onClick={() => {}}
                       style={{ fontSize: "12px" }}
                     >
-                      <i className="mdi mdi-plus me-1"></i> Thêm huyện
+                      <i className="mdi mdi-plus me-1"></i> Thêm Xã
                     </button>
                   </Link>
                 </div>
@@ -222,7 +228,7 @@ export default function ListProvince() {
               <Thead className="table-light">
                 <Tr>
                   <Th className="align-middle">STT</Th>
-                  <Th className="align-middle">Tên huyện</Th>
+                  <Th className="align-middle">Tên xã</Th>
                   <Th className="align-middle"></Th>
                   <Th className="align-middle"></Th>
                 </Tr>

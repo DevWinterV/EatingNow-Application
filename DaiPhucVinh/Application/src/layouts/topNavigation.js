@@ -12,6 +12,8 @@ export default function TopNavigation() {
     Password: "",
     NewPassword: "",
   });
+  const [ShowEatingNow, setShowEatingNow] = React.useState(true);
+
 
   async function onchangePass() {
     if (request.Password.length == 0 || request.NewPassword.length == 0) {
@@ -64,6 +66,7 @@ export default function TopNavigation() {
     } else {
       $("body").removeClass("vertical-collpsed");
     }
+    setShowEatingNow(!ShowEatingNow);
   }
   function onViewAppearing() {
     var pjson = require("../../package.json");
@@ -92,19 +95,25 @@ export default function TopNavigation() {
                 <img src="/assets/images/my-logo.png " alt="" height="24" />
               </span>
             </a>
-            <a
-              href="#"
-              className="logo logo-light"
-              style={{ fontSize: "22px" }}
-            >
-              <span className="logo-sm">
-                <img src="/assets/images/my-logo.png" alt="" height="80" />
-              </span>
-              <span className="logo-lg" style={{ marginLeft: "-70px" }}>
-                <img src="/assets/images/my-logo.png" alt="" height="50" />
-              </span>
-              EattingNow
-            </a>
+            {
+              ShowEatingNow  ? (
+                <a
+                href="#"
+                className="logo logo-light"
+                style={{ fontSize: "22px" }}
+              >
+                <span className="logo-sm">
+                  <img src="/assets/images/my-logo.png" alt="" height="80" />
+                </span>
+                <span className="logo-lg" style={{ marginLeft: "-70px" }}>
+                  <img src="/assets/images/my-logo.png" alt="" height="50" />
+                </span>
+                EattingNow
+              </a>
+              ):(
+                null
+              )
+            }
           </div>
           <button
             type="button"

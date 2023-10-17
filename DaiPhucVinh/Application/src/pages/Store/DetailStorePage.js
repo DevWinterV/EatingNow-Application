@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Breadcrumb } from "../../controls";
 import Swal from "sweetalert2";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate ,useParams} from "react-router-dom";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import {
   TakeProvinceById,
@@ -10,14 +10,17 @@ import {
 import LeafletMap from "../components/LeafletMap";
 import Select from "react-select";
 import { TakeAllCuisine } from "../../api/categoryItem/categoryItemService";
-import { CreateNewStore } from "../../api/store/storeService";
+import { CreateNewStore, UpdateNewStore, TakeStoreById } from "../../api/store/storeService";
+import { handleSearchAddress } from "../../api/googleSearchApi/googleApiService";
+
 export default function CreateProvince() {
   const [latitude, setLatitude] = React.useState("");
   const [longitude, setLongitude] = React.useState("");
   const [itemCuisine, setItemCuisine] = React.useState([]);
+  const [locationStore, setLocationStore] = React.useState({lat:0, lng:0});
   const [defaultItemCategory, setDefaultItemCategory] = React.useState({
-    value: "",
-    label: "Tất cả",
+    value: "0",
+    label: "Vui lòng chọn loại hình món ăn",
   });
   async function onFillItemCategory() {
     let itemCategoryResponse = await TakeAllCuisine();
@@ -37,16 +40,23 @@ export default function CreateProvince() {
     }
   }
   const [selectedImage, setSelectedImage] = React.useState();
+  const [selectedImageURL, setselectedImageURL] = React.useState();
+
   function onChange(e) {
     setSelectedImage(e.target.files[0]);
     setRequest({
       ...request,
       AbsoluteImage: e.target.files[0].name,
     });
+    const file = e.target.files[0]; // Lấy tệp hình ảnh đầu tiên từ sự kiện
+    if (file) {
+      setselectedImageURL(URL.createObjectURL(file))
+      console.log(selectedImageURL);
+    }
   }
   const [itemProvince, setItemProvince] = React.useState([]);
   const [defaultItemProvince, setDefaultItemProvince] = React.useState({
-    value: "",
+    value: "0",
     label: "Vui lòng chọn tỉnh",
   });
 
@@ -70,16 +80,19 @@ export default function CreateProvince() {
 
   const history = useNavigate();
   const { state } = useLocation();
+  const { id } = useParams();
   const breadcrumbSources = [
     {
-      name: "Danh sách video",
-      href: "/province",
+      name: "Danh sách cửa hàng",
+      href: "/store",
     },
     {
-      name: state?.data?.ProvinceId > 0 ? "Cập nhật" : "Thêm mới",
+      name: id != null? "Cập nhật" : "Thêm mới",
       active: true,
     },
   ];
+
+  //Requets Store
   const [request, setRequest] = React.useState({
     UserId: 0,
     AbsoluteImage: "",
@@ -98,8 +111,9 @@ export default function CreateProvince() {
   });
 
   function onBack() {
-    history("/province");
+    history("/store");
   }
+  //
   async function onSubmit() {
     if (request.UserId == 0) {
       let data = new FormData();
@@ -124,7 +138,7 @@ export default function CreateProvince() {
         confirmButtonText: "OK",
       });
       if (confirm.isConfirmed) {
-        if (request.Id == 0) {
+        if (request.UserId == 0) {
           onBack();
         } else {
           // ở lại trang
@@ -132,15 +146,16 @@ export default function CreateProvince() {
       }
     } else {
       let data = new FormData();
+      console.log(request)
       if (selectedImage !== undefined) {
         data.append("file[]", selectedImage, selectedImage.name);
       }
       data.append("form", JSON.stringify(request));
-      let response = await UpdateNewCuisine(data);
+      let response = await CreateNewStore(data);
       if (!response.success) {
         Swal.fire({
           title: "Lỗi!",
-          text: "Lưu dữ liệu không thành công 11111, vui lòng kiểm tra lại dữ liệu đã nhập !",
+          text: "Cập nhật dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
           icon: "error",
           confirmButtonText: "OK",
         });
@@ -148,7 +163,7 @@ export default function CreateProvince() {
       }
       let confirm = await Swal.fire({
         title: "Thành công!",
-        text: "Lưu dữ liệu thành công!",
+        text: "Cập nhật dữ liệu thành công!",
         icon: "success",
         confirmButtonText: "OK",
       });
@@ -162,21 +177,63 @@ export default function CreateProvince() {
       }
     }
   }
+
+
   async function onViewAppearing() {
-    if (state?.data) {
-      var response = await TakeProvinceById(state?.data.ProvinceId);
-      setRequest({
-        ProvinceId: response.Item.ProvinceId,
-        Name: response.Item.Name || "",
-      });
+    if (id != 0) {
+      var response = await TakeStoreById(id);
+      if(response.success){
+        setLocationStore({
+          lat:response.item.Latitude,
+          lng:response.item.Longitude,
+        })
+        setRequest({
+          UserId: response.item.UserId,
+          AbsoluteImage: response.item.AbsoluteImage,
+          FullName: response.item.FullName,
+          Description: response.item.Description,
+          OpenTime: response.item.OpenTime,
+          CuisineId: response.item.CuisineId,
+          ProvinceId: response.item.ProvinceId,
+          Email: response.item.Email,
+          Address: response.item.Address,
+          OwnerName: response.item.OwnerName,
+          Phone: response.item.Phone,
+          Latitude:  response.item.Latitude,
+          Longitude:  response.item.Longitude,
+          Status:  response.item.Status,
+        });
+        setselectedImageURL(response.item.AbsoluteImage);
+        setDefaultItemProvince({
+          value: response.item.ProvinceId,
+          label: response.item.Province,
+        });
+        setDefaultItemCategory(
+          {
+            value: response.item.CuisineId,
+            label: response.item.Cuisine,
+          }
+        )
+      }
+      await onFillItemProvince();
+      await onFillItemCategory();
     }
-    await onFillItemProvince();
-    await onFillItemCategory();
   }
 
-  function CallBackLatLng(lat) {
+  async function CallBackLatLng(lat) {
     setLatitude(lat.lat);
     setLongitude(lat.lng);
+    handleSearchAddress(lat.lat + "," + lat.lng).then(
+      (response) => {
+        if (response.data.status === "OK" && response.data.results.length > 0) {
+          console.log(response.data);
+          setRequest({
+            Address: response.data.results[0].formatted_address    
+          })
+          // Use the setselectedAddress function to update the state
+        }
+      }
+    );
   }
 
   async function onChangeRequest() {
@@ -187,10 +244,11 @@ export default function CreateProvince() {
     });
   }
 
-  console.log("request ", request);
+
 
   React.useEffect(() => {
     onViewAppearing();
+
   }, []);
   React.useEffect(() => {
     onChangeRequest();
@@ -199,13 +257,13 @@ export default function CreateProvince() {
     <>
       <Breadcrumb
         title={
-          request.ProvinceId > 0 ? "Cập nhật cửa hàng" : "Thêm mới cửa hàng"
+          id  > 0 ? "Cập nhật cửa hàng" : "Thêm mới cửa hàng"
         }
         sources={breadcrumbSources}
       />
 
       <div>
-        <LeafletMap onMapClick={CallBackLatLng} />
+        <LeafletMap onMapClick={CallBackLatLng} locationStore={locationStore} />
       </div>
 
       <div className="row">
@@ -224,7 +282,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Tên cửa hàng..."
                   defaultValue={request.FullName}
                   onChange={(e) => {
                     setRequest({
@@ -242,7 +300,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Giờ mở cửa..."
                   defaultValue={request.OpenTime}
                   onChange={(e) => {
                     setRequest({
@@ -280,7 +338,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Địa chỉ Email..."
                   defaultValue={request.Email}
                   onChange={(e) => {
                     setRequest({
@@ -300,7 +358,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Địa chỉ chi tiết..."
                   defaultValue={request.Address}
                   onChange={(e) => {
                     setRequest({
@@ -318,7 +376,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Tên người quản lý..."
                   defaultValue={request.OwnerName}
                   onChange={(e) => {
                     setRequest({
@@ -335,7 +393,7 @@ export default function CreateProvince() {
                 <label className="form-label fw-bold">Loại hình món ăn</label>
                 <Select
                   options={itemCuisine}
-                  value={defaultItemCategory}
+                  value={ defaultItemCategory}
                   onChange={(e) => {
                     setDefaultItemCategory({
                       value: e.value,
@@ -356,7 +414,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Số điện thoại..."
                   defaultValue={request.Phone}
                   onChange={(e) => {
                     setRequest({
@@ -370,31 +428,7 @@ export default function CreateProvince() {
             </div>
           </div>
           <div className="row">
-            <div className="col-lg-3">
-              <div className="mb-3">
-                <label className="form-label fw-bold">Kinh độ</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Tên món..."
-                  value={request.Latitude}
-                  style={{ fontSize: "12px" }}
-                />
-              </div>
-            </div>
-            <div className="col-lg-3">
-              <div className="mb-3">
-                <label className="form-label fw-bold">Vĩ độ</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Tên món..."
-                  value={request.Longitude}
-                  style={{ fontSize: "12px" }}
-                />
-              </div>
-            </div>
-            <div className="col-lg-3">
+          <div className="col-lg-3">
               <div className="mb-3">
                 <label className="form-label fw-bold">Hình ảnh</label>
                 <input
@@ -409,11 +443,36 @@ export default function CreateProvince() {
             </div>
             <div className="col-lg-3">
               <div className="mb-3">
+                <label className="form-label fw-bold">Kinh độ</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Kinh độ..."
+                  value={request.Latitude}
+                  style={{ fontSize: "12px" }}
+                />
+              </div>
+            </div>
+            <div className="col-lg-3">
+              <div className="mb-3">
+                <label className="form-label fw-bold">Vĩ độ</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Vĩ độ..."
+                  value={request.Longitude}
+                  style={{ fontSize: "12px" }}
+                />
+              </div>
+            </div>
+          
+            <div className="col-lg-3">
+              <div className="mb-3">
                 <label className="form-label fw-bold">Mô tả chi tiết</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Mô tả chi tiết..."
                   defaultValue={request.Description}
                   onChange={(e) => {
                     setRequest({
@@ -426,6 +485,24 @@ export default function CreateProvince() {
               </div>
             </div>
           </div>
+          <div className="row">
+            <div className="col-lg-4">
+              <label className="form-label fw-bold">Hình ảnh cửa hàng</label>
+              {request.AbsoluteImage ? (
+                <div>
+                  {selectedImageURL && (
+                          <img
+                            src={selectedImageURL}
+                            alt="Hình ảnh đã chọn"
+                            style={{ maxWidth: "100px", maxHeight: "100px" }}
+                          />
+                        )}              
+                  </div>
+              ) : (
+                <div>Không có hình ảnh</div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -433,14 +510,30 @@ export default function CreateProvince() {
         <div className="col d-flex justify-content-end align-items-right">
           <div className="text-sm-end">
             <div className="col me-2 d-flex">
-              <button
-                type="button"
-                className="btn btn-success  me-2"
-                onClick={onSubmit}
-                style={{ fontSize: "12px" }}
-              >
-                Lưu
-              </button>
+                {
+                  id == null ?(
+                    <button
+                    type="button"
+                    className="btn btn-success  me-2"
+                    onClick={onSubmit}
+                    style={{ fontSize: "12px" }}
+                  >
+                   
+                    Lưu
+                  </button>
+                  ): (
+                    <button
+                    type="button"
+                    className="btn btn-success  me-2"
+                    onClick={onSubmit}
+                    style={{ fontSize: "12px" }}
+                  >
+                   
+                    Cập nhật
+                  </button>
+                  )
+                }
+             
               <button
                 type="button"
                 className="btn btn-warning   me-2"

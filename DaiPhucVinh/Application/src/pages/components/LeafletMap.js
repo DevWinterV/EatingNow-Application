@@ -6,7 +6,7 @@ import "leaflet-control-geocoder/dist/Control.Geocoder.js";
 import LeafletGeocoder from "./LeafletGeocoder";
 
 
-function LeafletMap({ onMapClick }) {
+function LeafletMap({ onMapClick , locationStore}) {
   const [clickLocation, setClickLocation] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const greenIcon = new L.Icon({
@@ -33,7 +33,12 @@ function LeafletMap({ onMapClick }) {
         const { latitude, longitude } = position.coords;
         setCurrentLocation([latitude, longitude]);
         mapInstance.current.addEventListener("click", handleMapClick);
-        mapInstance.current?.flyTo([latitude, longitude], 10); // Di chuyển đến vị trí hiện tại
+        if(locationStore != null){
+          mapInstance.current?.flyTo([latitude, longitude], 10); // Di chuyển đến vị trí hiện tại
+        }
+        else{
+          mapInstance.current?.flyTo([locationStore.lat, locationStore.lng], 10); // Di chuyển đến vị trí hiện tại
+        }
       },
       (error) => {
         console.error("Error getting current location:", error);
@@ -64,17 +69,28 @@ function LeafletMap({ onMapClick }) {
           </Marker>
         )}
        {currentLocation && (
-  <Marker position={currentLocation} icon={greenIcon}>
-    <Popup>Vị trí hiện tại</Popup>
-  </Marker>
-)}
+        <Marker position={currentLocation} icon={greenIcon}
+        eventHandlers={{ click: handleMapClick }} // Gắn sự kiện click vào Marker
+        >
+          <Popup>Vị trí hiện tại</Popup>
+        </Marker>
+        )}
+        {
+           locationStore &&(
+            <Marker position={locationStore} icon={DefaultIcon} 
+            eventHandlers={{ click: handleMapClick }} // Gắn sự kiện click vào Marker
+             >
+            <Popup>Vị trí của cửa hàng</Popup>
+          </Marker>
+           )
+        }
       </MapContainer>
     </div>
   );
 }
 let DefaultIcon = L.icon({
-  iconUrl: 'https://img.icons8.com/?size=1x&id=pmzAHWwbZBIP&format=png',
-  iconSize: [25, 41],
+  iconUrl: 'https://cdn-icons-png.flaticon.com/128/5693/5693840.png',
+  iconSize: [40, 40],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   tooltipAnchor: [16, -28],

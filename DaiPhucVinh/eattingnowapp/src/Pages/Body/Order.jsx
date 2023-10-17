@@ -39,7 +39,7 @@ const Order = () => {
         title: "Thông báo",
         icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
         image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
-        action_link: "localhost:3001",
+        action_link: "localhost:3001/account",
       },
       notification: 
       {
@@ -69,7 +69,7 @@ const Order = () => {
           title: "Thông báo",
           icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
           image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
-          action_link: "localhost:3001",
+          action_link: "localhost:3001/account",
         },
         notification: 
         {
@@ -179,6 +179,7 @@ const Order = () => {
     GetOrderLineDetails();
   }, [orderHeaderId]);
 
+  
   return (
     <div className="bg-orange-50 h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
       <div className="flex items-center justify-between">

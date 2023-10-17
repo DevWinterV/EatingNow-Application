@@ -76,7 +76,9 @@
   <ItemGroup>
     <Compile Include="DaiPhucVinh\EN_Account.cs" />
     <Compile Include="DaiPhucVinh\EN_CategoryList.cs" />
+    <Compile Include="DaiPhucVinh\EN_CustomerAddress.cs" />
     <Compile Include="DaiPhucVinh\EN_DeliveryDiver.cs" />
+    <Compile Include="DaiPhucVinh\EN_FavoriteFood.cs" />
     <Compile Include="DaiPhucVinh\EN_FoodList.cs" />
     <Compile Include="DaiPhucVinh\EN_Customer.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderHeader.cs" />

@@ -34,7 +34,7 @@ export default function CreateProvince() {
     label: "Vui lòng chọn tỉnh",
   });
   async function onFillItemProvince() {
-    let itemProvinceResponse = await TakeAllProvince();
+    let itemProvinceResponse = await TakeAllProvince({    term: "",  });
     if (itemProvinceResponse.success) {
       setItemProvince([
         {

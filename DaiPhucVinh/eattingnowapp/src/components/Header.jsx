@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { Logo, Avatar } from "../assets";
 import { MdShoppingBasket, MdAdd, MdLogout, MdLogin, MdAccountBox, MdAccountCircle, MdSettings } from "react-icons/md";
 import { motion } from "framer-motion";
@@ -8,7 +8,6 @@ import { actionType } from "../context/reducer";
 
 const Header = () => {
   const [isMenu, setIsMenu] = useState(false);
-
   const Login = () => {
     setIsMenu(!isMenu);
   };

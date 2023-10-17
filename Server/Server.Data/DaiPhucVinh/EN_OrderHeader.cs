@@ -24,5 +24,14 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         [ForeignKey("UserId")]
         public virtual EN_Store EN_Store { get; set; }
         public bool Status { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public string FormatAddress { get; set; }
+        public string NameAddress { get; set; }
+        public string RecipientName { get; set; }
+        public string RecipientPhone { get; set; }
+
+
+
     }
 }

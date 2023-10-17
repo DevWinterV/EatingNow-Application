@@ -2,14 +2,15 @@ import * as React from "react";
 import { Breadcrumb } from "../../controls";
 import moment from "moment";
 import _ from "lodash";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate , useParams} from "react-router-dom";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { Paginate } from "../../controls";
-import { TakeContractByCustomerCode } from "../../api/customer/customerService";
+import { TakeAllOrderLineByCustomerId } from "../../api/store/storeService";
 export default function DetailCustomerPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { id } = useParams();
   const breadcrumbSources = [
     {
       name: "Danh sách khách hàng",
@@ -24,8 +25,9 @@ export default function DetailCustomerPage() {
   const [pageTotal, setPageTotal] = React.useState(1);
   const [data, setData] = React.useState([]);
   const [filter, setFilter] = React.useState({
+    CustomerId: id,
     page: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   function onPageChange(e) {
     setFilter({
@@ -36,7 +38,9 @@ export default function DetailCustomerPage() {
   async function onViewAppearing() {
     setLoading(true);
     if (state?.data) {
-      let response = await TakeContractByCustomerCode(filter, state?.data.Code);
+      console.log(state.data);
+      let response = await TakeAllOrderLineByCustomerId(filter);
+      console.log(response);
       if (response.success) {
         setData(response.data);
         setPageTotal(Math.ceil(response.dataCount / filter.pageSize));
@@ -50,7 +54,7 @@ export default function DetailCustomerPage() {
   return (
     <>
       <Breadcrumb
-        title={"Danh sách sản phẩm của khách hàng"}
+        title={"Danh sách sản phẩm đã mua của khách hàng"}
         sources={breadcrumbSources}
       />
       {/* <div className="row">
@@ -59,26 +63,28 @@ export default function DetailCustomerPage() {
             Thông tin bảng báo giá
           </span>
         </div>
-      </div> */}
-      <div className="row">
+      </div> 
+      
+         <div className="row">
         <div className="col-sm-4">
           <p className="fw-bold" style={{ fontSize: "12px" }}>
-            Thông tin sản phẩm của khách hàng
+            Thông tin sản phẩm khách hàng đã mua
           </p>
         </div>
       </div>
+      */}
+   
       <div className="card" style={{ fontSize: "12px" }}>
         <div className="card-body">
           <Table className="table table-striped">
             <Thead className="table-light">
               <Tr>
                 <Th className="align-middle">STT</Th>
-                <Th className="align-middle">Số hợp đồng</Th>
-                <Th className="align-middle">Ngày tạo hợp đồng</Th>
-                <Th className="align-middle">Tên máy</Th>
-                <Th className="align-middle">Model</Th>
+                <Th className="align-middle">Mã hóa đơn</Th>
+                <Th className="align-middle">Tên món ăn</Th>
                 <Th className="align-middle">Số lượng</Th>
-                <Th className="align-middle">Ngày đã giao hàng</Th>
+                <Th className="align-middle">Giá</Th>
+                <Th className="align-middle">Mô tả</Th>
               </Tr>
             </Thead>
             <Tbody style={{ position: "relative" }}>
@@ -106,20 +112,17 @@ export default function DetailCustomerPage() {
                     data.map((i, idxx) => (
                       <Tr key={"row_" + idxx}>
                         <Td>{filter.page * filter.pageSize + idxx + 1}</Td>
-                        <Td>{i.SoHopDong}</Td>
-                        <Td>
-                          {i.NgayTaoHopDong === null
-                            ? ""
-                            : moment(i.NgayTaoHopDong).format("DD/MM/YYYY")}
-                        </Td>
-                        <Td>{i.Name}</Td>
-                        <Td>{i.Model}</Td>
+                        <Td>{i.OrderHeaderId}</Td>
+                        <Td>{i.FoodName}</Td>
                         <Td>{i.qty}</Td>
-                        <Td>
-                          {i.NgayDaGiaoHang === null
-                            ? ""
-                            : moment(i.NgayDaGiaoHang).format("DD/MM/YYYY")}
-                        </Td>
+                        <Td>{i.Price}</Td>
+                        {i.Description != null ? 
+                        (
+                          <Td>{i.Description }</Td>
+                        ):
+                        (
+                          <Td>Không có</Td>
+                        )}
                       </Tr>
                     ))
                   ) : (

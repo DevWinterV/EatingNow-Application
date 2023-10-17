@@ -2,16 +2,18 @@ import * as React from "react";
 import Select from "react-select";
 import { Paginate } from "../../controls";
 import { Breadcrumb } from "../../controls";
+import { useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { TakeAllOrder, ApproveOrder , GetListOrderLineDetails} from "../../api/order/orderService";
-import { Modal, Button } from 'react-bootstrap';
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { RemoveOrderHeader } from "../../api/customer/customerService";
 
 export default function OrderPage() {
   const [isShown, setIsShown] = React.useState(false);
   const [showOrderDetailDialog, setShowOrderDetailDialog] = React.useState(false);
+  const history = useNavigate();
 
   const breadcrumbSources = [
     {
@@ -34,7 +36,9 @@ export default function OrderPage() {
   const [loading, setLoading] = React.useState(false);
   const [pageTotal, setPageTotal] = React.useState(1);
   async function changeSearch(e) {
-    setFilter({ ...filter, term: e.target.value });
+    console.log(e.target.value);
+    setFilter({ ...filter,
+       term: e.target.value });
     //    localStorage.term = e.target.value;
   }
   function onPageChange(e) {
@@ -43,6 +47,7 @@ export default function OrderPage() {
       page: e.selected,
     });
   }
+
   async function onViewAppearing() {
     setLoading(true);
     let response = await TakeAllOrder(filter);
@@ -60,10 +65,11 @@ export default function OrderPage() {
     }
   }
   React.useEffect(() => {
-    onViewAppearing();
+    onViewAppearing(); 
   }, [filter.page, filter.pageSize, filter.term]);
   return (
     <>
+    
       <Breadcrumb title="Danh sách đơn hàng" sources={breadcrumbSources} />
       <div className="card" style={{ fontSize: "12px" }}>
         <div className="card-body">
@@ -75,13 +81,15 @@ export default function OrderPage() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Mã đơn hàng..."
+                    placeholder="Mã đơn hàng, khách hàng, ..."
                     value={filter.term}
                     onChange={changeSearch}
                     onKeyDown={(e) => {
                       if (e.code == "Enter") {
                         onViewAppearing();
-                        setFilter({ ...filter, page: 0 });
+                        setFilter({ ...filter,
+                          term: e.target.value,
+                           page: 0 });
                         changeSearch(e);
                       }
                     }}
@@ -122,22 +130,21 @@ export default function OrderPage() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-       
-
-
-      </div>
+          </div>  
           <Table className="table table-striped">
             <Thead className="table-light">
               <Tr style={{ borderColor: "#d9d9d9" }}>
                 <Th className="align-middle">STT</Th>
                 <Th className="align-middle">Mã đơn hàng</Th>
                 <Th className="align-middle">Ngày tạo</Th>
-                <Th className="align-middle">Khách hàng</Th>
-                <Th className="align-middle">Tổng tiền hàng</Th>
+                <Th className="align-middle">Khách hàng đặt</Th>
+                <Th className="align-middle">Địa chỉ nhận hàng</Th>
+                <Th className="align-middle">Tổng tiền sản phẩm</Th>
                 <Th className="align-middle">Phí ship</Th>
                 <Th className="align-middle">Tổng thanh toán</Th>
                 <Th className="align-middle">Trạng thái</Th>
-                <Th className="align-middle"></Th>
+                <Th className="align-middle">Chi tiết đơn hàng</Th>
+                <Th className="align-middle">Xóa</Th>
               </Tr>
             </Thead>
 
@@ -169,10 +176,10 @@ export default function OrderPage() {
                         <Td>{i.OrderHeaderId}</Td>
                         <Td>{i.CreationDate}</Td>
                         <Td>{i.CustomerName}</Td>
+                        <Td>{i.FormatAddress}</Td>
                         <Td>{parseFloat(i.TotalAmt).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</Td>
                         <Td>{parseFloat(i.TransportFee).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</Td>
                         <Td>{parseFloat(i.IntoMoney).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</Td>
-                        
                         {i.Status === true ? (
                           <Td>
                             <div className="d-flex gap-3">
@@ -258,8 +265,8 @@ export default function OrderPage() {
                             </div>
                           </Td>
                         )}
-  
-                  <Td>
+                      {
+                          /*  <Td>
                         <div className="text-success">
                           <i
                             style={{ cursor: "pointer" }}
@@ -270,7 +277,62 @@ export default function OrderPage() {
                             }}
                           ></i>
                         </div>
+                      </Td>*/
+                      }
+                      {/* Xem chi tiết đơn hàng*/}
+                      <Td>
+                          <div className="d-flex gap-3">
+                            <div
+                              className="text-info"
+                              onClick={() => {
+                                history("/order/detail/" + i.OrderHeaderId, {
+                                  state: { data: i },
+                                });
+                              }}
+                            >
+                              <i className="mdi mdi-pencil font-size-18"></i>
+                            </div>
+                          </div>
                       </Td>
+                      <Td>
+                          <div className="d-flex gap-3">
+                            <div
+                              className="text-danger"
+                              onClick={() => {
+                                Swal.fire({
+                                  title: "Xóa đơn hàng ?",
+                                  text: "Bạn có chắc chắn muốn xóa đơn hàng này không?",
+                                  icon: "warning",
+                                  showCancelButton: true,
+                                  confirmButtonColor: "#3085d6",
+                                  cancelButtonColor: "#d33",
+                                  confirmButtonText: "Xác nhận !",
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    RemoveOrderHeader(i).then((response) => {
+                                      if (response.success) {
+                                        Swal.fire(
+                                          "Hoàn thành!",
+                                          "Xóa dữ liệu thành công.",
+                                          "success"
+                                        );
+                                        onViewAppearing();
+                                      } else {
+                                        Swal.fire(
+                                          "Không thể xóa đơn hàng!",
+                                          "Lỗi trong khi xóa đơn hàng, vui lòng thử lại!",
+                                          "warning"
+                                        );
+                                      }
+                                    });
+                                  }
+                                });
+                              }}
+                            >
+                              <i className="mdi mdi-delete font-size-18"></i>
+                            </div>
+                          </div>
+                        </Td>
                       </Tr>
                     ))
                   ) : (

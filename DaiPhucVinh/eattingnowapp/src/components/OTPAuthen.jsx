@@ -193,6 +193,7 @@ const OTPAuthen = () => {
         });
         localStorage.setItem("customer", JSON.stringify(res.user.uid));
         toast.success('Đăng nhập thành công', { autoClose: 3000 });
+        localStorage.setItem("phone", JSON.stringify(ph));
         // UPdate token again when login succes
         let reponse = await UpdateToken({
           CustomerId: res.user.uid,
@@ -339,12 +340,15 @@ const OTPAuthen = () => {
                 <p>Hoặc:</p>
            </div>
            <div className="text-center flex justify-center items-center space-x-4">
-              <button
-                className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
-                onClick={() => {}}
-              >
-                <TbBrandFacebook className="text-2xl" /> Facebook
-              </button>
+            {/* Đăng nhập với FB
+                  <button
+                  className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
+                  onClick={() => {}}
+                >
+                  <TbBrandFacebook className="text-2xl" /> Facebook
+                </button>
+                  */  }
+            
               {
                       /* Đăng nhập bằng google
                 <button

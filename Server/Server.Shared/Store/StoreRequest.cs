@@ -18,6 +18,6 @@ namespace DaiPhucVinh.Shared.Store
         public string Phone { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public string Status { get; set; }
+        public bool Status { get; set; }
     }
 }

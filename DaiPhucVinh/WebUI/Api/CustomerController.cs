@@ -2,6 +2,8 @@
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.OrderHeader;
+using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.Store;
 using Newtonsoft.Json;
 using System;
@@ -61,6 +63,40 @@ namespace PCheck.WebUI.Api
                 Message = "File not found!"
             };
         }
+
+        [HttpPost]
+        [Route("TakeAllCustomer")]
+        public async Task<BaseResponse<EN_CustomerResponse>> TakeAllCustomer([FromBody] EN_CustomerRequest request) => await _customerService.TakeAllCustomer(request);
+
+        [HttpPost]
+        [Route("TakeAllCustomerByProvinceId")]
+        public async Task<BaseResponse<EN_CustomerResponse>> TakeAllCustomerByProvinceId([FromBody] EN_CustomerRequest request) => await _customerService.TakeAllCustomerByProvinceId(request);
+
+        [HttpPost]
+        [Route("CreateCustomerAddress")]
+        public async Task<BaseResponse<bool>> CreateCustomerAddress([FromBody] EN_CustomerAddressRequest request) => await _customerService.CreateCustomerAddress(request);
+
+        [HttpPost]
+        [Route("DeleteAddress")]
+        public async Task<BaseResponse<bool>> DeleteAddress([FromBody] EN_CustomerAddressRequest request) => await _customerService.DeleteAddress(request);
+        [HttpPost]
+        [Route("RemoveOrderLine")]
+        public async Task<BaseResponse<bool>> RemoveOrderLine([FromBody] OrderLineRequest request) => await _customerService.RemoveOrderLine(request);
+        [HttpPost]
+        [Route("RemoveOrderHeader")]
+        public async Task<BaseResponse<bool>> RemoveOrderHeader([FromBody] OrderLineRequest request) => await _customerService.RemoveOrderHeader(request);
+        [HttpPost]
+        [Route("CheckCustomerAddress")]
+        public async Task<BaseResponse<EN_CustomerAddressResponse>> CheckCustomerAddress([FromBody] EN_CustomerRequest request) => await _customerService.CheckCustomerAddress(request);
+
+        [HttpPost]
+        [Route("TakeAllCustomerAddressById")]
+        public async Task<BaseResponse<EN_CustomerAddressResponse>> TakeAllCustomerAddressById([FromBody] EN_CustomerRequest request) => await _customerService.TakeAllCustomerAddressById(request);
+
+
+        [HttpPost]
+        [Route("TakeOrderByCustomer")]
+        public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderByCustomer([FromBody] EN_CustomerRequest request) => await _customerService.TakeOrderByCustomer(request);
 
     }
 }

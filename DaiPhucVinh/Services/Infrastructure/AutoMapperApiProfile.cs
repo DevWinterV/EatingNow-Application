@@ -384,14 +384,22 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.StoreName, o => o.MapFrom(s => s.Store.FullName));
             CreateMap<EN_OrderHeader, OrderHeaderResponse>()
                 .ForMember(d => d.CustomerName, o => o.MapFrom(s => s.EN_Customer.CompleteName))
+                .ForMember(d => d.StoreName, o => o.MapFrom(s => s.EN_Store.FullName))
                 .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_Customer.Phone))
-                .ForMember(d => d.TokenWeb, o => o.MapFrom(s => s.EN_Customer.TokenWeb))
-                .ForMember(d => d.Address, o => o.MapFrom(s => s.EN_Customer.Address));
+                .ForMember(d => d.TokenWeb, o => o.MapFrom(s => s.EN_Customer.TokenWeb));
+
             CreateMap<EN_Customer, EN_CustomerResponse>();
+
             CreateMap<EN_OrderLine, OrderLineReponse>()
                 .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.qty * s.Price));
-            CreateMap<EN_DeliveryDiver, DeliveryDriverResponse>();
-
+            CreateMap<EN_DeliveryDiver, DeliveryDriverResponse>()
+                .ForMember(d => d.ProvinceName, o => o.MapFrom(s => s.Province.Name))
+                .ForMember(d => d.DistrictName, o => o.MapFrom(s => s.District.Name))
+                .ForMember(d => d.WardName, o => o.MapFrom(s => s.Ward.Name));
+            CreateMap<EN_CustomerAddress, EN_CustomerAddressResponse>()
+                .ForMember(d => d.ProvinceName, o => o.MapFrom(s => s.Province.Name))
+                .ForMember(d => d.DistrictName, o => o.MapFrom(s => s.District.Name))
+                .ForMember(d => d.WardName, o => o.MapFrom(s => s.Ward.Name));
         }
         #region private methods
         private byte[] FindImgFromId(WMS_InventoryItem item)
