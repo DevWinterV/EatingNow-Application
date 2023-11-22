@@ -1,0 +1,6 @@
+flutter_native_splash:
+  image: assets/image/logo.png
+  color: ECAD8F
+  fill: false
+  android: true
+  ios: true

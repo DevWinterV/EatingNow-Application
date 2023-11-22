@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>334588390943-m005kolqnlbqbjg2jurd6vu9lm8orka2.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.334588390943-m005kolqnlbqbjg2jurd6vu9lm8orka2</string>
+	<key>API_KEY</key>
+	<string>AIzaSyARV-6pbXRpimC4_84CnGBEtVW6JqVxKm8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>334588390943</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.fam</string>
+	<key>PROJECT_ID</key>
+	<string>eating-now</string>
+	<key>STORAGE_BUCKET</key>
+	<string>eating-now.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:334588390943:ios:3d91dd901ce774a3f6ef2a</string>
+	<key>DATABASE_URL</key>
+	<string>https://eating-now-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
