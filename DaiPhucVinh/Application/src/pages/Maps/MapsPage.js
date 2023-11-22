@@ -4,6 +4,7 @@ import { TakeAllStore } from "../../api/store/storeService"; // Thay thế đư�
 import Select from "react-select";
 import { TakeAllProvince } from "../../api/province/provinceService";
 import { Breadcrumb } from "../../controls";
+import { Button } from "bootstrap";
 
 function MapsPage() {
   const [stores, setStores] = useState([]);
@@ -127,7 +128,7 @@ function MapsPage() {
                 />
               
                 {stores.map((store) => (
-                  <Marker key={store.StoreId} position={[store.Latitude, store.Longitude]}>
+                  <Marker key={store.UserId} position={[store.Latitude, store.Longitude]}>
                   <Popup>
                       <div>
                         <h3>{store.FullName}</h3>
@@ -135,7 +136,16 @@ function MapsPage() {
                         <p><strong>Mô tả quán ăn:</strong> {store.Description}</p>
                         <p><strong>Liên hệ:</strong> {store.Phone}</p>
                         <img src={store.AbsoluteImage} alt={store.FullName} style={{ maxWidth: "100%" }} />
-                        <p><strong>Địa chỉ:</strong> {store.Address}</p>
+                        <p><strong>Địa chỉ:</strong> {store.Address}</p>  
+                        <button
+                          onClick={() => {
+                            window.open("/store/detail/" + store.UserId);
+                            localStorage.Code = store.Code;
+                          }}
+                          className="bg-info text-white font-bold py-2 px-4 rounded"
+                        >
+                          Xem chi tiết
+                        </button>
                       </div>
                     </Popup>          
                 </Marker>

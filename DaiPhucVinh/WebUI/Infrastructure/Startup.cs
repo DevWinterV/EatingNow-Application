@@ -15,7 +15,11 @@ namespace DaiPhucVinh.Infrastructure
     {
         public void Configuration(IAppBuilder app)
         {
-            app.MapSignalR();
+            // Enable CORS for the SignalR hub
+            var hubConfiguration = new HubConfiguration();
+            hubConfiguration.EnableDetailedErrors = true;
+            hubConfiguration.EnableJSONP = true; // Only use this for older browser support
+            app.MapSignalR(hubConfiguration);
             app.UseJwtBearerAuthentication(
                 new JwtBearerAuthenticationOptions
                 {

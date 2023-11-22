@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { useStateValue } from "../../context/StateProvider";
 import { actionType } from "../../context/reducer";
 import Swal from "sweetalert2";
-import { DangerIntentDialog } from "../../components";
 
 const SideMenu = () => {
   const history = useNavigate();
@@ -19,6 +18,7 @@ const SideMenu = () => {
     });
     history("/");
   };
+
 
   const handleLogout = () => {
     Swal.fire({

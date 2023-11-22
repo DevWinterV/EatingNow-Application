@@ -6,18 +6,22 @@ using DaiPhucVinh.Services.Helper;
 using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.CustomerNotification;
 using DaiPhucVinh.Shared.DeliveryDriver;
 using DaiPhucVinh.Shared.OrderHeader;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
+using DaiPhucVinh.Shared.Payment;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Falcon.Web.Core.Settings;
 using Microsoft.AspNet.SignalR;
+using Microsoft.ML;
 using Microsoft.Owin.BuilderProperties;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
@@ -27,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
+using System.Web.Mvc;
 
 
 namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
@@ -42,16 +47,23 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         Task<BaseResponse<EN_CustomerAddressResponse>> TakeAllCustomerAddressById(EN_CustomerRequest request);
 
         Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request);
+        Task<BaseResponse<bool>> PaymentConfirm(PaymentConfirmRequest request);
+
         Task<BaseResponse<bool>> CreateCustomerAddress(EN_CustomerAddressRequest request);
 
         Task<BaseResponse<bool>> UpdateToken(EN_CustomerRequest request);
+        Task<BaseResponse<bool>> CreateNotificationCustomer(EN_CustomerNotificationRequest request);
+
         Task<BaseResponse<EN_CustomerResponse>> CheckCustomerEmail(EN_CustomerRequest request);
         Task<BaseResponse<bool>> UpdateInfoCustomer(EN_CustomerRequest request, HttpPostedFile file);
         Task<BaseResponse<EN_CustomerAddressResponse>> CheckCustomerAddress(EN_CustomerRequest request);
         Task<BaseResponse<bool>> DeleteAddress(EN_CustomerAddressRequest Id);
         Task<BaseResponse<bool>> RemoveOrderLine(OrderLineRequest request);
         Task<BaseResponse<bool>> RemoveOrderHeader(OrderLineRequest request);
+        Task<BaseResponse<bool>> DeleteAllNotification(EN_CustomerNotificationRequest request);
+        Task<BaseResponse<bool>> SetIsReadAllNotification(EN_CustomerNotificationRequest request);
 
+        Task<BaseResponse<EN_CustomerNotificationResponse>> GetAllNotificationCustomer(EN_CustomerNotificationRequest request);
 
     }
     public class ENCustomerService : IENCustomerService
@@ -85,7 +97,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 }
                 else
                 {
-                    if(request.Phone != "")
+                    if (request.Phone != "")
                     {
                         string phone = request.Phone;
                         string phoneoutput = phone.Replace("84", "");
@@ -114,7 +126,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             return result;
         }
 
-        public async Task<BaseResponse<EN_CustomerAddressResponse>> CheckCustomerAddress(EN_CustomerRequest  request)
+        public async Task<BaseResponse<EN_CustomerAddressResponse>> CheckCustomerAddress(EN_CustomerRequest request)
         {
             var result = new BaseResponse<EN_CustomerAddressResponse> { };
             try
@@ -122,13 +134,13 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var query = _datacontext.EN_CustomerAddress.Where(x => x.CustomerId == request.CustomerId && x.Defaut == true).AsQueryable();
                 query = query.OrderBy(d => d.CustomerId);
                 var data = await query.ToListAsync();
-                if(data.Count > 0)
+                if (data.Count > 0)
                 {
                     result.Data = data.MapTo<EN_CustomerAddressResponse>();
                     result.Success = true;
                     result.DataCount = data.Count();
                 }
-                else if(request.Phone != "")
+                else if (request.Phone != "")
                 {
                     string phone = request.Phone;
                     string phoneoutput = phone.Replace("84", "");
@@ -145,7 +157,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Success = false;
                     result.Message = "NotFondAddress";
                     result.DataCount = data.Count();
-                }    
+                }
             }
             catch (Exception ex)
             {
@@ -162,7 +174,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             try
             {
                 var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerId).FirstOrDefaultAsync();
-               
+
                 if (checkCustomer != null)
                 {
                     if (request.TokenApp != null)
@@ -216,7 +228,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
 
                     var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId.Equals(request.CustomerId)).FirstOrDefaultAsync();
-                    
+
                     if (checkCustomer != null)
                     {
                         checkCustomer.CompleteName = request.CompleteName;
@@ -229,21 +241,21 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
                     else
                     {
-                        if(request.CompleteName != "" && request.Phone != "" && request.CustomerId != "")
+                        if (request.CompleteName != "" && request.Phone != "" && request.CustomerId != "")
                         {
                             var newcustomer = new EN_Customer();
                             newcustomer.CustomerId = request.CustomerId;
                             newcustomer.CompleteName = request.CompleteName;
                             newcustomer.Phone = request.Phone;
                             newcustomer.Email = request.Email;
-                            newcustomer.Status =true;
+                            newcustomer.Status = true;
                             if (file != null)
                                 newcustomer.ImageProfile = HostAddress + GenAbsolutePath(relativePath);
                             else
                                 newcustomer.ImageProfile = "";
                             _datacontext.EN_Customer.Add(newcustomer);
                         }
-                        else if(request.CompleteName != "" && request.Phone!="")
+                        else if (request.CompleteName != "" && request.Phone != "")
                         {
                             var newcustomer = new EN_Customer();
                             newcustomer.CustomerId = "NewCustomer" + DateTime.Now;
@@ -257,7 +269,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                                 newcustomer.ImageProfile = "";
                             _datacontext.EN_Customer.Add(newcustomer);
                         }
-                       
+
                     }
                     await _datacontext.SaveChangesAsync();
                     result.Success = true;
@@ -288,6 +300,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 {
                     result.Success = false;
                     result.Message = "No order!";
+                    return result;
+                }
+                if (request.OrderLine == null)
+                {
+                    result.Success = false;
+                    result.Message = "No orderline!";
                     return result;
                 }
                 string url = "";
@@ -331,6 +349,69 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
 
                 }
+                else if(request.Payment == "VNPay"){
+                    /*
+                    var createOrderHeader = new EN_OrderHeader()
+                    {
+                        OrderHeaderId = OrderHeaderId,
+                        CreationDate = DateTime.Now,
+                        CustomerId = request.CustomerId,
+                        TotalAmt = request.TotalAmt,
+                        TransportFee = request.TransportFee,
+                        IntoMoney = request.IntoMoney,
+                        UserId = request.UserId,
+                        Latitude = request.Latitude,
+                        Longitude = request.Longitude,
+                        FormatAddress = request.Format_Address,
+                        NameAddress = request.Name_Address,
+                        RecipientName = request.RecipientName,
+                        RecipientPhone = request.RecipientPhone,
+                        Status = false
+                    };
+                    _datacontext.EN_OrderHeader.Add(createOrderHeader);
+
+                    foreach (var item in request.OrderLine.ToList())
+                    {
+                        var createOrderLine = new EN_OrderLine()
+                        {
+                            OrderHeaderId = OrderHeaderId,
+                            FoodListId = item.FoodListId,
+                            CategoryId = item.CategoryId,
+                            FoodName = item.FoodName,
+                            Price = item.Price,
+                            qty = item.qty,
+                            UploadImage = item.UploadImage,
+                            Description = item.Description,
+                        };
+                        _datacontext.EN_OrderLine.Add(createOrderLine);
+                    }
+                    */
+                    string urlvnp = ConfigurationManager.AppSettings["Url"];
+                    string returnUrl = ConfigurationManager.AppSettings["ReturnUrl"];
+                    string tmnCode = ConfigurationManager.AppSettings["TmnCode"];
+                    string hashSecret = ConfigurationManager.AppSettings["HashSecret"];
+
+                    PayLib pay = new PayLib();
+
+                    pay.AddRequestData("vnp_Version", "2.1.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.1.0
+                    pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+                    pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+                    pay.AddRequestData("vnp_Amount", (request.IntoMoney * 100).ToString()); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+                    pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+                    pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+                    pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+                    pay.AddRequestData("vnp_IpAddr", Util.GetIpAddress()); //Địa chỉ IP của khách hàng thực hiện giao dịch
+                    pay.AddRequestData("vnp_Locale", "vn"); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+                    pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang "+ OrderHeaderId); //Thông tin mô tả nội dung thanh toán
+                    pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+                    pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+                    pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
+
+                    string paymentUrl = pay.CreateRequestUrl(urlvnp, hashSecret);
+                    result.Message = paymentUrl != "/*" ? paymentUrl : "/*";
+                    result.Success = true;
+
+                }
                 else
                 {
                     var createOrderHeader = new EN_OrderHeader()
@@ -367,7 +448,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         };
                         _datacontext.EN_OrderLine.Add(createOrderLine);
                     }
-               
+
                     string finaltotal = request.IntoMoney.ToString();
                     string endpoint = "https://test-payment.momo.vn/gw_payment/transactionProcessor";
                     string partnerCode = "MOMOOJOI20210710";
@@ -418,8 +499,9 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     JObject jmessage = JObject.Parse(responseFromMomo);
 
                     url = jmessage.GetValue("payUrl").ToString();
+                    result.Message = url != "/*" ? url : "/*";
+                    result.Success = true;
                 }
-               
                 await _datacontext.SaveChangesAsync();
                 result.Message = url != "/*" ? url : "/*";
                 result.Success = true;
@@ -431,6 +513,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             }
             return result;
         }
+
+
 
         public class MoMoSecurity
         {
@@ -612,7 +696,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var query = _datacontext.EN_Customer.Where(x => x.Email == request.Email).AsQueryable();
                 query = query.OrderBy(d => d.CustomerId);
                 result.DataCount = await query.CountAsync();
-                if(result.DataCount > 0)
+                if (result.DataCount > 0)
                 {
                     var data = await query.ToListAsync();
                     result.Data = data.MapTo<EN_CustomerResponse>();
@@ -640,16 +724,16 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             var result = new BaseResponse<EN_CustomerResponse> { };
             try
             {
-                if(request.Term == "")
+                if (request.Term == "")
                 {
-                        var query = _datacontext.EN_Customer.OrderBy(x => x.CustomerId).AsQueryable();
-                        result.DataCount = await query.CountAsync();
-                        if (request.PageSize != 0)
-                        {
-                            query = query.OrderBy(d => d.CustomerId).Skip(request.Page * request.PageSize).Take(request.PageSize);
-                        }
-                        var data = await query.ToListAsync();
-                        result.Data = data.MapTo<EN_CustomerResponse>();
+                    var query = _datacontext.EN_Customer.OrderBy(x => x.CustomerId).AsQueryable();
+                    result.DataCount = await query.CountAsync();
+                    if (request.PageSize != 0)
+                    {
+                        query = query.OrderBy(d => d.CustomerId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    }
+                    var data = await query.ToListAsync();
+                    result.Data = data.MapTo<EN_CustomerResponse>();
                 }
                 else
                 {
@@ -665,8 +749,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
                     var data = await query.ToListAsync();
                     result.Data = data.MapTo<EN_CustomerResponse>();
-                }    
-              
+                }
+
                 result.Success = true;
             }
             catch (Exception ex)
@@ -681,7 +765,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             var result = new BaseResponse<EN_CustomerResponse> { };
             try
             {
-                
+
             }
             catch (Exception ex)
             {
@@ -715,7 +799,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     else
                     {
                         request.CustomerId = checkPhoneCustomer.CustomerId;
-                       // checkPhoneCustomer.CustomerId = request.CustomerId;
+                        // checkPhoneCustomer.CustomerId = request.CustomerId;
                         checkPhoneCustomer.CompleteName = request.CustomerName;
                         checkPhoneCustomer.Phone = request.PhoneCustomer;
                         checkPhoneCustomer.Status = true;
@@ -801,12 +885,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Message = ex.ToString();
                 _logService.InsertLog(ex);
             }
-            
+
             return result;
         }
 
@@ -816,7 +900,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             try
             {
                 var address = await _datacontext.EN_CustomerAddress.FindAsync(request.AddressId);
-                if(address != null)
+                if (address != null)
                 {
                     _datacontext.EN_CustomerAddress.Remove(address);
                     result.Success = true;
@@ -839,7 +923,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
 
         public async Task<BaseResponse<EN_CustomerAddressResponse>> TakeAllCustomerAddressById(EN_CustomerRequest request)
         {
-             var result = new BaseResponse<EN_CustomerAddressResponse> { };
+            var result = new BaseResponse<EN_CustomerAddressResponse> { };
             try
             {
 
@@ -847,11 +931,11 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 result.DataCount = query.Count();
                 result.Success = true;
                 var data = await query.ToListAsync();
-                if(data.Count > 0)
+                if (data.Count > 0)
                 {
                     result.Data = data.MapTo<EN_CustomerAddressResponse>();
                     result.Success = true;
-                }  
+                }
                 else
                 {
                     string phone = request.Phone;
@@ -863,7 +947,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Data = data1.MapTo<EN_CustomerAddressResponse>();
                     result.Success = true;
                 }
-              
+
             }
             catch (Exception ex)
             {
@@ -880,12 +964,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             {
 
                 var query = _datacontext.EN_OrderHeader.AsQueryable();//.Where(x => x.CustomerId == request.CustomerId).OrderByDescending(x => x.CreationDate).AsQueryable();
-                
-                if(request.Status != null && request.OrderType != 0)
+
+                if (request.Status != null && request.OrderType != 0)
                 {
-                    query = query.Where(x => x.CustomerId == request.CustomerId && x.Status == request.Status ).OrderByDescending(x => x.CreationDate);
+                    query = query.Where(x => x.CustomerId == request.CustomerId && x.Status == request.Status).OrderByDescending(x => x.CreationDate);
                 }
-                else 
+                else
                 {
                     query = query.Where(x => x.CustomerId == request.CustomerId).OrderByDescending(x => x.CreationDate);
 
@@ -905,7 +989,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Success = true;
                     result.Message = "NoOrder";
                 }
-            
+
             }
             catch (Exception ex)
             {
@@ -969,12 +1053,224 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             }
             return result;
         }
-    }
-    public class NotificationHub : Hub
-    {
-        public void SendNotification(string message)
+
+        public async Task<BaseResponse<EN_CustomerNotificationResponse>> GetAllNotificationCustomer(EN_CustomerNotificationRequest request)
         {
-            Clients.All.receiveNotification(message);
+            var result = new BaseResponse<EN_CustomerNotificationResponse> { };
+            try
+            {
+                var query = _datacontext.EN_CustomerNotifications.AsQueryable();
+                result.DataCount = await query.Where(x => !x.IsRead).CountAsync();
+                if (request.CustomerID == null)
+                {
+                    result.Success = false;
+                    result.Message = "CustomerNotFound";
+                    return result;
+
+                }
+                if (request.CustomerID != null)
+                {
+                    query = query.Where(x => x.CustomerID.Equals(request.CustomerID));
+                    query = query.OrderByDescending(x => x.NotificationDate);
+                }
+                if (request.DefautLineNoifi)
+                {
+                    query = query.Take(8);
+
+                }
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<EN_CustomerNotificationResponse>();
+                result.Success = true;
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> CreateNotificationCustomer(EN_CustomerNotificationRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var checkCustomer = await _datacontext.EN_Customer.Where(x => x.CustomerId == request.CustomerID).FirstOrDefaultAsync();
+
+                if (checkCustomer != null)
+                {
+                    var newnotification = new EN_CustomerNotifications{
+                        CustomerID = request.CustomerID,
+                        NotificationDate = DateTime.Now,
+                        SenderName = request.SenderName,
+                        Message = request.Message,
+                        IsRead = false,
+                        Action_Link = request.Action_Link
+                    };
+                    _datacontext.EN_CustomerNotifications.Add(newnotification);
+                    await _datacontext.SaveChangesAsync();
+                    result.Success = true;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = "Customer Not Found";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> DeleteAllNotification(EN_CustomerNotificationRequest request)
+        {
+            var result = new BaseResponse<bool>();
+
+            try
+            {
+                // Kiểm tra xem khách hàng có tồn tại không
+                var checkCustomer = await _datacontext.EN_Customer
+                    .FirstOrDefaultAsync(x => x.CustomerId == request.CustomerID);
+
+                if (checkCustomer == null)
+                {
+                    result.Success = false;
+                    result.Message = "Customer Not Found";
+                    return result;
+                }
+
+                // Lấy danh sách thông báo của khách hàng dựa trên CustomerID
+                var notifications = _datacontext.EN_CustomerNotifications
+                    .Where(n => n.CustomerID == request.CustomerID)
+                    .ToList();
+
+                // Xóa các thông báo
+                _datacontext.EN_CustomerNotifications.RemoveRange(notifications);
+
+                // Sử dụng tính năng bất đồng bộ để lưu thay đổi vào cơ sở dữ liệu
+                await _datacontext.SaveChangesAsync();
+
+                result.Message = "Delete All Notification Success";
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> SetIsReadAllNotification(EN_CustomerNotificationRequest request)
+        {
+            var result = new BaseResponse<bool>();
+            try
+            {
+                // Kiểm tra xem khách hàng có tồn tại không
+                var checkCustomer = await _datacontext.EN_Customer
+                    .FirstOrDefaultAsync(x => x.CustomerId == request.CustomerID);
+
+                if (checkCustomer == null)
+                {
+                    result.Success = false;
+                    result.Message = "Customer Not Found";
+                    return result;
+                }
+
+                // Lấy danh sách thông báo của khách hàng dựa trên CustomerID
+                var notifications = _datacontext.EN_CustomerNotifications
+                    .Where(n => n.CustomerID == request.CustomerID)
+                    .ToList();
+
+                // Đánh dấu tất cả thông báo là đã đọc
+                foreach (var notification in notifications)
+                {
+                    notification.IsRead = true;
+                }
+
+                // Sử dụng tính năng bất đồng bộ để lưu thay đổi vào cơ sở dữ liệu
+                await _datacontext.SaveChangesAsync();
+
+                result.Message = "Marked All Notifications as Read";
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> PaymentConfirm(PaymentConfirmRequest request)
+        {
+            var result = new BaseResponse<bool>();
+            try
+            {
+                string vnp_SecureHash = "";
+                if (request != null)
+                {
+                    string hashSecret = ConfigurationManager.AppSettings["HashSecret"]; //Chuỗi bí mật
+                    var vnpayData = request.ToDictionary();
+                    PayLib pay = new PayLib();
+
+                    // lấy toàn bộ dữ liệu được trả về
+                    foreach (var kvp in vnpayData)
+                    {
+                        string key = kvp.Key;
+                        string value = kvp.Value;
+
+                        if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
+                        {
+                            if (key == "vnp_SecureHash")
+                                vnp_SecureHash = value;
+                            pay.AddResponseData(key, value);
+                        }
+                    }
+
+
+                    string orderId = request.Vnp_TxnRef; //mã hóa đơn
+                    string vnpayTranId = request.Vnp_TransactionNo; //mã giao dịch tại hệ thống VNPAY
+                    string vnp_ResponseCode = request.Vnp_ResponseCode; //response code: 00 - thành công, khác 00 - xem thêm https://sandbox.vnpayment.vn/apis/docs/bang-ma-loi/
+                     
+                    bool checkSignature = pay.ValidateSignature(vnp_SecureHash, hashSecret); //check chữ ký đúng hay không?
+
+                    if (checkSignature)
+                    {
+                        if (vnp_ResponseCode == "00")
+                        {
+                            //Thanh toán thành công
+                            result.Message = "Thanh toán thành công hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId;
+                            result.Success = true;
+                        }
+                        else
+                        {
+                            //Thanh toán không thành công. Mã lỗi: vnp_ResponseCode
+                            result.Message = "Có lỗi xảy ra trong quá trình xử lý hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId + " | Mã lỗi: " + vnp_ResponseCode;
+                            result.Success = false;
+
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "Có lỗi xảy ra trong quá trình xử lý";
+                        result.Success = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+
+            return result;
         }
     }
 }

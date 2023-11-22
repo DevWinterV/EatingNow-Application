@@ -124,6 +124,32 @@ body {
   border-radius: 5px;
 
 }
+.nav ul {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* Hiển thị thanh cuộn ngang khi cần */
+  -webkit-overflow-scrolling: touch; /* Tối ưu hóa cảm ứng trên iOS */
+  scroll-behavior: smooth; /* Thêm hiệu ứng cuộn mượt (tùy chọn) */
+  white-space: nowrap; /* Ngăn các nút chuyển dòng */
+  padding-bottom: 10px; /* Khoảng cách dưới thanh cuộn */
+}
+
+.nav ul li {
+  margin-right: 10px; /* Khoảng cách giữa các mục */
+}
+
+/* Thêm media query để bật thanh cuộn chỉ khi kích thước điện thoại */
+@media screen and (max-width: 768px) {
+  .nav ul {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+  }
+
+  .nav ul li {
+    margin-right: 10px;
+  }
+}
 
 .nav button {
   border-radius: 5px;
@@ -151,4 +177,211 @@ body {
 
 .nav button:hover {
   padding: 7px;
+}
+/* CSS file (styles.css) */
+.address-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 0px;
+  background-color: #f9f9f9;
+}
+
+.address-title {
+  font-size: 20px;
+  color:coral;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.recipient-info {
+  margin-top: 10px;
+}
+
+.recipient-detail {
+  margin-bottom: 5px;
+}
+
+.recipient-label {
+  font-weight: bold;
+  margin-right: 5px;
+  color: #333;
+}
+
+.recipient-value {
+  color: #666;
+}
+
+/* CSS file (styles.css) */
+.order-details {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 0px;
+}
+
+
+.order-info {
+  font-size: 18px;
+  color:coral;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* CSS file (styles.css) */
+
+/* Styles for desktop */
+.order-details {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 10px;
+}
+
+.order-info {
+  font-size: 18px;
+  color: #ff6600;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Styles for mobile (max-width: 600px) */
+@media screen and (max-width: 600px) {
+  .order-details {
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .order-info {
+    font-size: 16px;
+    margin: 5px 0;
+  }
+  
+  .address-title {
+    font-size: 18px;
+  }
+  
+  .recipient-detail {
+    margin: 5px 0;
+  }
+}
+/* CSS file (styles.css) */
+
+/* Styles for desktop */
+.order-details {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 10px;
+}
+
+.order-info {
+  font-size: 18px;
+  color:#333;
+  font-weight: bold;
+  margin: 10px 0;
+  white-space: nowrap;
+  max-lines: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Styles for mobile (max-width: 600px) */
+@media screen and (max-width: 600px) {
+  .order-details {
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .order-info {
+    font-size: 16px;
+    margin: 5px 0;
+  }
+}
+.table-container {
+  position: fixed;
+  height: auto; /* Hoặc theo kích thước phù hợp */
+  background-color: white; /* Tùy chỉnh màu nền bảng */
+  right: 200;
+}
+/* Style for individual notification items in horizontal layout */
+.notification-item-horizontal {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 3px;
+  padding: 8px;
+}
+.notification-ul {
+  max-height: 400px; /* Điều chỉnh chiều cao tối đa của thanh cuộn tại đây */
+  overflow-y: auto;
+}
+
+/* Style for notification icon in horizontal layout */
+.notification-icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+/* Style for notification content in horizontal layout */
+.notification-content {
+  display: flex;
+  flex-direction: column; /* Display title and content in a vertical column */
+}
+
+.notification-content h4 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.notification-content p {
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+/* Style for notification timestamp in horizontal layout */
+.notification-timestamp {
+  font-size: 10px;
+  color: #777;
+  margin-left: auto; /* Push the timestamp to the right side */
+}
+/* Style for the "Thông báo" header */
+.notification-header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px; /* Adjust the font size as needed */
+  margin: 5px 0; /* Add margin for spacing */
+  color: #333; /* Adjust the color as needed */
+}
+.notification-link {
+  background-color: white; /* Màu nền của liên kết */
+  color:#333; /* Màu chữ của liên kết */
+  border-radius: 5px; /* Bo góc cho liên kết */
+  align-items: center;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+.text-deleteAll {
+  text-align: end;
+  font-weight: bold;
+  font-size: 16px;
+  color:#666; /* Màu xanh lá cây */
+  cursor: pointer;
+  font-family: 'Arial', sans-serif; /* Sử dụng font chữ Arial nếu có sẵn, nếu không, sử dụng font chữ mặc định */
+  border-radius: 5px; /* Góc bo tròn */
+  padding: 5px 15px; /* Khoảng cách trong nút */
+  transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+/* Tạo CSS cho thẻ div */
+.order-status {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333; /* Màu chữ */
+  background-color: #f0f0f0; /* Màu nền */
+  padding: 10px; /* Khoảng cách nội dung và biên */
+  border: 1px solid #ccc; /* Viền */
+  text-align: center;
 }

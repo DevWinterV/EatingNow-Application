@@ -51,7 +51,7 @@ namespace AI.FoodList
                     FoodListId = data.FoodListId
                 });
 
-                if (resultmodel.Score >= 1.5)
+                if (resultmodel.Score >= 2.0)
                 {   
                     results.Add(resultmodel);
                 }
@@ -59,7 +59,6 @@ namespace AI.FoodList
 
             // Sắp xếp danh sách kết quả theo thuộc tính Score giảm dần
             results = results.OrderByDescending(r => r.Score).ToList();
-
             return results;
         }
 
@@ -86,10 +85,46 @@ namespace AI.FoodList
             ));
             PrintResult(predictEngine.Predict(new InputData
             {
-                CustomerId = "an3ciUNfaaOIYJp6ycWeSO4uZIU2",
-                FoodListId = 10
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+                FoodListId = 1
             }
             ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+                FoodListId = 27
+            }
+          ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+                FoodListId = 21
+            }
+          )); 
+            PrintResult(predictEngine.Predict(new InputData
+          {
+              CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+              FoodListId = 22
+          }
+          ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+                FoodListId = 27
+            }
+          ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "an3ciUNfaaOIYJp6ycWeSO4uZIU2",
+                FoodListId = 4
+            }
+            ));
+            PrintResult(predictEngine.Predict(new InputData
+            {
+                CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
+                FoodListId = 8
+            }
+          ));
             PrintResult(predictEngine.Predict(new InputData
             {
                 CustomerId = "72wDxz0bG8T5loi1tZmBI0gM3yI3",
@@ -118,12 +153,12 @@ namespace AI.FoodList
              CustomerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2",
              FoodListId = 11
          }
-            ));
+        ));
         }
         //In kết quả gợi ý dựa trên Score
         private static void PrintResult(ResultModel result)
         {
-            Console.WriteLine($"CustomerId: {result.CustomerId} | FoodId: {result.FoodListId} | Score: {result.Score} : Is Recommended: {result.Score > 3.5}");
+            Console.WriteLine($"CustomerId: {result.CustomerId} | FoodId: {result.FoodListId} | Score: {result.Score} : Is Recommended: {result.Score > 2}");
         }
 
         // Đánh giá mô hình
@@ -140,8 +175,8 @@ namespace AI.FoodList
                 LabelColumnName = nameof(InputData.Rating),// Đây là tên cột trong dữ liệu đầu vào (InputData) chứa điểm đánh giá. Tùy chọn này xác định cột dùng để đo lường sự tương quan giữa các yếu tố trong ma trận đánh giá.
                 MatrixColumnIndexColumnName = "Encoded_CustomerId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
                 MatrixRowIndexColumnName = "Encoded_FoodListId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
-                NumberOfIterations = 50,//Số lần lặp trong quá trình đào tạo.
-                ApproximationRank = 300,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
+                NumberOfIterations = 200,//Số lần lặp trong quá trình đào tạo.
+                ApproximationRank = 500,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
             };
             var trainer = context.Recommendation().Trainers.MatrixFactorization(options);
             var pipeline = estimator.Append(trainer);

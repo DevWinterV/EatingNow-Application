@@ -11,9 +11,6 @@ import { messaging } from "../firebase.config";
 import { getMessaging, getToken ,onMessage} from "firebase/messaging";
 import CartContainer from "./CartContainer";
 import Loader from "./Loader";
-import L from "leaflet";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import "leaflet-control-geocoder/dist/Control.Geocoder.js";
 import { actionType } from "../context/reducer";
 
 const HomePage = () => {
@@ -85,14 +82,14 @@ const HomePage = () => {
   }, []);
 
 
-      // Gọi api Gợi ý món ăn AI
+  // Gọi api Gợi ý món ăn AI
   async function FechDataFoodReccomend(){
     setLoadingrecommendedfood(true);
     let responseRecommen = await TakeRecommendedFoodList(request);
     if (responseRecommen.success) {
-      setDatafoodlist(responseRecommen.data);
-      setLoadingrecommendedfood(false);
+      await setDatafoodlist(responseRecommen.data);
     }
+    setLoadingrecommendedfood(false);
   }
 
   //Load danh mục loại hình ăn uống
@@ -105,7 +102,6 @@ const HomePage = () => {
     }
     let responseUpdateToken = await UpdateToken(requestToken);
     if (responseUpdateToken.success) {
-      console.log("Update Token Successfull");
     }
     setLoading(false);
   }
@@ -132,7 +128,7 @@ const HomePage = () => {
       </section>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
-          Món ngon cho bạn
+          Gợi ý cho bạn
         </p>
         {loadingrecommendedfood ? (
           <div className="text-center pt-20">

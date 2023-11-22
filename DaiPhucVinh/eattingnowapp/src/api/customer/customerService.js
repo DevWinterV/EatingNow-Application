@@ -1,6 +1,8 @@
 import { Proxy } from "../Proxy";
 import { ServerEndPoint } from "../ServerEndPoint";
 import { BaseResponse } from "../BaseResponse";
+import * as signalR from "@microsoft/signalr";
+
 const ServiceEndPoint = ServerEndPoint + "/customer";
 const API = {
   CheckCustomer: "/CheckCustomer",
@@ -13,7 +15,12 @@ const API = {
   TakeAllCustomerAddressById: "/TakeAllCustomerAddressById",
   CreateCustomerAddress : "/CreateCustomerAddress",
   DeleteAddress :"/DeleteAddress",
-  TakeOrderByCustomer: "/TakeOrderByCustomer"
+  TakeOrderByCustomer: "/TakeOrderByCustomer",
+  GetAllNotificationCustomer: "/GetAllNotificationCustomer",
+  CreateNotificationCustomer: "/CreateNotificationCustomer",
+  DeleteAllNotification: "/DeleteAllNotification",
+  SetIsReadAllNotification: "/SetIsReadAllNotification",
+  PaymentConfirm :"/PaymentConfirm"
 };
 
 const CheckCustomer = async (request) => {
@@ -191,6 +198,8 @@ const UpdateInfoCustomer = async (request) => {
   return result;
 };
 
+
+
 const DeleteAddress = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -208,5 +217,78 @@ const DeleteAddress = async (request) => {
   }
   return result;
 };
+const DeleteAllNotification = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.DeleteAllNotification,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const PaymentConfirm = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.PaymentConfirm,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.message = response.data.Message;
+      result.success = true;      
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+const SetIsReadAllNotification = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.SetIsReadAllNotification,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 
-export { CheckCustomer, CheckCustomerEmail,CreateOrderCustomer, UpdateToken, UpdateInfoCustomer, CheckCustomerAddress , TakeAllCustomerAddressById, CreateCustomerAddress,DeleteAddress, TakeOrderByCustomer};
+const GetAllNotificationCustomer = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.GetAllNotificationCustomer,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.message = response.data.Message;
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+export { CheckCustomer, CheckCustomerEmail,CreateOrderCustomer, UpdateToken, UpdateInfoCustomer, CheckCustomerAddress , TakeAllCustomerAddressById, CreateCustomerAddress,DeleteAddress, TakeOrderByCustomer, GetAllNotificationCustomer, DeleteAllNotification,SetIsReadAllNotification, PaymentConfirm};

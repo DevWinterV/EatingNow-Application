@@ -123,11 +123,12 @@ const OTPAuthen = () => {
       if(userData != null){
         localStorage.setItem("customer", JSON.stringify(userData.payload.userId));
         window.location.href = "/*";  
+        toast.success('Đăng nhập thành công', { autoClose: 3000 });
+
       }
       else
       {
-        toast.success('Chưa đăng ký gương mặt !', { autoClose: 3000 });
-
+        toast.warning('Chưa đăng ký gương mặt !', { autoClose: 3000 });
       }
       dispatch({
         type: actionType.SET_LINKED,

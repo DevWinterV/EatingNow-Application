@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 //import { withGoogleMap, withScriptjs, GoogleMap, Marker } from 'react-google-maps';
 import { FaExchangeAlt, FaLocationArrow, FaSearch, FaServer } from 'react-icons/fa';
-import { handleSearchAddress } from "../api/googleSearchApi/googleApiService";
+import { handleSearchAddress ,searchAddressGGAPI} from "../api/googleApi/googleApiService";
 import debounce from 'lodash/debounce';
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
@@ -28,18 +28,17 @@ function Maps({ requestAddress , onSelectedAddressChange, location}) {
         if (mapRef.current) {
           mapRef.current.setView(currentLocation, mapRef.current.getZoom());
         }
-  
-        handleSearchAddress(latitude + "," + longitude).then(
-          (response) => {
-            if (response.data.status === "OK" && response.data.results.length > 0) {
+        searchAddressGGAPI(latitude + "," + longitude).then(
+          (data) => {
+            if (data.status === "OK" && data.results.length > 0) {
               setsearchData(null);
-              setsearchData(response.data.results);
+              setsearchData(data.results);
               // Update the selectedAddress state
               const newSelectedAddress = {
-                lat: response.data.results[0].geometry.location.lat,
-                lng: response.data.results[0].geometry.location.lng,
-                name: response.data.results[0].name,
-                formatted_address: response.data.results[0].formatted_address,
+                lat: data.results[0].geometry.location.lat,
+                lng: data.results[0].geometry.location.lng,
+                name: data.results[0].name,
+                formatted_address: data.results[0].formatted_address,
               };
               // Use the setselectedAddress function to update the state
               setselectedAddress(newSelectedAddress);
@@ -65,13 +64,23 @@ function Maps({ requestAddress , onSelectedAddressChange, location}) {
     // Thực hiện tìm kiếm với giá trị searchValue ở đây
     handleSearch(searchValue);
   }, 1000); // Đợi 1 giây trước khi thực hiện tìm kiếm
-  
+  /*
   const handleInputChange = (event) => {
     const searchValue = event.target.value;
     setSearchAddress(event.target.value);
   
     // Sử dụng hàm xử lý tìm kiếm với độ trễ
     handleDebouncedSearch(searchValue);
+  };*/
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchAddress(value);
+    if(value === ''){
+      setsearchData(null)
+    }else{
+      const fullAddress = `${value} ${requestAddress.Ward} ${requestAddress.District} ${requestAddress.Province}`;
+      handleSearch(fullAddress);
+    }
   };
 
   const handleChangeAddress =() =>{
@@ -101,14 +110,15 @@ function Maps({ requestAddress , onSelectedAddressChange, location}) {
   };
 
   const [searchData, setsearchData] = useState([]);
-  const handleSearch = (searchAddress) => {
-    if(searchAddress != ""){
-      handleSearchAddress(searchAddress).then(
-        (response) => {
-          if (response.data.status === "OK" && response.data.results.length > 0) 
+  
+  const handleSearch = (value) => {
+    if(value != ""){
+      searchAddressGGAPI(value).then(
+        (data) => {
+          if (data && data.status === "OK" && data.results.length > 0) 
             {
               setsearchData(null)
-              setsearchData(response.data.results)
+              setsearchData(data.results)
             }
         }
       )
@@ -119,7 +129,6 @@ function Maps({ requestAddress , onSelectedAddressChange, location}) {
   };
   
   useEffect(() => {
-
         // Di chuyển bản đồ đến vị trí mới khi currentLocation thay đổi
         if(location != null){
           setCurrentLocation({lat: location.latitude, lng: location.longitude})
@@ -179,7 +188,7 @@ function Maps({ requestAddress , onSelectedAddressChange, location}) {
                 )
               }
               value={searchAddress}
-                onChange={(e) => setSearchAddress(e.target.value)}
+                onChange={(e) => handleInputChange(e)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                   if(  requestAddress != null ){

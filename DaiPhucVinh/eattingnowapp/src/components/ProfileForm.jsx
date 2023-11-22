@@ -11,9 +11,24 @@ import OrderofCustomer from './OrderofCustomer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CartContainer from './CartContainer';
+import { useParams } from "react-router-dom";
+
 // Example in a component using CSS modules
 function ProfileForm() {
-  const [selectedTab, setSelectedTab] = useState('account'); // Mặc định hiển thị trang Tài khoản
+  const { id } = useParams();
+  console.log(id);
+  // Sử dụng useState để khởi tạo Id
+  const [Id, setId] = useState('');
+
+  useEffect(() => {
+    // Kiểm tra xem id có giá trị 'undefined' không, nếu không thì gán giá trị cho Id
+    if (id !== 'undefined') {
+      setId(id);
+    }
+  }, [id]);
+
+  console.log(Id);
+  const [selectedTab, setSelectedTab] = useState(id ==null ? 'account' : 'order'); // Mặc định hiển thị trang Tài khoản
   const [{linked, customer , cartShow}, dispatch] =
     useStateValue();  const navigate = useNavigate();
 
@@ -24,7 +39,13 @@ function ProfileForm() {
     });
     <Link to={"/otpauthen"}></Link>;
   };
-
+ // Hàm callback để xóa id
+  const handleDeleteId = () => {
+    console.log("Đã vào hàm xóa id")
+    if (id !== 'undefined') {
+      setId('undefined');
+    }
+  };
   const handleLogout = () => {
     dispatch({
       type: actionType.SET_CUSTOMER,
@@ -36,6 +57,7 @@ function ProfileForm() {
   const renderContent = () => {
     if(customer){
       if (selectedTab === 'account') {
+        window.history.pushState({}, '', '/account');
         return <Account />;
       } else if (selectedTab === 'setting') {
         return <Setting />;
@@ -46,7 +68,7 @@ function ProfileForm() {
         return <CustomerAddressContainer/>
          }
          else if(selectedTab === 'order'){
-          return <OrderofCustomer/>
+          return <OrderofCustomer id={Id} onDelete={handleDeleteId}/>
          }
         }
   }
@@ -58,28 +80,30 @@ function ProfileForm() {
       {
         customer ?(
           <div className="flex">
-          <div className="w-1/4 bg-gray-200 p-5">
+          <div className="w-1/4 bg-gray-200 p-3">
             <ul>
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'account' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
-                onClick={() => setSelectedTab('account')}
+                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'account' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                onClick={() =>
+                   setSelectedTab('account')
+                  }
               >
                 Thông tin
               </li>
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'order' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'order' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                 onClick={() => setSelectedTab('order')}
               >
                 Đơn hàng
               </li>
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'address' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'address' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                 onClick={() => setSelectedTab('address')}
               >
                 Địa chỉ
               </li>
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'banking' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'banking' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                 onClick={() => setSelectedTab('banking')}
               >
                 Tài khoản ngân hàng
@@ -96,7 +120,7 @@ function ProfileForm() {
               }
            
               <li
-                className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'setting' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'setting' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                 onClick={() => setSelectedTab('setting')}
               >
                 Cài đặt
@@ -104,7 +128,7 @@ function ProfileForm() {
               {
                 customer ?(
                   <li
-                  className={`cursor-pointer py-2 px-4 mb-2 rounded-lg ${selectedTab === 'login' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                  className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'login' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
                   onClick={() => handleLogout()}
                 >
                   Đăng xuất
@@ -115,7 +139,7 @@ function ProfileForm() {
             </ul>
           </div>
           {/* Hiển thị nội dung tương ứng với menu được chọn */}
-          <div className="w-3/4 bg-white p-5">
+          <div className="w-3/4 bg-white p-3">
             {renderContent()}
           </div>
         </div>

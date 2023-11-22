@@ -21,8 +21,30 @@ const handleSearchAddress = async (searchAddress) => {
     alert('Có lỗi xảy ra khi tìm kiếm địa chỉ. Vui lòng thử lại sau.');
   }
 };
+const searchAddress = async (searchQuery) => {
+  try {
+    const response = await axios.get('http://localhost:3002/search-address', {
+      params: {
+        searchAddress: searchQuery
+      }
+    });
+
+    if (response.status === 200) {
+      // Xử lý dữ liệu trả về ở đây
+      const data = response.data;
+      return data;
+    } else {
+      console.error('Lỗi khi gọi tuyến đường search-address:', response.data);
+      return null;
+    }
+  } catch (error) {
+    console.error('Lỗi khi gọi tuyến đường search-address:', error);
+    return null;
+  }
+};
 
 
 export {
-    handleSearchAddress
+    handleSearchAddress,
+    searchAddress
 }

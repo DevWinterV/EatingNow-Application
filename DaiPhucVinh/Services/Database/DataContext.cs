@@ -81,5 +81,7 @@ namespace DaiPhucVinh.Services.Database
         public DbSet<EN_DeliveryDiver> EN_DeliveryDriver { get; set; }
         public DbSet<EN_FavoriteFoods> EN_FavoriteFoods { get; set; }
         public DbSet<EN_CustomerAddress> EN_CustomerAddress { get; set; }
+        public DbSet<EN_CustomerNotifications> EN_CustomerNotifications { get; set; }
+
     }
 }

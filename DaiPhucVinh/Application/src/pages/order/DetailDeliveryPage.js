@@ -189,7 +189,7 @@ export default function CreateProvince() {
           label: response.item.WardName,
         });
       }
-     
+     z
     }
    
   }

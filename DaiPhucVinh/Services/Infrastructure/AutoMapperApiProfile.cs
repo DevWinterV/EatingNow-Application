@@ -56,6 +56,7 @@ using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
 using DaiPhucVinh.Shared.DeliveryDriver;
+using DaiPhucVinh.Shared.CustomerNotification;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -400,6 +401,8 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.ProvinceName, o => o.MapFrom(s => s.Province.Name))
                 .ForMember(d => d.DistrictName, o => o.MapFrom(s => s.District.Name))
                 .ForMember(d => d.WardName, o => o.MapFrom(s => s.Ward.Name));
+            CreateMap<EN_CustomerNotifications, EN_CustomerNotificationResponse>();
+
         }
         #region private methods
         private byte[] FindImgFromId(WMS_InventoryItem item)

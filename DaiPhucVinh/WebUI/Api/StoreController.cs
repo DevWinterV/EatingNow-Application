@@ -153,5 +153,11 @@ namespace PCheck.WebUI.Api
         [Route("RemoveDriver")]
         public async Task<BaseResponse<bool>> RemoveDriverr([FromBody] DeliveryDriverRequest request) => await _storeService.RemoveDriverr(request);
 
+        [HttpPost]
+        [Route("TakeStoreLocation")]
+        public async Task<BaseResponse<StoreResponse>> TakeStoreLocation([FromBody] StoreRequest request) => await _storeService.TakeStoreLocation(request);
+
+        
+
     }
 }

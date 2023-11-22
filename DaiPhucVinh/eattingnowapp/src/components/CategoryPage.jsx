@@ -6,6 +6,7 @@ import { useStateValue } from "../context/StateProvider";
 import CartContainer from "./CartContainer";
 import LeafletMap from "./LeafletMap";
 import Loader from "./Loader";
+import { calculateDistanceAndTimeProxy } from "../api/googleApi/googleApiDirection";
 
 const CategoryPage = () => {
   const [{ cartShow }] = useStateValue();
@@ -13,6 +14,8 @@ const CategoryPage = () => {
   const { state } = useLocation();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [newdata, setNewData] = useState([]);
+
   const [currentLocation, setCurrentLocation] = useState(null);
 
   async function fetchStoresByCuisineId(cuisineId, latitude, longitude) {
@@ -33,14 +36,16 @@ const CategoryPage = () => {
 
   async function getCurrentLocation() {
     try {
-      const position = await getCurrentPosition({
+      const options = {
         enableHighAccuracy: true,
         maximumAge: 0,
         timeout: 5000,
-      });
+      };
+      const position = await getCurrentPosition(options);
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       setCurrentLocation({ latitude, longitude });
+      console.log(currentLocation);
     } catch (error) {
       console.error(error);
     }
@@ -53,7 +58,14 @@ const CategoryPage = () => {
   }
 
   useEffect(() => {
-    getCurrentLocation();
+    const fetchData = async () => {
+      try {
+        await getCurrentLocation();
+      } catch (error) {
+        console.error("Lỗi khi lấy vị trí hiện tại:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -66,13 +78,45 @@ const CategoryPage = () => {
     }
   }, [state, currentLocation]);
 
-
-  
+  useEffect(() => {
+    const fetchTimeAndDistanceForLocations = async () => {
+      try {
+        setLoading(true);
+        const locationPromises = data.map(async (location) => {
+          try {
+            const result = await calculateDistanceAndTimeProxy(
+              [currentLocation.latitude, currentLocation.longitude],
+              [location.Latitude, location.Longitude]
+            );
+            if (result) {
+              const { distance, duration } = result;
+              const roundedTime = Math.round(duration / 60 * 10) / 10;
+              const roundedDistance = Math.round(distance / 1000 * 10) / 10;
+              return { ...location, Time: roundedTime, Distance: roundedDistance };
+            } else {
+              console.log("Không thể tính khoảng cách và thời gian cho vị trí:", location);
+              return location;
+            }
+          } catch (error) {
+            console.error("Lỗi khi tính khoảng cách và thời gian:", error);
+            return location;
+          }
+        });
+        const updatedLocations = await Promise.all(locationPromises);
+        setNewData(updatedLocations);
+        setLoading(false);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu khoảng cách và thời gian:", error);
+      } finally {
+      }
+    };
+     fetchTimeAndDistanceForLocations();
+  }, [data, currentLocation]);
 
   return (
     <div className="w-full h-auto flex flex-col items-center justify-center">
       <div>
-        {cartShow ? <CartContainer /> : <LeafletMap locations={data} />}
+        {cartShow ? <CartContainer /> : <LeafletMap locations={newdata} />}
       </div>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
@@ -83,7 +127,7 @@ const CategoryPage = () => {
             <Loader />
           </div>
         ) : (
-          <CategoryPageContainer datas={data} />
+          <CategoryPageContainer datas={newdata} />
         )}
       </section>
     </div>

@@ -50,6 +50,9 @@ using DaiPhucVinh.Services.MainServices.FoodList;
 using DaiPhucVinh.Services.MainServices.OrderHeader;
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using Microsoft.ML;
+using Microsoft.AspNet.SignalR;
+using DaiPhucVinh.Services.MainServices.Hubs;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -74,6 +77,8 @@ namespace DaiPhucVinh.Services.Infrastructure
             container.Register<IUserService, UserService>(Lifestyle.Scoped);
             container.Register<IMailMergeService, MailMergeService>(Lifestyle.Scoped);
             container.Register<IWordStreamService, WordStreamService>(Lifestyle.Scoped);
+            container.Register<IHub, OrderNotificationHub>(Lifestyle.Scoped);
+
             //External
             container.Register<IChartService, ChartService>(Lifestyle.Scoped);
             container.Register<IChatRoomService, ChatRoomService>(Lifestyle.Scoped);

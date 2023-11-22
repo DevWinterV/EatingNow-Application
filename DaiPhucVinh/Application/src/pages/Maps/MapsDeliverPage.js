@@ -133,7 +133,7 @@ function MapsDeliverPage() {
               />
               
               {deliver.map((driver) => (
-                <Marker key={driver.DeliverDriverId} position={[driver.Latitude, driver.Longitude]} icon={DefaultIcon}>
+                <Marker key={driver.DeliveryDriverId} position={[driver.Latitude, driver.Longitude]} icon={DefaultIcon}>
                   <Popup>
                     <div>
                       <h4>Tài xế: {driver.CompleteName}</h4>
@@ -143,6 +143,15 @@ function MapsDeliverPage() {
                         <strong>Tọa độ:</strong> {driver.Latitude},{driver.Longitude}
                       </p>
                       <img src={driver.UploadImage} alt={driver.CompleteName} style={{ maxWidth: "100%" }} />
+                      <button
+                          onClick={() => {
+                            window.open("/delivery/edit/"+driver.DeliveryDriverId);
+                            localStorage.Code = driver.DeliverDriverId;
+                          }}
+                          className="bg-info text-white font-bold py-2 px-4 rounded"
+                        >
+                          Xem chi tiết
+                      </button>
                     </div>
                   </Popup>
                 </Marker>

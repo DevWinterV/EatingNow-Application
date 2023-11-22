@@ -6,15 +6,20 @@ import Modal from 'react-modal';
 import { TbCircleX} from "react-icons/tb";
 import { GetListOrderLineDetails } from "../api/store/storeService";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-
-export default function OrderofCustomer() {
+export default function OrderofCustomer({id, onDelete}) {
+  const [Id, setId] = useState('');
+  console.log(id);
+  useEffect(()=>{
+    setId(id);
+  },[id]
+  )
   let subtitle;
-      //Mặc định là tất cả
+  //Mặc định là tất cả
   const [activeTab, setActiveTab] = useState("all");
   const [dataOrderdetail, setdataOrderdetail] = useState([]);
-  const [CodeType, setCodeType] = useState(true);
   const [modalIsOpen, setIsOpen] = React.useState(false);
-  const [orderHeaderId, setOrderHeaderId] = React.useState("");
+  const [orderHeaderId, setOrderHeaderId] = React.useState(Id);
+  console.log(orderHeaderId);
   const [Orderheader, setOrderheader] = useState({
     Id: "",
     Date: "",
@@ -22,6 +27,7 @@ export default function OrderofCustomer() {
     Ship: 0,
     OrderMoney: 0,
     StoreName: "",
+    Status: false
   });
   const customStyles = {
     content: {
@@ -36,6 +42,12 @@ export default function OrderofCustomer() {
       overflow: 'auto',
     },
   }; 
+  const [address, setAddress] = useState({
+    RecipientName: "",
+    RecipientPhone: "",
+    FormatAddress: "",
+    NameAddress: "",
+  })
   const [isLoading, setIsLoading] = React.useState(false);
   const [countWaiting, setcountWaiting] = useState(0);
   const [{  customer }, dispatch] = useStateValue();
@@ -71,18 +83,45 @@ export default function OrderofCustomer() {
   });
   const [data, setData] =useState([]);
 
-  async function getOrder(){
+  async function getOrder() {
     setIsloading(true);
     let response = await TakeOrderByCustomer(request);
-    if(response.success){
-        setData(response.data);
-        setcountWaiting(response.data.length);
+    if (response.success) {
+      setData(response.data);
+      setcountWaiting(response.data.length);
     }
-    setIsloading( false);
+    setIsloading(false);
   }
+  
+
   useEffect(() =>{
     getOrder();
   },[request])
+  useEffect(()=>{
+    if (Id != null && Id !== 'all') {
+      var i = data.find(item => item.OrderHeaderId === Id);
+      console.log(i);
+      if (i) {
+        setOrderHeaderId(i.OrderHeaderId);  
+        setOrderheader({
+          Id: i.OrderHeaderId,
+          Date: formatDate(i.CreationDate),
+          TotalMoney: formatMoney(i.IntoMoney),
+          Ship: formatMoney(i.TransportFee),
+          OrderMoney: formatMoney(i.TotalAmt),
+          StoreName: i.StoreName,
+          Status: i.Status
+        });
+        setAddress({
+          RecipientName: i.RecipientName,
+          RecipientPhone: i.RecipientPhone,
+          FormatAddress: i.FormatAddress,
+          NameAddress: i.NameAddress
+        });
+        setIsOpen(!false);
+      }
+    }
+  },[data])
   function afterOpenModal() {
     // references are now sync'd and can be accessed.
     subtitle.style.color = '#f00';
@@ -90,6 +129,7 @@ export default function OrderofCustomer() {
   function closeModal() {
     setdataOrderdetail(null);
     setIsOpen(false);
+    onDelete();
   }
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -107,7 +147,6 @@ export default function OrderofCustomer() {
       minimumFractionDigits: 0,
     }).format(amount);
   }
-
   async function GetOrderLineDetails() {
     setIsLoading(true);
     if (orderHeaderId != "") {
@@ -117,10 +156,12 @@ export default function OrderofCustomer() {
     }
   }
   useEffect(() => {
+    getOrder();
     GetOrderLineDetails();
-    console.log(dataOrderdetail);
   }, [orderHeaderId]);
 
+
+  
   return (
     <div>
       <Modal
@@ -145,15 +186,40 @@ export default function OrderofCustomer() {
                   </button>
                  <div className="row" style={{ display: "flex", alignItems: "center" }}>
                   <h2 className="text-2xl font-semibold">
-                    Chi tiết đơn hàng
+                    Chi tiết đơn hàng của bạn
                   </h2>
                 </div>
                 <div className="container mt-2 mb-2">
                   <div className="row ">
                     <div className="col-md-6">
-                    <h1 className="text-1xl text-orange-900 font-bold">Mã đơn hàng: {Orderheader.Id  }</h1>   
-                    <h1 className="text-1xl text-orange-900 font-bold">Đặt lúc: {Orderheader.Date  }</h1>
-                    <h1 className="text-1xl text-orange-900 font-bold">Cửa hàng: {Orderheader.StoreName  }</h1>    
+                            <div className="order-details"><div className="order-status">
+                            {
+                                !Orderheader.Status ? (
+                                  <h1 className="order-info">Đang chờ xác nhận</h1>
+                                ) : (
+                                  <h1 className="order-info ">Đã xác nhận</h1>
+
+                                )
+                              }
+                            </div>
+                            <h1 className="order-info">Mã đơn hàng: {Orderheader.Id}</h1>
+                            <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
+                            <h1 className="order-info">{Orderheader.StoreName}</h1>
+                            <div className="address-container">
+                              <h1 className="address-title">Địa chỉ nhận hàng:</h1>
+                              <div className="recipient-info">
+                                <h6 className="recipient-detail">
+                                  <span className="recipient-label">Tên người nhận:</span>
+                                  <span className="recipient-value">{address.RecipientName} | {address.RecipientPhone}</span>
+                                </h6>
+                                <h6 className="recipient-detail">
+                                  <span className="recipient-label">Địa chỉ:</span>
+                                  <span className="recipient-value">{address.NameAddress} | {address.FormatAddress}</span>
+                                </h6>
+                              </div>
+                            </div>
+                      </div>
+                       
                     </div>
                   </div>
                 </div>
@@ -236,69 +302,67 @@ export default function OrderofCustomer() {
                               ) : (
                                 ""
                               )}
-                              <Tr>
-                                  <Td>
-                                    
-                                  </Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-end">
-                                  <h1 className="text-1xl text-orange-900 font-bold"> Tổng tiền món ăn:</h1>    
-                                  </Td>
-                                  <Td className="capitalize p-3 text-1xl font-bold text-orange-900 whitespace-nowrap text-center">
-                                        {Orderheader.OrderMoney}
-                                      </Td>
-                              </Tr>
-                              <Tr>
-                                  <Td>
-                                    
-                                  </Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-end">
-                                  <h1 className="text-1xl text-orange-900 font-bold"> Phí vận chuyển:</h1>    
-                                  </Td>
-                                  <Td className="capitalize p-3 text-1xl font-bold text-orange-900 whitespace-nowrap text-center">
-                                        {Orderheader.Ship}
-                                      </Td>
-                              </Tr>      
-                              <Tr>
-                                  <Td>
-                                    
-                                  </Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td></Td>
-                                  <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-end">
-                                    <h1 className="text-1xl text-orange-900 font-bold"> Tổng thanh toán:</h1>    
-                                  </Td>
-                                  <Td className="capitalize p-3 text-1xl font-bold text-red-600 whitespace-nowrap text-center">
-                                        {Orderheader.TotalMoney}
-                                      </Td>
-                              </Tr>
+                             
                             </Tbody>
                           </Table>
+                          <Table className="w-full table-auto">
+                          <Thead className="bg-orange-50">
+                            <Tr>
+                              <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                              </Th>
+                              <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                              </Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody className="bg-orange-50">
+                            <>
+                              {/* Sản phẩm 1 */}
+                              <Tr className="bg-orange-50">
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  Tổng tiền món ăn
+                                </Td>
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  {Orderheader.OrderMoney}
+                                </Td>
+                              </Tr>
 
-                        </div>
+                              {/* Sản phẩm 2 */}
+                              <Tr className="bg-orange-50">
+                              <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  Phí vận chuyển
+                                </Td>
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  {Orderheader.Ship}
+                                </Td>
+                              </Tr>
+
+                              {/* Tổng tiền sản phẩm */}
+                              <Tr className="bg-orange-50">
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  Tổng thanh toán
+                                </Td>
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
+                                  {Orderheader.TotalMoney}
+                                </Td>
+                              </Tr>
+                            </>
+                          </Tbody>
+                        </Table>
+                         {/*footer*/}
+                          <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
+                          <button
+                          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2 ml-2"
+                          type="button"
+                            onClick={() => {
+                              closeModal();
+                            }}
+                          >
+                            Đóng
+                          </button>
+                          </div>  
+                          </div>        
                     </div>
-                    {/*footer*/}
-                    <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                    <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2 ml-2"
-                    type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                      }}
-                    >
-                      Đóng
-                    </button>
-                    </div>  
-                
+
       </Modal>
      <h1 className="text-xl mb-2 text-red-700 font-bold">     
          Đơn hàng của tôi
@@ -382,7 +446,7 @@ function All() {
                 // Check if address is not null before rendering
                 i !== null && (
                   <li key={index} className="mb-4 border p-2 rounded-lg border-gray">
-                    <h6 className="text-base text-gray-700 font-normal">
+                    <h6 className="order-info text-base text-gray-700 font-normal">
                       Mã đơn hàng: {i.OrderHeaderId}
                     </h6>
                     <h6 className="text-base text-gray-700 font-normal">
@@ -402,7 +466,14 @@ function All() {
                               Ship: formatMoney(i.TransportFee),
                               OrderMoney: formatMoney(i.TotalAmt),
                               StoreName: i.StoreName,
-                            })
+                              Status: i.Status
+                            });
+                            setAddress({
+                              RecipientName: i.RecipientName,
+                              RecipientPhone: i.RecipientPhone,
+                              FormatAddress: i.FormatAddress,
+                              NameAddress: i.NameAddress
+                            });
                             setIsOpen(true);
                             }}
                             className="btn btn-primary btn-sm"

@@ -2,8 +2,10 @@
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.CustomerNotification;
 using DaiPhucVinh.Shared.OrderHeader;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
+using DaiPhucVinh.Shared.Payment;
 using DaiPhucVinh.Shared.Store;
 using Newtonsoft.Json;
 using System;
@@ -92,11 +94,26 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeAllCustomerAddressById")]
         public async Task<BaseResponse<EN_CustomerAddressResponse>> TakeAllCustomerAddressById([FromBody] EN_CustomerRequest request) => await _customerService.TakeAllCustomerAddressById(request);
-
-
         [HttpPost]
         [Route("TakeOrderByCustomer")]
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderByCustomer([FromBody] EN_CustomerRequest request) => await _customerService.TakeOrderByCustomer(request);
+        
+        [HttpPost]
+        [Route("GetAllNotificationCustomer")]
+        public async Task<BaseResponse<EN_CustomerNotificationResponse>> GetAllNotificationCustomer([FromBody] EN_CustomerNotificationRequest request) => await _customerService.GetAllNotificationCustomer(request);
 
+        [HttpPost]
+        [Route("CreateNotificationCustomer")]
+        public async Task<BaseResponse<bool>> CreateNotificationCustomer([FromBody] EN_CustomerNotificationRequest request) => await _customerService.CreateNotificationCustomer(request);
+        [HttpPost]
+        [Route("DeleteAllNotification")]
+        public async Task<BaseResponse<bool>> DeleteAllNotification([FromBody] EN_CustomerNotificationRequest request) => await _customerService.DeleteAllNotification(request);
+        [HttpPost]
+        [Route("SetIsReadAllNotification")]
+        public async Task<BaseResponse<bool>> SetIsReadAllNotification([FromBody] EN_CustomerNotificationRequest request) => await _customerService.SetIsReadAllNotification(request);
+       
+        [HttpPost]
+        [Route("PaymentConfirm")]
+        public async Task<BaseResponse<bool>> PaymentConfirm([FromBody] PaymentConfirmRequest request) => await _customerService.PaymentConfirm(request);
     }
 }

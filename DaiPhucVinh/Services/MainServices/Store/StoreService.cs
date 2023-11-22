@@ -37,6 +37,9 @@ using DotNetty.Common.Utilities;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.Customer;
 using Microsoft.AspNet.SignalR;
+using DaiPhucVinh.Services.MainServices.Hubs;
+using DaiPhucVinh.Services.MainServices.EN_CustomerService;
+using System.Xml.Linq;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
@@ -68,8 +71,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId(EN_CustomerRequest request);
         Task<BaseResponse<bool>> CreateNewDeliver(DeliveryDriverRequest request, HttpPostedFile file);
         Task<BaseResponse<DeliveryDriverResponse>> TakeDriverById(int Id);
-       Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request);
-
+        Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request);
+        Task<BaseResponse<StoreResponse>> TakeStoreLocation(StoreRequest request);
     }
     public class StoreService : IStoreService
     {
@@ -80,6 +83,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
         private readonly ICommonService _commonService;
         private readonly ILogger _logger;
         private readonly ISettingService _settingService;
+
         public string HostAddress => HttpContext.Current.Request.Url.ToString().Replace(HttpContext.Current.Request.Url.PathAndQuery, "");
         public StoreService(DataContext datacontext, ILogService logService, ICommonService commonService, ILogger logger, ISettingService settingService)
         {
@@ -751,11 +755,11 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<bool> { };
             try
             {
+                int newPass = rand.Next(100000, 999999);
                 var ApproveStore = await _datacontext.EN_Store.Where(x => x.UserId == request.UserId).FirstOrDefaultAsync();
                 var checkAccount = await _datacontext.EN_Account.Where(x => x.UserId == request.UserId).FirstOrDefaultAsync();
                 if (checkAccount == null)
                 {
-                    int newPass = rand.Next(100000, 999999);
                     var createACcount = new EN_Account()
                     {
                         UserId = request.UserId,
@@ -789,9 +793,33 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 }
                 else
                 {
+                    
                     ApproveStore.Status = !ApproveStore.Status;
+                    if (ApproveStore.Status)
+                    {
+                        checkAccount.Password = MD5Hash(Base64Encode(newPass.ToString()));
+                        try
+                        {
+                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            {
+                                smtp.EnableSsl = true;
+                                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                smtp.UseDefaultCredentials = false;
+                                smtp.Credentials = new NetworkCredential("chauvanrangdong4440@gmail.com", "wbswwxmptbmwfqpg");
+
+                                MailMessage mail = new MailMessage();
+                                mail.To.Add(request.Email);  // Email của khách hàng
+                                mail.From = new MailAddress("chauvanrangdong4440@gmail.com"); mail.Subject = "BẠN ĐÃ ĐƯỢC CẤP MẬT KHẨU BÁN HÀNG";
+                                mail.Body = $"Mật khẩu của bạn là: {newPass}.Vui lòng đăng nhập thay đổi mật khẩu mới. Trân trọng !";
+
+                                smtp.Send(mail);
+                            }
+                        }
+                        catch { }
+                    }
+                 
                 }
-                await _datacontext.SaveChangesAsync();
+                await _datacontext.SaveChangesAsync(); 
                 result.Success = true;
             }
             catch (Exception ex)
@@ -931,14 +959,15 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 double Lon = Math.Round(store.Longitude, 7);
                 var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
                 store.Distance = distance;
-                store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
+                //store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
             }
 
             foreach(var fillStore in stores)
             {
                 if(fillStore.Distance <=10 )
                     nearestStores.Add(fillStore);
-            }    
+            }
+            nearestStores = nearestStores.OrderBy(store => store.Distance).ToList();
 
             return nearestStores;
         }
@@ -1012,7 +1041,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                                     mail.To.Add(account.Email);  // Email của khách hàng
                                     mail.From = new MailAddress("chauvanrangdong4440@gmail.com");  // Email của bạn
                                     mail.Subject = "EATINGNOW | ĐƠN HÀNG ĐƯỢC DUYỆT";
-                                    mail.Body = "Subject: Xác nhận Đơn Hàng: Đã Duyệt Thành Công 🎉\r\n\r\nChào quý khách hàng thân mến,\r\n\r\nChúc mừng! Đơn hàng của bạn đã được xác nhận và duyệt thành công tại EatingNow. Dưới đây là chi tiết đơn hàng để quý khách tham khảo:\r\n\r\n━━━━━━━━━━━━━━━\r\n📦 THÔNG TIN ĐƠN HÀNG:\r\n━━━━━━━━━━━━━━━\r\n📅 Ngày tạo đơn hàng: " + orderHeader.CreationDate + "\r\n💰 Tổng giá trị sản phẩm: " + orderHeader.TotalAmt + "\r\n🚚 Phí giao hàng: " + orderHeader.TransportFee + "\r\n💳 Tổng cộng cần thanh toán: " + orderHeader.IntoMoney + "\r\n\r\n🔗 Quý khách có thể xem chi tiết đơn hàng tại: eatingnow.com/orders/{{orderHeader.OrderHeaderId}}\r\n\r\n📞 Liên hệ với chúng tôi qua số điện thoại của Chủ cửa hàng " + store.OwnerName + " tại " + store.Phone + " nếu cần hỗ trợ hoặc có câu hỏi liên quan đến đơn hàng.\r\n\r\n🛍️ Chúng tôi rất biết ơn vì quý khách đã lựa chọn EatingNow để mua sắm. Chúc quý khách có một trải nghiệm mua sắm thú vị!\r\n\r\nTrân trọng,\r\nEatingNow Team 🍔\U0001f6d2\r\n━━━━━━━━━━━━━━━\r\n";
+                                    mail.Body = "Subject: Xác nhận Đơn Hàng: Đã Duyệt Thành Công 🎉\r\n\r\nChào quý khách hàng thân mến,\r\n\r\nChúc mừng! Đơn hàng của bạn đã được xác nhận và duyệt thành công tại EatingNow. Dưới đây là chi tiết đơn hàng để quý khách tham khảo:\r\n\r\n━━━━━━━━━━━━━━━\r\n📦 THÔNG TIN ĐƠN HÀNG:\r\n━━━━━━━━━━━━━━━\r\n📅 Ngày tạo đơn hàng: " + orderHeader.CreationDate + "\r\n💰 Tổng giá trị sản phẩm: " + orderHeader.TotalAmt + "\r\n🚚 Phí giao hàng: " + orderHeader.TransportFee + "\r\n💳 Tổng cộng cần thanh toán: " + orderHeader.IntoMoney + "\r\n\r\n🔗 Quý khách có thể xem chi tiết đơn hàng tại: http://localhost:3001/order/"+orderHeader.OrderHeaderId+"\r\n\r\n📞 Liên hệ với chúng tôi qua số điện thoại của Chủ cửa hàng " + store.OwnerName + " tại " + store.Phone + " nếu cần hỗ trợ hoặc có câu hỏi liên quan đến đơn hàng.\r\n\r\n🛍️ Chúng tôi rất biết ơn vì quý khách đã lựa chọn EatingNow để mua sắm. Chúc quý khách có một trải nghiệm mua sắm thú vị!\r\n\r\nTrân trọng,\r\nEatingNow Team 🍔\U0001f6d2\r\n━━━━━━━━━━━━━━━\r\n";
                                     smtp.Send(mail);
                                 }
                             }
@@ -1021,15 +1050,35 @@ namespace DaiPhucVinh.Services.MainServices.Province
                                 result.Success = false;
                             }
                         }
-                        
+                        var newnotification = new EN_CustomerNotifications
+                        {
+                            CustomerID = request.CustomerId,
+                            NotificationDate = DateTime.Now,
+                            SenderName = "HỆ THỐNG",
+                            Message = "Đơn hàng " + request.OrderHeaderId + " đã được được xác nhận",
+                            IsRead = false,
+                            Action_Link = "/order/"+request.OrderHeaderId
+                        };
+                        _datacontext.EN_CustomerNotifications.Add(newnotification);
                         result.Success = true;
-                    }
+                    }   
                     else
                     {
+                        var newnotification = new EN_CustomerNotifications
+                        {
+                            CustomerID = request.CustomerId,
+                            NotificationDate = DateTime.Now,
+                            SenderName = "HỆ THỐNG",
+                            Message = "Đơn hàng " + request.OrderHeaderId + " đã được hủy",
+                            IsRead = false,
+                            Action_Link = "/order/" + request.OrderHeaderId
+                        };
+                        _datacontext.EN_CustomerNotifications.Add(newnotification);
                         orderHeader.Status = false;
                         result.Success = true;
                     }
                     await _datacontext.SaveChangesAsync();
+
                 }
                 else
                 {
@@ -1053,7 +1102,6 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {
                 var query = _datacontext.EN_OrderHeader.AsQueryable();
-
                 if (!string.IsNullOrEmpty(request.Term))
                 {
                     query = query.Where(x => x.OrderHeaderId.Contains(request.Term)
@@ -1065,16 +1113,13 @@ namespace DaiPhucVinh.Services.MainServices.Province
                         || x.NameAddress.Contains(request.Term)
                     );
                 }
-
                 result.DataCount = await query.CountAsync();
-
                 if (request.PageSize != 0)
                 {
                     query = query.OrderByDescending(d => d.CreationDate).ThenByDescending(d => !d.Status)
                         .Skip(request.Page * request.PageSize)
                         .Take(request.PageSize);
                 }
-
                 var data = await query.ToListAsync();
                 result.Data = data.MapTo<OrderHeaderResponse>();
                 result.Success = true;
@@ -1097,18 +1142,30 @@ namespace DaiPhucVinh.Services.MainServices.Province
 
         public async Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId(EN_CustomerRequest request)
         {
-            var result = new BaseResponse<OrderLineReponse> { };
+            var result = new BaseResponse<OrderLineReponse>();
             try
             {
-                var query = from od in _datacontext.EN_OrderHeader
-                            join odl in _datacontext.EN_OrderLine on od.OrderHeaderId equals odl.OrderHeaderId
-                            where od.CustomerId == request.CustomerId
-                            select odl;
-                result.DataCount = query.ToList().Count();  
-                if (request.PageSize != 0)
+                var query = _datacontext.EN_OrderLine
+                    .Where(odl => odl.EN_OrderHeader.CustomerId == request.CustomerId);
+
+                if (!string.IsNullOrEmpty(request.Term))
                 {
-                    query = query.OrderBy(d => d.OrderHeaderId).Skip(request.Page * request.PageSize).Take(request.PageSize);
+                    var term = request.Term.ToLower();
+                    query = query.Where(x =>
+                        x.OrderHeaderId.ToLower().Contains(term) ||
+                        x.Description.ToLower().Contains(term) ||
+                        x.FoodName.ToLower().Contains(term));
                 }
+
+                result.DataCount = await query.CountAsync();
+
+                if (request.PageSize > 0)
+                {
+                    query = query.OrderBy(d => d.OrderHeaderId)
+                        .Skip(request.Page * request.PageSize)
+                        .Take(request.PageSize);
+                }
+
                 var data = await query.ToListAsync();
                 result.Data = data.MapTo<OrderLineReponse>();
                 result.Success = true;
@@ -1120,7 +1177,26 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
-      
+
+        public async Task<BaseResponse<StoreResponse>> TakeStoreLocation(StoreRequest request)
+        {
+            var result = new BaseResponse<StoreResponse> { };
+            try
+            {
+                var query = _datacontext.EN_Store.Where(x => x.UserId.Equals(request.UserId)).AsQueryable();
+                result.DataCount = query.ToList().Count();
+                var data = await query.ToListAsync();
+                result.Data = data.MapTo<StoreResponse>();
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
         public async Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request)
         {
             var result = new BaseResponse<bool> { };

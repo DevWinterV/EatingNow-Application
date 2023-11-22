@@ -67,6 +67,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -77,6 +78,7 @@
     <Compile Include="DaiPhucVinh\EN_Account.cs" />
     <Compile Include="DaiPhucVinh\EN_CategoryList.cs" />
     <Compile Include="DaiPhucVinh\EN_CustomerAddress.cs" />
+    <Compile Include="DaiPhucVinh\EN_CustomerNotifications.cs" />
     <Compile Include="DaiPhucVinh\EN_DeliveryDiver.cs" />
     <Compile Include="DaiPhucVinh\EN_FavoriteFood.cs" />
     <Compile Include="DaiPhucVinh\EN_FoodList.cs" />
@@ -112,6 +114,9 @@
     <Compile Include="DaiPhucVinh\FUV_UserGuides.cs" />
     <Compile Include="DaiPhucVinh\FUV_Videos.cs" />
     <Compile Include="DaiPhucVinh\FUV_WorkLog.cs" />
+    <Compile Include="DaiPhucVinh\PayCompare.cs" />
+    <Compile Include="DaiPhucVinh\PayLib.cs" />
+    <Compile Include="DaiPhucVinh\Util.cs" />
     <Compile Include="DaiPhucVinh\WMS_AutoGenCodeConfig.cs" />
     <Compile Include="DaiPhucVinh\WMS_HopDong_ChiTiet.cs" />
     <Compile Include="DaiPhucVinh\WMS_InventoryItem.cs" />

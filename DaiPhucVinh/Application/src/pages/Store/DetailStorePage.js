@@ -11,11 +11,13 @@ import LeafletMap from "../components/LeafletMap";
 import Select from "react-select";
 import { TakeAllCuisine } from "../../api/categoryItem/categoryItemService";
 import { CreateNewStore, UpdateNewStore, TakeStoreById } from "../../api/store/storeService";
-import { handleSearchAddress } from "../../api/googleSearchApi/googleApiService";
+import {  searchAddress} from "../../api/googleSearchApi/googleApiService";
 
 export default function CreateProvince() {
   const [latitude, setLatitude] = React.useState("");
   const [longitude, setLongitude] = React.useState("");
+  const [storeaddress, setStoreaddress] = React.useState("");
+
   const [itemCuisine, setItemCuisine] = React.useState([]);
   const [locationStore, setLocationStore] = React.useState({lat:0, lng:0});
   const [defaultItemCategory, setDefaultItemCategory] = React.useState({
@@ -79,7 +81,6 @@ export default function CreateProvince() {
   }
 
   const history = useNavigate();
-  const { state } = useLocation();
   const { id } = useParams();
   const breadcrumbSources = [
     {
@@ -178,7 +179,6 @@ export default function CreateProvince() {
     }
   }
 
-
   async function onViewAppearing() {
     if (id != 0) {
       var response = await TakeStoreById(id);
@@ -223,22 +223,22 @@ export default function CreateProvince() {
   async function CallBackLatLng(lat) {
     setLatitude(lat.lat);
     setLongitude(lat.lng);
-    handleSearchAddress(lat.lat + "," + lat.lng).then(
-      (response) => {
-        if (response.data.status === "OK" && response.data.results.length > 0) {
-          console.log(response.data);
-          setRequest({
-            Address: response.data.results[0].formatted_address    
-          })
-          // Use the setselectedAddress function to update the state
+    searchAddress(lat.lat + "," + lat.lng).then(
+      (data) => {
+        if (data && data.status === "OK" && data.results.length > 0) {
+          setStoreaddress(data.results[0].formatted_address);
+        }else{
+          console.log("Đã xảy ra lỗi khi lấy vị trí!");
         }
       }
     );
+
   }
 
   async function onChangeRequest() {
     setRequest({
       ...request,
+      Address: storeaddress,
       Latitude: latitude,
       Longitude: longitude,
     });
@@ -252,7 +252,7 @@ export default function CreateProvince() {
   }, []);
   React.useEffect(() => {
     onChangeRequest();
-  }, [latitude]);
+  }, [latitude, longitude, storeaddress]);
   return (
     <>
       <Breadcrumb

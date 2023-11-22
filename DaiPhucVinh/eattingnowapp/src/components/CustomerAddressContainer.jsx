@@ -63,7 +63,7 @@ export default function CustomrerAddressContainer() {
         Defaut: newValue,
       });
     };
-  
+    
     const [requestAddress, setRequestAddress] = useState({
       Province: "",
       District: "",
@@ -493,6 +493,7 @@ export default function CustomrerAddressContainer() {
               });
               setRequestAddress(
                 {
+                  ...requestAddress,
                   Province: e.label
                 }
               )
@@ -515,6 +516,7 @@ export default function CustomrerAddressContainer() {
               });
               setRequestAddress(
                 {
+                  ...requestAddress,
                   District: e.label
                 }
               )
@@ -537,6 +539,7 @@ export default function CustomrerAddressContainer() {
               });
               setRequestAddress(
                 {
+                  ...requestAddress,
                   Ward: e.label
                 }
               )

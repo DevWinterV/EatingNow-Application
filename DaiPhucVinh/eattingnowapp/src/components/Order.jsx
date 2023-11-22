@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useStateValue } from "../context/StateProvider";
 import CartContainer from "./CartContainer";
 import { RadioGroup, TextInput } from "evergreen-ui";
@@ -17,24 +17,133 @@ import {
   CreateOrderCustomer,
   CheckCustomerAddress,
   CreateCustomerAddress,
-  TakeAllCustomerAddressById,
-  DeleteAddress
+  PaymentConfirm
 } from "../api/customer/customerService";
 import MyApp from "./DeliveryAddress";
 import { actionType } from "../context/reducer";
 import CustomrerAddressContainer from "./CustomerAddressContainer";
-import { TbCircleX} from "react-icons/tb";
-
+import { TbCircleX, TbInfoCircle} from "react-icons/tb";
+import { calculateDistanceAndTimeProxy } from "../api/googleApi/googleApiDirection";
+import { TakeStoreLocation } from "../api/store/storeService";
+import { BiLoader } from "react-icons/bi";
+import $ from 'jquery'; // Ensure you have jQuery installed
+window.jQuery = $;
+require('signalr'); // Ensure you have the SignalR library installed
+//Kết nối đến SignalR Ordernotication
+let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
+let proxy = connection.createHubProxy('OrderNotificationHub');
 let subtitle;
-let delivery = 15000;
+
 const Order = () => {
+  const locations = useLocation();
+  const searchParams = new URLSearchParams(locations.search);
+
+  const vnp_Amount = searchParams.get('vnp_Amount');
+  const vnp_BankCode = searchParams.get('vnp_BankCode');
+  const vnp_BankTranNo = searchParams.get('vnp_BankTranNo');
+  const vnp_CardType = searchParams.get('vnp_CardType');
+  const vnp_OrderInfo = searchParams.get('vnp_OrderInfo');
+  const vnp_PayDate = searchParams.get('vnp_PayDate');
+  const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+  const vnp_TmnCode = searchParams.get('vnp_TmnCode');
+  const vnp_TransactionNo = searchParams.get('vnp_TransactionNo');
+  const vnp_TransactionStatus = searchParams.get('vnp_TransactionStatus');
+  const vnp_TxnRef = searchParams.get('vnp_TxnRef');
+  const vnp_SecureHash = searchParams.get('vnp_SecureHash');
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+      // Kiểm tra nếu tất cả dữ liệu không phải là null, "", hoặc undefined
+      const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
+  
+      if (allDataExists) {
+
+
+        try {
+          let response = await PaymentConfirm({
+            vnp_Amount,
+            vnp_BankCode,
+            vnp_BankTranNo,
+            vnp_CardType,
+            vnp_OrderInfo,
+            vnp_PayDate,
+            vnp_ResponseCode,
+            vnp_TmnCode,
+            vnp_TransactionNo,
+            vnp_TransactionStatus,
+            vnp_TxnRef,
+            vnp_SecureHash
+          });
+          console.log('vnp_Amount:', vnp_Amount);
+          console.log('vnp_BankCode:', vnp_BankCode);
+          console.log('vnp_BankTranNo:', vnp_BankTranNo);
+          console.log('vnp_CardType:', vnp_CardType);
+          console.log('vnp_OrderInfo:', vnp_OrderInfo);
+          console.log('vnp_PayDate:', vnp_PayDate);
+          console.log('vnp_ResponseCode:', vnp_ResponseCode);
+          console.log('vnp_TmnCode:', vnp_TmnCode);
+          console.log('vnp_TransactionNo:', vnp_TransactionNo);
+          console.log('vnp_TransactionStatus:', vnp_TransactionStatus);
+          console.log('vnp_TxnRef:', vnp_TxnRef);
+          console.log('vnp_SecureHash:', vnp_SecureHash);
+          if (response.success) {
+            toast.success('Thanh toán và đặt món ăn thành công!', { autoClose: 3000 });
+            localStorage.setItem("cartItems", JSON.stringify(null));
+            dispatch({
+              type: actionType.SET_CARTITEMS,
+              cartItems: null,
+            });
+            sendOrderNotification(request.UserId);
+            // Đợi 2 giây trước khi chuyển về "/"
+            setTimeout(function () {
+              window.location.href = "/";
+            }, 2000);
+          } else {
+            toast.success(response.message, { autoClose: 3000 });
+          }
+        } catch (error) {
+          // Xử lý lỗi nếu có
+          console.error('Error during PaymentConfirm:', error);
+          // Hiển thị thông báo lỗi cho người dùng
+          toast.error('Có lỗi xảy ra trong quá trình xác nhận thanh toán!', { autoClose: 3000 });
+        }
+      } else {
+        // Hiển thị thông báo hoặc xử lý khác nếu dữ liệu không đầy đủ
+        toast.warning('Vui lòng nhập đầy đủ thông tin thanh toán!', { autoClose: 3000 });
+      }
+    };
+  
+    // Gọi hàm fetchData ngay lập tức
+    fetchData();
+  }, [
+    vnp_Amount,
+    vnp_BankCode,
+    vnp_BankTranNo,
+    vnp_CardType,
+    vnp_OrderInfo,
+    vnp_PayDate,
+    vnp_ResponseCode,
+    vnp_TmnCode,
+    vnp_TransactionNo,
+    vnp_TransactionStatus,
+    vnp_TxnRef,
+    vnp_SecureHash
+  ]);
+  
+
   const key = 'AIzaSyC-N1CyjegpbGvp_PO666Ie9sNQy9xW2Fo'
   const [location, setlocation] = useState({
     latitude: 0.0,
     longitude: 0.0,
     formatted_address: "",
   });
-
+  const [storelocation , setStorelocation] = useState({
+    lat: 0.0,
+    lng: 0.0
+  })
+  const [isloadingFeeShip, setisloadingFeeShip] = useState(false);
+  const [km, setKm] = useState(0);
   const customStyles = {
     content: {
       top: '50%',
@@ -48,14 +157,14 @@ const Order = () => {
       overflow: 'auto',
     },
   }; 
-
+  const [showinfoShip, setshowinfoShip] = useState(false);
   const [tot, setTot] = useState(0);
   const [flag, setFlag] = useState(1);
   const [{ cartItems,linked }] = useStateValue();
   const navigate = useNavigate();
   const [{ cartShow, customer }, dispatch] = useStateValue();
   const [checkCustomer, setCheckCustomer] = useState(0);
- 
+  
   const [request, setRequest] = useState({
     CustomerId: customer,
     Email: "",
@@ -73,14 +182,14 @@ const Order = () => {
     WardName:"",
     Latitude: 0.0,
     Longitude: 0.0,
-    Payment: "",
+    Payment: "PaymentOnDelivery",
     TotalAmt: 0,
     TransportFee: 0,
     IntoMoney: 0,
     UserId: 0,
     TokenWeb: "",
     TokenApp:"",
-    OrderLine: {},
+    OrderLine: cartItems,
     AddressId :0,
     Defaut : true,  
     RecipientName: "",
@@ -97,7 +206,6 @@ const Order = () => {
     subtitle.style.color = '#f00';
   }
   function closeModal() {
-
     setRequestAddress({
       Province: "",
       District : "",
@@ -110,6 +218,9 @@ const Order = () => {
     })
     setIsOpen(false);
     checkCustomerAddress()
+  }
+  function closeModalInShip() {
+    setshowinfoShip(false);
   }
   const [selectedAddress, setSelectedAddress] = useState({});
   const [CompleteAddress, setCompleteAddress] = useState(false);
@@ -131,6 +242,15 @@ const Order = () => {
     Ward: "",
   });
 
+  function calculateDeliveryCost(km) {
+    let delivery = 12000; // Initialize the variable
+    km = (km / 1000).toFixed(2) // Chia thành đơn vị Km
+    if (km > 2) {
+      delivery = (km * 10000) + 2000;
+    }
+    return delivery; // Return the calculated delivery cost
+  }
+
   async function onChangeCustomer() {
     // Kiểm tra xem khách hàng đã đăng ký tài khoản chưa
     let checkCustomer = await CheckCustomer(request);
@@ -138,9 +258,20 @@ const Order = () => {
       setCheckCustomer(checkCustomer.dataCount);
     }
   }
-
+  function roundToNearestHundred(amount) {
+    const roundedAmount = Math.round(amount / 100) * 100;
+    return roundedAmount;
+  }
   
   async function checkCustomerAddress() {
+    let destination ;
+    setisloadingFeeShip(true);
+    let checklocation = await TakeStoreLocation({
+      UserId: cartItems[0].UserId
+    });
+    if (checklocation.success) {
+      destination = [checklocation.data[0].Latitude, checklocation.data[0].Longitude];
+    }
     let checkCustomer = await CheckCustomerAddress(request);
     if (checkCustomer.success) {
       // Nếu đã có địa chỉ mặc định rồi thì sử dụng địa chỉ đó
@@ -158,33 +289,65 @@ const Order = () => {
         Longitude: checkCustomer.data[0].Longitude,
         AddressId: checkCustomer.data[0].AddressId,
       });
+      let origin = [checkCustomer.data[0].Latitude, checkCustomer.data[0].Longitude];
+        // Gọi hàm calculateDistanceAndTime
+      await calculateDistanceAndTimeProxy(origin, destination)
+          .then(result => {
+            if (result) {
+              const { distance } = result;
+              setKm(distance);
+              setisloadingFeeShip(false);
+            } else {
+              console.log('Không thể tính khoảng cách và thời gian.');
+            }
+          })
+          .catch(error => {
+            console.error('Lỗi khi gọi hàm calculateDistanceAndTime:', error);
+          });
     }
-    else{
 
-    }
+  }
+  function sendOrderNotification(UserId) {
+    proxy
+      .invoke('SendOrderNotificationToUser', 'Thông báo mới', UserId)
+      .done(() => {
+        console.log('Gửi thông báo thành công');
+      })
+      .fail((error) => {
+        console.error('Lỗi không gửi được thông báo:', error);
+      });
   }
   
   async function order() {
-    let response = await CreateOrderCustomer(request);
-    if (response.success) {
-      if (response.message == "") {
-        toast.success('Đặt món ăn thành công!', { autoClose: 3000 });
-        localStorage.setItem("cartItems", JSON.stringify(null));
-        dispatch({  
-          type: actionType.SET_CARTITEMS,
-          cartItems: null,
-        });
-        // Đợi 2 giây trước khi chuyển về "/"
-        setTimeout(function() {
-          window.location.href = "/";
-        }, 1000);
+    if(cartItems != null){
+      let response = await CreateOrderCustomer(request);
+      if (response.success) {
+        if (response.message == "") {
+          toast.success('Đặt món ăn thành công!', { autoClose: 3000 });
+          localStorage.setItem("cartItems", JSON.stringify(null));
+          dispatch({  
+            type: actionType.SET_CARTITEMS,
+            cartItems: null,
+          });
+          sendOrderNotification(request.UserId);
+          // Đợi 2 giây trước khi chuyển về "/"
+          setTimeout(function() {
+            window.location.href = "/";
+          }, 1000);
+        }
+        else{
+          window.location.href = response.message;
+        }
+      } else {
+        if(response.message =="No order")
+          toast.error('Vui lòng điền đầy đủ thông tin!', { autoClose: 3000 });
+        else
+          toast.warning('Vui lòng thêm sản phẩm vào giỏ hàng!', { autoClose: 3000 });
       }
-      else{
-        window.location.href = response.message;
-      }
-    } else {
-      toast.error('Vui lòng điền đầy đủ thông tin!', { autoClose: 3000 });
     }
+    else{
+    }
+   
   }
   // Hàm kiểm tra số điện thoại
   const isValidPhoneNumber = (phoneNumber) => {
@@ -192,6 +355,8 @@ const Order = () => {
     const phoneNumberPattern = /^(0|\+84)[0-9]{9}$/;
     return phoneNumberPattern.test(phoneNumber);
   };
+
+
 
   //Lưu địa điểm đầu tiên của người dùng 
   async function gotoOrder() {
@@ -243,51 +408,106 @@ const Order = () => {
     }
   }
 
-
-
-
   const [options] = React.useState([
     { label: "Thanh toán khi nhận hàng", value: "PaymentOnDelivery" },
     { label: "Thanh toán ví Momo", value: "MOMO" },
+    { label: "Thanh toán VNPay", value: "VNPay" },
+
   ]);
   const [value, setValue] = React.useState("PaymentOnDelivery");
+
   function changeValue(e){
     setValue(e.target.value);
-    setRequest({
-      ...request,
-      Payment: e.target.value
-    }
-    )
+    
   }
 
   useEffect(() => {
-    console.log("Tính tiền");
     let totalPrice = cartItems.reduce(function (accumulator, item) {
       return accumulator + item.qty * item.Price;
     }, 0);
     setTot(totalPrice);
+    console.log(km);
+    let transportFee =  roundToNearestHundred(calculateDeliveryCost(km));
+    let intoMoney =  roundToNearestHundred(calculateDeliveryCost(km)) + totalPrice;
     setRequest({
       ...request,
       CustomerId: customer,
       TotalAmt: totalPrice,
-      TransportFee: delivery,
-      IntoMoney: delivery + totalPrice,
+      TransportFee: transportFee,
+      IntoMoney :  intoMoney,
       UserId: cartItems[0].UserId,
       Payment: value,
       OrderLine: cartItems,
     });
     console.log(request);
-    checkCustomerAddress()
-  }, [tot, flag, customer, value]);
-
+  }, [tot, flag, customer, value, km]);
   useEffect(() =>{
     onChangeCustomer();
-  },[])
+    checkCustomerAddress();
+  },[]);
+
+  function calculateDeliveryFee(distance) {
+    if (distance <= 2) {
+      return "Phí giao hàng cơ bản là 12.000 nếu <= 2 Km";
+    } else {
+      return "Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km";
+    }
+  }
+  useEffect(() => {
+    // Attempt connection and handle connection and error events
+    connection.start()
+      .done(() => {
+        console.log('Kết nối thành công SignalR');
+        // Đăng ký người dùng khi kết nối thành công
+        if (customer !== null) {
+          proxy.invoke('SetCustomerId', customer)
+            .done(() => {
+              console.log('Đăng ký người dùng thành công');
+            })
+            .fail((error) => {
+              console.error('Lỗi đăng ký người dùng:', error);
+            });            
+        }
+      })
+      .fail((error) => {
+        console.error('Could not connect:', error);
+      });
+  
+    // Log the connection status
+    connection.stateChanged((change) => {
+      console.log('Connection state changed:', change.newState);
+    });
+  }, []);
+
 
 
   return (
     <section className="bg-min-h-screen flex items-center justify-center">
+          {/*Hiển thị thông báo */}
           <ToastContainer />
+          {/*Modal xem thông tin phí vận chuyển*/}
+          <Modal
+                isOpen={showinfoShip}
+                onAfterOpen={afterOpenModal}
+                onRequestClose={closeModalInShip}
+                style={customStyles}
+                contentLabel="Form"
+                shouldCloseOnOverlayClick={false} // Đặt giá trị này thành false để ngăn Modal đóng khi nhấn ở ngoài
+              >
+                  
+                  <p>- Khoảng cách từ cửa hàng đến vị trí nhận hàng của bạn: {(km / 1000).toFixed(2)} Km.</p>
+                  <p>- {calculateDeliveryFee((km / 1000).toFixed(2))}.</p>
+                  <button
+                    type="button"
+                    className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 mt-3"
+                    onClick={closeModalInShip}
+                    style={{
+                      left: '0 px', // Điều chỉnh khoảng cách từ phải sang
+                    }}
+                  >
+                  Đóng
+                  </button>
+              </Modal>
           {/*Modal cập nhật/thêm mới đia chỉ khách hàng*/}
           <Modal
                 isOpen={modalIsOpen}
@@ -313,6 +533,7 @@ const Order = () => {
                 <div style={{ position: 'relative' }}>
                 </div>
           </Modal>
+          {/* Nếu lần đầu đặt hàng */}
           <div className="bg-green-200 100vh flex rounded-2xl shadow-lg max-w-4xl p-5 gap-6 items-start text-center">
               {/*Điền thông tin nếu lần đầu mua hàng */}
               {CompleteAddress === false ? (
@@ -440,6 +661,7 @@ const Order = () => {
               ):
               (
                 <div>
+                  {/* Đã đặt hàng và lưu địa chỉ vào CSDL */}
               {CompleteAddress && ( 
           <div className="px-6">
             <div className="container">
@@ -497,27 +719,36 @@ const Order = () => {
                   <span className="text-base text-red-500"> vnđ</span>
                 </p>
               </div>
-
               <div className="w-full flex items-center justify-between">
-                <p className="text-gray-400 text-base font-semibold">
-                  Phí vận chuyển
-                </p>
-                <p className="text-textColor text-base font-semibold">
-                  {delivery.toLocaleString()}
-                  <span className="text-base text-red-500"> vnđ</span>
-                </p>
-              </div>
+                          <p className="text-gray-400 text-base font-semibold">
+                            Phí vận chuyển 
+                          </p>
+                          {
+                            !isloadingFeeShip ?(
+                              <TbInfoCircle onClick={()=>{setshowinfoShip(!showinfoShip)}}></TbInfoCircle>
+                            ):(
+                              null
+                            )
+                          }
+                          <p className="text-textColor text-base font-semibold">
+                            {roundToNearestHundred(calculateDeliveryCost(km)).toLocaleString()}
+                            <span className="text-base text-red-500"> vnđ</span>
+                          </p>
+                        </div>
+          
+                        <div className="w-full border-b border-gray-600 my-2"></div>
+        
+                        <div className="w-full flex items-center justify-between">
+                          <p className="text-textColor text-lg font-semibold">Thanh toán</p>
+                          <p className="text-textColor text-lg font-semibold">
+                              {(tot + roundToNearestHundred(calculateDeliveryCost(km))).toLocaleString()}
+                            <span className="text-base text-red-500"> vnđ</span>
+                          </p>
+                        </div>
 
-              <div className="w-full border-b border-gray-600 my-2"></div>
 
-              <div className="w-full flex items-center justify-between">
-                <p className="text-textColor text-lg font-semibold">Thanh toán</p>
-                <p className="text-textColor text-lg font-semibold">
-                  {(tot + delivery).toLocaleString()}
-                  <span className="text-base text-red-500"> vnđ</span>
-                </p>
-              </div>
-              {checkCustomer > 0 && (
+             
+              {checkCustomer > 0  && cartItems != null && (
                 <>
                   <RadioGroup
                     label="Phương thức thanh toán"
@@ -528,13 +759,20 @@ const Order = () => {
                       changeValue(event)
                     }
                   />
-                  <motion.button
-                    whileTap={{ scale: 0.75 }}
-                    className="bg-[#171a1f] rounded-xl text-white py-2 duration-300 w-64 p-2 mt-8"
-                    onClick={order}
-                  >
-                    Đặt hàng
-                  </motion.button>
+                  {
+                    !isloadingFeeShip ?(
+                      <motion.button
+                        whileTap={{ scale: 0.75 }}
+                        className="bg-[#171a1f] rounded-xl text-white py-2 duration-300 w-64 p-2 mt-8"
+                        onClick={order}
+                      >
+                        Đặt hàng
+                      </motion.button>    
+                    ):(
+                      <BiLoader></BiLoader>
+                    )
+                  }
+                  
                 </>
               )}
             </div>

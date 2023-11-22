@@ -15,6 +15,7 @@ const API = {
   GetListOrderLineDetails: "/GetListOrderLineDetails",
   TakeStatisticalByStoreId: "/TakeStatisticalByStoreId",
   ApproveOrder: "/ApproveOrder",
+  TakeStoreLocation: "/TakeStoreLocation",
 };
 
 const TakeAllStore = async (request) => {
@@ -23,6 +24,26 @@ const TakeAllStore = async (request) => {
     let response = await Proxy(
       "post",
       ServiceEndPoint + API.TakeAllStore,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const TakeStoreLocation = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeStoreLocation,
       request,
       true
     );
@@ -267,4 +288,5 @@ export {
   GetListOrderLineDetails,
   TakeStatisticalByStoreId,
   ApproveOrder,
+  TakeStoreLocation
 };

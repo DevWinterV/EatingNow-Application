@@ -136,6 +136,8 @@
     <Compile Include="CustomerDto\EN_CustomerRequest.cs" />
     <Compile Include="CustomerDto\EN_CustomerResponse.cs" />
     <Compile Include="CustomerDto\FoodListOrder.cs" />
+    <Compile Include="CustomerNotification\EN_CustomerNotificationRequest.cs" />
+    <Compile Include="CustomerNotification\EN_CustomerNotificationResponse.cs" />
     <Compile Include="DeliveryDriver\DeliveryDriverRequest.cs" />
     <Compile Include="DeliveryDriver\DeliveryDriverResponse.cs" />
     <Compile Include="FavoriteFoods\FavoriteFoodRequets.cs" />
@@ -148,6 +150,7 @@
     <Compile Include="AccountType\AccountTypeResponse.cs" />
     <Compile Include="OrderHeader\OrderLineReponse.cs" />
     <Compile Include="OrderHeader\OrderLineRequest.cs" />
+    <Compile Include="Payment\PaymentConfirm.cs" />
     <Compile Include="Province\ProvinceRequest.cs" />
     <Compile Include="Province\ProvinceResponse.cs" />
     <Compile Include="Store\FilterStoreByCusineRequest.cs" />

@@ -16,5 +16,6 @@ namespace DaiPhucVinh.Shared.Common
         public string EmployeeName { get; set; }
         public string FullName { get; set; }
         public int OrderType { get; set; }  
+        public bool DefautLineNoifi { get; set; }
     }
 }

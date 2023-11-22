@@ -15,8 +15,12 @@ import {
 } from "../../api/store/storeService";
 import Swal from "sweetalert2";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
-import { realtime_database} from "../../firebase.config";
-
+import $ from 'jquery'; // Ensure you have jQuery installed
+window.jQuery = $;
+require('signalr'); // Ensure you have the SignalR library installed
+//Kết nối đến SignalR Ordernotication
+let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
+let proxy = connection.createHubProxy('OrderNotificationHub');
 
 const Order = () => {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -179,6 +183,67 @@ const Order = () => {
     GetOrderLineDetails();
   }, [orderHeaderId]);
 
+  function sendOrderNotification(item) {
+    proxy
+      .invoke('SendOrderNotificationToUser', 'Thông báo mới', item.CustomerId)
+      .done(() => {
+        console.log('Gửi thông báo thành công');
+      })
+      .fail((error) => {
+        console.error('Lỗi không gửi được thông báo:', error);
+      });
+  }
+  
+  useEffect(() => {
+    // Set up a client method to receive order notifications
+    proxy.on('ReceiveOrderNotification', (orderMessage) => {
+      onViewAppearing();
+    });
+    // Set up a client method to receive user-specific order notifications
+    proxy.on('ReceiveOrderNotificationOfUser', (orderMessage) => {
+      onViewAppearing();
+      Swal.fire({
+        title: "Đơn hàng mới",
+        text: "Bạn có đơn hàng mới",
+        minutes: 5,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Xem",
+      }).then((result) => {
+        if (result.isConfirmed) { 
+          onViewAppearing();
+        }
+      });
+    });
+  
+    // Attempt connection and handle connection and error events
+    connection.start()
+      .done(() => {
+        console.log('Kết nối thành công SignalR');
+        // Đăng ký người dùng khi kết nối thành công
+        if (user !== null) {
+          proxy.invoke('SetCustomerId', user.UserId)
+            .done(() => {
+              console.log('Đăng ký người dùng thành công');
+            })
+            .fail((error) => {
+              console.error('Lỗi đăng ký người dùng:', error);
+            });            
+        }
+      })
+      .fail((error) => {
+        console.error('Could not connect:', error);
+      });
+  
+    // Log the connection status
+    connection.stateChanged((change) => {
+      console.log('Connection state changed:', change.newState);
+    });
+  }, []);
+
+  
   
   return (
     <div className="bg-orange-50 h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
@@ -311,7 +376,10 @@ const Order = () => {
                               Số lượng
                             </Th>
                             <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                              Giá bán
+                              Giá 
+                            </Th>
+                            <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                              Ghi chú của khách
                             </Th>
                             <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                               Tổng tiền
@@ -355,6 +423,9 @@ const Order = () => {
                                 </Td>
                                 <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                                   {formatMoney(item.Price)}
+                                </Td>
+                                <Td className="capitalize p-3 text-sm font-bold text-red-600 whitespace-nowrap text-center">
+                                  {item.Description}
                                 </Td>
                                 <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                                   {formatMoney(item.TotalPrice)}
@@ -460,9 +531,9 @@ const Order = () => {
                               setOrderHeaderId(item.OrderHeaderId);
                               GetOrderLineDetails();
                               setCustomerDetail({
-                                customerName: item.CustomerName,
-                                customerAddress: item.Address,
-                                customerPhone: item.Phone
+                                customerName: item.CustomerName +"("+item.RecipientName+")",
+                                customerAddress: item.FormatAddress,
+                                customerPhone: item.RecipientPhone
                               })
                             }}
                           >
@@ -486,16 +557,19 @@ const Order = () => {
                                 if (result.isConfirmed) { 
                                   ApproveOrder(item).then((response) => {
                                     if (response.success) {
+                                      sendOrderNotification(item);
                                       setNotification({ ...notification, 
                                         to: item.TokenWeb,
                                         data: { ...notification.data,            
                                                 body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
-                                            }, 
+                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                              }, 
                                             notification: { ...notification.notification,            
                                               body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
                                           } 
                                           
-                                          });
+                                      });
                                     }
                                   })
                                 }
@@ -523,14 +597,17 @@ const Order = () => {
                                   console.log(item.TokenWeb);
                                   ApproveOrder(item).then((response) => {
                                     if (response.success) {
+                                      sendOrderNotification(item);
                                       setNotificationCancle({ ...notification, 
                                         to: item.TokenWeb,
                                         data: { ...notification.data,            
                                                 body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
-                                            }, 
+                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                              }, 
                                             notification: { ...notification.notification,            
                                               body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
-                                          } 
+                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                            } 
                                           });
                                     }
                                   })

@@ -10,6 +10,7 @@ import {
   Account,
   ProfileForm
 } from "../components";
+import PaymentConfirm from "../components/PaymentConfirm";
 
 const RouterHome = () => {
   return (
@@ -24,7 +25,12 @@ const RouterHome = () => {
           <Route path="/categorypage/:id" element={<CategoryPage />} />
           <Route path="/orderdetail" element={<Order />} />
           <Route path="/account" element={< ProfileForm/>} />
+          <Route path="/order/:id" element={< ProfileForm/>} />
+          <Route
+          path="/paymentconfirm"
+          element={<PaymentConfirm/>} />
         </Routes>
+        
       </main>
     </div>
   );

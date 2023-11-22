@@ -6,7 +6,6 @@ import "leaflet-control-geocoder/dist/Control.Geocoder.js";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { BsClock } from "react-icons/bs";
-import axios from 'axios';
 import { RxDotFilled } from "react-icons/rx";
 import { useStateValue } from "../context/StateProvider";
 
@@ -57,8 +56,8 @@ function LeafletMap({ locations }) {
     fetchCurrentLocation();
   }, []);
 
-
 // sử dụng API của OSRM
+/*
 async function calculateTimeAndDistance(startPoint, endPoint) {
   const OSRM_SERVER_URL = 'http://router.project-osrm.org/';
   try {
@@ -106,7 +105,7 @@ useEffect(() => {
   };
   fetchTimeAndDistanceForLocations();
 }, [locations, currentLocation, request]);
-
+*/
   return (
     <div>
       <MapContainer
@@ -123,7 +122,7 @@ useEffect(() => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
        
-        {data.map((location) => (
+        {locations.map((location) => (
           
           <Marker
             position={[location.Latitude, location.Longitude]}
