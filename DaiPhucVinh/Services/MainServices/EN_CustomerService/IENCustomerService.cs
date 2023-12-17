@@ -310,6 +310,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 }
                 string url = "";
                 string OrderHeaderId = "EattingNowOrder_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                //Thanh toán khi nhận
                 if (request.Payment == "PaymentOnDelivery")
                 {
 
@@ -328,7 +329,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         NameAddress = request.Name_Address,
                         RecipientName = request.RecipientName,
                         RecipientPhone = request.RecipientPhone,
-                        Status = false
+                        Status = false,
+                        PaymentStatusID =   7
                     };
                     _datacontext.EN_OrderHeader.Add(createOrderHeader);
 
@@ -349,8 +351,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
 
                 }
+                //Thanh toán với VNPAY
                 else if(request.Payment == "VNPay"){
-                    /*
                     var createOrderHeader = new EN_OrderHeader()
                     {
                         OrderHeaderId = OrderHeaderId,
@@ -366,7 +368,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         NameAddress = request.Name_Address,
                         RecipientName = request.RecipientName,
                         RecipientPhone = request.RecipientPhone,
-                        Status = false
+                        Status = false,
+                        PaymentStatusID = 5,
                     };
                     _datacontext.EN_OrderHeader.Add(createOrderHeader);
 
@@ -385,7 +388,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         };
                         _datacontext.EN_OrderLine.Add(createOrderLine);
                     }
-                    */
+                    await _datacontext.SaveChangesAsync();
                     string urlvnp = ConfigurationManager.AppSettings["Url"];
                     string returnUrl = ConfigurationManager.AppSettings["ReturnUrl"];
                     string tmnCode = ConfigurationManager.AppSettings["TmnCode"];
@@ -405,11 +408,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang "+ OrderHeaderId); //Thông tin mô tả nội dung thanh toán
                     pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
                     pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
-                    pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
+                    pay.AddRequestData("vnp_TxnRef", OrderHeaderId); //mã hóa đơn
 
                     string paymentUrl = pay.CreateRequestUrl(urlvnp, hashSecret);
                     result.Message = paymentUrl != "/*" ? paymentUrl : "/*";
                     result.Success = true;
+                    return result;
 
                 }
                 else
@@ -429,8 +433,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         NameAddress = request.Name_Address,
                         RecipientName = request.RecipientName,
                         RecipientPhone = request.RecipientPhone,
-                        Status = false
-                    };
+                        Status = false,
+                        PaymentStatusID = 5                    };
                     _datacontext.EN_OrderHeader.Add(createOrderHeader);
 
                     foreach (var item in request.OrderLine.ToList())
@@ -503,7 +507,6 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Success = true;
                 }
                 await _datacontext.SaveChangesAsync();
-                result.Message = url != "/*" ? url : "/*";
                 result.Success = true;
             }
             catch (Exception ex)
@@ -1245,12 +1248,22 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     {
                         if (vnp_ResponseCode == "00")
                         {
+                            var order = await _datacontext.EN_OrderHeader.FirstOrDefaultAsync(x => x.OrderHeaderId.Equals(orderId));
+                            order.PaymentStatusID = 2;
+                            await _datacontext.SaveChangesAsync();
                             //Thanh toán thành công
                             result.Message = "Thanh toán thành công hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId;
                             result.Success = true;
                         }
                         else
                         {
+                            var order = await _datacontext.EN_OrderHeader.FirstOrDefaultAsync(x => x.OrderHeaderId.Equals(orderId));
+                            var listorderline = await _datacontext.EN_OrderLine.Where(x => x.OrderHeaderId.Equals(orderId)).ToListAsync();
+                            _datacontext.EN_OrderLine.RemoveRange(listorderline);
+                            await _datacontext.SaveChangesAsync();
+                            _datacontext.EN_OrderHeader.Remove(order);
+                            await _datacontext.SaveChangesAsync();
+
                             //Thanh toán không thành công. Mã lỗi: vnp_ResponseCode
                             result.Message = "Có lỗi xảy ra trong quá trình xử lý hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId + " | Mã lỗi: " + vnp_ResponseCode;
                             result.Success = false;

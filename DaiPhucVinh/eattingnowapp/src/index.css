@@ -254,6 +254,7 @@ body {
   .order-info {
     font-size: 16px;
     margin: 5px 0;
+    color: red;
   }
   
   .address-title {
@@ -276,15 +277,26 @@ body {
 
 .order-info {
   font-size: 18px;
-  color:#333;
+  color:;
   font-weight: bold;
   margin: 10px 0;
   white-space: nowrap;
   max-lines: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-}
 
+}
+.paymentstatus-info {
+  font-size: 18px;
+  color: red;
+  font-weight: bold;
+  margin: 10px 0;
+  white-space: nowrap;
+  max-lines: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
 /* Styles for mobile (max-width: 600px) */
 @media screen and (max-width: 600px) {
   .order-details {
@@ -295,6 +307,7 @@ body {
   .order-info {
     font-size: 16px;
     margin: 5px 0;
+    color: red;
   }
 }
 .table-container {

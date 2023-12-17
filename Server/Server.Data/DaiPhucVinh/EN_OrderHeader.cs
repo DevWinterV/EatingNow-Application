@@ -30,8 +30,9 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public string NameAddress { get; set; }
         public string RecipientName { get; set; }
         public string RecipientPhone { get; set; }
-
-
-
+        public int PaymentStatusID { get; set; }
+        [ForeignKey("PaymentStatusID")]
+        public virtual EN_PaymentStatus EN_PaymentStatus { get; set; }
+        public string PromotionCode { get; set; }
     }
 }

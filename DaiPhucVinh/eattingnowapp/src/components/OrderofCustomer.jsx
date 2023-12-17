@@ -27,7 +27,8 @@ export default function OrderofCustomer({id, onDelete}) {
     Ship: 0,
     OrderMoney: 0,
     StoreName: "",
-    Status: false
+    Status: false,
+    PaymentStatusID : 0
   });
   const customStyles = {
     content: {
@@ -96,6 +97,7 @@ export default function OrderofCustomer({id, onDelete}) {
 
   useEffect(() =>{
     getOrder();
+    console.log(data);
   },[request])
   useEffect(()=>{
     if (Id != null && Id !== 'all') {
@@ -110,7 +112,8 @@ export default function OrderofCustomer({id, onDelete}) {
           Ship: formatMoney(i.TransportFee),
           OrderMoney: formatMoney(i.TotalAmt),
           StoreName: i.StoreName,
-          Status: i.Status
+          Status: i.Status,
+          PaymentStatusID: i.PaymentStatusID
         });
         setAddress({
           RecipientName: i.RecipientName,
@@ -205,6 +208,13 @@ export default function OrderofCustomer({id, onDelete}) {
                             <h1 className="order-info">Mã đơn hàng: {Orderheader.Id}</h1>
                             <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
                             <h1 className="order-info">{Orderheader.StoreName}</h1>
+                            {
+                              Orderheader.PaymentStatusID ==2 ?(          
+                              <h1 className="order-info">Đã thanh toán</h1>
+                              ):(
+                                <h1 className="order-info">Thanh toán khi nhận hàng</h1>
+                              )
+                            }
                             <div className="address-container">
                               <h1 className="address-title">Địa chỉ nhận hàng:</h1>
                               <div className="recipient-info">
@@ -455,6 +465,16 @@ function All() {
                     <h6 className="text-base text-gray-700 font-normal">
                       Tổng tiền: {formatMoney(i.IntoMoney)}
                     </h6>
+                        {i.PaymentStatusID == 2 ?(
+                        <h6 className="text-base text-red-500 font-normal">
+                              Đã thanh toán
+                        </h6>
+                        ):(
+                          <h6 className="text-base text-gray-700 font-normal">
+                               Thanh toán khi nhận hàng
+                          </h6>
+                        )}
+                
                         <div className="row">
                         <button
                         onClick={() => {
@@ -466,7 +486,8 @@ function All() {
                               Ship: formatMoney(i.TransportFee),
                               OrderMoney: formatMoney(i.TotalAmt),
                               StoreName: i.StoreName,
-                              Status: i.Status
+                              Status: i.Status,       
+                              PaymentStatusID: i.PaymentStatusID
                             });
                             setAddress({
                               RecipientName: i.RecipientName,

@@ -76,6 +76,9 @@ namespace DaiPhucVinh.Services.Database
         public DbSet<EN_FoodList> EN_FoodList { get; set; }
         public DbSet<EN_Account> EN_Account { get; set; }
         public DbSet<EN_OrderHeader> EN_OrderHeader { get; set; }
+        public DbSet<EN_PaymentStatus> EN_PaymentStatus { get; set; }
+        public DbSet<EN_Promotion> EN_Promotion { get; set; }
+
         public DbSet<EN_Customer> EN_Customer { get; set; }
         public DbSet<EN_OrderLine> EN_OrderLine { get; set; }
         public DbSet<EN_DeliveryDiver> EN_DeliveryDriver { get; set; }

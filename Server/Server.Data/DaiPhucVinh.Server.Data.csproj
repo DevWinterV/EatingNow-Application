@@ -85,6 +85,8 @@
     <Compile Include="DaiPhucVinh\EN_Customer.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderHeader.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderLine.cs" />
+    <Compile Include="DaiPhucVinh\EN_PaymentStatus.cs" />
+    <Compile Include="DaiPhucVinh\EN_Promotion.cs" />
     <Compile Include="DaiPhucVinh\EN_Store.cs" />
     <Compile Include="DaiPhucVinh\EN_Cuisine.cs" />
     <Compile Include="DaiPhucVinh\EN_AccountType.cs" />

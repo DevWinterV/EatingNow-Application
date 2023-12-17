@@ -417,8 +417,8 @@ const Order = () => {
   const [value, setValue] = React.useState("PaymentOnDelivery");
 
   function changeValue(e){
+    console.log(e.target.value);
     setValue(e.target.value);
-    
   }
 
   useEffect(() => {
