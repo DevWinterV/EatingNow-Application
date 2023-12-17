@@ -11,6 +11,7 @@ using DaiPhucVinh.Shared.OrderLineResponse;
 using DaiPhucVinh.Shared.Province;
 using DaiPhucVinh.Shared.Store;
 using DaiPhucVinh.Shared.User;
+using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Web;
@@ -157,7 +158,10 @@ namespace PCheck.WebUI.Api
         [Route("TakeStoreLocation")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreLocation([FromBody] StoreRequest request) => await _storeService.TakeStoreLocation(request);
 
-        
+        [HttpGet]
+        [Route("TakeLitsFoodSold")]
+        public async Task<BaseResponse<ListOfProductSold>> TakeLitsFoodSold(int UserId) => await _storeService.TakeLitsFoodSold(UserId);
+
 
     }
 }

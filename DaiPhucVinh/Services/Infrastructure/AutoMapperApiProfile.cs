@@ -402,7 +402,6 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.DistrictName, o => o.MapFrom(s => s.District.Name))
                 .ForMember(d => d.WardName, o => o.MapFrom(s => s.Ward.Name));
             CreateMap<EN_CustomerNotifications, EN_CustomerNotificationResponse>();
-
         }
         #region private methods
         private byte[] FindImgFromId(WMS_InventoryItem item)

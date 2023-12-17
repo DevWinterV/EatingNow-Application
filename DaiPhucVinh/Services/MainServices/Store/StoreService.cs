@@ -73,6 +73,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<DeliveryDriverResponse>> TakeDriverById(int Id);
         Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request);
         Task<BaseResponse<StoreResponse>> TakeStoreLocation(StoreRequest request);
+        Task<BaseResponse<ListOfProductSold>> TakeLitsFoodSold(int UserId);
+
     }
     public class StoreService : IStoreService
     {
@@ -1228,7 +1230,46 @@ namespace DaiPhucVinh.Services.MainServices.Province
             return result;
         }
 
+        public async Task<BaseResponse<ListOfProductSold>> TakeLitsFoodSold(int UserId)
+        {
+            var result = new BaseResponse<ListOfProductSold>();
+            try
+            {
+                var store =await  _datacontext.EN_Store.Where(x => x.UserId.Equals(UserId)).FirstOrDefaultAsync();
+                if(store != null)
+                {
+                    var data = new List<ListOfProductSold>();
+                    var query = from od in _datacontext.EN_OrderHeader
+                                join odl in _datacontext.EN_OrderLine on od.OrderHeaderId equals odl.OrderHeaderId
+                                join ctm in _datacontext.EN_Customer on od.CustomerId equals ctm.CustomerId
+                                join fl in _datacontext.EN_FoodList on odl.FoodListId equals fl.FoodListId
+                                where od.UserId == UserId
+                                group fl by new { fl.FoodName, fl.FoodListId } into g
+                                select new ListOfProductSold
+                                {
+                                    FoodListId = g.Key.FoodListId,
+                                    FoodName = g.Key.FoodName,
+                                    FoodCount = g.Count()
+                                };
 
+                    var resultquery = await query.ToListAsync(); 
+                    result.Message = "Lấy dữ liệu sản phẩm đã bán thành công";
+                    result.Success = true;
+                    result.Data = resultquery;
+                    result.DataCount = resultquery.Count;
+                }
+                else
+                {
+                    result.Message = "Cửa hàng không có trên hệ thống";
+                    result.Success = false;
+                }
 
+            }catch(Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
     }
 }

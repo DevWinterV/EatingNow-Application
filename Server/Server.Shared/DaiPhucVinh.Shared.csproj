@@ -154,6 +154,7 @@
     <Compile Include="Province\ProvinceRequest.cs" />
     <Compile Include="Province\ProvinceResponse.cs" />
     <Compile Include="Store\FilterStoreByCusineRequest.cs" />
+    <Compile Include="Store\ListOfProductSold.cs" />
     <Compile Include="Store\StatisticalChart.cs" />
     <Compile Include="Store\StatisticalRequest.cs" />
     <Compile Include="Store\StatisticalResponse.cs" />

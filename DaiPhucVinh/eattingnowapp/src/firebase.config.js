@@ -6,7 +6,6 @@ import { getDatabase } from "firebase/database";
 import { getAuth,  GoogleAuthProvider } from "firebase/auth";
 import { getMessaging, getToken ,onMessage} from "firebase/messaging";
 import  Notification from "react-push-notification";
-import { TbRulerMeasure } from "react-icons/tb";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -16,6 +15,7 @@ import { TbRulerMeasure } from "react-icons/tb";
 const firebaseConfig = {
   apiKey: "AIzaSyBerAmPafM3WcAH_lTtM3af7u5xDWSjvEI",
   authDomain: "eating-now.firebaseapp.com",
+  databaseURL: "https://eating-now-default-rtdb.firebaseio.com",
   projectId: "eating-now",
   storageBucket: "eating-now.appspot.com",
   messagingSenderId: "334588390943",
@@ -26,6 +26,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
 const firestore = getFirestore(app);
 // Initialize Firebase Cloud Messaging and get a reference to the service
 export const auth = getAuth(app);

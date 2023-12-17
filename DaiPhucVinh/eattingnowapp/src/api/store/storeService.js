@@ -16,6 +16,7 @@ const API = {
   TakeStatisticalByStoreId: "/TakeStatisticalByStoreId",
   ApproveOrder: "/ApproveOrder",
   TakeStoreLocation: "/TakeStoreLocation",
+  TakeLitsFoodSold: "/TakeLitsFoodSold"
 };
 
 const TakeAllStore = async (request) => {
@@ -160,6 +161,25 @@ const TakeCategoryByStoreId = async (Id) => {
   }
   return result;
 };
+
+const TakeLitsFoodSold = async (UserId) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.TakeLitsFoodSold,
+      { params: { UserId: UserId } },
+      true
+    );
+    result.success = response.Success;
+    result.message = response.Message;
+    result.dataCount = response.DataCount;
+    result.data = response.Data;
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 const TakeFoodListByStoreId = async (Id) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -288,5 +308,6 @@ export {
   GetListOrderLineDetails,
   TakeStatisticalByStoreId,
   ApproveOrder,
-  TakeStoreLocation
+  TakeStoreLocation, 
+  TakeLitsFoodSold
 };

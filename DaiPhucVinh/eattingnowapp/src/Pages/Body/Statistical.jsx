@@ -6,15 +6,45 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
-  Tooltip,
   Legend,
 } from "chart.js";
+import { ResponsiveContainer, Tooltip, PieChart, Pie, LineChart, Line, XAxis, YAxis} from "recharts";
+
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useStateValue } from "../../context/StateProvider";
-import { TakeStatisticalByStoreId } from "../../api/store/storeService";
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
-
+import { TakeStatisticalByStoreId, TakeLitsFoodSold } from "../../api/store/storeService";
+import { useState } from "react";
+import { sampleSize } from "lodash";
+ChartJS.register(CategoryScale, LinearScale, BarElement,  Legend);
 const Statistical = () => {
+  const data1 = {
+    labels: ["Go", "Python", "Kotlin", "JavaScript", "R", "Swift"],
+    datasets: [
+      {
+        label: "# of Votes",
+        data: [35, 25, 22, 20, 18, 15],
+        backgroundColor: [
+          "#007D9C",
+          "#244D70",
+          "#D123B3",
+          "#F7E018",
+          "#fff",
+          "#FE452A",
+        ],
+        borderColor: [
+          "rgba(255,99,132,1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+  const [datachart, setDatachart ]= useState([]);
+  const [ListFoodSold, setListFoodSold]= useState([]);
   const [thongKeThang, setThongKeThang] = React.useState({
     labels: [],
     datasets: [
@@ -50,6 +80,7 @@ const Statistical = () => {
     revenueYear: 0,
     listChart: {}
   });
+
   const [{ user }] = useStateValue();
   async function onViewAppearing() {
     if (user) {
@@ -66,20 +97,37 @@ const Statistical = () => {
         labels: chartLabelsMonth,
         datasets: [
           {
-            label: "Tổng số lượng được tạo trong ngày ",
+            label: "Tổng số lượng được tạo trong ngày",
             data: dataChartSoLuongKhachHangTheoNgay,
             backgroundColor: ['#29e916'],
           },
         ],
       });
       setData(response.item);
+      let responseListSold = await TakeLitsFoodSold(user?.UserId)
+      if(responseListSold.success){
+        setListFoodSold(responseListSold.data);
+         // Sử dụng map để tạo datachart từ responseListSold.data
+         setDatachart( responseListSold.data.map(item => ({
+          name: item.FoodName,
+          count: item.FoodCount
+        })));
+      }
+      else{
+        console.log(responseListSold.message);
+      }
     }
   }
+
   useEffect(() => {
     onViewAppearing();
+    
   }, []);
   console.log("data", data)
+  console.log("Các sản  phẩm đã bán được: ",ListFoodSold)
+  console.log(datachart);
   return (
+  
     <div className="bg-bodyBg h-[100%] basis-80 p-8 overflow-x-scroll scrollbar-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center border-b-2 pb-2 basis-1/2 gap-2">
@@ -127,30 +175,50 @@ const Statistical = () => {
         </div>
       </div>
       <div className="w-full">
-        <Bar
-          height="auto"
-          data={thongKeThang}
-          options={{
-            indexAxis: "x",
-            plugins: {
-              title: {
-                display: true,
-                text: "Doanh thu theo tháng",
-                font: {
-                  size: 15,
+        <React.Fragment>
+          <ResponsiveContainer width="100%" aspect={2} >
+            <Bar
+              height="auto"
+              data={thongKeThang}
+              options={{
+                indexAxis: "x",
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Doanh thu theo tháng",
+                    font: {
+                      size: 15,
+                    },
+                  },
+                  legend: {
+                    display: true,
+                    position: "bottom",
+                    labels: {
+                      usePointStyle: true, //for style circle
+                    },
+                  },
                 },
-              },
-              legend: {
-                display: true,
-                position: "bottom",
-                labels: {
-                  usePointStyle: true, //for style circle
-                },
-              },
-            },
-          }}
-        />
+              }}
+            />
+          </ResponsiveContainer>
+        </React.Fragment>   
       </div>
+      {
+        datachart !=  null ?
+        <React.Fragment>
+  
+          <h2 style={{color:"blue"}}>Sản phẩm bán chạy của cửa hàng</h2>
+            <ResponsiveContainer width="100%" aspect={2} >
+              <PieChart>
+                <Tooltip/>
+                <Pie  data= {datachart} dataKey="count"  cx="30%" cy="30%" outerRadius={80} fill="green" label/>
+              </PieChart>
+ 
+          </ResponsiveContainer>
+        </React.Fragment>   
+        : null
+      }
+    
     </div>
   );
 };
