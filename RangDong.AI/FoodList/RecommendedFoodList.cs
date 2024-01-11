@@ -167,6 +167,7 @@ namespace AI.FoodList
             var predictions = model.Transform(splitData.TestSet);
             var metrics = context.Recommendation().Evaluate(predictions, labelColumnName: nameof(InputData.Rating));
         }
+
         // Xây dựng mô hình. Thuật toán Matrix Factorization. Khoảng đánh giá món ăn từ 1 đến 5 sao
         public static void CreateModel()
         {

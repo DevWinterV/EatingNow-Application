@@ -56,7 +56,7 @@ class _OrderPage extends State<OrderPage> {
       if (await canLaunch(url.toString())) {
         await launch(url.toString());
       } else {
-        throw Exception('Could not launch $url');
+        throw Exception('Không thể di chuyển tới trang $url');
       }
     } catch (e) {
       print('Error launching URL: $e');
@@ -68,12 +68,13 @@ class _OrderPage extends State<OrderPage> {
       addressdelivery = prefs.getString('address') ?? '';
       nameAddressdelivery =prefs.getString('name') ?? '';
     });
+    print(addressdelivery);
+    print(nameAddressdelivery);
   }
 // Method to reload content
   void reloadContent() {
     _loadCartItems();
     setState(() {
-      // Reload your content, update variables, etc.
       result = false; // Reset result to false if needed
     });
   }
@@ -121,6 +122,7 @@ class _OrderPage extends State<OrderPage> {
                  ],
                ),
                Row(
+
                  children: [
                    Icon(
                      Icons.location_on,
@@ -146,14 +148,13 @@ class _OrderPage extends State<OrderPage> {
                        ],
                      ),
                    )
-
                  ],
                )
 
              ],
            ),
             Text(
-              'Sản phẩm trong đơn hàng:',
+              'Món ăn trong đơn hàng:',
               style: TextStyle(fontSize: Dimensions.font16,
                 fontWeight: FontWeight.bold,
                  ),
@@ -161,8 +162,8 @@ class _OrderPage extends State<OrderPage> {
             ),
             SizedBox(height:10),
             for (var item in cartItem)
-
               Card(
+                color: Colors.white,
                 margin: EdgeInsets.only(bottom: 16),
                 child: ListTile(
                   leading: Image.network(
@@ -206,6 +207,7 @@ class _OrderPage extends State<OrderPage> {
                 ),
               ),
             Card(
+              color: Colors.white,
               margin: EdgeInsets.only(bottom: 16),
               child: ListTile(
                 title: Text(
@@ -214,62 +216,75 @@ class _OrderPage extends State<OrderPage> {
                 ),
               ),
             ),
-            ElevatedButton(
+            Center(
+                child:
+                 ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                // Customize the background color
+                primary: AppColors.mainColor,
+                // Customize the text color
+                onPrimary: Colors.white,
+                // Add other customizations as needed
+                padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
               onPressed: () async {
-              try {
-              orderRequest.completeName = "Đông Châu";
-              orderRequest.formatAddress = "Đại học An Giang";
-              orderRequest.nameAddress = "Đại học An Giang";
-              orderRequest.orderLine = cartItem;
-              orderRequest.customerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2";
-              orderRequest.intoMoney = totalAmount.toInt();
-              orderRequest.transportFee = 15000;
-              orderRequest.totalAmt = totalAmount.toInt() - 15000;
-              orderRequest.userId = 14;
-              orderRequest.latitude = 10.3716555;
-              orderRequest.longitude = 105.432343;
-              orderRequest.recipientName = "Đông";
-              orderRequest.recipientPhone = "0766837068";
-              orderRequest.payment = null;
-              orderRequest.userId = 14;
-              orderRequest.payment ="PaymentOnDelivery";
+                try {
+                  orderRequest.completeName = "Đông Châu";
+                  orderRequest.formatAddress = addressdelivery;
+                  orderRequest.nameAddress = nameAddressdelivery;
+                  orderRequest.orderLine = cartItem;
+                  orderRequest.customerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2";
+                  orderRequest.intoMoney = totalAmount.toInt();
+                  orderRequest.transportFee = 15000;
+                  orderRequest.totalAmt = totalAmount.toInt() - 15000;
+                  orderRequest.userId = 14;
+                  orderRequest.latitude = 10.3716555;
+                  orderRequest.longitude = 105.432343;
+                  orderRequest.recipientName = "Đông Châu";
+                  orderRequest.recipientPhone = "0766837068";
+                  orderRequest.payment = null;
+                  orderRequest.userId = 14;
+                  orderRequest.payment ="PaymentOnDelivery";
 
-              final responseBody = await orderservice.postOrder(orderRequest);
-              print(responseBody.data);
-              print(responseBody.success);
-              print(responseBody.Message);
+                  final responseBody = await orderservice.postOrder(orderRequest);
+                  print(responseBody.data);
+                  print(responseBody.success);
+                  print(responseBody.Message);
 
-              // Xử lý kết quả trả về từ API
-              if (responseBody.success == true) {
-              // Thực hiện các hành động thành công
-                print('Order posted successfully');
-                if(responseBody.Message != ""){
-                  _launchInWebView(Uri.parse(responseBody.Message?? ""));
+                  // Xử lý kết quả trả về từ API
+                  if (responseBody.success == true) {
+                    if(responseBody.Message != ""){
+                      _launchInWebView(Uri.parse(responseBody.Message?? ""));
+                    }
+                    else {
+                      await CartStorage.ClearCart();
+                      Fluttertoast.showToast(msg: "Đặt món ăn thành công",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM_LEFT,
+                          backgroundColor: AppColors.toastSuccess,
+                          textColor: Colors.black54,
+                          timeInSecForIosWeb: 1,
+                          fontSize: 10);
+                      Navigator.pushReplacement(
+                          context,
+                          Navigator.pushNamed(context, "/") as Route<Object?>
+                      );
+                    }
+                  } else {
+                    // Xử lý lỗi từ máy chủ
+                    print('Failed to post order. ${responseBody.Message}');
+                  }
+                } catch (e) {
+                  // Xử lý lỗi kết nối hoặc lỗi khác
+                  print('Error posting order: $e');
                 }
-                else {
-                  Fluttertoast.showToast(msg: "Đặt món ăn thành công",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.BOTTOM_LEFT,
-                      backgroundColor: AppColors.toastSuccess,
-                      textColor: Colors.black54,
-                      timeInSecForIosWeb: 1,
-                      fontSize: 10);
-                  Navigator.pushReplacement(
-                      context,
-                      Navigator.pushNamed(context, "/") as Route<Object?>
-                  );
-                }
-              } else {
-              // Xử lý lỗi từ máy chủ
-              print('Failed to post order. ${responseBody.Message}');
-              }
-              } catch (e) {
-              // Xử lý lỗi kết nối hoặc lỗi khác
-              print('Error posting order: $e');
-              }
               },
               child: Text('Đặt đơn'),
             ),
+            )
           ],
         ),
       ),

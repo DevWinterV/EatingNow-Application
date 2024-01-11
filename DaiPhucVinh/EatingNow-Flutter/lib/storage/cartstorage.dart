@@ -5,7 +5,6 @@ import '../models/product_recommended_model.dart';
 
 class CartStorage {
   static const String _key = 'cart_items';
-
   // Lấy danh sách các món ăn trong giỏ hàng từ SharedPreferences
   static Future<List<CartItem>> getCartItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -102,7 +101,6 @@ class CartStorage {
     await prefs.setString(_key, updatedCartData);
     return false;
   }
-
   static Future<bool> RemoveItemToCart(CartItem newItem) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final cartData = prefs.getString(_key);
@@ -112,20 +110,21 @@ class CartStorage {
       final List<dynamic> decodedData = json.decode(cartData);
       cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
     }
-
     cartItems.removeWhere((item) => item.foodListId == newItem.foodListId); // Xóa món ăn dựa trên ID
-
     // Lưu lại danh sách giỏ hàng cập nhật
     final updatedCartData = json.encode(cartItems);
     await prefs.setString(_key, updatedCartData);
 
     return false;
   }
-
-
-
+  static Future<bool> ClearCart() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<CartItem> cartItems = [];
+      final datajson = json.encode(cartItems);
+      await prefs.setString(_key, datajson);
+      return true;
+  }
 }
-
 class CartItem {
   final int foodListId;
   final int categoryId;
