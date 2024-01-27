@@ -52,7 +52,8 @@ const HomePage = () => {
           Latitude: latitude,
           Longittude:longitude,
         });
-        getToken(messaging, { vapidKey: 'BEk8bm2SlIuRZyiG5peYbc6jS2C0oqzK5w-wcT4TUTOsyAvZLVGM_5wxd8_f6sPSZZ_3v2tmT7n1jyXUjhpgriQ'}).then((currentToken) => {
+        getToken(messaging,     
+          { vapidKey: 'BE4q2YdSfFbtH2IHksx62BReD3OzavmAEbIlYHISKx_gDmcMzDWVIRD1fFHJKXdOMnOc92lQ78YG_MmI3QnaqIg'}).then((currentToken) => {
           if (currentToken) {
             // Send the token to your server and update the UI if necessary
             console.log(currentToken);
@@ -113,10 +114,13 @@ const HomePage = () => {
 
   return (
     <div className="w-full h-auto flex flex-col items-center justify-center">
-      <HomeContainer />
+      {/**
+       <HomeContainer />
+       */}
+       
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
-          Danh mục loại hình ăn uống
+          Danh mục loại món ăn
         </p>
         {loading ? (
           <div className="text-center pt-20">
@@ -128,7 +132,7 @@ const HomePage = () => {
       </section>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
-          Gợi ý cho bạn
+          Gợi ý món ăn cho bạn theo đánh giá
         </p>
         {loadingrecommendedfood ? (
           <div className="text-center pt-20">

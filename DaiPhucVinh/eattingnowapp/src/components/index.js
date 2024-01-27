@@ -25,6 +25,8 @@ export { default as BankAccountForm } from "./BankAccountForm";
 export { default as MyApp } from "./DeliveryAddress";
 export { default as CustomerAddressContainer } from "./CustomerAddressContainer";
 export { default as OrderofCustomer } from "./OrderofCustomer";
+export { default as LeafletMapStore } from "./LeafletMapStore";
+
 
 
 

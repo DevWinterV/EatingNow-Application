@@ -1,6 +1,6 @@
 import axios from "axios";
 const ServiceEndPoint = "https://fcm.googleapis.com/fcm/send";
-const ServerKey = "AAAATecFrh8:APA91bEap0oFWBC1O1xcIKKtRQTz_sMMs0P9buwQl9bX6nDbmamrFyR7HxuViEvWMpBW16c5nDiMLoTHaw22RYP5IJNd1t90bs4Q0EkYaRsbDqeAAEgTaLmPh5O57uS0DV-bVrKSiuii";
+const ServerKey = "AAAA1Nb0sbs:APA91bF_jfSd__o995VjsoOUGqY5lBS626YpkId4wjSpKI4q0AssfH7RNXLnmSoRIBW8BwNTLFMyq3EO1OGU0hVE_iib7-U6b4GG-bwulhGayq6MuyzBc018HF1m6i9fXZzTOIL-EyDj";
 
 const SendNotification = async (message) => {
   if(message.to != "")

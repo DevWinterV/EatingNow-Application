@@ -31,15 +31,17 @@ const RowContainer = ({ flag, rowData, scrollValue }) => {
   // Cập nhật Fucntion Thêm mới sản phẩm vào giỏ hàng. 
   // Nếu tồn tại Sp trong cart Item thì tăng số lượng
   const addItemToCart = (itemToAdd) => {
+    itemToAdd.Description = "";
     const itemExistsInCart = cartItems.some((item) => item.FoodListId === itemToAdd.FoodListId);
-  
+    // Nếu đã có
     if (itemExistsInCart) {
       const updatedCartItems = cartItems.map((item) =>
         item.FoodListId === itemToAdd.FoodListId ? { ...item, qty: item.qty + 1 } : item
       );
       setItems(updatedCartItems);
     } else {
-      const newItem = { ...itemToAdd, qty: 1 };
+      
+      const newItem = { ...itemToAdd, qty: 1, };
       setItems([...cartItems, newItem]);
     }
   };
@@ -94,7 +96,6 @@ const RowContainer = ({ flag, rowData, scrollValue }) => {
           <div className="w-full flex flex-col items-center justify-center">
             <img src={NotFound} className="h-340" alt="Not Found" />
             <p className="text-xl text-headingColor font-semibold my-2">
-              Chưa có món ăn này!
             </p>
           </div>
         )}

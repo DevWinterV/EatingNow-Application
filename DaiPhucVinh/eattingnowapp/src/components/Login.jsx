@@ -59,8 +59,8 @@ const Login = () => {
   }
 
   return (
-    <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-      <div className="bg-orange-100 flex rounded-2xl shadow-lg max-w-3xl p-5 gap-6 items-center text-center">
+    <section className="bg-white-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gray-100 flex rounded-2xl shadow-lg max-w-3xl p-5 gap-6 items-center text-center">
         <div className="sm:w-1/2 px-14">
           <h2 className="font-bold text-2xl text-[#171a1f]">Đăng nhập</h2>
 
@@ -144,7 +144,7 @@ const Login = () => {
               style={{ width: "250px" }}
               className="font-bold mt-1 rounded-xl text-orange-800 py-1 duration-300 flex justify-center items-center"
             >
-              <span className="text-2xl">EATINGNOW.</span>
+              <span className="text-2xl">XpressEat.</span>
             </motion.button>
           </motion.button>
         </Pane>

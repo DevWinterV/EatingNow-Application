@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useStateValue } from "../../context/StateProvider";
+import { ToastContainer, toast } from 'react-toastify';
 import {
   MdFastfood,
   MdCloudUpload,
   MdDelete,
   MdAttachMoney,
   MdCreate,
+  MdDescription,
+  MdMoney,
+  MdFoodBank,
+  MdNumbers,
+  MdDateRange,
 } from "react-icons/md";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { TakeCategoryByStoreId } from "../../api/store/storeService";
@@ -16,6 +22,7 @@ import {
   CreateFoodItem,
   UpdateFoodList,
 } from "../../api/foodlist/foodListService";
+import { FaLessThanEqual } from "react-icons/fa";
 
 const CreateFoodList = () => {
   const { state } = useLocation();
@@ -27,19 +34,53 @@ const CreateFoodList = () => {
   const [categoriesFood, setCategoriesFood] = React.useState([]);
   const [selectedImage, setSelectedImage] = useState();
   const [FoodListId, setFoodListId] = useState("");
+
   const history = useNavigate();
   var copyimg = state?.data.UploadImage;
+  const [showExpirationDate, setShowExpirationDate] = useState(false);
+  const [showIsNew, setshowIsNew] = useState(false);
+  const [showIsNoiBat, setshowIsNoiBat] = useState(false);
+
+  const handleCheckboxChange = () => {
+    setRequest({
+      ...request,
+      ExpiryDate: "",
+    });
+    setShowExpirationDate(!showExpirationDate);
+  };
+
+  const handleCheckNew = () => {
+    setshowIsNew(!showIsNew);
+    setRequest({
+      ...request,
+      IsNew: !showIsNew,
+    });
+  };
+
+  const handleCheckNoiBat = () => {
+    setshowIsNoiBat(!showIsNoiBat);
+    setRequest({
+      ...request,
+      IsNoiBat: !showIsNoiBat,
+    });
+  };
+
 
   const [request, setRequest] = React.useState({
     FoodListId: 0,
     CategoryId: 0,
     FoodName: "",
+    Description: "",
     Price: "",
-    qty: 1,
+    qty: null,
     UploadImage: "",
     Description: "",
     UserId: user.UserId,
     Status: 0,
+    QuantitySupplied: null,
+    ExpiryDate: "",
+    IsNew: 0,
+    IsNoiBat: 0,
   });
 
   async function OnLoadCategoryByStoreId() {
@@ -50,6 +91,7 @@ const CreateFoodList = () => {
   }
 
   async function onViewAppearing() {
+    console.log(state?.data);
     if (state?.data) {
       setRequest({
         FoodListId: state?.data.FoodListId,
@@ -57,11 +99,19 @@ const CreateFoodList = () => {
         FoodName: state?.data.FoodName,
         Price: state?.data.Price,
         qty: state?.data.qty,
+        QuantitySupplied: state?.data.QuantitySupplied,
         UploadImage: state?.data.UploadImage,
         Description: state?.data.Description,
         UserId: state?.data.UserId,
         Status: state?.data.Status,
+        IsNew: state?.data.IsNew,
+        IsNoiBat: state?.data.IsNoiBat,
+        ExpiryDate: state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? state?.data.ExpiryDate : "",
       });
+      setShowExpirationDate(state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? true : false);
+      setshowIsNew(state?.data.IsNew);
+      setshowIsNoiBat(state?.data.IsNoiBat);
+      
     }
     await OnLoadCategoryByStoreId();
   }
@@ -75,7 +125,7 @@ const CreateFoodList = () => {
         UploadImage: e.target.files[0].name,
       });
       setFields(true);
-      setMsg("Chọn ảnh thành công 😊");
+      setMsg("Chọn ảnh thành công");
       setAlertStatus("success");
       setTimeout(() => {
         setFields(false);
@@ -87,7 +137,7 @@ const CreateFoodList = () => {
   function removeSelectedImage() {
     setIsLoading(true);
     setFields(true);
-    setMsg("Xoá ảnh đã chọn thành công 😊!");
+    setMsg("Đã xóa ảnh");
     setAlertStatus("success");
     setTimeout(() => {
       setFields(false);
@@ -102,15 +152,16 @@ const CreateFoodList = () => {
 
   async function SaveFoodList() {
     setIsLoading(true);
+    console.log(`request.FoodListId ${request.FoodListId}`);
     if (request.FoodListId === 0) {
       if (
         request.FoodName === "" ||
         request.Price === "" ||
         request.CategoryId === 0 ||
-        request.UploadImage === ""
+        request.UploadImage === "" 
       ) {
         setFields(true);
-        setMsg("Phải nhập đầy đủ thông tin 😣!");
+        setMsg("Bạn phải nhập đầy đủ thông tin");
         setAlertStatus("danger");
         setTimeout(() => {
           setFields(false);
@@ -124,19 +175,44 @@ const CreateFoodList = () => {
         let response = await CreateFoodItem(data);
         if (!response.success) {
           setFields(true);
-          setMsg("Thêm món mới không thành công 😣!");
+          setMsg("Đã xảy ra lỗi khi thêm mới ...");
           setAlertStatus("danger");
           setTimeout(() => {
             setFields(false);
           }, 4000);
           return;
         }
-        setFields(true);
-        setMsg("Thêm món mới thành công 😊!");
-        setAlertStatus("success");
-        setTimeout(() => {
-          setFields(false);
-        }, 4000);
+        
+        setRequest({
+          FoodListId: 0,
+          CategoryId: 0,
+          FoodName: "",
+          Description: "",
+          Price: "",
+          qty: 0,
+          UploadImage: "",
+          Description: "",
+          UserId: user.UserId,
+          Status: 0,
+          QuantitySupplied: 0,
+          ExpiryDate: "",
+          IsNew: 0,
+          IsNoiBat: 0,
+        });
+        toast.success('Thêm thành công !', {
+          position: 'top-right',
+          autoClose: 3000, // 5 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        // setFields(true);
+        // setMsg("Thêm thành công");
+        // setAlertStatus("success");
+        // setTimeout(() => {
+        //   setFields(false);
+        // }, 4000);
       }
     } else {
       if (
@@ -146,7 +222,7 @@ const CreateFoodList = () => {
         copyimg === ""
       ) {
         setFields(true);
-        setMsg("Phải nhập đầy đủ thông tin 😣!");
+        setMsg("Phải nhập đầy đủ thông tin");
         setAlertStatus("danger");
         setTimeout(() => {
           setFields(false);
@@ -160,20 +236,45 @@ const CreateFoodList = () => {
         let response = await UpdateFoodList(data);
         if (!response.success) {
           setFields(true);
-          setMsg("Cập nhật không thành công 😣!");
+          setMsg("Cập nhật không thành công");
           setAlertStatus("danger");
           setTimeout(() => {
             setFields(false);
           }, 4000);
           return;
         }
-        setFields(true);
-        setMsg("Cập nhật thành công 😊!");
-        setAlertStatus("success");
-        setTimeout(() => {
-          setFields(false);
-          onback();
-        }, 500);
+        // setFields(true);
+        setRequest({
+          FoodListId: 0,
+          CategoryId: 0,
+          FoodName: "",
+          Description: "",
+          Price: "",
+          qty: 0,
+          UploadImage: "",
+          Description: "",
+          UserId: user.UserId,
+          Status: 0,
+          QuantitySupplied: 0,
+          ExpiryDate: "",
+          IsNew: 0,
+          IsNoiBat: 0,
+        });
+        toast.success('Cập nhật thành công !', {
+          position: 'top-right',
+          autoClose: 3000, // 5 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        // setMsg("Cập nhật thành công");
+        // setAlertStatus("success");
+        // setTimeout(() => {
+        //   setFields(false);
+        //   onback();
+        // }, 500);
+
       }
     }
     setIsLoading(false);
@@ -183,13 +284,58 @@ const CreateFoodList = () => {
     history("/foodlist");
   }
 
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    const currentDate = getCurrentDate();
+  
+    const selectedDateObject = new Date(selectedDate);
+    const currentDateObject = new Date(currentDate);
+  
+    if (selectedDateObject < currentDateObject) {
+      toast.warn('Ngày hết hạn không được bé hơn ngày hiện tại ...', {
+        position: 'top-right',
+        autoClose: 5000, // 5 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      // Reset the input value to the current date
+      e.target.value = currentDate;
+    } else {
+      setRequest({
+        ...request,
+        ExpiryDate: selectedDate,
+      });
+    }
+  };
+  
+  function ConvertJsonToDate(jsondate){
+    
+    const dateObject = new Date(jsondate);
+    const year = dateObject.getFullYear();
+    const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObject.getDate()).padStart(2, '0');
+    console.log(`ngày sau khi chuyển đổi .... ${dateObject}`);
+    return `${year}-${month}-${day}`;
+  }
+  
   useEffect(() => {
     onViewAppearing();
   }, []);
 
   return (
+    
     <div className="bg-gray-50 h-[100%] basis-80 p-8 overflow-auto crollbar-hide py-5 px-5">
-      <div className="flex items-center max-w-200">
+      <div className="flex items-center max-w-100">
         <button
           type="button"
           className="ml-0 md:mr-auto w-8 md:w-auto border-none outline-none px-3 py-2 rounded-lg text-lg text-white font-semibold"
@@ -199,7 +345,7 @@ const CreateFoodList = () => {
         </button>
       </div>
       <div className="w-full pt-0 flex items-center justify-center">
-        <div className="w-[90%] md:w-[60%] border border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
+        <div className="w-[100%] md:w-[100%] border border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
           {fields && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -215,7 +361,7 @@ const CreateFoodList = () => {
             </motion.p>
           )}
           <div className="w-full py-2 border-b border-gray-300 flex items-center gap-2">
-            <MdFastfood className="text-xl text-gray-700" />
+            <MdFoodBank className="text-xl text-gray-700" />
             <input
               type="text"
               defaultValue={request.FoodName}
@@ -229,6 +375,148 @@ const CreateFoodList = () => {
               className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
             />
           </div>
+          <div className="w-full py-2 border-b border-gray-300 flex items-center gap-2">
+            <MdDescription className="text-xl text-gray-700" />
+            <input
+              type="text"
+              defaultValue={request.Description}
+              onChange={(e) => {
+                setRequest({
+                  ...request,
+                  Description: e.target.value,
+                });
+              }}
+              placeholder="Nhập mô tả món ăn . . ."
+              className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+            />
+          </div>
+
+          <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
+              <MdNumbers className="text-xl text-gray-700" />
+              <input
+                type="text"
+                defaultValue={request.qty}
+                onChange={(e) => {
+                  setRequest({
+                    ...request,
+                    qty: e.target.value,
+                  });
+                }}
+                placeholder="Nhập số lượng (Để trống là không có ràng buộc về số lượng tồn kho)"
+                className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+              />
+          </div>
+          <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
+              <MdNumbers className="text-xl text-gray-700" />
+              <input
+                type="text"
+                defaultValue={request.QuantitySupplied}
+                onChange={(e) => {
+                  setRequest({
+                    ...request,
+                    QuantitySupplied: e.target.value,
+                  });
+                }}
+                placeholder="Nhập số lượng cung ứng mỗi ngày (Để trống là không có ràng buộc về số lượng cung ứng)"
+                className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+              />
+          </div>
+ 
+          <div className="checkbox-container">
+            <input
+              type="checkbox"
+              
+              onChange={handleCheckboxChange}
+              checked={showExpirationDate}
+              id="expirationCheckbox"
+            />
+            <label htmlFor="expirationCheckbox">CÓ HẠN SỬ DỤNG</label>
+          </div>
+
+          <div className="flex">
+            {showExpirationDate && (
+              <div className="date-picker-container">
+                     {showExpirationDate && (
+                        <div className="w-[100%] py-2 flex items-start gap-2">
+                          <MdDateRange className="text-xl text-gray-700" />
+                          <input
+                            type="date"
+                            defaultValue={request.ExpiryDate != "0001-01-01T00:00:00+07:00" ?  ConvertJsonToDate(request.ExpiryDate) : getCurrentDate()}
+                            onChange={handleDateChange}
+                            className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+                          />
+                        </div>
+                      )}
+              </div>
+            )}
+          </div>
+
+
+          <div className="flex checkbox-group">
+            <div className="row">
+              <div className="w-full">
+                Trạng thái
+                {
+                  request.Status === true ?
+                  <select
+                    onChange={(e) => {
+                      setRequest({
+                        ...request,
+                        Status: e.target.value,
+                      });
+                    }}
+                    className="outline-none w-full text-b ase border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
+                  >
+                      <option value="false" className='bg-white capitalize'>
+                          Chưa mở bán
+                      </option>
+                      <option value="true" className='bg-white capitalize' selected>
+                          Mở bán
+                      </option>
+                 </select>
+                 :
+                  <select
+                  onChange={(e) => {
+                    setRequest({
+                      ...request,
+                      Status: e.target.value,
+                    });
+                  }}
+                  className="outline-none w-full text-base border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
+                >
+                    <option value="false" className='bg-white capitalize' selected>
+                        Chưa mở bán
+                    </option>
+                    <option value="true" className='bg-white capitalize'>
+                        Mở bán
+                    </option>
+                  </select>
+                }
+              </div>
+            </div>
+                     
+            <div>
+              <input
+                type="checkbox"
+                onChange={handleCheckNoiBat}
+                checked={showIsNoiBat}
+                id="noiBatCheckbox"
+              />
+              <label htmlFor="noiBatCheckbox">Sản phẩm nổi bật</label>
+            </div>
+
+            <div>
+              <input
+                type="checkbox"
+                onChange={handleCheckNew}
+                checked={showIsNew}
+                id="newCheckbox"
+              />
+              <label htmlFor="newCheckbox">Sản phẩm mới</label>
+            </div>
+
+          </div>
+      
           <div className="w-full">
             <select
               onChange={(e) => {
@@ -333,7 +621,7 @@ const CreateFoodList = () => {
           </div>
           <div className="w-full flex flex-col md:flex-row items-center gap-3">
             <div className="w-full py-2 border-b border-gray-300 flex items-center gap-2">
-              <MdAttachMoney className="text-gray-700 text-2xl" />
+              <MdMoney className="text-gray-700 text-2xl" />
               <input
                 type="text"
                 defaultValue={request.Price}
@@ -361,6 +649,7 @@ const CreateFoodList = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: LoginPage(),
-    );
-  }
-}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,7 +9,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController _phoneNumberController = TextEditingController();
   TextEditingController _otpController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
   String _verificationId = "";
@@ -29,17 +16,26 @@ class _LoginPageState extends State<LoginPage> {
   bool _isCodeSent = false;
   FocusNode focusNode = FocusNode();
 
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    FlutterNativeSplash.remove();
+  }
+
   Future<void> _signInWithPhoneNumber(String phoneNumber) async {
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
-          print("User signed in automatically: ${_auth.currentUser?.uid}");
+          navigateToHome();
         },
         verificationFailed: (FirebaseAuthException e) {
-          print('Verification failed: ${e.message}');
-          // Handle verification failure
+          print('Verification failed: $e');
         },
         codeSent: (String verificationId, int? resendToken) {
           setState(() {
@@ -50,50 +46,42 @@ class _LoginPageState extends State<LoginPage> {
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
-      print('Error sending OTP: $e');
-      // Handle error
+      print('An error occurred: $e');
+    }
+  }
+
+  void navigateToHome() {
+    if (_auth.currentUser?.uid != null) {
+      Navigator.pushReplacementNamed(context, "/");
     }
   }
 
   Future<void> _login() async {
     try {
-      // Check if the code is sent before attempting to log in
       if (_isCodeSent) {
-        // Create a PhoneAuthCredential with the code
         PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: _verificationId,
           smsCode: _otpController.text,
         );
 
-        // Sign the user in (or link) with the credential
         await _auth.signInWithCredential(credential);
-        if(_auth.currentUser?.uid != null){
-          Navigator.pushReplacement(
-              context,
-              Navigator.pushNamed(context, "/") as Route<Object?>
-          );
-        }
+        navigateToHome();
         print("User signed in: ${_auth.currentUser?.uid}");
-
       } else {
-        // Handle the case where the code hasn't been sent yet
         print('Please send OTP first');
       }
     } catch (e) {
       print('Login failed: $e');
-      // Handle login failure
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login Page'),
-      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
+        child: _isCodeSent == false
+            ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IntlPhoneField(
@@ -105,44 +93,43 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               languageCode: "vi",
-              initialCountryCode: "VN", // Mặc định là Việt Nam
+              initialCountryCode: "VN",
               onChanged: (phone) {
                 setState(() {
                   _phoneNumber = phone.completeNumber;
                 });
                 print(phone.completeNumber);
               },
-              onCountryChanged: (country) {
-                print('Country changed to: ' + country.name);
-              },
+              onCountryChanged: (country) {},
             ),
             SizedBox(height: 16.0),
-            if (_isCodeSent)
-              Column(
-                children: [
-
-                  TextField(
-                    textAlign: TextAlign.center,
-                    controller: _otpController,
-                    obscureText: true,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: 'OTP'),
-                  ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _login,
-                    child: Text('Đăng nhập'),
-                  ),
-                ],
+            ElevatedButton(
+              onPressed: () {
+                _signInWithPhoneNumber(_phoneNumber);
+              },
+              child: Text('Gửi mã OTP'),
+            ),
+          ],
+        )
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _otpController,
+              decoration: InputDecoration(
+                labelText: 'Nhập mã OTP',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(),
+                ),
               ),
-            if (!_isCodeSent)
-              ElevatedButton(
-
-                onPressed: () {
-                  _signInWithPhoneNumber(_phoneNumber);
-                },
-                child: Text('Gửi mã OTP'),
-              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                _login();
+              },
+              child: Text('Đăng nhập'),
+            ),
           ],
         ),
       ),

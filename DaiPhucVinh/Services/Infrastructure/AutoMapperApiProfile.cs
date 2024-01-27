@@ -374,10 +374,27 @@ namespace DaiPhucVinh.Services.Infrastructure
             CreateMap<EN_Store, StoreResponse>()
                 .ForMember(d => d.Province, o => o.MapFrom(s => s.Province.Name))
                 .ForMember(d => d.Cuisine, o => o.MapFrom(s => s.Cuisine.Name));
+
             CreateMap<EN_CategoryList, CategoryListResponse>()
                 .ForMember(d => d.NameStore, o => o.MapFrom(s => s.Store.FullName))
                 .ForMember(d => d.DescriptionStore, o => o.MapFrom(s => s.Store.Description))
-                .ForMember(d => d.OpenTime, o => o.MapFrom(s => s.Store.OpenTime));
+                .ForMember(d => d.OpenTime, o => o.MapFrom(s => s.Store.OpenTime))
+                .ForMember(d => d.Address, o => o.MapFrom(s => s.Store.Address))
+                .ForMember(d => d.Phone, o => o.MapFrom(s => s.Store.Phone))
+                .ForMember(d => d.Latitude, o => o.MapFrom(s => s.Store.Latitude))
+                .ForMember(d => d.Longitude, o => o.MapFrom(s => s.Store.Longitude))
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.Store.Email));
+
+            CreateMap<EN_Store, CategoryListResponse>()
+              .ForMember(d => d.NameStore, o => o.MapFrom(s => s.FullName))
+              .ForMember(d => d.DescriptionStore, o => o.MapFrom(s => s.Description))
+              .ForMember(d => d.OpenTime, o => o.MapFrom(s => s.OpenTime))
+              .ForMember(d => d.Address, o => o.MapFrom(s => s.Address))
+              .ForMember(d => d.Phone, o => o.MapFrom(s => s.Phone))
+              .ForMember(d => d.Latitude, o => o.MapFrom(s => s.Latitude))
+              .ForMember(d => d.Longitude, o => o.MapFrom(s => s.Longitude))
+              .ForMember(d => d.Email, o => o.MapFrom(s => s.Email));
+
             CreateMap<EN_FoodList, FoodListResponse>()
                 .ForMember(d => d.Category, o => o.MapFrom(s => s.Category.CategoryName));
             CreateMap<EN_Account, AccountResponse>()

@@ -291,23 +291,68 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             return path;
         }
 
+
         public async Task<BaseResponse<bool>> CreateOrderCustomer(EN_CustomerRequest request)
         {
             var result = new BaseResponse<bool> { };
             try
             {
+                var checkPayment = await _datacontext.EN_Paymentonlines.Include(x => x.CategoryPayment).Where(x => x.userId.Equals(request.UserId)).ToListAsync();
+                var VNPaySetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("VNPay"));
+                var MomoSetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("Momo"));
+
+                if (request.Payment != "PaymentOnDelivery")
+                {
+                    if (VNPaySetting == null || MomoSetting != null)
+                    {
+                        result.Success = false;
+                        result.Message = "Not_Payment";
+                        return result;
+                    }
+                }
+
+
                 if (request.CustomerId == null)
                 {
                     result.Success = false;
-                    result.Message = "No order!";
+                    result.Message = "No_order";
                     return result;
                 }
+
                 if (request.OrderLine == null)
                 {
                     result.Success = false;
-                    result.Message = "No orderline!";
+                    result.Message = "No_order";
                     return result;
                 }
+                
+                foreach( var item in request.OrderLine)
+                {
+                    // Sô lượng hiện còn đủ cung ứng
+                    var Quantityremaining = await _checkQuantitySupplied(item.FoodListId);
+
+                    if (Quantityremaining == 0)
+                    {
+                        result.Success = false;
+                        result.CustomData = new object[]
+                        {
+                            1
+                        };
+                        result.Message = item.FoodName +" hiện đã hết số lượng ... Xin lỗi vì sự bất tiện này!";
+                        return result;
+                    }
+                    else if(item.qty > Quantityremaining)
+                    {
+                        result.Success = false;
+                        result.CustomData = new object[]
+                        {
+                             2
+                        };
+                        result.Message = "Số lượng "+ item.FoodName +" chỉ còn "+ Quantityremaining.ToString();
+                        return result;
+                    }
+                }
+                   
                 string url = "";
                 string OrderHeaderId = "EattingNowOrder_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
                 //Thanh toán khi nhận
@@ -349,6 +394,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         };
                         _datacontext.EN_OrderLine.Add(createOrderLine);
                     }
+                    result.Message = "";
 
                 }
                 //Thanh toán với VNPAY
@@ -391,11 +437,12 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     await _datacontext.SaveChangesAsync();
                     string urlvnp = ConfigurationManager.AppSettings["Url"];
                     string returnUrl = ConfigurationManager.AppSettings["ReturnUrl"];
-                    string tmnCode = ConfigurationManager.AppSettings["TmnCode"];
-                    string hashSecret = ConfigurationManager.AppSettings["HashSecret"];
+                    //   string tmnCode = ConfigurationManager.AppSettings["TmnCode"];
+                    //  string hashSecret = ConfigurationManager.AppSettings["HashSecret"];
 
+                    string tmnCode = VNPaySetting.TmnCode;
+                    string hashSecret = VNPaySetting.HashSecret;
                     PayLib pay = new PayLib();
-
                     pay.AddRequestData("vnp_Version", "2.1.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.1.0
                     pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
                     pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
@@ -518,6 +565,22 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         }
 
 
+        private async Task<int> _checkQuantitySupplied(int FoodId)
+        {
+            int quantity = 0;
+            var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
+            var quantitySupplied = food.QuantitySupplied;
+            var listFoodSaled = await _datacontext.EN_OrderLine.Include(x => x.EN_OrderHeader).Where(x => x.EN_OrderHeader.CreationDate <  DateTime.Now && x.FoodListId.Equals(FoodId)).ToListAsync();
+            int SumQuantitySaled = 0;
+            foreach (var item in listFoodSaled)
+            {
+                SumQuantitySaled += item.qty;
+            }
+            if(food.QuantitySupplied > SumQuantitySaled)
+                return (int)(quantitySupplied - SumQuantitySaled);
+            else
+                return 0;
+        }
 
         public class MoMoSecurity
         {
@@ -717,6 +780,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             }
             return result;
         }
+
         /// <summary>
         /// Lấy dữ liệu tát cả các khách hàng trên hệ thống
         /// </summary>
@@ -1063,7 +1127,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             try
             {
                 var query = _datacontext.EN_CustomerNotifications.AsQueryable();
-                result.DataCount = await query.Where(x => !x.IsRead).CountAsync();
+                result.DataCount = await query.Where(x => !x.IsRead && x.CustomerID.Equals(request.CustomerID)).CountAsync();
                 if (request.CustomerID == null)
                 {
                     result.Success = false;

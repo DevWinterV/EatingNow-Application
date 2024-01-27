@@ -18,7 +18,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public virtual EN_CategoryList Category { get; set; }
         public string FoodName { get; set; }
         public int Price { get; set; }
-        public int qty { get; set; }
+        public int? qty { get; set; }
         public string UploadImage { get; set; }
         public string Description { get; set; }
         public int UserId { get; set; }
@@ -26,5 +26,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public int? Hint { get; set; }
         public bool? IsNew { get; set; }
         public bool? IsNoiBat { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public int? QuantitySupplied { get; set; }
     }
 }

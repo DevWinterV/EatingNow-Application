@@ -289,26 +289,56 @@ namespace DaiPhucVinh.Services.MainServices.Province
             return result;
         }
 
-        public async Task<BaseResponse<CategoryListResponse>> TakeCategoryByStoreId(int Id)
+        public async Task<BaseResponse<CategoryListResponse>> TakeCategoryByStoreId(int storeId)
         {
-            var result = new BaseResponse<CategoryListResponse> { };
+            var result = new BaseResponse<CategoryListResponse>();
+
             try
             {
-                var query = _datacontext.EN_CategoryList.AsQueryable();
-                query = query.Where(d => d.Store.UserId == Id);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                var resultList = data.MapTo<CategoryListResponse>();
-                result.Data = resultList;
-                result.Success = true;
+                // Check if there are categories associated with the given store ID
+                var storeExists = await _datacontext.EN_Store.AnyAsync(s => s.UserId == storeId);
+
+                if (storeExists)
+                {
+                    var query = _datacontext.EN_CategoryList.Where(d => d.Store.UserId == storeId);
+
+                    result.DataCount = await query.CountAsync();
+
+                    if (result.DataCount > 0)
+                    {
+                        var data = await query.ToListAsync();
+                        var resultList = data.MapTo<CategoryListResponse>().ToList();
+                        result.Data = resultList;
+                    }
+                    else
+                    {
+                        // No categories found for the store, map store information instead
+                        var store = await _datacontext.EN_Store.FirstOrDefaultAsync(x => x.UserId.Equals(storeId));
+                        result.DataCount = 1;
+                        result.Data = new List<CategoryListResponse> { store.MapTo<CategoryListResponse>() };
+                    }
+
+                    result.Success = true;
+                }
+                else
+                {
+                    // Handle the case where the store is not found
+                    result.DataCount = 0;
+                    result.Data = null;
+                    result.Success = false;
+                    result.Message = "Store not found.";
+                }
             }
             catch (Exception ex)
             {
                 result.Message = ex.ToString();
                 _logService.InsertLog(ex);
             }
+
             return result;
         }
+
+
         public async Task<BaseResponse<FoodListResponse>> TakeFoodListByStoreId(int Id)
         {
             var result = new BaseResponse<FoodListResponse> { };

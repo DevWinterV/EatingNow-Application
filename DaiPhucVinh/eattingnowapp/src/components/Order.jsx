@@ -58,8 +58,6 @@ const Order = () => {
       const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
   
       if (allDataExists) {
-
-
         try {
           let response = await PaymentConfirm({
             vnp_Amount,
@@ -255,6 +253,7 @@ const Order = () => {
     // Kiểm tra xem khách hàng đã đăng ký tài khoản chưa
     let checkCustomer = await CheckCustomer(request);
     if (checkCustomer.success) {
+      console.log(checkCustomer);
       setCheckCustomer(checkCustomer.dataCount);
     }
   }
@@ -274,6 +273,7 @@ const Order = () => {
     }
     let checkCustomer = await CheckCustomerAddress(request);
     if (checkCustomer.success) {
+      console.log(checkCustomer.data);
       // Nếu đã có địa chỉ mặc định rồi thì sử dụng địa chỉ đó
       setCompleteAddress(checkCustomer.success);
       // Dữ liệu của địa chỉ mặc định
@@ -307,6 +307,8 @@ const Order = () => {
     }
 
   }
+
+  // Gửi 
   function sendOrderNotification(UserId) {
     proxy
       .invoke('SendOrderNotificationToUser', 'Thông báo mới', UserId)
@@ -317,10 +319,11 @@ const Order = () => {
         console.error('Lỗi không gửi được thông báo:', error);
       });
   }
-  
+  // Thanh toán
   async function order() {
     if(cartItems != null){
       let response = await CreateOrderCustomer(request);
+      console.log(response);
       if (response.success) {
         if (response.message == "") {
           toast.success('Đặt món ăn thành công!', { autoClose: 3000 });
@@ -339,24 +342,30 @@ const Order = () => {
           window.location.href = response.message;
         }
       } else {
-        if(response.message =="No order")
+        if(response.message =="No_order")
           toast.error('Vui lòng điền đầy đủ thông tin!', { autoClose: 3000 });
+        else if(response.message =="Not_Payment")
+          toast.warning('Cửa hàng hiện chưa sử dụng thanh toán Online ... !', { autoClose: 3000 });
         else
-          toast.warning('Vui lòng thêm sản phẩm vào giỏ hàng!', { autoClose: 3000 });
+        {
+          if(response.customdata != null){
+              toast.warning(response.message, { autoClose: 3000 });
+          }
+        }
       }
     }
     else{
+
     }
    
   }
+
   // Hàm kiểm tra số điện thoại
   const isValidPhoneNumber = (phoneNumber) => {
     // Định dạng số điện thoại Việt Nam: 10 chữ số, bắt đầu bằng 0 hoặc +84
     const phoneNumberPattern = /^(0|\+84)[0-9]{9}$/;
     return phoneNumberPattern.test(phoneNumber);
   };
-
-
 
   //Lưu địa điểm đầu tiên của người dùng 
   async function gotoOrder() {
@@ -412,22 +421,18 @@ const Order = () => {
     { label: "Thanh toán khi nhận hàng", value: "PaymentOnDelivery" },
     { label: "Thanh toán ví Momo", value: "MOMO" },
     { label: "Thanh toán VNPay", value: "VNPay" },
-
   ]);
   const [value, setValue] = React.useState("PaymentOnDelivery");
-
   function changeValue(e){
     console.log(e.target.value);
     setValue(e.target.value);
   }
-
   useEffect(() => {
     let totalPrice = cartItems.reduce(function (accumulator, item) {
       return accumulator + item.qty * item.Price;
     }, 0);
     setTot(totalPrice);
-    console.log(km);
-    let transportFee =  roundToNearestHundred(calculateDeliveryCost(km));
+    let transportFee = roundToNearestHundred(calculateDeliveryCost(km));
     let intoMoney =  roundToNearestHundred(calculateDeliveryCost(km)) + totalPrice;
     setRequest({
       ...request,
@@ -686,8 +691,20 @@ const Order = () => {
                                 </button>
                               </div>
                             ))}
+
                           </div>
-                        ) : null}
+                        ) :(
+                          <div>
+                              <div >
+                                <p className="font-italic text-1xl text-[#171a1f] text-start capitalize"><strong>Tên:</strong> {request.RecipientName}</p>
+                                <p className="font-italic text-1xl text-[#171a1f] text-start capitalize"><strong>Số điện thoại:</strong> {request.RecipientPhone}</p>
+                                <p className="font-italic text-1xl text-[#171a1f] text-start capitalize"><strong>Địa chỉ:</strong>{request.Name_Address} | {request.Format_Address}</p>
+                                <button className="custom-button"  onClick={CompleteAddress = !CompleteAddress}>
+                                  Thay đổi
+                                </button>
+                              </div>
+                          </div>
+                        ) }
                       </div>
                     </div>
                   </div>

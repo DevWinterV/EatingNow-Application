@@ -44,46 +44,40 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBerAmPafM3WcAH_lTtM3af7u5xDWSjvEI',
-    appId: '1:334588390943:web:4404c6edf638bae7f6ef2a',
-    messagingSenderId: '334588390943',
-    projectId: 'eating-now',
-    authDomain: 'eating-now.firebaseapp.com',
-    databaseURL: 'https://eating-now-default-rtdb.firebaseio.com',
-    storageBucket: 'eating-now.appspot.com',
-    measurementId: 'G-0TQ4V1JGW7',
+    apiKey: 'AIzaSyBasBL27GvwUnuTuu1o7TGKhR01P0Fgta0',
+    appId: '1:914139427259:web:01a8f940361094c217149e',
+    messagingSenderId: '914139427259',
+    projectId: 'my-project-2024-7d367',
+    authDomain: 'my-project-2024-7d367.firebaseapp.com',
+    storageBucket: 'my-project-2024-7d367.appspot.com',
+    measurementId: 'G-NTLCBFGHTS',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC_mdM-RLljEn-8Y0N7YIIes_1gUXus5DU',
-    appId: '1:334588390943:android:c6f1eab6703294a8f6ef2a',
-    messagingSenderId: '334588390943',
-    projectId: 'eating-now',
-    databaseURL: 'https://eating-now-default-rtdb.firebaseio.com',
-    storageBucket: 'eating-now.appspot.com',
+    apiKey: 'AIzaSyBT411X8o88JbpkZNQP1bFsCpjJxaj5vJA',
+    appId: '1:914139427259:android:15cffb07cc4c42b317149e',
+    messagingSenderId: '914139427259',
+    projectId: 'my-project-2024-7d367',
+    storageBucket: 'my-project-2024-7d367.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyARV-6pbXRpimC4_84CnGBEtVW6JqVxKm8',
-    appId: '1:334588390943:ios:3d91dd901ce774a3f6ef2a',
-    messagingSenderId: '334588390943',
-    projectId: 'eating-now',
-    databaseURL: 'https://eating-now-default-rtdb.firebaseio.com',
-    storageBucket: 'eating-now.appspot.com',
-    androidClientId: '334588390943-a6204t3apm4qqmibl0sr09o8apf97us7.apps.googleusercontent.com',
-    iosClientId: '334588390943-m005kolqnlbqbjg2jurd6vu9lm8orka2.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBICHC7DGkKOgaM__DVF_Jte3Hgvxgf4Pw',
+    appId: '1:914139427259:ios:f1f2b2816240040417149e',
+    messagingSenderId: '914139427259',
+    projectId: 'my-project-2024-7d367',
+    storageBucket: 'my-project-2024-7d367.appspot.com',
+    iosClientId: '914139427259-78hnf2dh2pk5qtqinlkgj72laalco8oh.apps.googleusercontent.com',
     iosBundleId: 'com.example.fam',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyARV-6pbXRpimC4_84CnGBEtVW6JqVxKm8',
-    appId: '1:334588390943:ios:d2ed229e2e1d6792f6ef2a',
-    messagingSenderId: '334588390943',
-    projectId: 'eating-now',
-    databaseURL: 'https://eating-now-default-rtdb.firebaseio.com',
-    storageBucket: 'eating-now.appspot.com',
-    androidClientId: '334588390943-a6204t3apm4qqmibl0sr09o8apf97us7.apps.googleusercontent.com',
-    iosClientId: '334588390943-3oj062imrm28h2dnom03ae7m5m3o1iie.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBICHC7DGkKOgaM__DVF_Jte3Hgvxgf4Pw',
+    appId: '1:914139427259:ios:f55911251650280817149e',
+    messagingSenderId: '914139427259',
+    projectId: 'my-project-2024-7d367',
+    storageBucket: 'my-project-2024-7d367.appspot.com',
+    iosClientId: '914139427259-cnpsis3f7rild1jhmlblpqjr5fpk8pts.apps.googleusercontent.com',
     iosBundleId: 'com.example.fam.RunnerTests',
   );
 }

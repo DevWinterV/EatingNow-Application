@@ -21,7 +21,6 @@ function LeafletMap({ locations }) {
     Latitude: "",
     Longittude:"",
   });
-
   const greenIcon = new L.Icon({
     iconUrl: 'https://cdn-icons-png.flaticon.com/128/7945/7945007.png',
     iconSize: [30, 30],

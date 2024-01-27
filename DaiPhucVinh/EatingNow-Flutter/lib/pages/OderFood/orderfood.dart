@@ -2,6 +2,7 @@ import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/data/Api/OrderService.dart';
 import 'package:fam/models/OrderRequest.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -27,6 +28,7 @@ class OrderPage extends StatefulWidget {
   _OrderPage createState() => _OrderPage();
 }
 class _OrderPage extends State<OrderPage> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
   final orderservice = OrderService();//lấy cửa hàng gần nhất
   OrderRequest orderRequest= OrderRequest();
   String addressdelivery = '';
@@ -232,27 +234,24 @@ class _OrderPage extends State<OrderPage> {
               ),
               onPressed: () async {
                 try {
-                  orderRequest.completeName = "Đông Châu";
+                  orderRequest.completeName = "Thúy Vy";
                   orderRequest.formatAddress = addressdelivery;
                   orderRequest.nameAddress = nameAddressdelivery;
                   orderRequest.orderLine = cartItem;
-                  orderRequest.customerId = "kTFgvQgpmyYMW1fhyopWYQSQx3C2";
+                  orderRequest.customerId = _auth.currentUser!.uid;
                   orderRequest.intoMoney = totalAmount.toInt();
                   orderRequest.transportFee = 15000;
                   orderRequest.totalAmt = totalAmount.toInt() - 15000;
                   orderRequest.userId = 14;
                   orderRequest.latitude = 10.3716555;
                   orderRequest.longitude = 105.432343;
-                  orderRequest.recipientName = "Đông Châu";
-                  orderRequest.recipientPhone = "0766837068";
+                  orderRequest.recipientName = "Thúy Vy";
+                  orderRequest.recipientPhone = "0366901380";
                   orderRequest.payment = null;
                   orderRequest.userId = 14;
                   orderRequest.payment ="PaymentOnDelivery";
-
+                  print(orderRequest);
                   final responseBody = await orderservice.postOrder(orderRequest);
-                  print(responseBody.data);
-                  print(responseBody.success);
-                  print(responseBody.Message);
 
                   // Xử lý kết quả trả về từ API
                   if (responseBody.success == true) {

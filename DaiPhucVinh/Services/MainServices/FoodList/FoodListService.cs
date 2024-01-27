@@ -222,10 +222,14 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                             foodList.FoodName = request.FoodName;
                             foodList.Price = request.Price;
                             foodList.qty = request.qty;
-                            foodList.UploadImage = HostAddress + GenAbsolutePath(relativePath);
                             foodList.Description = request.Description;
                             foodList.UserId = request.UserId;
                             foodList.Status = request.Status;
+                            foodList.Hint = request.Hint;
+                            foodList.IsNew = request.IsNew;
+                            foodList.IsNoiBat = request.IsNoiBat;
+                            foodList.ExpiryDate = request.ExpiryDate;
+                            foodList.QuantitySupplied = request.QuantitySupplied;
                         };
                     }
                     await _datacontext.SaveChangesAsync();
@@ -258,9 +262,14 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     foodList.Description = request.Description;
                     foodList.UserId = request.UserId;
                     foodList.Status = request.Status;
+                    foodList.Hint = request.Hint;
+                    foodList.IsNew = request.IsNew;
+                    foodList.IsNoiBat = request.IsNoiBat;
+                    foodList.ExpiryDate = request.ExpiryDate;
+                    foodList.QuantitySupplied = request.QuantitySupplied;
                 };
                 await _datacontext.SaveChangesAsync();
-                result.Success = true;
+                    result.Success = true;
             }
             catch (Exception ex)
             {
@@ -292,7 +301,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             try
             {
                 var foodList = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId == request.FoodListId);
-                foodList.IsNoiBat = !request.IsNoiBat;
+                foodList.IsNoiBat = !foodList.IsNoiBat;
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
             }
@@ -309,7 +318,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             try
             {
                 var foodList = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId == request.FoodListId);
-                foodList.IsNew = !request.IsNew;
+                foodList.IsNew = !foodList.IsNew;
                 await _datacontext.SaveChangesAsync();
                 result.Success = true;
             }

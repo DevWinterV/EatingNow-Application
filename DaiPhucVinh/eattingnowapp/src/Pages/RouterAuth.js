@@ -15,10 +15,10 @@ import SideMenu from "./SideMenu/SideMenu";
 const RouterAuth = () => {
   const [{ user }] = useStateValue();
   return (
-    <div className="w-screen h-auto flex flex-col bg-primary">
+    <div className="w-screen h-auto flex flex-col bg-white">
       {user != null ? (
-        <div className="flex items-center justify-center bg-orange-50">
-          <div className="flex shadow-2xl m-auto h-[90vh] items-center justify-center w-[90vw] my-10 rounded-xl overflow-hidden">
+        <div className="flex items-center justify-center bg-white">
+          <div className="flex shadow-2xl m-auto h-[100vh] items-center justify-center w-[100vw]  rounded-xl overflow-hidden">
             <SideMenu />
             <Routes>
               <Route path="/*" element={<Body />} />

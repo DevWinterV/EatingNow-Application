@@ -136,6 +136,11 @@ const CreateOrderCustomer = async (request) => {
       result.message = response.data.Message;
       result.success = true;
     }
+    else{
+      result.customdata = response.data.CustomData;
+      result.message = response.data.Message;
+      result.success = false;
+    }
   } catch (e) {
     result.message = e.toString();
   }

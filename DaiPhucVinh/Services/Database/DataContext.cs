@@ -66,6 +66,8 @@ namespace DaiPhucVinh.Services.Database
         public DbSet<FUV_WorkLog> FUV_WorkLogs { get; set; }
         public DbSet<FSW_ChatLuong> FSW_ChatLuongs { get; set; }
         public DbSet<FUV_MobileDevices> FUV_MobileDevice { get; set; }
+
+
         public DbSet<EN_Cuisine> EN_Cuisine { get; set; }
         public DbSet<EN_Province> EN_Province { get; set; }
         public DbSet<EN_District> EN_District { get; set; }
@@ -78,13 +80,15 @@ namespace DaiPhucVinh.Services.Database
         public DbSet<EN_OrderHeader> EN_OrderHeader { get; set; }
         public DbSet<EN_PaymentStatus> EN_PaymentStatus { get; set; }
         public DbSet<EN_Promotion> EN_Promotion { get; set; }
-
         public DbSet<EN_Customer> EN_Customer { get; set; }
         public DbSet<EN_OrderLine> EN_OrderLine { get; set; }
         public DbSet<EN_DeliveryDiver> EN_DeliveryDriver { get; set; }
         public DbSet<EN_FavoriteFoods> EN_FavoriteFoods { get; set; }
         public DbSet<EN_CustomerAddress> EN_CustomerAddress { get; set; }
         public DbSet<EN_CustomerNotifications> EN_CustomerNotifications { get; set; }
+        public DbSet<EN_CategoryPayment> EN_CategoryPayments { get; set; }
+        public DbSet<EN_Paymentonline> EN_Paymentonlines { get; set; }
+
 
     }
 }

@@ -8,11 +8,14 @@ import { actionType } from "../context/reducer";
 import { useNavigate } from 'react-router-dom';
 import { GetAllNotificationCustomer, SetIsReadAllNotification } from "../api/customer/customerService";
 import $ from 'jquery'; // Ensure you have jQuery installed
+import {searchAddress} from "../api/googleSearchApi/googleApiService";
+import { Button } from "evergreen-ui";
+import { colors } from "@material-ui/core";
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 
 const Header = () => {
-      //Kết nối đến SignalR Ordernotication
+  //Kết nối đến SignalR Ordernotication
   let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
   let proxy = connection.createHubProxy('OrderNotificationHub');
   const [isMenu, setIsMenu] = useState(false);
@@ -20,18 +23,13 @@ const Header = () => {
     setIsMenu(!isMenu);
   };
   const navigate = useNavigate();
-
   const [dataNotifi, setdataNotifi] = useState([]);
   const [countnotification, setcountnotification] = useState(0);
   const [showNotifications , setshowNotifications] =useState(false);
-  const [notification, setNotification]= useState({
-          icon: '🔔',
-          title: 'New Notification',
-          content: 'This is a sample notification.',
-          timestamp: 'Just now',
-  });
+  const [location, setLocation] = useState(null);
+  const [curentAddress, setcurentAddress] = useState("Chưa lấy được vị trí ...")
   const [{ cartShow, cartItems, linked, user, customer }, dispatch] =
-    useStateValue();
+  useStateValue();
   const ShowCart = () => {
     dispatch({
       type: actionType.SET_CART_SHOW,
@@ -94,7 +92,7 @@ const Header = () => {
     if(customer != null){
       proxy.invoke('RemoveUserConnection', customer)
       .done(() => {
-          console.log('Đã xóa UserConnection thành công trước khi trình duyệt đóng');
+        //
       })
       .fail((error) => {
           console.error('Lỗi xóa UserConnection:', error);
@@ -117,6 +115,82 @@ const Header = () => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
+
+  useEffect(() => {
+    // Use the Geolocation API to get the current location
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+        },
+        (error) => {
+          console.error('Error getting location:', error.message);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported in this browser.');
+    }
+  }, []);
+  
+
+  useEffect(() =>{
+    if(location != null){
+      searchAddress(location.latitude + "," + location.longitude).then(
+        (data) => {
+          if (data && data.status === "OK" && data.results.length > 0) {
+            console.log(data.results[0].formatted_address);
+            setcurentAddress(data.results[0].formatted_address);
+          }else{
+            console.log("Đã xảy ra lỗi khi lấy vị trí!");
+          }
+        }
+      );
+    }
+  },[location])
+
+
+  const handleFetchLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.permissions
+        .query({ name: 'geolocation' })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === 'granted') {
+            // Permission already granted, proceed to get the current location
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                setLocation({ latitude, longitude });
+              },
+              (error) => {
+                console.error('Error getting location:', error.message);
+              }
+            );
+          } else if (permissionStatus.state === 'prompt') {
+            // Permission not granted yet, request it
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                setLocation({ latitude, longitude });
+              },
+              (error) => {
+                console.error('Error getting location:', error.message);
+              }
+            );
+          } else {
+              alert('Vui lòng bật dịch vụ định vị để sử dụng tính năng này. Bạn có thể bật nó thủ công bằng cách vào cài đặt thiết bị và kích hoạt dịch vụ định vị.');            
+          }
+        })
+        .catch((error) => {
+          console.error('Error checking geolocation permission:', error);
+        });
+    } else {
+      console.error('Geolocation is not supported in this browser.');
+    }
+  };
+  
+
+  
   useEffect(() => {
     // Set up a client method to receive order notifications
     proxy.on('ReceiveOrderNotification', (orderMessage) => {
@@ -131,12 +205,10 @@ const Header = () => {
     // Attempt connection and handle connection and error events
     connection.start()
       .done(() => {
-        console.log('Kết nối thành công SignalR');
         // Đăng ký người dùng khi kết nối thành công
         if (customer !== null) {
           proxy.invoke('SetCustomerId', customer)
             .done(() => {
-              console.log('Đăng ký người dùng thành công');
             })
             .fail((error) => {
               console.error('Lỗi đăng ký người dùng:', error);
@@ -159,14 +231,32 @@ const Header = () => {
   
   return (
     <header className="fixed z-50 w-screen p-3 px-8 md:p-6 md:px-16 bg-orange-50">
+
       {/* desktop & tablet  */}
       <div className="hidden md:flex w-full h-full items-center justify-between">
         <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
-          <p className="text-orange-600 text-xl font-bold px-4">EATTINGNOW.</p>
+          <p className="text-orange-600 text-xl font-bold px-4">XpressEat.</p>
         </Link>
-
+        {
+          curentAddress != "Chưa lấy được vị trí ..." ?      
+            <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
+              {/*Logo*/}
+              <img src="https://cdn-icons-png.flaticon.com/128/7945/7945007.png" alt="CurentLocation" width={30} height={30}/>
+              <p className="text-headingColor text-5 font-italic">{curentAddress}</p>
+            </Link> 
+          :  
+              <div className="row">
+                   <button 
+                      style={{ backgroundColor: '', color: 'black', padding: '6px 6px', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={handleFetchLocation}>
+                      <p > Sử dụng vị trí hiện tại...</p>
+                    </button>
+              </div>
+        }
         <div className="flex items-center gap-8">
-          <motion.ul
+          {
+            /*
+                   <motion.ul
             initial={{ opacity: 0, x: 200 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 200 }}
@@ -177,6 +267,9 @@ const Header = () => {
             </li>
           </motion.ul>
 
+            */
+          }
+   
           <div
             className="relative flex items-center justify-center"
             onClick={ShowCart}
@@ -262,7 +355,7 @@ const Header = () => {
                     dataNotifi.map((item, index) => (
                       <li key={index} className="notification-item-horizontal"
                       onClick={() => handleItemClick(item.Action_Link)} // Gọi hàm khi item được click
-                      style={{ backgroundColor: item.IsRead ? 'lightgreen' : 'initial' }}
+                      style={{ backgroundColor: item.IsRead ? '#98FB98' : 'initial' }}
                       >
                         <motion.div
                         whileTap={{ scale: 0.9 }}
@@ -289,7 +382,7 @@ const Header = () => {
                         > 
                           <span className="notification-icon">🔔</span>
                           <div className="notification-content">
-                            <h4>Chưa có thông báo</h4>
+                            <h4>Tài khoản hiện có chưa có thông báo</h4>
                             <p>HỆ THỐNG</p>
                           </div>
                           <span className="notification-timestamp">
@@ -298,13 +391,12 @@ const Header = () => {
                     </li>
                   )
                 }
-                  <li className="notification-item-horizontal">
+                  {/* <li className="notification-item-horizontal">
                           <div class="notification-link"
                           onClick={handleViewAllNotification}>
                             Xem tất cả
                           </div>
-                  </li>
-          
+                  </li> */}
                 </ul>
               </ul>
                 )}
@@ -368,6 +460,22 @@ const Header = () => {
 
       {/* mobile */}
       <div className="flex items-center justify-between md:hidden w-full h-full">
+        {
+          curentAddress != "Chưa lấy được vị trí ..." ?      
+            <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
+              {/*Logo*/}
+              <img src="https://cdn-icons-png.flaticon.com/128/7945/7945007.png" alt="CurentLocation" width={30} height={30}/>
+              <p className="text-headingColor text-5 font-italic">{curentAddress}</p>
+            </Link> 
+          :  
+              <div className="row">
+                   <button 
+                      style={{ backgroundColor: '', color: 'black', padding: '6px 6px', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={handleFetchLocation}>
+                      <p > Sử dụng vị trí hiện tại...</p>
+                    </button>
+              </div>
+        }
         <div
           className="relative flex items-center justify-center"
           onClick={ShowCart}
@@ -381,10 +489,10 @@ const Header = () => {
             </div>
           )}
         </div>
-
         <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
-          <img src={Logo} className="w-16 object-cover" alt="logo" />
-          <p className="text-headingColor text-xl font-bold">EattingNow</p>
+          {/*Logo*/}
+          {/* <img src={Logo} className="w-16 object-cover" alt="logo" /> */}
+          <p className="text-headingColor text-xl font-bold"></p>
         </Link>
   
         {/** Thông báo mới */}

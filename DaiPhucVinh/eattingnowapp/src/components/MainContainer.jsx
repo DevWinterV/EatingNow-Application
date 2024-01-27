@@ -18,12 +18,13 @@ const MainContainer = () => {
     if (state?.data) {
       let response = await TakeCategoryByStoreId(state?.data.UserId);
       setData(response.data);
+      console.log(response.data);
     }
     setIsLoading(false);
   }
 
   const first = data[0];
-
+  
   useEffect(() => {
     onViewAppearing();
   }, [cartShow, state]);

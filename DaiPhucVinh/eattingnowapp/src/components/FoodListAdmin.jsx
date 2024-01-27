@@ -5,14 +5,13 @@ import { FiXCircle } from "react-icons/fi";
 import { NotFound } from "../assets";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { ChangeIsNoiBatFoodList, DeleteFoodList } from "../api/foodlist/foodListService";
+import { ChangeIsNoiBatFoodList, ChangeIsNewFoodList, DeleteFoodList } from "../api/foodlist/foodListService";
 import { useStateValue } from "../context/StateProvider";
 import {
   TakeAllFoodListByStoreId,
   TakeFoodListByStoreId,
 } from "../api/store/storeService";
 import Loader from "./Loader";
-import { FaStar } from "react-icons/fa";
 import { AiOutlineStar } from "react-icons/ai";
 import { BsBookmarkStar } from "react-icons/bs";
 
@@ -86,18 +85,21 @@ const FoodListAdmin = ({ filter }) => {
                       >
                         <TbEdit className="text-2xl" />
                       </button>
-                      <button className="p-1.5 text-xs font-medium uppercase tracking-wider text-white bg-orange-700 rounded-full bg-opacity-50">
+
+                      
+                      <button className={`p-1.5 text-xs font-medium uppercase tracking-wider text-white bg-${n.IsNoiBat === true ? "green-500" : "orange-700"} rounded-full bg-opacity-50`}>
                         <AiOutlineStar
                           className="text-2xl"
                           onClick={() => {
                             Swal.fire({
-                              title: "Món ăn nổi bật !",
-                              text: `Bạn muốn đặt món ${n.FoodName} thành món ăn nổi bật?`,
+                              title: n.IsNoiBat ? "Tắt món ăn nổi bật !" : "Món ăn nổi bật !",
+                              text:  n.IsNoiBat ? `Bạn muốn tắt trạng thái nổi bật của món ${n.FoodName} không ?` : `Bạn muốn đặt món ${n.FoodName} thành món ăn nổi bật ?` ,
                               icon: "warning",
                               showCancelButton: true,
                               confirmButtonColor: "#3085d6",
                               cancelButtonColor: "#d33",
-                              confirmButtonText: "Xác nhận !",
+                              confirmButtonText: "Đồng ý",
+                              cancelButtonText: "Hủy",
                             }).then((result) => {
                               if (result.isConfirmed) {
                                 ChangeIsNoiBatFoodList(n.FoodListId).then(
@@ -105,14 +107,14 @@ const FoodListAdmin = ({ filter }) => {
                                     if (response.success) {
                                       Swal.fire(
                                         "Thành công!",
-                                        "Xóa dữ liệu thành công.",
+                                        "Cập nhật thành công.",
                                         "success"
                                       );
                                       onViewAppearing();
                                     } else {
                                       Swal.fire({
                                         title: "Lỗi!",
-                                        text: "Không thể xóa. Nhóm món ăn này đã tồn tại sản phẩm!",
+                                        text: "Cập nhật không thành công... Vui lòng thử lại",
                                         icon: "error",
                                         confirmButtonText: "OK",
                                       });
@@ -125,33 +127,35 @@ const FoodListAdmin = ({ filter }) => {
                           }}
                         />
                       </button>
-                      <button className="p-1.5 text-xs font-medium uppercase tracking-wider text-white bg-orange-700 rounded-full bg-opacity-50">
+
+                      <button className={`p-1.5 text-xs font-medium uppercase tracking-wider text-white bg-${n.IsNew === true ? "green-500" : "orange-700"} rounded-full bg-opacity-50`}>
                         <BsBookmarkStar
                           className="text-2xl"
                           onClick={() => {
                             Swal.fire({
-                              title: "Món mới!",
-                              text: `Bạn món đặt món ${n.FoodName} thành món mới !`,
+                              title: n.IsNew ? "Tắt món mới!" : "Món mới",
+                              text:  n.IsNew ? `Bạn có muốn tắt trạng thái món mới của ${n.FoodName} không ?`: `Bạn món đặt món ${n.FoodName} thành món mới ?`,
                               icon: "warning",
                               showCancelButton: true,
                               confirmButtonColor: "#3085d6",
                               cancelButtonColor: "#d33",
-                              confirmButtonText: "Xác nhận !",
+                              confirmButtonText: "Đồng ý",
+                              cancelButtonText: "Hủy",
                             }).then((result) => {
                               if (result.isConfirmed) {
-                                DeleteFoodList(n.FoodListId).then(
+                                ChangeIsNewFoodList(n.FoodListId).then(
                                   (response) => {
                                     if (response.success) {
                                       Swal.fire(
                                         "Thành công!",
-                                        "Xóa dữ liệu thành công.",
+                                        "Cập nhật thành công.",
                                         "success"
                                       );
                                       onViewAppearing();
                                     } else {
                                       Swal.fire({
                                         title: "Lỗi!",
-                                        text: "Không thể xóa. Nhóm món ăn này đã tồn tại sản phẩm!",
+                                        text: "Cập nhật không thành công... Vui lòng thử lại",
                                         icon: "error",
                                         confirmButtonText: "OK",
                                       });
@@ -164,6 +168,7 @@ const FoodListAdmin = ({ filter }) => {
                           }}
                         />
                       </button>
+                      
                       <button className="p-1.5 text-xs font-medium uppercase tracking-wider text-white bg-orange-700 rounded-full bg-opacity-50">
                         <FiXCircle
                           className="text-2xl"

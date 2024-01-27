@@ -10,6 +10,7 @@ const CartItem = ({ item, setFlag, flag }) => {
   const [qty, setQty] = useState(item.qty);
   const [note, setNote] = useState(" ");
   const [showNote, setShowNote] = useState(false);
+  
   const cartDispatch = () => {
     localStorage.setItem("cartItems", JSON.stringify(items));
     dispatch({

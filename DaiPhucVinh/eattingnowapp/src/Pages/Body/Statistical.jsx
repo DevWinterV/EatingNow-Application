@@ -9,7 +9,7 @@ import {
   Legend,
 } from "chart.js";
 import { ResponsiveContainer, Tooltip, PieChart, Pie, LineChart, Line, XAxis, YAxis} from "recharts";
-
+import { Label } from "recharts";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useStateValue } from "../../context/StateProvider";
 import { TakeStatisticalByStoreId, TakeLitsFoodSold } from "../../api/store/storeService";
@@ -42,6 +42,11 @@ const Statistical = () => {
         borderWidth: 1,
       },
     ],
+  };
+  const [selectedData, setSelectedData] = useState(null);
+
+  const handlePieClick = (data, index) => {
+      setSelectedData(datachart[index]);
   };
   const [datachart, setDatachart ]= useState([]);
   const [ListFoodSold, setListFoodSold]= useState([]);
@@ -123,9 +128,6 @@ const Statistical = () => {
     onViewAppearing();
     
   }, []);
-  console.log("data", data)
-  console.log("Các sản  phẩm đã bán được: ",ListFoodSold)
-  console.log(datachart);
   return (
   
     <div className="bg-bodyBg h-[100%] basis-80 p-8 overflow-x-scroll scrollbar-none">
@@ -174,6 +176,7 @@ const Statistical = () => {
           <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueYear?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
       </div>
+
       <div className="w-full">
         <React.Fragment>
           <ResponsiveContainer width="100%" aspect={2} >
@@ -203,22 +206,71 @@ const Statistical = () => {
           </ResponsiveContainer>
         </React.Fragment>   
       </div>
-      {
-        datachart !=  null ?
-        <React.Fragment>
-  
-          <h2 style={{color:"blue"}}>Sản phẩm bán chạy của cửa hàng</h2>
-            <ResponsiveContainer width="100%" aspect={2} >
-              <PieChart>
-                <Tooltip/>
-                <Pie  data= {datachart} dataKey="count"  cx="30%" cy="30%" outerRadius={80} fill="green" label/>
-              </PieChart>
- 
-          </ResponsiveContainer>
-        </React.Fragment>   
-        : null
-      }
-    
+      <h1 className="text-[25px] text-titleColor tracking-[1px] font-black">
+        Sản phẩm bán chạy của cửa hàng
+      </h1>
+        <div className="flex">
+            <div>
+              {datachart != null ? (
+                <React.Fragment>
+                      <ResponsiveContainer width="100%" height={200} aspect={2}>
+                    <PieChart>
+                      <Tooltip formatter={(value) => `${value} số lượng`} />
+                      <Pie
+                        data={datachart}
+                        dataKey="count"
+                        cx="50%"
+                        cy="60%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        label 
+                        onClick={handlePieClick}
+                      >
+                        <Label valueKey="name" position="insideBottom" offset={-10} fill="#fff" />
+                      </Pie>
+                      <Legend align="center" verticalAlign="bottom" height={36} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </React.Fragment>
+              ) : null}
+            </div>
+            <div className="m-10">
+              {selectedData && (
+                <div className="details-container">
+                  <h2 className="text-italic">Chi tiết số lượng</h2>
+                  <div className="detail-item">
+                    <span className="detail-label">Tên mặt hàng:</span>
+                    <span className="detail-value">{selectedData.name}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Số lượng đã bán:</span>
+                    <span className="detail-value">{`${selectedData.count}`}</span>
+                  </div>
+                  {/* Add more details if needed */}
+                </div>
+              )}
+            </div>
+            <div className="m-10">
+              <table className="styled-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên mặt hàng</th>
+                    <th>Số lượng đã bán</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {ListFoodSold.sort((a, b) => b.FoodCount - a.FoodCount).map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.FoodListId}</td>
+                      <td>{item.FoodName}</td>
+                      <td>{item.FoodCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+        </div>
     </div>
   );
 };

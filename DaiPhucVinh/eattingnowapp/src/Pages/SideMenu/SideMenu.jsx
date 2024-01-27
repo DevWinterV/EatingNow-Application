@@ -1,14 +1,14 @@
 import React from "react";
-import { IoFastFood } from "react-icons/io5";
+import { IoFastFood, IoFastFoodSharp } from "react-icons/io5";
 import { AiFillHome, AiFillSetting } from "react-icons/ai";
-import { BiRestaurant, BiLogOut, BiShoppingBag } from "react-icons/bi";
-import { GiFruitBowl } from "react-icons/gi";
+import { BiRestaurant, BiLogOut, BiShoppingBag, BiFoodTag, BiFoodMenu } from "react-icons/bi";
+import { GiFoodChain, GiFruitBowl } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { useStateValue } from "../../context/StateProvider";
 import { actionType } from "../../context/reducer";
 import Swal from "sweetalert2";
 
-const SideMenu = () => {
+const   SideMenu = () => {
   const history = useNavigate();
   const [{ linked, user }, dispatch] = useStateValue();
   const handleHome = () => {
@@ -41,15 +41,15 @@ const SideMenu = () => {
     });
   };
   return (
-    <div className="bg-orange-100 relative h-[100%] basis-20 p-4">
+    <div className="bg-primary relative h-[100%] basis-20 p-4">
       {/* Logo Div */}
       <div
         onClick={handleHome}
         className="logo mt-4 gap-2 text-orange-900 font-bold flex items-center justify-center m-auto cursor-pointer"
       >
-        <IoFastFood className="text-[20px]" />
+        <IoFastFoodSharp  className="text-[50px]" />
         <h1 className="text-[20px] align-center justify-center font-black">
-          EattingNow.
+            
         </h1>
       </div>
 
@@ -60,7 +60,7 @@ const SideMenu = () => {
           className="h-[80px] w-80[px] border-orange-400 border-[4px] object-cover rounded-full shadow-xl"
         />
         <span className="opacity-70 mt-2 text-orange-900 font-bold">
-          Welcome,{" "}
+          Xin chào{" "}
         </span>
         <h3 className="font-bold text-orange-900">{user.StoreName}</h3>
       </div>

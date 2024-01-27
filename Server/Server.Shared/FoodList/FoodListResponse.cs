@@ -18,5 +18,11 @@ namespace DaiPhucVinh.Shared.FoodList
         public string Description { get; set; }
         public int UserId { get; set; }
         public bool Status { get; set; }
+        public int Hint { get; set; }
+        public bool IsNew { get; set; }
+        public bool IsNoiBat { get; set; }
+        public int QuantitySupplied { get; set; }
+        public DateTime ExpiryDate { get; set; }
+
     }
 }

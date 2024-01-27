@@ -50,41 +50,53 @@ namespace PCheck.WebUI.Api
         [Route("UpdateFoodList")]
         public async Task<BaseResponse<bool>> UpdateFoodList()
         {
-            var httpRequest = HttpContext.Current.Request;
-            HttpPostedFile img = null;
-            //file
-            if (httpRequest.Files.Count > 0)
+            try
             {
-                img = httpRequest.Files[0];
-
-                if (httpRequest.Form.Count > 0)
+                var httpRequest = HttpContext.Current.Request;
+                HttpPostedFile img = null;
+                //file
+                if (httpRequest.Files.Count > 0)
                 {
-                    var jsonRequest = httpRequest.Form[0];
+                    img = httpRequest.Files[0];
 
-                    var request = JsonConvert.DeserializeObject<FoodListRequest>(jsonRequest);
-                    return await _foodListService.UpdateFoodListHaveImage(request, img);
+                    if (httpRequest.Form.Count > 0)
+                    {
+                        var jsonRequest = httpRequest.Form[0];
+
+                        var request = JsonConvert.DeserializeObject<FoodListRequest>(jsonRequest);
+                        return await _foodListService.UpdateFoodListHaveImage(request, img);
+                    }
+                    else return new BaseResponse<bool>
+                    {
+                        Success = false,
+                        Message = "File not found!"
+                    };
                 }
-                else return new BaseResponse<bool>
+                else
+                {
+                    if (httpRequest.Form.Count > 0)
+                    {
+                        var jsonRequest = httpRequest.Form[0];
+
+                        var request = JsonConvert.DeserializeObject<FoodListRequest>(jsonRequest);
+                        return await _foodListService.UpdateFoodListNotImage(request);
+                    }
+                    else return new BaseResponse<bool>
+                    {
+                        Success = false,
+                        Message = "File not found!"
+                    };
+                }
+            }
+            catch (Exception ex) {
+                return new BaseResponse<bool>
                 {
                     Success = false,
-                    Message = "File not found!"
+                    Message = ex.Message
                 };
             }
-            else
-            {
-                if (httpRequest.Form.Count > 0)
-                {
-                    var jsonRequest = httpRequest.Form[0];
 
-                    var request = JsonConvert.DeserializeObject<FoodListRequest>(jsonRequest);
-                    return await _foodListService.UpdateFoodListNotImage(request);
-                }
-                else return new BaseResponse<bool>
-                {
-                    Success = false,
-                    Message = "File not found!"
-                };
-            }
+
         }
 
         [HttpPost]

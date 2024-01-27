@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="DaiPhucVinh\EN_Account.cs" />
     <Compile Include="DaiPhucVinh\EN_CategoryList.cs" />
+    <Compile Include="DaiPhucVinh\EN_CategoryPayment.cs" />
     <Compile Include="DaiPhucVinh\EN_CustomerAddress.cs" />
     <Compile Include="DaiPhucVinh\EN_CustomerNotifications.cs" />
     <Compile Include="DaiPhucVinh\EN_DeliveryDiver.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="DaiPhucVinh\EN_Customer.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderHeader.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderLine.cs" />
+    <Compile Include="DaiPhucVinh\EN_Paymentonline.cs" />
     <Compile Include="DaiPhucVinh\EN_PaymentStatus.cs" />
     <Compile Include="DaiPhucVinh\EN_Promotion.cs" />
     <Compile Include="DaiPhucVinh\EN_Store.cs" />

@@ -1,49 +1,40 @@
 {
   "project_info": {
-    "project_number": "334588390943",
-    "firebase_url": "https://eating-now-default-rtdb.firebaseio.com",
-    "project_id": "eating-now",
-    "storage_bucket": "eating-now.appspot.com"
+    "project_number": "914139427259",
+    "project_id": "my-project-2024-7d367",
+    "storage_bucket": "my-project-2024-7d367.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:334588390943:android:c6f1eab6703294a8f6ef2a",
+        "mobilesdk_app_id": "1:914139427259:android:15cffb07cc4c42b317149e",
         "android_client_info": {
           "package_name": "com.example.fam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "334588390943-a6204t3apm4qqmibl0sr09o8apf97us7.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.fam",
-            "certificate_hash": "0cb8c57f013d7cf5c9cc1d4d81759b289af24990"
-          }
-        },
-        {
-          "client_id": "334588390943-hh0roccqrot34d001eb2327ne1d4ch1e.apps.googleusercontent.com",
+          "client_id": "914139427259-c9k6j2t0hamdtbblnr7fleoin5nngij1.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC_mdM-RLljEn-8Y0N7YIIes_1gUXus5DU"
+          "current_key": "AIzaSyBT411X8o88JbpkZNQP1bFsCpjJxaj5vJA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "334588390943-aropkit80spakrnnv5ps3rlp0ggibsbu.apps.googleusercontent.com",
+              "client_id": "914139427259-c9k6j2t0hamdtbblnr7fleoin5nngij1.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "334588390943-3oj062imrm28h2dnom03ae7m5m3o1iie.apps.googleusercontent.com",
+              "client_id": "914139427259-78hnf2dh2pk5qtqinlkgj72laalco8oh.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.fam.RunnerTests"
+                "bundle_id": "com.example.fam"
               }
             }
           ]

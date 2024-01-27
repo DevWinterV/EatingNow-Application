@@ -13,14 +13,13 @@ import  Notification from "react-push-notification";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBerAmPafM3WcAH_lTtM3af7u5xDWSjvEI",
-  authDomain: "eating-now.firebaseapp.com",
-  databaseURL: "https://eating-now-default-rtdb.firebaseio.com",
-  projectId: "eating-now",
-  storageBucket: "eating-now.appspot.com",
-  messagingSenderId: "334588390943",
-  appId: "1:334588390943:web:4404c6edf638bae7f6ef2a",
-  measurementId: "G-0TQ4V1JGW7"
+  apiKey: "AIzaSyBasBL27GvwUnuTuu1o7TGKhR01P0Fgta0",
+  authDomain: "my-project-2024-7d367.firebaseapp.com",
+  projectId: "my-project-2024-7d367",
+  storageBucket: "my-project-2024-7d367.appspot.com",
+  messagingSenderId: "914139427259",
+  appId: "1:914139427259:web:01a8f940361094c217149e",
+  measurementId: "G-NTLCBFGHTS"
 };
 
 // Initialize Firebase

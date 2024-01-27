@@ -146,6 +146,7 @@ const OTPAuthen = () => {
         {
           size: "invisible",
           callback: (response) => {
+            console.log(response);
             onSignup();
           },
           "expired-callback": () => {},
@@ -159,12 +160,11 @@ const OTPAuthen = () => {
     if (ph.trim() !== "") {
       setLoading(true);
       onCaptchVerify();
-
       const appVerifier = window.recaptchaVerifier;
-
       const formatPh = "+" + ph;
       signInWithPhoneNumber(auth, formatPh, appVerifier)
         .then((confirmationResult) => {
+          console.log(confirmationResult);
           window.confirmationResult = confirmationResult;
           setLoading(false);
           setShowOTP(true);
@@ -273,18 +273,18 @@ const OTPAuthen = () => {
    }
 
   return (
-    <section className="bg-orange-100 flex items-center justify-center h-screen">
+    <section className="bg-gray-100 flex items-center justify-center h-screen">
       <div>
       <ToastContainer />
         <div id="recaptcha-container"></div>
         {user != null ? (
           <h2 className="text-center text-white font-medium text-2xl">
-            👍Login Success
+            👍Đăng nhập thành công ...
           </h2>
         ) : (
           <div className="w-120 flex flex-col gap-4 rounded-lg p-4">
             <h1 className="font-bold text-center leading-normal text-stone-600 text-3xl mb-6">
-              CHÀO MỪNG ĐẾN <br /> EATINGNOW
+              {/* CHÀO MỪNG ĐẾN <br /> EATINGNOW */}
             </h1>
             {showOTP ? (
               <>
@@ -325,7 +325,7 @@ const OTPAuthen = () => {
                   htmlFor=""
                   className="font-bold text-xl text-stone-600 text-center"
                 >
-                  Xác minh số điện thoại
+                  Nhập số điện thoại
                 </label>
                 <PhoneInput country={"vn"} value={ph} onChange={setPh} />
                 <button
@@ -335,7 +335,7 @@ const OTPAuthen = () => {
                   {loading && (
                     <CgSpinner size={20} className="mt-1 animate-spin" />
                   )}
-                  <span>Gửi mã SMS</span>
+                  <span>Gửi mã OTP</span>
                 </button>
             <div className="text-center flex justify-center items-center space-x-4">
                 <p>Hoặc:</p>
@@ -363,7 +363,7 @@ const OTPAuthen = () => {
               }
        
               <button
-                className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
+                className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-600 rounded-lg bg-opacity-50"
                 onClick={() => {
                   handChangeLogin()
                 }}
@@ -371,7 +371,7 @@ const OTPAuthen = () => {
                 <TbLogin className="text-2xl" /> Đăng nhập bằng tài khoản
               </button>
               <button
-                className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-300 rounded-lg bg-opacity-50"
+                className="p-1.5 text-xs font-medium uppercase tracking-wider text-blue-800 bg-orange-600 rounded-lg bg-opacity-50"
                 onClick={() => {
                   faceSignIn()
                 }}
@@ -406,7 +406,7 @@ const OTPAuthen = () => {
               style={{ width: "250px" }}
               className="font-bold mt-1 rounded-xl text-orange-800 py-1 duration-300 flex justify-center items-center"
             >
-              <span className="text-2xl">EATINGNOW.</span>
+              <span className="text-2xl">XpressEat.</span>
             </motion.button>
           </motion.button>
         </Pane>

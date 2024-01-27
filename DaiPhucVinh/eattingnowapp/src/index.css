@@ -222,7 +222,7 @@ body {
 
 .order-info {
   font-size: 18px;
-  color:coral;
+  color:darksalmon;
   font-weight: bold;
   margin: 10px 0;
 }
@@ -237,13 +237,6 @@ body {
   margin: 10px;
 }
 
-.order-info {
-  font-size: 18px;
-  color: #ff6600;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
 /* Styles for mobile (max-width: 600px) */
 @media screen and (max-width: 600px) {
   .order-details {
@@ -251,12 +244,7 @@ body {
     margin: 5px;
   }
 
-  .order-info {
-    font-size: 16px;
-    margin: 5px 0;
-    color: red;
-  }
-  
+
   .address-title {
     font-size: 18px;
   }
@@ -277,7 +265,7 @@ body {
 
 .order-info {
   font-size: 18px;
-  color:;
+  color:darksalmon;
   font-weight: bold;
   margin: 10px 0;
   white-space: nowrap;
@@ -307,7 +295,7 @@ body {
   .order-info {
     font-size: 16px;
     margin: 5px 0;
-    color: red;
+    color:darksalmon;
   }
 }
 .table-container {
@@ -398,3 +386,79 @@ body {
   border: 1px solid #ccc; /* Viền */
   text-align: center;
 }
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.checkbox-container input {
+  margin-right: 8px;
+}
+
+.date-picker-container {
+  width: 100%;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-group {
+  display: flex;
+}
+
+.checkbox-group div {
+  margin-right: 20px;
+}
+
+.checkbox-group input {
+  margin-right: 8px;
+}
+/* YourComponent.css */
+
+.details-container {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.detail-item {
+  margin-bottom: 8px;
+}
+
+.detail-label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.detail-value {
+  color: #333;
+}
+.text-italic {
+  font-style: italic;
+}
+
+/* YourComponent.css */
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.styled-table th, .styled-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.styled-table th {
+  background-color: #f2f2f2;
+}
+
+/* Add more styles as needed */
