@@ -25,14 +25,32 @@ class LocationStorage {
 
   }
 
-  Future<LocationData> getSavedLocation() async {
-    final String name = prefs.getString('name') ?? '';
-    final double latitude = prefs.getDouble('latitude') ?? 0.0;
-    final double longitude = prefs.getDouble('longitude') ?? 0.0;
-    final String address = prefs.getString('address') ?? '';
-    return LocationData(name: name,latitude: latitude, longitude: longitude, address: address);
-  }
+   Future<LocationData> getSavedLocation() async {
+     prefs = await SharedPreferences.getInstance();
 
+     // Check if prefs is null, and initialize if needed
+     if (prefs == null) {
+       await initPrefs();
+     }
+
+     if (prefs != null) {
+       print(prefs);
+       final String name = prefs!.getString('name') ?? '';
+       final double latitude = prefs!.getDouble('latitude') ?? 0.0;
+       final double longitude = prefs!.getDouble('longitude') ?? 0.0;
+       final String address = prefs!.getString('address') ?? '';
+
+       return LocationData(
+         name: name,
+         latitude: latitude,
+         longitude: longitude,
+         address: address,
+       );
+     } else {
+       // Handle the case where prefs is still null
+       throw Exception("SharedPreferences initialization failed");
+     }
+   }
   double getSavedLatitude() {
     return prefs.getDouble('latitude') ?? 0.0;
   }

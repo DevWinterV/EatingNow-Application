@@ -1,4 +1,5 @@
 import 'package:fam/util/Colors.dart';
+import 'package:fam/util/app_constants.dart';
 import 'package:fam/util/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,7 +30,7 @@ class _LocationPageState extends State<LocationPage> {
       'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s');
   late final LocationStorage locationStorage;
   late bool isloadingdata = true;
-  late String places = "";
+  late AddressResult addressResult;
   late Position position;
   List<CartItem> cartItems = [];
 
@@ -118,7 +119,7 @@ class _LocationPageState extends State<LocationPage> {
   // Lưu vị trí khách hàng chọn giao hàng và chuyển san màn hình Home Page
   Future<void> getAddressdelivery() async {
     await locationStorage.saveLocation(
-        "Vị trí mặc định", position.latitude, position.longitude, places);
+        addressResult.name_address ?? "", position.latitude, position.longitude, addressResult.formatted_address ?? "");
     if (link != "") {
       // Chuyển đổi route tới link và truyền dữ liệu caritems
       Navigator.pushReplacement(
@@ -141,23 +142,15 @@ class _LocationPageState extends State<LocationPage> {
       position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
       // Lấy địa chỉ từ location người dùng
-      places = await googleApiService.fetchPlacesFromLocation(
+      addressResult = await googleApiService.fetchPlacesFromLocation(
           position.latitude, position.longitude);
-      if (places != "") {
+      if (addressResult != null) {
         setState(() {
-          _locationMessage = places;
           isloadingdata = false;
         });
       }
-      /*
-      Fluttertoast.showToast(msg: places,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.TOP,
-          backgroundColor: AppColors.toastSuccess,
-          textColor: Colors.black54,
-          timeInSecForIosWeb: 1,
-          fontSize: 15);*/
 
     } catch (e) {
       // Fluttertoast.showToast(
@@ -176,7 +169,7 @@ class _LocationPageState extends State<LocationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-        'XpressEat',
+        AppConstants.APP_NAME,
         overflow: TextOverflow.ellipsis,
         maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
         ),
@@ -190,7 +183,7 @@ class _LocationPageState extends State<LocationPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
-              "Vui lòng chọn vị trí chính xác của bạn để tài xế có thể giao hàng nhanh nhất",
+              "Chọn vị trí chính xác nhất để tài xế có thể giao hàng nhanh và chính xác nhất",
               style: TextStyle(
                 fontSize: Dimensions.font20,
                 fontWeight: FontWeight.bold,

@@ -250,7 +250,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          BigText(text: (data?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,),
+                          BigText(text: (data?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,maxlines: 1,),
                           SmallText(text: (data?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
                           Container(
                             margin: EdgeInsets.only(left: Dimensions.width10),
@@ -315,7 +315,18 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           itemCount: products!.data!.length,
           itemBuilder: (context, index) {
             final product = products?.data![index];
-            return Container(
+            return
+              GestureDetector(
+                onTap: () {
+              // Điều hướng đến trang chi tiết tại đây
+              // Chuyển đổi route tới link và truyền dữ liệu caritems
+              Navigator.pushReplacement(
+                  context,
+                  Navigator.pushNamed(context, "/productdetail", arguments: {'data': product }) as Route<Object?>
+              );
+            },
+            child:
+            Container(
               margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20, bottom: Dimensions.height10),
               child: Row(
                 children: [
@@ -357,33 +368,33 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                 children: [
                                   SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
                                   FutureBuilder<double>(
-                                      future: calculateDistanceToStore(product!.latitude ?? 10.323233,product!.longitude ?? 105.1727172),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
-                                        } else if (snapshot.hasError) {
-                                          return Text("Error: ${snapshot.error}");
-                                        } else {
-                                          final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                          final minite = (double.parse(km) * 60)/ 35;
-                                          return
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                IconAndTextWidget(
-                                                  icon: Icons.access_time_rounded,
-                                                  text: minite.toStringAsFixed(1) +" phút",
-                                                  iconColor: AppColors.mainColor,),
-                                                IconAndTextWidget(
-                                                  icon: Icons.location_on,
-                                                  text: km +" km",
-                                                  iconColor: AppColors.iconColor2,
-                                                ),
-                                              ],
-                                            );
-                                        }
-                                      },
-                                    )
+                                    future: calculateDistanceToStore(product!.latitude ?? 10.323233,product!.longitude ?? 105.1727172),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
+                                      } else if (snapshot.hasError) {
+                                        return Text("Error: ${snapshot.error}");
+                                      } else {
+                                        final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                        final minite = (double.parse(km) * 60)/ 35;
+                                        return
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              IconAndTextWidget(
+                                                icon: Icons.access_time_rounded,
+                                                text: minite.toStringAsFixed(1) +" phút",
+                                                iconColor: AppColors.mainColor,),
+                                              IconAndTextWidget(
+                                                icon: Icons.location_on,
+                                                text: km +" km",
+                                                iconColor: AppColors.iconColor2,
+                                              ),
+                                            ],
+                                          );
+                                      }
+                                    },
+                                  )
 
                                 ],
                               )
@@ -394,7 +405,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   )
                 ],
               ),
-            );
+            )
+              );
+
+
           }),
       ],
     );

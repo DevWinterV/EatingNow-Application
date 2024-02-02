@@ -24,6 +24,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
   late TextEditingController _quantityController = TextEditingController();
   final streamCount = StreamController<int>();
   final streamSum = StreamController<ProductStreamSum>();
+  String updateOrAdd = "";
   double suminit = 0;
   int countAvailable = 0;
 // Phương thức để thêm một món ăn vào giỏ hàng
@@ -35,19 +36,18 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
       msgAdd = 'Đã thêm vào giỏ hàng';
     }
 
-    await CartStorage.addToCart(item);
     // Lưu lại danh sách giỏ hàng sau khi thêm
-    // if () {
-    //   Fluttertoast.showToast(
-    //       msg: msgAdd,
-    //       toastLength: Toast.LENGTH_LONG,
-    //       gravity: ToastGravity.BOTTOM_LEFT,
-    //       backgroundColor: AppColors.toastSuccess,
-    //       textColor: Colors.black54,
-    //       timeInSecForIosWeb: 1,
-    //       fontSize: 10);
-    //   Navigator.of(context).pop(true); // true indicates that something has changed
-    // }
+    if (await CartStorage.addToCart(item)) {
+      Fluttertoast.showToast(
+          msg: msgAdd,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM_LEFT,
+          backgroundColor: AppColors.toastSuccess,
+          textColor: Colors.black54,
+          timeInSecForIosWeb: 1,
+          fontSize: 10);
+      Navigator.of(context).pop(true); // true indicates that something has changed
+    }
   }
   @override
   void initState(){
@@ -67,7 +67,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
     final dataProduct =  arguments['data']; // Nhận dữ liệu từ arguments
     countAvailable = dataProduct is CartItem ? dataProduct!.qty : 0;
     productStreamSum.sum = (countAvailable.toDouble() * dataProduct?.price ?? 0) as double;
-
+    updateOrAdd = dataProduct is CartItem ? "Cập nhật vào giỏ hàng" : "Thêm vào giỏ hàng";
     noteController.text = dataProduct is CartItem ? dataProduct.descriptionBuy : "";
     return Scaffold(
       backgroundColor: Colors.white,
@@ -198,19 +198,19 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                             backgroundColor: AppColors.mainColor,
                             icon: Icons.remove,
                           ),
-                        ): SizedBox(),
+                        ): SizedBox(width: 30,),
                         Column(
                           children: [
                             BigText( text:"Đơn giá: " + NumberFormat.currency(
                                 locale: 'vi_VN', symbol: '₫')
                                 .format(dataProduct?.price ?? 0),
                               color: AppColors.mainColor,
-                              size: Dimensions.font20,
+                              size: Dimensions.font16,
                             ),
 
                             SmallText( text: "Số lượng: ${(snapshot.data).toString()}",
                               color: AppColors.mainColor,
-                              size: Dimensions.font20,
+                              size: Dimensions.font16,
                             ),
                           ],
                         ),
@@ -290,7 +290,6 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                                   description: dataProduct.description,
                                   descriptionBuy: noteController.text,
                                 );
-                                print('cart item: ${newItem.toString()}');
                                 _addToCart(newItem);
                               }
                             },
@@ -298,7 +297,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                               text: NumberFormat.currency(
                                   locale: 'vi_VN', symbol: '₫')
                                   .format(productSum.sum ??    0) +
-                                  " | Thêm vào giỏ hàng",
+                                  " | $updateOrAdd",
                               color: Colors.white,
                               size: Dimensions.font13,
                             ),

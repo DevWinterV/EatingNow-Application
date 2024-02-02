@@ -99,16 +99,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.secondColor,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ),
+      backgroundColor: Colors.white,
       body: Padding(
-
         padding: EdgeInsets.all(16.0),
         child: _isCodeSent == false
             ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Chào mừng bạn đến với",style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26),),
-            Text(AppConstants.APP_NAME,style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26),),
+            Text("Chào mừng bạn đến với",style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
+            Text(AppConstants.APP_NAME,style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
             SizedBox(height: 16.0),
             IntlPhoneField(
               focusNode: focusNode,
@@ -132,12 +134,12 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 18.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonBackqroundColor,
+                backgroundColor: AppColors.mainColor,
               ),
               onPressed: () {
                 _signInWithPhoneNumber(_phoneNumber);
               },
-              child: Text('Gửi mã OTP', style: TextStyle(color: Colors.grey),),
+              child: Text('Gửi mã OTP', style: TextStyle(color: Colors.white),),
             ),
           ],
         )
@@ -157,12 +159,12 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 18.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonBackqroundColor,
+                backgroundColor: AppColors.mainColor,
               ),
               onPressed: () {
                 _login();
               },
-              child: Text('Đăng nhập', style: TextStyle(color: Colors.grey),),
+              child: Text('Đăng nhập', style: TextStyle(color: Colors.white),),
             ),
           ],
         ),

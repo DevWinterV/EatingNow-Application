@@ -135,7 +135,8 @@ class _OrderPage extends State<OrderPage> {
                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                  children: [
                     Container(
-                      child: Row(children: [ Icon(
+                      child: Row(children:
+                      [ Icon(
                         Icons.person,
                         color: Colors.black,
                         // Màu sắc của biểu tượng vị trí
@@ -144,21 +145,26 @@ class _OrderPage extends State<OrderPage> {
                         Text("Đông Châu"),
                         IconButton(onPressed: (){}, icon: Icon(Icons.edit, size: 15,))],),
                     ),
-                    Container(
+                 ],
+               ),
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 children: [
+                   Container(
                      child:
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.phone,
-                            color: Colors.black,
-                            // Màu sắc của biểu tượng vị trí
-                          ),
-                          SizedBox(width: 5,),
-                          Text("0766837068"),
-                          IconButton(onPressed: (){}, icon: Icon(Icons.edit, size: 15,))
-                        ],
-                      ),
-                    )
+                     Row(
+                       children: [
+                         Icon(
+                           Icons.phone,
+                           color: Colors.black,
+                           // Màu sắc của biểu tượng vị trí
+                         ),
+                         SizedBox(width: 5,),
+                         Text("0766837068"),
+                         IconButton(onPressed: (){}, icon: Icon(Icons.edit, size: 15,))
+                       ],
+                     ),
+                   )
                  ],
                ),
                Row(

@@ -1,12 +1,14 @@
-
+import 'package:fam/models/LocationData.dart';
 import 'package:fam/pages/Cart/cartPage.dart';
 import 'package:fam/pages/OderFood/orderfood.dart';
-import 'package:fam/pages/food/popular_food_detail.dart';
 import 'package:fam/pages/food/recommened_food_detail.dart';
-import 'package:fam/pages/home/getCurrentLocation_page.dart';
 import 'package:fam/pages/home/Login.dart';
+import 'package:fam/pages/home/getCurrentLocation_page.dart';
 import 'package:fam/pages/home/main_food_page.dart';
 import 'package:fam/storage/cartstorage.dart';
+import 'package:fam/storage/locationstorage.dart';
+import 'package:fam/util/Colors.dart';
+import 'package:fam/util/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -30,61 +32,43 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<CartItem> cartItems = [];
+  LocationData? _locationData;
+  late LocationStorage locationStorage;
+
   @override
   void initState() {
     super.initState();
-    // Khởi tạo giỏ hàng từ SharedPreferences khi màn hình được tạo
-    _loadCartItems();
+    initializeLocationStorage();
   }
 
-  // Phương thức để load danh sách món ăn từ SharedPreferences
-  void _loadCartItems() async {
-    List<CartItem> loadedItems = await CartStorage.getCartItems();
+  Future<void> initializeLocationStorage() async {
+    locationStorage = LocationStorage();
+    await _loadLocationData();
+  }
+
+  // Phương thức để load location data từ SharedPreferences
+  Future<void> _loadLocationData() async {
+    LocationData? loadedData = await locationStorage.getSavedLocation();
     setState(() {
-      cartItems = loadedItems;
+      _locationData = loadedData;
     });
   }
 
-/*
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Eating Now',
+      title: AppConstants.APP_NAME,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login', // Mặc định
-      routes: {
-        '/': (context) => MainFoodPage(), // trang chính
-        '/login': (context) => LoginPage(), // Lấy vị trí
-        '/getlocation': (context) => LocationPage(link: ""), // Lấy vị trí
-        '/order': (context) => OrderPage(),// Đặt hàng
-        '/cartdetails': (context) => CartPage(),// Chi tiết giỏ hàng
-        '/productdetail': (context) => RecommenedFoodDetail(),// Chi tiết giỏ hàng
-
-        // Define more routes as needed
-      },
-    );
-  }*/
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'XpressEat',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/getlocation',
+      initialRoute: _locationData!.name == null ? '/getlocation' : "/",
       defaultTransition: Transition.rightToLeft,
       getPages: [
         GetPage(
           name: '/',
           page: () => MainFoodPage(),
-       //   middlewares: [AuthMiddleware()],
         ),
         GetPage(
           name: '/login',
@@ -93,7 +77,6 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/getlocation',
           page: () => LocationPage(link: ""),
-       //   middlewares: [AuthMiddleware()],
         ),
         GetPage(
           name: '/order',
@@ -108,9 +91,9 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/productdetail',
           page: () => RecommenedFoodDetail(),
-       //   middlewares: [AuthMiddleware()],
         ),
       ],
     );
   }
+
 }
