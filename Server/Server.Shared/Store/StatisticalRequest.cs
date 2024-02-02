@@ -9,5 +9,8 @@ namespace DaiPhucVinh.Shared.Store
     public class StatisticalRequest
     {
         public int storeId { get; set; }
+        public DateTime startDate { get; set; }
+        public DateTime endDate { get; set; }
+
     }
 }

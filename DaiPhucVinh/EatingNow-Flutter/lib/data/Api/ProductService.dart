@@ -29,6 +29,8 @@ class ProductService {
     );
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
+      print('response $jsonData');
+
       return ProductRecommended.fromJson(jsonData);
     } else {
       throw Exception('Failed to load store data');

@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 export default function TopNavigation() {
   const { auth } = React.useContext(AuthContext);
   const [version, setVersion] = React.useState("");
+  const [showOption, setshowOption] = React.useState("");
   const [modalChangePass, setModalChangePass] = React.useState(false);
   const [request, setRequest] = React.useState({
     Password: "",
@@ -103,12 +104,13 @@ export default function TopNavigation() {
                 style={{ fontSize: "22px" }}
               >
                 <span className="logo-sm">
-                  <img src="/assets/images/my-logo.png" alt="" height="80" />
+                  {/* <img src="/assets/images/my-logo.png" alt="" height="80" /> */}
                 </span>
                 <span className="logo-lg" style={{ marginLeft: "-70px" }}>
-                  <img src="/assets/images/my-logo.png" alt="" height="50" />
+                  {/* <img src="/assets/images/my-logo.png" alt="" height="50" /> */}
                 </span>
-                EattingNow
+                Xpress 
+                Eat
               </a>
               ):(
                 null
@@ -126,40 +128,37 @@ export default function TopNavigation() {
             <label>Version: {version}</label>
           </div>
         </div>
-        <div className="d-flex" style={{ height: "33px" }}>
-          <div className="dropdown d-inline-block">
-            <button
-              type="button"
-              className="btn header-item waves-effect"
-              id="page-header-user-dropdown"
-              data-bs-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-              style={{ height: "33px" }}
-            >
+
+       
+        <div class="dropdown">
+          <span>
               <img src="/assets/images/generic_avatar.png" alt="" height="24" />
               <span className="d-none d-xl-inline-block ms-1">
-                {auth?.FullName}
+                {auth && auth.FullName} {/* Check if auth is defined before accessing its properties */}
               </span>
               <i className="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-            </button>
-            <div className="dropdown-menu dropdown-menu-end">
-              <div
-                className="dropdown-item"
-                onClick={() => setModalChangePass(true)}
-              >
-                <i className="bx bx-lock-open font-size-16 align-middle me-1"></i>
-                <span key="t-lock-screen">Đổi mật khẩu</span>
-              </div>
-              <div className="dropdown-divider"></div>
-              <div className="dropdown-item text-danger" onClick={onLogout}>
-                <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i>
-                <span key="t-logout">Đăng xuất</span>
-              </div>
-            </div>
+          </span>
+          <div class="dropdown-content">
+                <div
+                  style={{ cursor: 'pointer', color: 'black', fontSize: '12px' }}
+                  onClick={() => setModalChangePass(true)}
+                >
+                  <i className="bx bx-lock-open font-size-16 align-middle mr-2"></i>
+                  <span key="t-lock-screen">Đổi mật khẩu</span>
+                </div>
+                <div className="dropdown-divider"></div>
+                <div
+                  style={{ cursor: 'pointer', color: 'red', fontSize: '12px'}}
+                  onClick={onLogout}
+                >
+                  <i className="bx bx-power-off font-size-16 align-middle text-danger mr-2"></i>
+                  <span key="t-logout" className="text-danger">Đăng xuất</span>
+                </div>
           </div>
         </div>
+
       </div>
+      
       <Modal
         size="sm"
         show={modalChangePass}
@@ -242,4 +241,5 @@ export default function TopNavigation() {
       </Modal>
     </header>
   );
+  
 }

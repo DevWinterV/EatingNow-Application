@@ -142,12 +142,15 @@
     <Compile Include="DeliveryDriver\DeliveryDriverResponse.cs" />
     <Compile Include="FavoriteFoods\FavoriteFoodRequets.cs" />
     <Compile Include="FavoriteFoods\FavoriteFoodsResponse.cs" />
+    <Compile Include="FoodList\FoodListFillterRequest.cs" />
     <Compile Include="FoodList\FoodListRequest.cs" />
     <Compile Include="FoodList\FoodListResponse.cs" />
     <Compile Include="Cuisine\CuisineRequest.cs" />
     <Compile Include="Cuisine\CuisineResponse.cs" />
     <Compile Include="AccountType\AccountTypeRequest.cs" />
     <Compile Include="AccountType\AccountTypeResponse.cs" />
+    <Compile Include="FoodList\FoodList_Store.cs" />
+    <Compile Include="OrderHeader\OrderHeaderFillterRequest.cs" />
     <Compile Include="OrderHeader\OrderLineReponse.cs" />
     <Compile Include="OrderHeader\OrderLineRequest.cs" />
     <Compile Include="Payment\PaymentConfirm.cs" />

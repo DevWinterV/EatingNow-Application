@@ -461,4 +461,22 @@ body {
   background-color: #f2f2f2;
 }
 
-/* Add more styles as needed */
+.custom-button {
+  background-color: #228B22; /* Màu nền */
+  color: #ffffff; /* Màu chữ */
+  border: none; /* Bỏ viền */
+  padding: 10px 15px; /* Kích thước nút */
+  font-size: 16px; /* Kích thước chữ */
+  cursor: pointer; /* Đổi hình con trỏ khi hover */
+
+  /* Hiệu ứng hover */
+  &:hover {
+    background-color: #008000	; /* Màu nền khi hover */
+  }
+
+  /* Icon style */
+  .icon {
+    margin-right: 5px; /* Khoảng cách giữa icon và chữ */
+    fill: #ffffff; /* Màu của icon */
+  }
+}

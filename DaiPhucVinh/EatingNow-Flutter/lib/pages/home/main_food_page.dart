@@ -62,7 +62,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                            Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                               BigText(text: "Giao tới: "+nameAddressdelivery.toUpperCase(), color: AppColors.mainColor),
+                               BigText(text: "Giao tới: "+nameAddressdelivery, color: AppColors.mainColor),
                                GestureDetector(
                                  onTap: () {
                                    Navigator.push(

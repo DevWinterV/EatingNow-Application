@@ -1,6 +1,5 @@
 import React, { useEffect ,useState} from "react";
-
-import { AiOutlineAppstoreAdd } from "react-icons/ai";
+import { ToastContainer } from "react-toastify";
 import { BsSearch } from "react-icons/bs";
 import { TbAddressBook, TbCandle, TbCheck, TbCircleX, TbHomeCancel, TbHomeX, TbInfoCircle, TbListDetails, TbNotificationOff, TbPhoneCall, TbPhotoCancel } from "react-icons/tb";
 import { useStateValue } from "../../context/StateProvider";
@@ -16,6 +15,8 @@ import {
 import Swal from "sweetalert2";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import $ from 'jquery'; // Ensure you have jQuery installed
+import { FilterListIcon } from "evergreen-ui";
+import { toast } from "react-toastify";
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 //Kết nối đến SignalR Ordernotication
@@ -23,6 +24,17 @@ let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
 let proxy = connection.createHubProxy('OrderNotificationHub');
 
 const Order = () => {
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+  
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
   const [isLoading, setIsLoading] = React.useState(false);
   const [status, setStatus] = useState('1');
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
@@ -31,6 +43,25 @@ const Order = () => {
   const [data, setData] = React.useState([]);
   const [dataDetails, setDataDetails] = React.useState([]);
   const [{ user }] = useStateValue();
+
+
+  const [startDate, setStartDate] = useState(getCurrentDate());
+  const [endDate, setEndDate] = useState(getCurrentDate());
+
+  useEffect(() => {
+    // Set initial values when the component mounts
+    setStartDate(getCurrentDate());
+    setEndDate(getCurrentDate());
+  }, []);
+
+  const [requestFillter, setrequestFillter] =useState({
+    Id: user?.UserId,
+    OrderStatus: 2,
+    startDate: "",
+    endDate: "",
+    keyword: ""
+  });
+
   const [isShown, setIsShown] = React.useState(false);
   const [orderHeaderId, setOrderHeaderId] = React.useState("");
 
@@ -94,10 +125,20 @@ const Order = () => {
         }
       };
 
+    const handleFilterClick = () => {
+      if(requestFillter.startDate === "" || requestFillter.endDate ===""){
+        toast.warning("Vui lòng chọn ngày bắt đầu và ngày kết thúc");
+        return;
+      }
+      onViewAppearing();
+    };
+
+
   async function onViewAppearing() {
     setIsLoading(true);
     if (user) {
-      let response = await TakeOrderHeaderByStoreId(user?.UserId);
+
+      let response = await TakeOrderHeaderByStoreId(requestFillter);
       setData(response.data);
     }
     setIsLoading(false);
@@ -110,7 +151,8 @@ const Order = () => {
     const year = String(date.getFullYear());
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
   function formatMoney(amount) {
@@ -120,6 +162,7 @@ const Order = () => {
       minimumFractionDigits: 0,
     }).format(amount);
   }
+
 
   async function GetOrderLineDetails() {
     setIsLoading(true);
@@ -176,7 +219,6 @@ const Order = () => {
         }
       }
     );
-
   }, [notification, notificationCancle]);
 
   useEffect(() => {
@@ -243,26 +285,91 @@ const Order = () => {
     });
   }, []);
 
-  
+  const handleChangeStartDate = (e) => {
+    setStartDate(e.target.value);
+    setrequestFillter({
+      ...requestFillter,
+      startDate: e.target.value
+    });
+  };
+
+  const handleChangeEndDate = (e) => {
+    setEndDate(e.target.value);
+    setrequestFillter({
+      ...requestFillter,
+      endDate: e.target.value
+    });
+  };
+
+  const handleChangeKeyWord = (e) => {
+    setrequestFillter({
+      ...requestFillter,
+      keyword: e.target.value
+    });
+  };
+  const handleOrderStatusChange = (e) => {
+    setrequestFillter({
+      ...requestFillter,
+      OrderStatus: parseInt(e.target.value, 10)
+    });
+  };
+  useEffect(()=>{
+    onViewAppearing();
+  },[requestFillter.OrderStatus, requestFillter.keyword]);
+
   
   return (
-    <div className="bg-orange-50 h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
+    <div className="bg-white-50 h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
+      <ToastContainer/>
       <div className="flex items-center justify-between">
-        <div className="flex items-center border-b-2 pb-2 basis-1/2 gap-2">
-          <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
+        <div className="flex items-center border-b-2 pb-2 basis-3/3 gap-2">
           <input
+          onChange={handleChangeKeyWord}
             type="text"
-            placeholder="Tìm nhóm món ăn..."
+            placeholder="Nhập mã đơn, tên khách hàng, địa chỉ ..."
             className="border-none outline-none placeholder:text-sm focus:outline-none"
           />
+          <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
+        </div>
+        <div className="flex items-center border-b-2 pb-2 basis-2/2 gap-2">
+          <label htmlFor="">Trạng thái đơn :</label>
+          <select 
+              name="orderStatus" 
+              id="orderStatus" 
+              value={requestFillter.OrderStatus} 
+              onChange={handleOrderStatusChange}
+            >
+            <option value="2">Xem tất cả</option>
+            <option value="0">Chưa xác nhận</option>
+            <option value="1">Đã xác nhận</option>
+          </select>
+        </div>
+        <div className="flex items-center border-b-2 pb-2 basis-2/2 gap-2">
+          <label htmlFor="">Từ:</label>
+          <input 
+            type="date" 
+            value={startDate} 
+            onChange={handleChangeStartDate}/>
+          <label htmlFor="">Đến:</label>
+          <input 
+            type="date"
+             value={endDate}
+             onChange={handleChangeEndDate}/>
+          <button 
+            className="custom-button ml-2"
+            onClick={handleFilterClick}>
+          <div className="flex">
+            <FilterListIcon className="icon" />
+          </div>
+        </button>
         </div>
 
-        <div className="flex gap-4 items-center">
+        {/* <div className="flex gap-4 items-center">
           <AiOutlineAppstoreAdd className="text-hoverColor cursor-pointer text-[25px] hover:text-[20px] transition-all" />
           <button className="bg-red-600 cursor-pointer text-bodyBg font-semibold py-1 px-4 rounded-[5px] transition-all">
             Quản lý
           </button>
-        </div>
+        </div> */}
         {isShown ? (
           <>
             <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
@@ -275,7 +382,7 @@ const Order = () => {
                   {/*header*/}
                   <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
                     <h2 className="text-2xl font-semibold">
-                      Danh sách chi tiết đơn hàng
+                      Xem chi tiết đơn hàng
                     </h2>
                     
                     <button className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
@@ -305,14 +412,14 @@ const Order = () => {
                   <div class="flex items-center justify-start p-6 bg-gray-200">
                     <label for="cb_statusOrder" class="mr-2">Thông tin khách hàng:</label>
                     <button
-                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      className={"bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
                       type="button"
                       onClick={handleButtonClick}
                     >
                       <TbInfoCircle className="text-2x1" />{customerDetail.customerName}
                     </button>
                     <button
-                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      className={"bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
                       type="button"
                       onClick={handleButtonClick}
                     >
@@ -323,7 +430,7 @@ const Order = () => {
 
                     </button>
                     <button
-                      className={"bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
+                      className={"bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
                       type="button"
                       onClick={handleButtonClick}
                     >
@@ -343,7 +450,7 @@ const Order = () => {
                     ) : (
                       // Hiển thị nút "Yêu cầu tài xế" khi isDriverAvailabel là false
                       <button
-                        className="bg-orange-600 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
+                        className="bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
                         type="button"
                         onClick={handleButtonClick}
                       >
@@ -447,7 +554,7 @@ const Order = () => {
                   {/*footer*/}
                   <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                     <button
-                      className="bg-orange-600 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                      className="bg-orange-900 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                       type="button"
                       onClick={() => {
                         setIsShown(false);
@@ -464,13 +571,16 @@ const Order = () => {
         ) : null}
       </div>
 
+
       {/* Title Div */}
-      <div className="items-center mt-8">
+      <div className="items-center mt-2">
         <div className="title">
-          <div className="p-5 h-screen bg-orange-100">
+          <div className="p-5 h-screen bg-white-100">
             <div className="flex justify-between pb-4 items-center">
-              <h1 className="text-xl mb-2">Danh Sách Đơn Hàng</h1>
-            </div>
+              <h1 className="text-xl mb-2 text-orange-900 font-bold">
+                Danh Sách Đơn Hàng
+              </h1>         
+             </div>
 
             <div className="overflow-auto rounded-lg shadow md:block">
               <Table className="w-full table-auto">
@@ -486,7 +596,10 @@ const Order = () => {
                       Khách hàng
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                      Thành tiền
+                      Phí giao hàng
+                    </Th>
+                    <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                      Tổng tiền
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                       Ngày tạo
@@ -517,6 +630,9 @@ const Order = () => {
                         </Td>
                         <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                           {item.CustomerName}
+                        </Td>
+                        <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
+                          {formatMoney(item.TransportFee)}
                         </Td>
                         <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                           {formatMoney(item.IntoMoney)}
@@ -623,9 +739,10 @@ const Order = () => {
                       </Tr>
                     ))
                   ) : (
-                    <div className="text-center">
+                    <Td colspan="8" className="text-center">
                       <span>Không có dữ liệu đơn hàng!</span>
-                    </div>
+                    </Td>
+
                   )}
                 </Tbody>
               </Table>

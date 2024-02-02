@@ -397,6 +397,30 @@ namespace DaiPhucVinh.Services.Infrastructure
 
             CreateMap<EN_FoodList, FoodListResponse>()
                 .ForMember(d => d.Category, o => o.MapFrom(s => s.Category.CategoryName));
+            CreateMap<FoodList_Store, FoodListResponse>()
+            .ForMember(d => d.FoodListId, o => o.MapFrom(s => s.foodItem.FoodListId))
+            .ForMember(d => d.Category, o => o.MapFrom(s => s.foodItem.Category))
+            .ForMember(d => d.CategoryId, o => o.MapFrom(s => s.foodItem.CategoryId))
+            .ForMember(d => d.FoodName, o => o.MapFrom(s => s.foodItem.FoodName))
+            .ForMember(d => d.Price, o => o.MapFrom(s => s.foodItem.Price))
+            .ForMember(d => d.qty, o => o.MapFrom(s => s.foodItem.qty))
+            .ForMember(d => d.UploadImage, o => o.MapFrom(s => s.foodItem.UploadImage))
+            .ForMember(d => d.Description, o => o.MapFrom(s => s.foodItem.Description))
+            .ForMember(d => d.UserId, o => o.MapFrom(s => s.foodItem.UserId))
+            .ForMember(d => d.Status, o => o.MapFrom(s => s.foodItem.Status))
+            .ForMember(d => d.Hint, o => o.MapFrom(s => s.foodItem.Hint))
+            .ForMember(d => d.IsNew, o => o.MapFrom(s => s.foodItem.IsNew))
+            .ForMember(d => d.IsNoiBat, o => o.MapFrom(s => s.foodItem.IsNoiBat))
+            .ForMember(d => d.QuantitySupplied, o => o.MapFrom(s => s.foodItem.QuantitySupplied))
+            .ForMember(d => d.ExpiryDate, o => o.MapFrom(s => s.foodItem.ExpiryDate))
+            .ForMember(d => d.Qtycontrolled, o => o.MapFrom(s => s.foodItem.Qtycontrolled))
+            .ForMember(d => d.QtySuppliedcontrolled, o => o.MapFrom(s => s.foodItem.QtySuppliedcontrolled))
+            .ForMember(d => d.Latitude, o => o.MapFrom(s => s.Storeitem.Latitude))
+            .ForMember(d => d.Longitude, o => o.MapFrom(s => s.Storeitem.Longitude))
+            .ForMember(d => d.storeName, o => o.MapFrom(s => s.Storeitem.FullName));
+
+
+
             CreateMap<EN_Account, AccountResponse>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Store.AbsoluteImage))
                 .ForMember(d => d.StoreName, o => o.MapFrom(s => s.Store.FullName));

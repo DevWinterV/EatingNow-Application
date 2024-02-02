@@ -88,13 +88,13 @@ export default function LoginPage() {
                   className="text-center"
                   style={{ marginTop: "20px", marginBottom: "20px" }}
                 >
-                  <img
+                  {/* <img
                     width={100}
                     height={100}
                     src="assets/images/my-logo.png"
                     alt=""
                     className="img-fluid"
-                  />
+                  /> */}
                 </div>
               </div>
 

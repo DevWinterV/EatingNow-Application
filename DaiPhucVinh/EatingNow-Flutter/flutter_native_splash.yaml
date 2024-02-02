@@ -1,5 +1,5 @@
 flutter_native_splash:
-  image: assets/image/logo.png
+  image: assets/image/logo_xpressEat.png
   color: ECAD8F
   fill: false
   android: true

@@ -18,11 +18,9 @@ class CartStorage {
   }
   // Thêm món ăn vào giỏ hàng
   static Future<bool> addToCart(CartItem newItem) async {
-    print(newItem.categoryId);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final cartData = prefs.getString(_key);
     List<CartItem> cartItems = [];
-    print(cartData);
     if (cartData != null) {
       final List<dynamic> decodedData = json.decode(cartData);
       cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
@@ -41,6 +39,7 @@ class CartStorage {
       }
     }
 
+    print(cartItems);
     // Nếu món ăn chưa tồn tại, thêm nó vào giỏ hàng
     if (!found) {
       cartItems.add(newItem);
@@ -133,6 +132,7 @@ class CartItem {
   int qty;
   final String uploadImage;
   String description;
+  String descriptionBuy;
 
   CartItem({
     required this.foodListId,
@@ -142,7 +142,9 @@ class CartItem {
     required this.qty,
     required this.uploadImage,
     required this.description,
+    required this.descriptionBuy
   });
+
   // Hàm để ánh xạ dữ liệu từ CartItem sang DataProduct
   DataProduct toDataProduct() {
     return DataProduct(
@@ -151,10 +153,9 @@ class CartItem {
       price: price.toInt(), // Đảm bảo định dạng giá phù hợp
       qty: qty,
       uploadImage: uploadImage,
-      // Các trường khác có thể là null hoặc giá trị mặc định
       category: null,
       categoryId: categoryId,
-      description: description,
+      description: descriptionBuy,
       userId: null,
       status: null,
     );
@@ -168,6 +169,18 @@ class CartItem {
     'qty': qty,
     'uploadImage': uploadImage,
     'description': description,
+    'descriptionBuy': descriptionBuy,
+    'categoryId': categoryId
+  };
+
+  // Chuyển đổi dữ liệu CartItem thành một Map
+  Map<String, dynamic> toJsonSentServer() => {
+    'foodListId': foodListId,
+    'foodName': foodName,
+    'price': price.toInt(),
+    'qty': qty,
+    'uploadImage': uploadImage,
+    'description': descriptionBuy,
     'categoryId': categoryId
   };
 
@@ -180,7 +193,19 @@ class CartItem {
       price: json['price'],
       qty: json['qty'],
       uploadImage: json['uploadImage'],
-      description: json['description']
+      description: json['description'], descriptionBuy:  json['descriptionBuy']
     );
+  }
+  String toString() {
+    return "Cart item {" +
+        "foodListId=" + foodListId.toString() +
+        ", categoryId=" + categoryId.toString() +
+        ", foodName='" + foodName + '\'' +
+        ", price=" + price.toString() +
+        ", qty=" + qty.toString() +
+        ", uploadImage='" + uploadImage + '\'' +
+        ", description='" + description + '\'' +
+        ", descriptionBuy='" + descriptionBuy + '\'' +
+        '}';
   }
 }

@@ -1,5 +1,6 @@
 ﻿using AI.FoodList;
 using DaiPhucVinh.Server.Data.DaiPhucVinh;
+using DaiPhucVinh.Services.Constants;
 using DaiPhucVinh.Services.Database;
 using DaiPhucVinh.Services.Framework;
 using DaiPhucVinh.Services.Helper;
@@ -9,6 +10,7 @@ using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.FoodList;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
@@ -51,6 +53,8 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         private readonly ICommonService _commonService;
         private readonly ILogger _logger;
         private readonly ISettingService _settingService;
+        private readonly RecommendedFoodList _recommendPrediction;
+
         public string HostAddress => HttpContext.Current.Request.Url.ToString().Replace(HttpContext.Current.Request.Url.PathAndQuery, "");
         public FoodListService(DataContext datacontext, ILogService logService, ICommonService commonService, ILogger logger, ISettingService settingService)
         {
@@ -59,6 +63,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             _commonService = commonService;
             _settingService = settingService;
             _logger = logger;
+            _recommendPrediction = new RecommendedFoodList();
         }
 
         public async Task<BaseResponse<FoodListResponse>> TakeFoodListByHint()
@@ -107,7 +112,6 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             }
             return result;
         }
-
         public async Task<BaseResponse<FoodListResponse>> TakeNewFood()
         {
             var result = new BaseResponse<FoodListResponse> { };
@@ -169,11 +173,18 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                             FoodName = request.FoodName,
                             Price = request.Price,
                             qty = request.qty,
+                            QuantitySupplied = request.QuantitySupplied,
                             UploadImage = HostAddress + GenAbsolutePath(relativePath),
                             Description = request.Description,
                             UserId = request.UserId,
                             Status = request.Status,
-                        };
+                            Hint = request.Hint,
+                            IsNew = request.IsNew,
+                            IsNoiBat = request.IsNoiBat,
+                            ExpiryDate = request.ExpiryDate != DateTime.MinValue ? request.ExpiryDate : null,
+                            Qtycontrolled = request.Qtycontrolled,
+                            QtySuppliedcontrolled = request.QtySuppliedcontrolled
+                    };
                         _datacontext.EN_FoodList.Add(foodList);
                     }
                 }
@@ -230,6 +241,9 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                             foodList.IsNoiBat = request.IsNoiBat;
                             foodList.ExpiryDate = request.ExpiryDate;
                             foodList.QuantitySupplied = request.QuantitySupplied;
+                            foodList.Qtycontrolled = request.Qtycontrolled;
+                            foodList.QtySuppliedcontrolled = request.QtySuppliedcontrolled;
+
                         };
                     }
                     await _datacontext.SaveChangesAsync();
@@ -267,6 +281,8 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     foodList.IsNoiBat = request.IsNoiBat;
                     foodList.ExpiryDate = request.ExpiryDate;
                     foodList.QuantitySupplied = request.QuantitySupplied;
+                    foodList.Qtycontrolled = request.Qtycontrolled;
+                    foodList.QtySuppliedcontrolled = request.QtySuppliedcontrolled;
                 };
                 await _datacontext.SaveChangesAsync();
                     result.Success = true;
@@ -396,102 +412,26 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         /// <returns></returns>
         public async Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request)
         {
-            var result = new BaseResponse<FoodListResponse> { };
+            var result = new BaseResponse<FoodListResponse>();
             try
             {
-                /*
-                var recommendedFoods = new List<EN_FoodList>();
-                // Lấy danh sách các cửa hàng 
-                var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
-                // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
-                var newStores = new List<EN_Store>();
-                foreach (   var store in stores)
-                {
-                    var distance = Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude);
-                    if (distance <= 10)
-                    {
-                        newStores.Add(store);
-                    }
-                }
+                var newfoodlist = new List<FoodList_Store>();
 
-                // Nếu khách hàng đã đăng nhập
-                if (request.CustomerId != null)
-                {
-                    // Lịch sử mua của khách hàng
-                    var query = from orderLine in _datacontext.EN_OrderLine
-                                join orderHeader in _datacontext.EN_OrderHeader on orderLine.OrderHeaderId equals orderHeader.OrderHeaderId
-                                where orderHeader.CustomerId == request.CustomerId
-                                select orderLine;
-                    var orderlines = query.ToList();
+                var allStores = _datacontext.EN_Store
+                .Where(x => x.Status == true)
+                .ToList();
 
-                    if(orderlines.Count > 0)
-                    {
-                        // lấy Danh sách tên các loại món ăn yêu thich dựa vào phân tích 
-                        var userPreferences_nameCatagoryfood = AnalyzeUserPreferences(orderlines);
-                        // Lấy danh sách món ăn đề xuất dựa trên loại món ăn yêu thích, gần với  tọa độ người dùng và đánh giá của cửa hàng >= 4*
-                        foreach(var catagoryName in userPreferences_nameCatagoryfood)
-                        {
-                            foreach(var store in newStores)
-                            {
-                                // sử dụng so sánh like % trong SQL
-                                var results = _datacontext.EN_FoodList
-                               .Where(x => x.Category.CategoryName.Contains(catagoryName.CategoryName) && x.UserId == store.UserId)
-                               .OrderBy(x => x.Price).ToList();
-                                recommendedFoods.AddRange(results);
-                            }    
-                        }
-                        //
-                        var fianlrecommendFoods = recommendedFoods
-                          .GroupBy(x => x.FoodListId)
-                          .Select(group => group.First()) // Lấy một lần xuất hiện đầu tiên của mỗi nhóm
-                          .ToList();
-                        result.Data = fianlrecommendFoods.MapTo<FoodListResponse>();
-                        result.DataCount = fianlrecommendFoods.Count;
-                    }
-                    else
-                    {
-                        foreach (var store in newStores)
-                        {
-                            var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
-                            recommendedFoods.AddRange(results);
-                        }
-                        result.Data = recommendedFoods.MapTo<FoodListResponse>();
-                        result.DataCount = recommendedFoods.Count;
+                var foodlistNearS = (from store in allStores
+                                     where Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude) <= 10
+                                     from food in _datacontext.EN_FoodList
+                                     where food.UserId == store.UserId
+                                     select new FoodList_Store
+                                     {
+                                         foodItem = food,
+                                         Storeitem = store
+                                     }).ToList();
 
-                    }
-                    result.Success = true;
-                }   
-                // Nếu khách hàng là người mới chưa có tài khoản
-                else
-                {
-                    foreach (var store in newStores)
-                    {
-                        var results = _datacontext.EN_FoodList.Where(x => x.UserId == store.UserId).OrderBy(x => x.Price).ToList();
-                        recommendedFoods.AddRange(results);
-                    }
-                    result.Data = recommendedFoods.MapTo<FoodListResponse>();
-                    result.DataCount = recommendedFoods.Count;
-                    result.Success = true;
-                }    
-                */
-                var newfoodlist = new List<EN_FoodList>();
-                var recommendPrediction = new RecommendedFoodList();
-                var stores = _datacontext.EN_Store.Where(x => x.Status == true).ToList();
-                // Duyệt các cửa hàng có vị trí gàn với tọa độ người dùng và khoảng cách <= 8 Km
-                var newStores = new List<EN_Store>();
-                var foodlistNearS = new List<EN_FoodList>();
-                foreach (var store in stores)
-                {
-                    var distance = Distance(request.Latitude, request.Longittude, store.Latitude, store.Longitude);
-                    if (distance <= 10)
-                    {
-                        newStores.Add(store);
-                        var foodlistNear = _datacontext.EN_FoodList
-                            .Where(food => food.UserId == store.UserId)
-                            .ToList();
-                        foodlistNearS.AddRange(foodlistNear);
-                    }
-                }
+
                 var inputDatas = new List<InputData>();
 
                 if (request.CustomerId != null)
@@ -501,15 +441,17 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                         inputDatas.Add(new InputData
                         {
                             CustomerId = request.CustomerId,
-                            FoodListId = food.FoodListId,
+                            FoodListId = food.foodItem.FoodListId,
                         });
                     }
-                    List<ResultModel> data = recommendPrediction.Predicvalue(inputDatas);
-                    if(data.Count > 5)
+
+                    List<ResultModel> data = _recommendPrediction.Predicvalue(inputDatas);
+
+                    if (data.Count > 5)
                     {
                         foreach (var inputData in data)
                         {
-                            var matchingFood = foodlistNearS.FirstOrDefault(x => x.FoodListId == inputData.FoodListId);
+                            var matchingFood = foodlistNearS.FirstOrDefault(x => x.foodItem.FoodListId == inputData.FoodListId);
                             if (matchingFood != null)
                             {
                                 newfoodlist.Add(matchingFood);
@@ -517,17 +459,16 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                         }
                         result.Data = newfoodlist.MapTo<FoodListResponse>();
                         result.DataCount = newfoodlist.Count;
-
                     }
                     else
                     {
                         result.Data = foodlistNearS.MapTo<FoodListResponse>();
                         result.DataCount = foodlistNearS.Count;
-                    } 
+                    }
                 }
                 else
                 {
-                    // Show hết các sản phẩm hiện có
+                    // Show all available products
                     result.Data = foodlistNearS.MapTo<FoodListResponse>();
                     result.DataCount = foodlistNearS.Count;
                 }

@@ -23,11 +23,11 @@ const FoodListAdmin = ({ filter }) => {
 
   async function onViewAppearing() {
     setIsLoading(true);
-    if (filter === "") {
-      let response = await TakeAllFoodListByStoreId(user?.UserId);
+    if (filter.filter === "") {
+      let response = await TakeAllFoodListByStoreId(filter);
       setData(response.data);
     } else {
-      let response = await TakeFoodListByStoreId(filter);
+      let response = await TakeFoodListByStoreId(filter.filter);
       setData(response.data);
     }
     setIsLoading(false);

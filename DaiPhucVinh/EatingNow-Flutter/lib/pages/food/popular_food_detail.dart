@@ -66,11 +66,12 @@ class PopularFoodDetail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppColumn(text: "Vietnamese Side", rating: 4.5,distance: 4.0,time:5.0),
+                    // AppColumn(text: "Vietnamese Side", rating: 4.5,distance: 4.0,time:5.0),
                     SizedBox(height: Dimensions.height20,),
                     BigText(text: "Introduce"),
                     SizedBox(height: Dimensions.height20,),
-                    Expanded(child: ExpandableTextWidget(text: "chicken master chng tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việ thư Nguyễn Phú Trọng. ",))
+                    Expanded(child:
+                      ExpandableTextWidget(text: "chicken master chng tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việt Nam thăm cấp nhà nước theo lời mời của Tổng Bí thư Nguyễn Phú Trọng.Tổng thống Mỹ Joe Biden rời New Delhi sau hội nghị G20, lên đường tới Việ thư Nguyễn Phú Trọng. ",))
                   ],
                 ),
 

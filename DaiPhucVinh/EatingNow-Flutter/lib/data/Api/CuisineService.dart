@@ -19,7 +19,6 @@ class CuiSineService {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      print(jsonData);
       return CuisineModel.fromJson(jsonData);
     } else {
       throw Exception('Failed to load store data');

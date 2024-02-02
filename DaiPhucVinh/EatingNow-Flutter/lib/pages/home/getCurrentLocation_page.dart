@@ -41,6 +41,8 @@ class _LocationPageState extends State<LocationPage> {
       cartItems = loadedItems;
     });
   }
+
+
   @override
   initState() {
     super.initState();
@@ -67,17 +69,19 @@ class _LocationPageState extends State<LocationPage> {
       name: 'Trường',
     ),
     LocationData(
-      latitude: 10.3753666,
-      longitude: 105.4378349,
+      latitude: 10.767714,
+      longitude: 105.6547152,
       address: '30C Đ. Nguyễn Trường Tộ, p. Bình Khánh, Thành phố Long Xuyên, An Giang 08408, Việt Nam',
       name: 'Cf ngọc trai núi',
     )
   ];
 
+
   // Hàm xóa SplassCreen
   void initialization() async {
     FlutterNativeSplash.remove();
   }
+
 
   // yêu cầu quyền sử dụng vị trí của người dùng
   Future<void> requestLocationPermission() async {
@@ -115,11 +119,19 @@ class _LocationPageState extends State<LocationPage> {
   Future<void> getAddressdelivery() async {
     await locationStorage.saveLocation(
         "Vị trí mặc định", position.latitude, position.longitude, places);
-    // Chuyển sang trang MainPage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => MainFoodPage()),
-    );
+    if (link != "") {
+      // Chuyển đổi route tới link và truyền dữ liệu caritems
+      Navigator.pushReplacement(
+          context,
+          Navigator.pushNamed(context, link!, arguments: {'data': cartItems }) as Route<Object?>
+      );
+    } else {
+      // Otherwise, go to the MainFoodPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainFoodPage()),
+      );
+    }
   }
 
   // Hàm lấy vị trí hiện tại của người dùng
@@ -129,8 +141,6 @@ class _LocationPageState extends State<LocationPage> {
       position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      print(position.latitude);
-      print(position.longitude);
       // Lấy địa chỉ từ location người dùng
       places = await googleApiService.fetchPlacesFromLocation(
           position.latitude, position.longitude);
@@ -148,22 +158,17 @@ class _LocationPageState extends State<LocationPage> {
           textColor: Colors.black54,
           timeInSecForIosWeb: 1,
           fontSize: 15);*/
+
     } catch (e) {
-      Fluttertoast.showToast(
-          msg: "Đã có lỗi khi lấy vị trí của bạn. Vui lòng load lại ứng dụng.",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.TOP,
-          backgroundColor: AppColors.toastSuccess,
-          textColor: Colors.black54,
-          timeInSecForIosWeb: 1,
-          fontSize: 15);
-      print("Error getting location: $e");
+      // Fluttertoast.showToast(
+      //     msg: "Đã có lỗi khi lấy vị trí của bạn. Vui lòng load lại ứng dụng.",
+      //     toastLength: Toast.LENGTH_LONG,
+      //     gravity: ToastGravity.TOP,
+      //     backgroundColor: AppColors.toastSuccess,
+      //     textColor: Colors.black54,
+      //     timeInSecForIosWeb: 1,
+      //     fontSize: 15);
     }
-  }
-
-
-  void changeOrAddNewAddressDelivery() {
-    // Thêm hoạc thay đổi vị trí người dùng
   }
 
   @override
@@ -171,7 +176,7 @@ class _LocationPageState extends State<LocationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-        'Eating Now',
+        'XpressEat',
         overflow: TextOverflow.ellipsis,
         maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
         ),
@@ -185,23 +190,22 @@ class _LocationPageState extends State<LocationPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
-              "Vui lòng kiểm tra lại thông tin vị trí để tài xế có thể giao hàng nhanh và chính xác nhất.",
+              "Vui lòng chọn vị trí chính xác của bạn để tài xế có thể giao hàng nhanh nhất",
               style: TextStyle(
                 fontSize: Dimensions.font20,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey,
-                fontStyle: FontStyle.italic, // Đặt fontStyle thành italic
+                fontStyle: FontStyle.normal, // Đặt fontStyle thành italic
               ),
               textAlign: TextAlign.justify,
             ),
             SizedBox(height: Dimensions.height20),
-            // Khoảng cách giữa văn bản và phần tử tiếp theo
             isloadingdata == false
                 ? Container(
               child: Column(
                 children: <Widget>[
                   Text(
-                    "Bạn muốn sử dụng vị trí cũ này không ?",
+                    "Bạn muốn sử dụng vị trí hiện tại không ?",
                     style: TextStyle(fontSize: Dimensions.font13,
                         fontWeight: FontWeight.w400,
                         color: Colors.black),
@@ -232,11 +236,11 @@ class _LocationPageState extends State<LocationPage> {
                     radius: 18.0,
                     color: Colors.orange,
                     dotRadius: 2.0,
-                    numberOfDots: 10, // Số lượng dấu chấm
+                    numberOfDots: 9, // Số lượng dấu chấm
                   ),
                   SizedBox(height: Dimensions.height10),
                   // Khoảng cách giữa vòng tròn tải và văn bản
-                  Text("Đang lấy vị trí bạn đã sử dụng gần đây..."),
+                  Text("Đang lấy vị trí hiện tại ...", style: TextStyle(fontSize: 9),),
                 ],
               ),
             ),
@@ -251,8 +255,8 @@ class _LocationPageState extends State<LocationPage> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 2.0),
                       child: Text(
-                        "DANH SÁCH CÁC ĐIỂM ĐÃ LƯU",
-                        style: TextStyle(fontSize: Dimensions.font20,
+                        "DANH SÁCH VỊ TRÍ ĐÃ SỬ DỤNG",
+                        style: TextStyle(fontSize: Dimensions.font16,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -302,7 +306,7 @@ class _LocationPageState extends State<LocationPage> {
                           getAddressdelivery();
                         },
                         child: Text(
-                          "Sử dụng vị trí cũ ",
+                          "Sử dụng vị trí hiện tại",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: Dimensions.font16,
@@ -314,22 +318,24 @@ class _LocationPageState extends State<LocationPage> {
                         ),
                       ),
                       SizedBox(height: Dimensions.height5),
-                      ElevatedButton(
-                        onPressed: isloadingdata ? null : () {
-                          changeOrAddNewAddressDelivery();
-                        },
-                        child: Text(
-                          "Thêm hoặc thay đổi vị trí",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: Dimensions.font16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          primary: AppColors.mainColor,
-                          minimumSize: Size(double.infinity, 48),
-                        ),
-                      )
+
+
+                      // ElevatedButton(
+                      //   onPressed: isloadingdata ? null : () {
+                      //     changeOrAddNewAddressDelivery();
+                      //   },
+                      //   child: Text(
+                      //     "Thêm hoặc thay đổi vị trí",
+                      //     style: TextStyle(
+                      //       color: Colors.black,
+                      //       fontSize: Dimensions.font16,
+                      //     ),
+                      //   ),
+                      //   style: ElevatedButton.styleFrom(
+                      //     primary: AppColors.mainColor,
+                      //     minimumSize: Size(double.infinity, 48),
+                      //   ),
+                      // )
 
                     ],
                   ),

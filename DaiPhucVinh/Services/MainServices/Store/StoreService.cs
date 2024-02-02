@@ -40,6 +40,7 @@ using Microsoft.AspNet.SignalR;
 using DaiPhucVinh.Services.MainServices.Hubs;
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using System.Xml.Linq;
+using DaiPhucVinh.Shared.OrderHeader;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
@@ -56,13 +57,13 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<StoreResponse>> TakeStoreByCuisineId(FilterStoreByCusineRequest filter);
         Task<BaseResponse<CategoryListResponse>> TakeCategoryByStoreId(int Id);
         Task<BaseResponse<FoodListResponse>> TakeFoodListByStoreId(int Id);
-        Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(int Id);
+        Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(FoodListFillterRequest request);
         Task<BaseResponse<bool>> ApproveStore(StoreRequest request);
         Task<BaseResponse<bool>> ApproveDelvery(DeliveryDriverRequest request);
 
         Task<BaseResponse<bool>> ApproveOrder(OrderHeaderRequest request);
 
-        Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id);
+        Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(OrderHeaderFillterRequest request);
         Task<BaseResponse<OrderLineReponse>> GetListOrderLineDetails(string Id);
         Task<BaseResponse<StatisticalResponse>> TakeStatisticalByStoreId(StatisticalRequest request);
         Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter);
@@ -359,13 +360,38 @@ namespace DaiPhucVinh.Services.MainServices.Province
             }
             return result;
         }
-        public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(int Id)
+
+
+
+        public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(FoodListFillterRequest request)
         {
+            DateTime currentDate = DateTime.Now;
+            DateTime oneMonthFromNow = DateTime.Now.AddMonths(1);
             var result = new BaseResponse<FoodListResponse> { };
             try
             {   
                 var query = _datacontext.EN_FoodList.AsQueryable();
-                query = query.Where(d => d.UserId == Id);
+                query = query.Where(d => d.UserId == request.Id && d.FoodName.Contains(request.keyWord) || d.Description.Contains(request.keyWord));
+                // Có kiểm soát số lượng tồn
+                if(request.Qtycontrolled != 2)
+                {
+                    query = query.Where(x => x.Qtycontrolled.Equals(request.Qtycontrolled == 1 ?  true : false));
+                }
+                if (request.ExpiryDate != 2)
+                {
+                    query = query.Where(x => request.ExpiryDate == 1 ? x.ExpiryDate.HasValue : !x.ExpiryDate.HasValue);
+                }
+                //Còn hạn sử dụng dưới 1 tháng 
+                if (request.TimeExpiryDate != 2)
+                {
+                    query = query.Where(x => x.ExpiryDate != null && x.ExpiryDate >= currentDate && x.ExpiryDate <= oneMonthFromNow);
+                }
+
+                /* Có kiểm soát số lượng hay không 
+                if (request.QuantitySupplied != 2)
+                {
+                    query = query.Where(x => x.QtySuppliedcontrolled.Equals(request.QuantitySupplied));
+                }*/
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = data.MapTo<FoodListResponse>();
@@ -677,18 +703,40 @@ namespace DaiPhucVinh.Services.MainServices.Province
             return result;
         }
 
-        public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id)
+        public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(OrderHeaderFillterRequest request)
         {
             var result = new BaseResponse<OrderHeaderResponse> { };
             try
             {
                 var query = _datacontext.EN_OrderHeader.AsQueryable();
-                query = query.Where(d => d.UserId == Id).OrderByDescending(d => d.CreationDate).ThenByDescending(d => d.Status == false);
-                result.DataCount = await query.CountAsync();
-                var data = await query.ToListAsync();
-                var resultList = data.MapTo<OrderHeaderResponse>();
-                result.Data = resultList;
-                result.Success = true;
+                query = query.Where(d => d.UserId == request.Id ).OrderByDescending(d => d.CreationDate).ThenByDescending(d => d.Status == false);
+                query = query.Where(d => d.OrderHeaderId.Contains(request.keyword)
+                                 || d.FormatAddress.Contains(request.keyword)
+                                 || d.OrderHeaderId.Contains(request.keyword)
+                                 || d.RecipientName.Contains(request.keyword)
+                                 || d.RecipientPhone.Contains(request.keyword));
+                if (request.OrderStatus != 2)
+                {
+                    query = query.Where(x => x.Status.Equals(request.OrderStatus == 1 ? true : false));
+                }
+                if (request.startDate == DateTime.MinValue ||  request.endDate == DateTime.MaxValue)
+                {
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    var resultList = data.MapTo<OrderHeaderResponse>();
+                    result.Data = resultList;
+                    result.Success = true;
+                }
+                else
+                {
+                    query = query.Where(x => x.CreationDate >= request.startDate && x.CreationDate <= request.endDate);
+                    result.DataCount = await query.CountAsync();
+                    var data = await query.ToListAsync();
+                    var resultList = data.MapTo<OrderHeaderResponse>();
+                    result.Data = resultList;
+                    result.Success = true;
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -737,21 +785,81 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                 result.Item.revenueYear = getStatisticalStoreYear ?? 0;
 
-                //Thong ke chart
-                for (int i = 1; i <= 12; i++)
+                if (request.endDate == DateTime.MinValue || request.startDate == DateTime.MinValue)
                 {
-                    double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
-                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i)
-                    .SumAsync(x => (double?)x.IntoMoney) ?? 0;
-                    result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
-
-                    StatisticalChart chart = new StatisticalChart()
+                    for (int i = 1; i <= 12; i++)
                     {
-                        revenueMonth = getStatisticalChartMonth,
-                        nameMonth = $"Thang " + i,
-                    };
-                    result.Item.listChart.Add(chart);
+                        double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
+                        .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i)
+                        .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                        result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
+
+                        StatisticalChart chart = new StatisticalChart()
+                        {
+                            revenueMonth = getStatisticalChartMonth,
+                            nameMonth = $"Tháng " + i,
+                        };
+                        result.Item.listChart.Add(chart);
+                    }
                 }
+                else
+                {
+                    var yearStart = request.startDate.Year;
+                    var yearEnd = request.endDate.Year;
+                    if(yearStart < yearEnd )
+                    {
+                        for (int i = request.startDate.Month; i <= 12; i++)
+                        {
+                            double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearStart)
+                            .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                            result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
+
+                            StatisticalChart chart = new StatisticalChart()
+                            {
+                                revenueMonth = getStatisticalChartMonth,
+                                nameMonth = i + "/"+request.startDate.Year,
+                            };
+                            result.Item.listChart.Add(chart);
+                        }
+                        for (int i = 1; i <= request.endDate.Month; i++)
+                        {
+                            double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd)
+                            .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                            result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
+
+                            StatisticalChart chart = new StatisticalChart()
+                            {
+                                revenueMonth = getStatisticalChartMonth,
+                                nameMonth = i + "/" + request.endDate.Year,
+                            };
+                            result.Item.listChart.Add(chart);
+                        }
+
+                    }
+                    else if (yearStart == yearEnd)
+                    {
+                        for (int i = request.startDate.Month; i <= request.endDate.Month; i++)
+                        {
+                            double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd)
+                            .SumAsync(x => (double?)x.IntoMoney) ?? 0;
+                            result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
+
+                            StatisticalChart chart = new StatisticalChart()
+                            {
+                                revenueMonth = getStatisticalChartMonth,
+                                nameMonth =  i+"/"+ yearStart,
+                            };
+                            result.Item.listChart.Add(chart);
+                        }
+                    }
+                    else {
+
+                    }
+                }
+                //Thong ke chart
 
                 result.Success = true;
             }
@@ -1282,8 +1390,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
                                     FoodCount = g.Count()
                                 };
 
-                    var resultquery = await query.ToListAsync(); 
-                    result.Message = "Lấy dữ liệu sản phẩm đã bán thành công";
+                    var resultquery = await query.Take(10).ToListAsync(); 
+                    result.Message = "Get Success";
                     result.Success = true;
                     result.Data = resultquery;
                     result.DataCount = resultquery.Count;

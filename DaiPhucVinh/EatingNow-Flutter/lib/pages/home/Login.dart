@@ -1,7 +1,15 @@
+import 'package:fam/Widget/Big_text.dart';
+import 'package:fam/storage/UserAccountstorage.dart';
+import 'package:fam/util/Colors.dart';
+import 'package:fam/util/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../data/Api/CustomerService.dart';
+import '../../util/app_constants.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,17 +17,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  CustomerService  customerService = CustomerService(apiUrl: AppConstants.CheckCustomer);
   TextEditingController _otpController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
   String _verificationId = "";
   String _phoneNumber = "";
   bool _isCodeSent = false;
   FocusNode focusNode = FocusNode();
-
+  late UserAccountStorage prefs ;
   @override
   void initState() {
     super.initState();
     initialization();
+    prefs = UserAccountStorage();
   }
 
   void initialization() async {
@@ -63,30 +73,47 @@ class _LoginPageState extends State<LoginPage> {
           verificationId: _verificationId,
           smsCode: _otpController.text,
         );
+        final userAuth = await _auth.signInWithCredential(credential);
+        if(userAuth != null){
+          final result = await customerService.fetchCuisineData({
+            "CustomerId": userAuth.user?.uid ?? "",
+            "Phone": _phoneNumber
+          });
+          print(result.data);
+          if(result.data != null){
+            navigateToHome();
+          }
+          else{
+            // di chuyển đến trang nhập thông tin xác thực.
+          }
+        }
+      }
+      else {
 
-        await _auth.signInWithCredential(credential);
-        navigateToHome();
-        print("User signed in: ${_auth.currentUser?.uid}");
-      } else {
-        print('Please send OTP first');
       }
     } catch (e) {
-      print('Login failed: $e');
+      print('Đăng nhập không thành công: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.secondColor,
       body: Padding(
+
         padding: EdgeInsets.all(16.0),
         child: _isCodeSent == false
             ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Chào mừng bạn đến với",style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26),),
+            Text(AppConstants.APP_NAME,style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26),),
+            SizedBox(height: 16.0),
             IntlPhoneField(
               focusNode: focusNode,
               decoration: InputDecoration(
+                hintText: "Nhập số điện thoại",
                 labelText: 'Số điện thoại',
                 border: OutlineInputBorder(
                   borderSide: BorderSide(),
@@ -102,12 +129,15 @@ class _LoginPageState extends State<LoginPage> {
               },
               onCountryChanged: (country) {},
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 18.0),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonBackqroundColor,
+              ),
               onPressed: () {
                 _signInWithPhoneNumber(_phoneNumber);
               },
-              child: Text('Gửi mã OTP'),
+              child: Text('Gửi mã OTP', style: TextStyle(color: Colors.grey),),
             ),
           ],
         )
@@ -117,18 +147,22 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: _otpController,
               decoration: InputDecoration(
+                hintText: "Nhập mã OTP đã gửi qua SMS",
                 labelText: 'Nhập mã OTP',
                 border: OutlineInputBorder(
                   borderSide: BorderSide(),
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 18.0),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonBackqroundColor,
+              ),
               onPressed: () {
                 _login();
               },
-              child: Text('Đăng nhập'),
+              child: Text('Đăng nhập', style: TextStyle(color: Colors.grey),),
             ),
           ],
         ),

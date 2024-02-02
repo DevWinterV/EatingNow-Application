@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -299,8 +300,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             {
                 var checkPayment = await _datacontext.EN_Paymentonlines.Include(x => x.CategoryPayment).Where(x => x.userId.Equals(request.UserId)).ToListAsync();
                 var VNPaySetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("VNPay"));
-                var MomoSetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("Momo"));
-
+                var MomoSetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("MOMO"));
                 if (request.Payment != "PaymentOnDelivery")
                 {
                     if (VNPaySetting == null || MomoSetting != null)
@@ -310,8 +310,6 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         return result;
                     }
                 }
-
-
                 if (request.CustomerId == null)
                 {
                     result.Success = false;
@@ -328,9 +326,19 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 
                 foreach( var item in request.OrderLine)
                 {
+                    var checkQty = await _checkQuantity(item.FoodListId);
+                    if (!checkQty)
+                    {
+                        result.Success = false;
+                        result.CustomData = new object[]
+                        {
+                             3
+                        };
+                        result.Message = "Sản phẩm " + item.FoodName + " hiện đã hết số lượng ... Xin lỗi vì sự bất tiện này!";
+                        return result;
+                    }
                     // Sô lượng hiện còn đủ cung ứng
                     var Quantityremaining = await _checkQuantitySupplied(item.FoodListId);
-
                     if (Quantityremaining == 0)
                     {
                         result.Success = false;
@@ -381,6 +389,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
 
                     foreach (var item in request.OrderLine.ToList())
                     {
+                        var foodUpdate = await  _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(item.FoodListId));
                         var createOrderLine = new EN_OrderLine()
                         {
                             OrderHeaderId = OrderHeaderId,
@@ -392,6 +401,9 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                             UploadImage = item.UploadImage,
                             Description = item.Description,
                         };
+                        // Nếu có kiểm soát về số lượng thì trừ 
+                        if(foodUpdate.Qtycontrolled == true) foodUpdate.qty = foodUpdate.qty - item.qty;
+                        await _datacontext.SaveChangesAsync();
                         _datacontext.EN_OrderLine.Add(createOrderLine);
                     }
                     result.Message = "";
@@ -564,22 +576,48 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             return result;
         }
 
-
+        //Kiểm soát khả năng cung ứng món ăn khi khách đặt
         private async Task<int> _checkQuantitySupplied(int FoodId)
         {
-            int quantity = 0;
             var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
-            var quantitySupplied = food.QuantitySupplied;
-            var listFoodSaled = await _datacontext.EN_OrderLine.Include(x => x.EN_OrderHeader).Where(x => x.EN_OrderHeader.CreationDate <  DateTime.Now && x.FoodListId.Equals(FoodId)).ToListAsync();
-            int SumQuantitySaled = 0;
-            foreach (var item in listFoodSaled)
+            if (food == null) return 0;
+            if (food.QtySuppliedcontrolled)
             {
-                SumQuantitySaled += item.qty;
+                var quantitySupplied = food.QuantitySupplied;
+                var listFoodSaled = await _datacontext.EN_OrderLine.Include(x => x.EN_OrderHeader).Where(x => x.EN_OrderHeader.CreationDate < DateTime.Now && x.FoodListId.Equals(FoodId)).ToListAsync();
+                int? SumQuantitySaled = 0;
+                foreach (var item in listFoodSaled)
+                {
+                    SumQuantitySaled += item.qty;
+                }
+                if (food.QuantitySupplied > SumQuantitySaled)
+                    return (int)(quantitySupplied - SumQuantitySaled);
+                else
+                    return 0;
             }
-            if(food.QuantitySupplied > SumQuantitySaled)
-                return (int)(quantitySupplied - SumQuantitySaled);
             else
-                return 0;
+            {
+                return 9999;
+            }
+
+
+        }
+
+        //Kiểm soát số lượng tồn của món ăn khi khách đặt
+        private async Task<bool> _checkQuantity(int FoodId)
+        {
+            var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
+            if(food == null) return false; 
+            if(food.Qtycontrolled == true)
+            {
+                int? quantity = food.qty;
+                return quantity > 0 ? true : false;
+            }
+            else
+            {
+                return true;
+            }
+
         }
 
         public class MoMoSecurity

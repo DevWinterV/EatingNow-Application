@@ -180,6 +180,24 @@ const TakeLitsFoodSold = async (UserId) => {
   }
   return result;
 };
+const TakeAllFoodListByStoreId = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeAllFoodListByStoreId,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }    } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
 const TakeFoodListByStoreId = async (Id) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -195,32 +213,21 @@ const TakeFoodListByStoreId = async (Id) => {
   }
   return result;
 };
-const TakeAllFoodListByStoreId = async (Id) => {
+const TakeOrderHeaderByStoreId = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
-      "get",
-      ServiceEndPoint + API.TakeAllFoodListByStoreId,
-      { params: { Id: Id } },
-      true
-    );
-    result.data = response.Data;
-  } catch (e) {
-    result.message = e.toString();
-  }
-  return result;
-};
-const TakeOrderHeaderByStoreId = async (Id) => {
-  let result = new BaseResponse(false, "", null);
-  try {
-    let response = await Proxy(
-      "get",
+      "post",
       ServiceEndPoint + API.TakeOrderHeaderByStoreId,
-      { params: { Id: Id } },
+      request,
       true
     );
-    result.data = response.Data;
-  } catch (e) {
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+    }
+    } catch (e) {
     result.message = e.toString();
   }
   return result;

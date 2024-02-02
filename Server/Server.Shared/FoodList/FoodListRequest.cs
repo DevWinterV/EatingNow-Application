@@ -12,7 +12,7 @@ namespace DaiPhucVinh.Shared.FoodList
         public int CategoryId { get; set; }
         public string FoodName { get; set; }
         public int Price { get; set; }
-        public int? qty { get; set; }
+        public int qty { get; set; }
         public string UploadImage { get; set; }
         public string Description { get; set; }
         public int UserId { get; set; }
@@ -22,6 +22,8 @@ namespace DaiPhucVinh.Shared.FoodList
         public bool? IsNoiBat { get; set; }
         public int? QuantitySupplied { get; set; }
         public DateTime? ExpiryDate { get; set; }
+        public bool Qtycontrolled { get; set; }
+        public bool QtySuppliedcontrolled { get; set; }
 
     }
 }

@@ -13,7 +13,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
     {
         [Key]
         public int idPaymentonline {  get; set; } 
-	    public int userId {  get; set; }
+	    public int userId {  get; set; }    
         [ForeignKey("userId")]
         public virtual EN_Store Store { get; set; }
         public int CategoryPaymentId { get; set; }

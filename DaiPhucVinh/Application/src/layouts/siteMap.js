@@ -4,14 +4,14 @@ const SiteMap = [
   {
     tabs: [
       {
-        name: "Dashboard",
-        icon: <Fc.FcHome />,
+        name: "Bản điều khiển",
+        icon: <Fc.FcStatistics />,
         href: "/",
         isShow: false,
       },
       {
         name: "Bản đồ",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcMindMap/>,
         isShow: false,
         tabs: [
           {
@@ -28,7 +28,7 @@ const SiteMap = [
       },
       {
         name: "Cửa hàng",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcShop />,
         isShow: false,
         tabs: [
           {
@@ -45,7 +45,7 @@ const SiteMap = [
       },
       {
         name: "Địa điểm",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcAbout />,
         isShow: false,
         tabs: [
           {
@@ -67,7 +67,7 @@ const SiteMap = [
       },
       {
         name: "Đơn Hàng",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcList />,
         isShow: false,
         tabs: [
           {
@@ -84,7 +84,7 @@ const SiteMap = [
       },
       {
         name: "Khách hàng",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcBusinessContact />,
         isShow: false,
         tabs: [
           {
@@ -96,7 +96,7 @@ const SiteMap = [
       },
       {
         name: "Phân quyền",
-        icon: <Fc.FcTodoList />,
+        icon: <Fc.FcSettings />,
         isShow: false,
         tabs: [
           {

@@ -8,11 +8,12 @@ class ApiResult {
   final bool success;
   final Map<String, dynamic>? data;
   final String? Message;
-
+  final Object? CustomData;
   ApiResult({
     required this.success,
     this.data,
     this.Message,
+    this.CustomData
   });
 }
 class OrderService {
@@ -25,6 +26,7 @@ class OrderService {
   }
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
+      print(order.toJson());
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: <String, String>{
@@ -35,17 +37,12 @@ class OrderService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        print(responseBody);
         if (responseBody["Success"] == true) {
           return ApiResult(success: true, data: responseBody["Data"], Message: responseBody["Message"]);
         } else {
-          print('Failed to post order. Server reported failure.');
-          // Xử lý mã lỗi từ máy chủ tại đây, ví dụ: throw Exception('Server reported failure');
-          return ApiResult(success: false, Message: 'Server reported failure');
+          return ApiResult(success: false, Message: responseBody["Message"], CustomData: responseBody["CustomData"]);
         }
       } else {
-        print('Failed to post order. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
         return ApiResult(success: false, Message: 'Failed to post order');
       }
     } catch (e) {

@@ -33,12 +33,13 @@ const CreateFoodList = () => {
   const [{ user }] = useStateValue();
   const [categoriesFood, setCategoriesFood] = React.useState([]);
   const [selectedImage, setSelectedImage] = useState();
-  const [FoodListId, setFoodListId] = useState("");
-
   const history = useNavigate();
   var copyimg = state?.data.UploadImage;
   const [showExpirationDate, setShowExpirationDate] = useState(false);
   const [showIsNew, setshowIsNew] = useState(false);
+  const [showQtycontrolled, setshowQtycontrolled] = useState(false);
+  const [showQtySuppliedcontrolled, setshowQtySuppliedcontrolled] = useState(false);
+
   const [showIsNoiBat, setshowIsNoiBat] = useState(false);
 
   const handleCheckboxChange = () => {
@@ -64,7 +65,21 @@ const CreateFoodList = () => {
       IsNoiBat: !showIsNoiBat,
     });
   };
+  const handleCheckSoluong = () => {
+    setshowQtycontrolled(!showQtycontrolled);
+    setRequest({
+      ...request,
+      Qtycontrolled: !showQtycontrolled,
+    });
+  };
 
+  const handleCheckSoluongCungUng = () => {
+    setshowQtySuppliedcontrolled(!showQtySuppliedcontrolled);
+    setRequest({
+      ...request,
+      QtySuppliedcontrolled: !showQtySuppliedcontrolled,
+    });
+  };
 
   const [request, setRequest] = React.useState({
     FoodListId: 0,
@@ -72,15 +87,17 @@ const CreateFoodList = () => {
     FoodName: "",
     Description: "",
     Price: "",
-    qty: null,
+    qty: 0,
     UploadImage: "",
     Description: "",
     UserId: user.UserId,
     Status: 0,
-    QuantitySupplied: null,
+    QuantitySupplied: 0,
     ExpiryDate: "",
     IsNew: 0,
     IsNoiBat: 0,
+    Qtycontrolled: 0,
+    QtySuppliedcontrolled: 0
   });
 
   async function OnLoadCategoryByStoreId() {
@@ -107,11 +124,16 @@ const CreateFoodList = () => {
         IsNew: state?.data.IsNew,
         IsNoiBat: state?.data.IsNoiBat,
         ExpiryDate: state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? state?.data.ExpiryDate : "",
+        IsNoiBat: state?.data.IsNoiBat,
+        Qtycontrolled: state?.data.Qtycontrolled,
+        QtySuppliedcontrolled: state?.data.QtySuppliedcontrolled,
+
       });
       setShowExpirationDate(state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? true : false);
       setshowIsNew(state?.data.IsNew);
       setshowIsNoiBat(state?.data.IsNoiBat);
-      
+      setshowQtySuppliedcontrolled(state?.data.QtySuppliedcontrolled);
+      setshowQtycontrolled(state?.data.Qtycontrolled);
     }
     await OnLoadCategoryByStoreId();
   }
@@ -151,9 +173,39 @@ const CreateFoodList = () => {
   }
 
   async function SaveFoodList() {
-    setIsLoading(true);
-    console.log(`request.FoodListId ${request.FoodListId}`);
     if (request.FoodListId === 0) {
+
+      if(  request.qty === null ||
+      request.qty === "" &&
+      request.Qtycontrolled === true )
+      {
+        toast.warning('Vui lòng nhập số lượng tồn !', {
+          position: 'top-right',
+          autoClose: 3000, // 5 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
+      }
+
+      if(  request.QuantitySupplied === null ||
+        request.QuantitySupplied === "" &&
+        request.QtySuppliedcontrolled === true )
+        {
+          toast.warning('Vui lòng nhập số lượng khả năng cung ứng !', {
+            position: 'top-right',
+            autoClose: 3000, // 5 seconds
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+          return;
+        }
+  
+
       if (
         request.FoodName === "" ||
         request.Price === "" ||
@@ -182,7 +234,7 @@ const CreateFoodList = () => {
           }, 4000);
           return;
         }
-        
+        setIsLoading(true);
         setRequest({
           FoodListId: 0,
           CategoryId: 0,
@@ -199,7 +251,7 @@ const CreateFoodList = () => {
           IsNew: 0,
           IsNoiBat: 0,
         });
-        toast.success('Thêm thành công !', {
+        toast.success('Thêm sản phẩm thành công', {
           position: 'top-right',
           autoClose: 3000, // 5 seconds
           hideProgressBar: false,
@@ -207,12 +259,7 @@ const CreateFoodList = () => {
           pauseOnHover: true,
           draggable: true,
         });
-        // setFields(true);
-        // setMsg("Thêm thành công");
-        // setAlertStatus("success");
-        // setTimeout(() => {
-        //   setFields(false);
-        // }, 4000);
+
       }
     } else {
       if (
@@ -391,37 +438,64 @@ const CreateFoodList = () => {
             />
           </div>
 
-          <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
-              <MdNumbers className="text-xl text-gray-700" />
-              <input
-                type="text"
-                defaultValue={request.qty}
-                onChange={(e) => {
-                  setRequest({
-                    ...request,
-                    qty: e.target.value,
-                  });
-                }}
-                placeholder="Nhập số lượng (Để trống là không có ràng buộc về số lượng tồn kho)"
-                className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
-              />
+          <div className="flex">
+              <div>
+                <input
+                  type="checkbox"
+                  onChange={handleCheckSoluong}
+                  checked={showQtycontrolled}
+                  id="soluongCheckbox"
+                />
+                <label htmlFor="soluongCheckbox">Kiểm soát số lượng tồn</label>
+              </div>
+              {showQtycontrolled && (
+                  <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
+                           <MdNumbers className="text-xl text-gray-700" />
+                           <input
+                             type="text"
+                             defaultValue={request.qty}
+                             onChange={(e) => {
+                               setRequest({
+                                 ...request,
+                                 qty: e.target.value,
+                               });
+                             }}
+                             placeholder="Nhập số lượng "
+                             className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+                           />
+                  </div>
+              )}
           </div>
-          <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
-              <MdNumbers className="text-xl text-gray-700" />
-              <input
-                type="text"
-                defaultValue={request.QuantitySupplied}
-                onChange={(e) => {
-                  setRequest({
-                    ...request,
-                    QuantitySupplied: e.target.value,
-                  });
-                }}
-                placeholder="Nhập số lượng cung ứng mỗi ngày (Để trống là không có ràng buộc về số lượng cung ứng)"
-                className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
-              />
+          <div className="flex">
+              <div>
+                <input
+                  type="checkbox"
+                  onChange={handleCheckSoluongCungUng}
+                  checked={showQtySuppliedcontrolled}
+                  id="soluongCungungCheckbox"
+                />
+                <label htmlFor="soluongCungungCheckbox">Kiểm soát số lượng cung ứng trong ngày</label>
+              </div>
+              {showQtySuppliedcontrolled && (
+                    <div className="w-[100%] py-2 border-b border-gray-300 flex items-start  gap-2">
+                        <MdNumbers className="text-xl text-gray-700" />
+                        <input
+                          type="text"
+                          defaultValue={request.QuantitySupplied}
+                          onChange={(e) => {
+                            setRequest({
+                              ...request,
+                              QuantitySupplied: e.target.value,
+                            });
+                          }}
+                          placeholder="Nhập số lượng cung ứng mỗi ngày"
+                          className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
+                        />
+                    </div>
+              )}
+    
           </div>
- 
+    
           <div className="checkbox-container">
             <input
               type="checkbox"
@@ -623,7 +697,7 @@ const CreateFoodList = () => {
             <div className="w-full py-2 border-b border-gray-300 flex items-center gap-2">
               <MdMoney className="text-gray-700 text-2xl" />
               <input
-                type="text"
+                type="number"
                 defaultValue={request.Price}
                 onChange={(e) => {
                   setRequest({

@@ -47,9 +47,9 @@ const   SideMenu = () => {
         onClick={handleHome}
         className="logo mt-4 gap-2 text-orange-900 font-bold flex items-center justify-center m-auto cursor-pointer"
       >
-        <IoFastFoodSharp  className="text-[50px]" />
+        <IoFastFoodSharp  className="text-[30px]" />
         <h1 className="text-[20px] align-center justify-center font-black">
-            
+          XpressEat.
         </h1>
       </div>
 
@@ -74,7 +74,7 @@ const   SideMenu = () => {
           className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
         >
           <AiFillHome className="text-orange-900 font-bold" />
-          <span className="text-orange-900 font-bold">Thống kê</span>
+          <span className="text-orange-900 font-bold">Dashboard</span>
         </li>
         <li
           onClick={() => {

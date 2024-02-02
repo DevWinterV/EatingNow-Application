@@ -27,7 +27,6 @@ class StoreService {
   }
 
   Future<StoreNearUserModel?> fetchStoreDataNearUser(Map<String, dynamic> requestData) async {
-    print(apiUrl);
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {

@@ -31,7 +31,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<CartItem> cartItems = [];
-
   @override
   void initState() {
     super.initState();
@@ -46,6 +45,7 @@ class _MyAppState extends State<MyApp> {
       cartItems = loadedItems;
     });
   }
+
 /*
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Eating Now',
+      title: 'XpressEat',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

@@ -84,7 +84,7 @@ class OrderRequest {
           price: v['price'],
           qty: v['qty'],
           uploadImage: v['uploadImage'],
-          description: v['description'],
+          description: v['description'], descriptionBuy: v['descriptionBuy'],
         );
       }).toList();
     }
@@ -121,7 +121,7 @@ class OrderRequest {
     data['Longitude'] = this.longitude;
     data['Name_Address'] = this.nameAddress;
     if (this.orderLine != null) {
-      data['OrderLine'] = this.orderLine!.map((v) => v.toJson()).toList();
+      data['OrderLine'] = this.orderLine!.map((v) => v.toJsonSentServer()).toList();
     }
     data['Payment'] = this.payment;
     data['Phone'] = this.phone;
@@ -137,6 +137,7 @@ class OrderRequest {
     data['UserId'] = this.userId;
     data['WardId'] = this.wardId;
     data['WardName'] = this.wardName;
+    print(data);
     return data;
   }
 }

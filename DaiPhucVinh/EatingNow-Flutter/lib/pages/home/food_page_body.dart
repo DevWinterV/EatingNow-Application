@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,14 +16,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import '../../data/Api/StoreService.dart';
-import '../../models/stores_model.dart';
 import '../../util/Colors.dart';
 import '../../util/app_constants.dart';
 import '../../util/dimensions.dart';
-import '../Cart/cartPage.dart';
 import '../circularprogress/DottedCircularProgressIndicator.dart';
-import '../food/popular_food_detail.dart';
-import '../food/recommened_food_detail.dart';
 import '../../storage/cartstorage.dart';
 
 
@@ -37,6 +34,7 @@ class FoodPageBody extends StatefulWidget {
 }
 
 class _FoodPageBodyState extends State<FoodPageBody> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
   final storeService = StoreService(apiUrl: AppConstants.TakeStoreByCuisineId);//lấy cửa hàng gần nhất
   final productService = ProductService(apiUrl: AppConstants.TakeRecommendedFoodList);// lấy món ăn được gợi ý
   final cuisineService = CuiSineService(apiUrl: AppConstants.TakeAllCuisine);// lấy danh sách loại hình món ăn
@@ -53,18 +51,21 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   Future<void> fetchData() async {
     try {
-      final productsDataFuture = productService.fectProductRecommended({ "CustomerId": null,
-      "Latitude": 10.3792302,
-      "Longittude": 105.3872573});
-      final cuisineDataFuture = cuisineService.fetchCuisineData(
-          { "ItemCategoryCode": 0
+      final productsDataFuture = productService.fectProductRecommended(
+          { "CustomerId": _auth.currentUser?.uid ?? null,
+            "Latitude":  prefs.getDouble('latitude') ?? 10.3792302,
+            "Longittude":  prefs.getDouble('longitude') ?? 105.3872573
           });
-      final storeNearUserDataFuture = storeService.fetchStoreDataNearUser({
-        "CuisineId": 0,
-        "latitude": prefs.getDouble('latitude') ?? 0.0,
-        "longitude": prefs.getDouble('longitude') ?? 0.0
-      }
-      );
+      final cuisineDataFuture = cuisineService.fetchCuisineData(
+          {
+            "ItemCategoryCode": 0
+          });
+      final storeNearUserDataFuture = storeService.fetchStoreDataNearUser(
+          {
+            "CuisineId": 0,
+            "latitude": prefs.getDouble('latitude') ?? 0.0,
+            "longitude": prefs.getDouble('longitude') ?? 0.0
+          });
       final results = await Future.wait([ productsDataFuture, cuisineDataFuture, storeNearUserDataFuture]);
       setState(() {
         isloading = false;
@@ -72,11 +73,12 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         cuisineData = results[1] as CuisineModel?;
         storeNearUserModel = results[2] as StoreNearUserModel?;
       });
-      print('Get data success!');
+
     } catch (e) {
-      print('Error fetching data: $e');
+        print(e);
     }
   }
+
   PageController pageController= PageController(viewportFraction: 0.85);
   var _currPageValue=0.0;
   double _scaleFactor=0.8;
@@ -91,9 +93,11 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   Future<double> calculateDistanceToStore(double storeLatitude, double storeLongitude) async {
     double distanceInMeters = 0;
     try {
-      // Tính khoảng cách từ vị trí hiện tại đến cửa hàng
       distanceInMeters = await Geolocator.distanceBetween(
-          prefs.getDouble('latitude') ?? 0.0, prefs.getDouble('longitude') ?? 0.0, storeLatitude, storeLongitude);
+          prefs.getDouble('latitude') ?? 10.3792302, prefs.getDouble('longitude') ?? 105.3872573, storeLatitude, storeLongitude);
+      print(prefs.getDouble('latitude'));
+      print(prefs.getDouble('longitude'));
+
     } catch (e) {
       // Xử lý lỗi nếu có
       print("Lỗi khi tính toán khoảng cách: $e");
@@ -150,7 +154,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             DottedCircularProgressIndicator(
-              radius: 30.0,
+              radius: 28.0,
               color: Colors.orange,
               dotRadius: 3.0,
               numberOfDots: 10,
@@ -162,11 +166,11 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         :
         Column(
         children: [
-        _headerContainer("Eating Now", "Loại món ăn 🍔"),
-      buldCatagoryItem(),
-      _line(),
+        _headerContainer(AppConstants.APP_NAME, "Loại món ăn 🍔"),
+          buldCatagoryItem(),
+          _line(),
       // Kiểm tra isLoading để hiển thị "Loading" hoặc nội dung của PageView.
-      _headerContainer("Các cửa hàng gần bạn nhất", "⚡"),
+      _headerContainer("Các cửa hàng gần nhất", "⚡"),
       Container(
         height: Dimensions.pageView,
         child: PageView.builder(
@@ -192,10 +196,9 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       _headerContainer("Gợi ý", "Món ngon cho bạn 🧡"),
       // Danh sách các món ăn yêu thích của khách hàng
       SingleChildScrollView(
-
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: products!.data!.take(5).map((data) {
+          children: products!.data!.take(9).map((data) {
             return GestureDetector(
               onTap: () {
                 // Điều hướng đến trang chi tiết tại đây
@@ -209,7 +212,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               Container(
                 margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10, bottom: Dimensions.height10),
                 width: 180, // Đặt chiều rộng của mỗi phần tử
-                height: 240,
+                height: 250,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Dimensions.radius15),
                   color: Colors.white, // Màu nền của phần tử
@@ -227,7 +230,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   children: [
                     // Hình ảnh
                     Container(
-                      height: 150,
+                      height: 140,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(Dimensions.radius20),
@@ -245,41 +248,50 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                     Padding(
                       padding: EdgeInsets.all(0),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          BigText(text: "🧡" + (data?.foodName ?? "")),
+                          BigText(text: (data?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,),
+                          SmallText(text: (data?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
                           Container(
                             margin: EdgeInsets.only(left: Dimensions.width10),
                             child: Text(
                               NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(data?.price ?? 0),
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: Dimensions.font20,
+                                fontSize: Dimensions.font13,
                                 fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconAndTextWidget(
-                                icon: Icons.star,
-                                text: (random.nextInt(4) + 2).toString(),
-                                iconColor: AppColors.yellowColor,
+                          FutureBuilder<double>(
+                                future: calculateDistanceToStore(data.latitude ?? 10.3792302, data.longitude ?? 105.3872573),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return SizedBox(); // Show a loading indicator while waiting for the result
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error: ${snapshot.error}");
+                                  } else {
+                                    final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                    final minite = (double.parse(km) * 60)/ 35;
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround ,
+                                      children: [
+                                        IconAndTextWidget(
+                                          icon: Icons.location_on,
+                                          text: km+ " km",
+                                          iconColor: AppColors.mainColor,
+                                        ),
+                                        IconAndTextWidget(
+                                          icon: Icons.access_time_rounded,
+                                          text: minite.toStringAsFixed(1) + " phút",
+                                          iconColor: AppColors.iconColor2,
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
                               ),
-                              IconAndTextWidget(
-                                icon: Icons.location_on,
-                                text: "1.7km",
-                                iconColor: AppColors.mainColor,
-                              ),
-                              IconAndTextWidget(
-                                icon: Icons.access_time_rounded,
-                                text: "32min",
-                                iconColor: AppColors.iconColor2,
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -296,7 +308,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       _line(),
       // SizedBox(height: Dimensions.height30,),
       _headerContainer("Phổ biến", "Các món ăn đang HOT 🔥"),
-      //Dah sách các món ăn đang phổ biến
+      //Danh sách các món ăn đang phổ biến
       ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -307,7 +319,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20, bottom: Dimensions.height10),
               child: Row(
                 children: [
-                  // Phần hình ảnh (bạn có thể sử dụng URL hình ảnh từ API của bạn)
                   Container(
                     width: Dimensions.listViewImgSize,
                     height: Dimensions.listViewImgSize,
@@ -339,37 +350,41 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              BigText(text: product!.foodName!), // Thay thế bằng thuộc tính tương ứng
-                              SizedBox(height: 3,),
-                              SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
-                              SizedBox(height: 3,),
+                              BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
+                              SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  /*IconAndTextWidget(icon: Icons.circle_sharp,
-                                      text: product!.status!.toString(), // Thay thế bằng thuộc tính tương ứng
-                                      iconColor: AppColors.iconColor1, ),
-                                    IconAndTextWidget(icon: Icons.attach_money,
-                                        text:NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price?.toString() ?? 0), // Thay thế bằng thuộc tính tương ứng
-                                        iconColor: AppColors.mainColor),
-                                    IconAndTextWidget(icon: Icons.location_on,
-                                        text: calculateDistanceToStore(10.323233, 105.1727172).toString(),
-                                        iconColor: AppColors.iconColor2)*/
-                                  IconAndTextWidget(
-                                    icon: Icons.star,
-                                    text: (random.nextInt(4) + 2).toString(),
-                                    iconColor: AppColors.yellowColor,
-                                  ),
-                                  IconAndTextWidget(
-                                    icon: Icons.location_on,
-                                    text: "1.7km",
-                                    iconColor: AppColors.mainColor,
-                                  ),
-                                  IconAndTextWidget(
-                                    icon: Icons.access_time_rounded,
-                                    text: "32min",
-                                    iconColor: AppColors.iconColor2,
-                                  ),
+                                  SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
+                                  FutureBuilder<double>(
+                                      future: calculateDistanceToStore(product!.latitude ?? 10.323233,product!.longitude ?? 105.1727172),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
+                                        } else if (snapshot.hasError) {
+                                          return Text("Error: ${snapshot.error}");
+                                        } else {
+                                          final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                          final minite = (double.parse(km) * 60)/ 35;
+                                          return
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                IconAndTextWidget(
+                                                  icon: Icons.access_time_rounded,
+                                                  text: minite.toStringAsFixed(1) +" phút",
+                                                  iconColor: AppColors.mainColor,),
+                                                IconAndTextWidget(
+                                                  icon: Icons.location_on,
+                                                  text: km +" km",
+                                                  iconColor: AppColors.iconColor2,
+                                                ),
+                                              ],
+                                            );
+                                        }
+                                      },
+                                    )
+
                                 ],
                               )
                             ],
@@ -384,7 +399,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       ],
     );
   }
-
   Container _line(){
     return
     Container(
@@ -426,7 +440,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return !isloading ?
       Container(
         margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10 ),
-      height: 120,
+      height: 100,
       child: ListView.separated(
         itemCount: cuisineData!.data!.length ,
         scrollDirection: Axis.horizontal,
@@ -460,7 +474,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                 ),
 
               (cuisineData != null && cuisineData!.data != null && position >= 0 && position < cuisineData!.data!.length) ?
-              Text(cuisineData!.data![position].name ?? "Null",
+
+
+              Text(cuisineData!.data![position].name ?? " ",
+                style: TextStyle(fontSize: 12, color: AppColors.paraColor),
                 overflow: TextOverflow.ellipsis,
                 // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
                 maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
@@ -566,7 +583,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               child: Container(
                 padding: EdgeInsets.only(top: Dimensions.height5,left: Dimensions.height5, right: Dimensions.height5),
                 child:
-                    AppColumn(text:popularProduct?.fullName ?? "",rating: random.nextInt(4) + 2,distance: popularProduct?.distance??0.0, time: popularProduct?.time??0.0,),
+                    AppColumn(text:popularProduct?.fullName ?? "", rating: random.nextInt(4) + 2, latitude: popularProduct?.latitude?? 0.0, longtitude: popularProduct?.longitude?? 0.0,time: popularProduct?.time?? 0.0, prefs: prefs,),
                     // Sử dụng widget RatingStars để hiển thị số sao dựa trên tỉ lệ đánh giá
                 )
               ),

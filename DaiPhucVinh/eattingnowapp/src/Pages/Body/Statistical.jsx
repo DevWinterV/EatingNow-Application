@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import { AiOutlineAppstoreAdd } from "react-icons/ai";
-import { BsSearch } from "react-icons/bs";
+import { FilterListIcon } from "evergreen-ui";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,38 +10,15 @@ import {
 import { ResponsiveContainer, Tooltip, PieChart, Pie, LineChart, Line, XAxis, YAxis} from "recharts";
 import { Label } from "recharts";
 import { Bar, Doughnut } from "react-chartjs-2";
+import { ToastContainer } from "react-toastify";
 import { useStateValue } from "../../context/StateProvider";
 import { TakeStatisticalByStoreId, TakeLitsFoodSold } from "../../api/store/storeService";
 import { useState } from "react";
 import { sampleSize } from "lodash";
+import { toast } from "react-toastify";
 ChartJS.register(CategoryScale, LinearScale, BarElement,  Legend);
 const Statistical = () => {
-  const data1 = {
-    labels: ["Go", "Python", "Kotlin", "JavaScript", "R", "Swift"],
-    datasets: [
-      {
-        label: "# of Votes",
-        data: [35, 25, 22, 20, 18, 15],
-        backgroundColor: [
-          "#007D9C",
-          "#244D70",
-          "#D123B3",
-          "#F7E018",
-          "#fff",
-          "#FE452A",
-        ],
-        borderColor: [
-          "rgba(255,99,132,1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+
   const [selectedData, setSelectedData] = useState(null);
 
   const handlePieClick = (data, index) => {
@@ -50,6 +26,7 @@ const Statistical = () => {
   };
   const [datachart, setDatachart ]= useState([]);
   const [ListFoodSold, setListFoodSold]= useState([]);
+
   const [thongKeThang, setThongKeThang] = React.useState({
     labels: [],
     datasets: [
@@ -66,14 +43,8 @@ const Statistical = () => {
       },
     ],
   });
-  const [dataTop10TaiSan, setTop10TaiSan] = React.useState({
-    labels: ["Tháng 1", "Tháng 2", "Tháng 3"],
-    datasets: [
-      {
-        data: [100, 250, 300],
-      },
-    ],
-  });
+
+
   const vietnameseCurrencyFormat = {
     style: 'currency',
     currency: 'VND',
@@ -87,9 +58,9 @@ const Statistical = () => {
   });
 
   const [{ user }] = useStateValue();
-  async function onViewAppearing() {
+  async function ViewAllStatistical() {
     if (user) {
-      let response = await TakeStatisticalByStoreId({...data, storeId: user?.UserId});
+      let response = await TakeStatisticalByStoreId({...data, storeId: user?.UserId, startDate: null, endDate: null});
       const chartLabelsMonth =
       response.item.listChart.map(
           (item) => item.nameMonth
@@ -102,7 +73,7 @@ const Statistical = () => {
         labels: chartLabelsMonth,
         datasets: [
           {
-            label: "Tổng số lượng được tạo trong ngày",
+            label: "Doanh thu",
             data: dataChartSoLuongKhachHangTheoNgay,
             backgroundColor: ['#29e916'],
           },
@@ -124,14 +95,84 @@ const Statistical = () => {
     }
   }
 
+  async function onViewAppearing() {
+    if (user) {
+      var endDateObj = new Date(endDate);
+      var startDateObj = new Date(startDate);
+
+      var countYear = endDateObj.getFullYear() - startDateObj.getFullYear();
+
+      console.log(countYear);
+
+      if (countYear > 1) {
+        toast.error('Khoảng cách không thể quá 2 năm', { autoClose: 3000 });
+        return;
+      }
+      let response = await TakeStatisticalByStoreId({...data, storeId: user?.UserId, startDate: startDate, endDate: endDate});
+      const chartLabelsMonth =
+      response.item.listChart.map(
+          (item) => item.nameMonth
+        );
+      const dataChartSoLuongKhachHangTheoNgay =
+      response.item.listChart.map(
+          (item) => item.revenueMonth
+        );
+        setThongKeThang({
+        labels: chartLabelsMonth,
+        datasets: [
+          {
+            label: "Doanh thu",
+            data: dataChartSoLuongKhachHangTheoNgay,
+            backgroundColor: ['#29e916'],
+          },
+        ],
+      });
+      setData(response.item);
+      let responseListSold = await TakeLitsFoodSold(user?.UserId)
+      if(responseListSold.success){
+        setListFoodSold(responseListSold.data);
+         // Sử dụng map để tạo datachart từ responseListSold.data
+         setDatachart( responseListSold.data.map(item => ({
+          name: item.FoodName,
+          count: item.FoodCount
+        })));
+      }
+      else{
+        console.log(responseListSold.message);
+      }
+    }
+  }
+  const getStartDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = "01"; //String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = "01";//String(currentDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const getEndDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = "12"; //String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = "31";//String(currentDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [startDate, setstartDate] = useState(getStartDate());
+  const [endDate, setendDate] = useState(getEndDate());
+  const handleStartDateChange = (e) => {
+    setstartDate(e.target.value);
+  };
+  const handleendDateChange = (e) => {
+    setendDate(e.target.value);
+  };
   useEffect(() => {
     onViewAppearing();
-    
   }, []);
   return (
-  
     <div className="bg-bodyBg h-[100%] basis-80 p-8 overflow-x-scroll scrollbar-none">
-      <div className="flex items-center justify-between">
+      {/*Hiển thị thông báo */}
+     <ToastContainer />
+      {/* <div className="flex items-center justify-between">
         <div className="flex items-center border-b-2 pb-2 basis-1/2 gap-2">
           <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
           <input
@@ -147,10 +188,10 @@ const Statistical = () => {
             Quản lý
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Title Div */}
-      <div className="flex items-center justify-between mt-8">
+      <div className="flex items-center justify-between mt-2">
         <div className="title">
           <h1 className="text-[25px] text-titleColor tracking-[1px] font-black">
             Thống kê doanh số
@@ -176,7 +217,36 @@ const Statistical = () => {
           <div className="text-[16px] text-orange-900 font-bold flex items-center justify-center cursor-pointer">{data?.revenueYear?.toLocaleString('vi-VN', vietnameseCurrencyFormat)}</div>
         </div>
       </div>
-
+      <div className="flex items-center border-b-2 pb-2 basis-2/2 gap-2">
+          <label htmlFor="">Từ ngày: </label>
+          <input 
+            type="date" 
+            value={startDate} 
+            onChange={handleStartDateChange}/>
+          <label htmlFor="">Đến ngày: </label>
+          <input 
+            type="date" 
+            value={endDate} 
+            onChange={handleendDateChange}/>
+          <button 
+            onClick={onViewAppearing}
+            className="custom-button ml-2"
+          >
+            <div className="flex">
+              <FilterListIcon className="icon" />
+              Lọc
+            </div>
+          </button>
+          <button 
+            onClick={ViewAllStatistical}
+            className="custom-button ml-2"
+          >
+            <div className="flex">
+              <FilterListIcon className="icon" />
+               Xem tổng doanh thu tháng tổng hợp
+            </div>
+          </button>
+        </div>
       <div className="w-full">
         <React.Fragment>
           <ResponsiveContainer width="100%" aspect={2} >
@@ -206,21 +276,21 @@ const Statistical = () => {
           </ResponsiveContainer>
         </React.Fragment>   
       </div>
-      <h1 className="text-[25px] text-titleColor tracking-[1px] font-black">
-        Sản phẩm bán chạy của cửa hàng
+      <h1 className="text-[15px] text-titleColor tracking-[1px] font-black">
+        Biểu đồ 10 sản phẩm bán chạy của cửa hàng
       </h1>
-        <div className="flex">
+      <div className="flex">
             <div>
               {datachart != null ? (
                 <React.Fragment>
-                      <ResponsiveContainer width="100%" height={200} aspect={2}>
+                      <ResponsiveContainer width="100%" height={600} aspect={2}>
                     <PieChart>
                       <Tooltip formatter={(value) => `${value} số lượng`} />
                       <Pie
                         data={datachart}
                         dataKey="count"
                         cx="50%"
-                        cy="60%"
+                        cy="50%"
                         outerRadius={80}
                         fill="#8884d8"
                         label 
@@ -234,7 +304,7 @@ const Statistical = () => {
                 </React.Fragment>
               ) : null}
             </div>
-            <div className="m-10">
+            <div>
               {selectedData && (
                 <div className="details-container">
                   <h2 className="text-italic">Chi tiết số lượng</h2>
@@ -250,16 +320,20 @@ const Statistical = () => {
                 </div>
               )}
             </div>
-            <div className="m-10">
-              <table className="styled-table">
-                <thead>
+      </div>
+      <h1 className="text-[15px] text-titleColor tracking-[1px] font-black">
+        Bảng 10 sản phẩm bán chạy của cửa hàng
+      </h1>
+      <div>
+          <table className="styled-table">
+           <thead>
                   <tr>
                     <th>ID</th>
                     <th>Tên mặt hàng</th>
                     <th>Số lượng đã bán</th>
                   </tr>
-                </thead>
-                <tbody>
+           </thead>
+           <tbody>
                 {ListFoodSold.sort((a, b) => b.FoodCount - a.FoodCount).map((item, index) => (
                     <tr key={index}>
                       <td>{item.FoodListId}</td>
@@ -267,10 +341,9 @@ const Statistical = () => {
                       <td>{item.FoodCount}</td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-        </div>
+           </tbody>
+         </table>
+      </div>
     </div>
   );
 };

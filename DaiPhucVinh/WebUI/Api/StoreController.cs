@@ -5,6 +5,7 @@ using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.DeliveryDriver;
 using DaiPhucVinh.Shared.FoodList;
+using DaiPhucVinh.Shared.OrderHeader;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
@@ -119,15 +120,15 @@ namespace PCheck.WebUI.Api
         [HttpGet]
         [Route("TakeFoodListByStoreId")]
         public async Task<BaseResponse<FoodListResponse>> TakeFoodListByStoreId(int Id) => await _storeService.TakeFoodListByStoreId(Id);
-        [HttpGet]
+        [HttpPost]
         [Route("TakeAllFoodListByStoreId")]
-        public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(int Id) => await _storeService.TakeAllFoodListByStoreId(Id);
+        public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(FoodListFillterRequest request) => await _storeService.TakeAllFoodListByStoreId(request);
         [HttpPost]
         [Route("ApproveStore")]
         public async Task<BaseResponse<bool>> ApproveStore([FromBody] StoreRequest request) => await _storeService.ApproveStore(request);
-        [HttpGet]
+        [HttpPost]
         [Route("TakeOrderHeaderByStoreId")]
-        public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int Id) => await _storeService.TakeOrderHeaderByStoreId(Id);
+        public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(OrderHeaderFillterRequest request) => await _storeService.TakeOrderHeaderByStoreId(request);
         [HttpGet]
         [Route("GetListOrderLineDetails")]
         public async Task<BaseResponse<OrderLineReponse>> GetListOrderLineDetails(string Id) => await _storeService.GetListOrderLineDetails(Id);

@@ -20,6 +20,7 @@ import {
 import { Loader } from "../../components";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
+import { MdClose } from "react-icons/md";
 
 const Statistical = () => {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -107,31 +108,32 @@ const Statistical = () => {
 
   return (
     <div className="bg-white h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center border-b-2 pb-2 basis-1/2 gap-2">
-          <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
+      <div className="flex items-center justify-end">
+        <div className="flex items-center border-b-2 pb-2 basis-2/2 gap-2">
           <input
             type="text"
-            placeholder="Tìm nhóm món ăn..."
+            placeholder="Nhập tên nhóm món ăn ... "
             className="border-none outline-none placeholder:text-sm focus:outline-none"
           />
+          <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
         </div>
 
-        <div className="flex gap-4 items-center">
+        {/* <div className="flex gap-4 items-center">
           <AiOutlineAppstoreAdd className="text-hoverColor cursor-pointer text-[25px] hover:text-[20px] transition-all" />
           <button className="bg-red-600 cursor-pointer text-bodyBg font-semibold py-1 px-4 rounded-[5px] transition-all">
             Quản lý
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Title Div */}
-      <div className="items-center mt-8">
+      <div className="items-center mt-2">
         <div className="title">
           <div className="p-5 h-screen bg-white">
             <div className="flex justify-between pb-4 items-center">
-              <h1 className="text-xl mb-2">Danh Sách Nhóm Món Ăn</h1>
-
+              <h1 className="text-xl mb-2 text-orange-900 font-bold">
+                Danh Sách Nhóm Món Ăn
+              </h1>
               <button
                 type="button"
                 className="text-red-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
@@ -151,14 +153,13 @@ const Statistical = () => {
                         {/*header*/}
                         <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
                           <h2 className="text-2xl font-semibold">
-                            Thêm nhóm món mới
+                            Thêm nhóm món ăn mới
                           </h2>
                           <button
                             className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                             onClick={() => setShowModal(false)}
                           >
-                            <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                              ×
+                            <span className="bg-black text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
                             </span>
                           </button>
                         </div>
@@ -166,12 +167,12 @@ const Statistical = () => {
                         <div className="p-4">
                           <div>
                             <label className="block mb-2 text-sm font-medium text-black">
-                              Tên Nhóm Món
+                              Tên Nhóm Món Ăn
                             </label>
                             <input
                               type="text"
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-500 dark:placeholder-gray-400 text-black"
-                              placeholder="Vd: Cơm sườn cay . . ."
+                              placeholder="Nhập tên nhóm món ăn mới ..."
                               onChange={(e) => {
                                 setRequest({
                                   ...request,
