@@ -62,10 +62,11 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
   @override
   Widget build(BuildContext context) {
     ProductStreamSum productStreamSum = ProductStreamSum();
-    final noteController = TextEditingController();
+    TextEditingController noteController = TextEditingController();
     final arguments =  ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final dataProduct =  arguments['data']; // Nhận dữ liệu từ arguments
     countAvailable = dataProduct is CartItem ? dataProduct!.qty : 0;
+    productStreamSum.qty = countAvailable;
     productStreamSum.sum = (countAvailable.toDouble() * dataProduct?.price ?? 0) as double;
     updateOrAdd = dataProduct is CartItem ? "Cập nhật vào giỏ hàng" : "Thêm vào giỏ hàng";
     noteController.text = dataProduct is CartItem ? dataProduct.descriptionBuy : "";
@@ -78,19 +79,19 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CartPage()),
-                    );
-                  },
-                  child: AppIcon(
-                    icon: Icons.shopping_cart_outlined,
-                    backgroundColor: AppColors.mainColor,
-                    iconColor: Colors.white,
-                  ),
-                ),
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => CartPage()),
+                //     );
+                //   },
+                //   child: AppIcon(
+                //     icon: Icons.shopping_cart_outlined,
+                //     backgroundColor: AppColors.mainColor,
+                //     iconColor: Colors.white,
+                //   ),
+                // ),
               ],
             ),
             bottom: PreferredSize(
@@ -146,8 +147,13 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                   margin: EdgeInsets.symmetric(horizontal: Dimensions.width20),
                   child: TextField(
                     controller: noteController,
+                    onChanged: (value) {
+                        noteController.text = "";
+                        noteController.text = value;
+                    },
+
                     decoration: InputDecoration(
-                      labelText: 'Ghi chú món ăn cho cửa hàng',
+                      labelText: 'Ghi chú món ăn',
                       hintText: "Không cay, ít đường, ít tiêu, ...",
                       border: OutlineInputBorder(),
                     ),
@@ -276,9 +282,8 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                           padding: EdgeInsets.all(Dimensions.width20),
                           child: GestureDetector(
                             onTap: () {
-                              if ((productSum.qty!) > 0 &&  dataProduct != null) {
+                              if (productSum.qty! > 0 && dataProduct != null) {
                                 double price =  dataProduct!.price!.toDouble();
-                                print('price $price');
                                 CartItem newItem = CartItem(
                                   foodName: dataProduct.foodName ?? "",
                                   categoryId: dataProduct.categoryId ?? 0,

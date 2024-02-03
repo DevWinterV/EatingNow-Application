@@ -34,6 +34,7 @@ class CartStorage {
         cartItems[i].qty = 0;
         // Món ăn đã tồn tại, tăng số lượng
         cartItems[i].qty += newItem.qty;
+        cartItems[i].descriptionBuy = newItem.descriptionBuy;
         found = true;
         break;
       }

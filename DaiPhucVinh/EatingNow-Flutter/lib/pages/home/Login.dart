@@ -74,12 +74,13 @@ class _LoginPageState extends State<LoginPage> {
           smsCode: _otpController.text,
         );
         final userAuth = await _auth.signInWithCredential(credential);
+        print(userAuth.user?.uid ?? "Chưa đăng nhập");
         if(userAuth != null){
-          final result = await customerService.fetchCuisineData({
+          final result = await customerService.fecthUserData({
             "CustomerId": userAuth.user?.uid ?? "",
             "Phone": _phoneNumber
           });
-          print(result.data);
+          print('result.data ${result.data}');
           if(result.data != null){
             navigateToHome();
           }
@@ -89,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
       else {
-
       }
     } catch (e) {
       print('Đăng nhập không thành công: $e');

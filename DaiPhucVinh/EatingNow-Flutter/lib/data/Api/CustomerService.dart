@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class CustomerService {
   final String apiUrl ;
   CustomerService({required this.apiUrl});
-  Future<UserAccountModel> fetchCuisineData(Map<String, dynamic> requestData) async {
+  Future<UserAccountModel> fecthUserData(Map<String, dynamic> requestData) async {
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {

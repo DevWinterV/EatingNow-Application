@@ -26,6 +26,8 @@ class StoreService {
     }
   }
 
+
+
   Future<StoreNearUserModel?> fetchStoreDataNearUser(Map<String, dynamic> requestData) async {
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -44,21 +46,5 @@ class StoreService {
   }
 
 
-  Future<void> postData(StoreModel store) async {
-    final Map<String, dynamic> data = store.toJson();
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200) {
-      print('Data posted successfully');
-    } else {
-      throw Exception('Failed to post data');
-    }
-  }
 }

@@ -58,23 +58,11 @@ class _LocationPageState extends State<LocationPage> {
   // Danh sách các địa điểm đã lưu
   List<LocationData> savedLocations = [
     LocationData(
-      name: 'Nhà',
+      name: 'Nhà trọ bà mười',
       latitude: 10.3753666,
       longitude: 105.4378349,
       address: '9CGQ+45P, Phường Mỹ Xuyên, Thành phố Long Xuyên, An Giang, Việt Nam',
     ),
-    LocationData(
-      latitude: 10.3753666,
-      longitude: 105.4378349,
-      address: '418 Ung Văn Khiêm, Phường Đông Xuyên, Thành phố Long Xuyên, An Giang, Việt Nam',
-      name: 'Trường',
-    ),
-    LocationData(
-      latitude: 10.767714,
-      longitude: 105.6547152,
-      address: '30C Đ. Nguyễn Trường Tộ, p. Bình Khánh, Thành phố Long Xuyên, An Giang 08408, Việt Nam',
-      name: 'Cf ngọc trai núi',
-    )
   ];
 
 
@@ -142,12 +130,12 @@ class _LocationPageState extends State<LocationPage> {
       position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
       // Lấy địa chỉ từ location người dùng
       addressResult = await googleApiService.fetchPlacesFromLocation(
           position.latitude, position.longitude);
       if (addressResult != null) {
         setState(() {
+          _locationMessage = addressResult.formatted_address;
           isloadingdata = false;
         });
       }

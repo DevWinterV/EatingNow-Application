@@ -4,7 +4,6 @@ import Layout from "./src/layouts/layout";
 import "./scss/_custom.scss";
 import "./app.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import metisMenu from "metismenu";
 import Waves from "node-waves";
 //import { createRoot } from "react-dom/client";
 class App extends React.Component {

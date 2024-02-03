@@ -80,6 +80,7 @@ class _CartPageState extends State<CartPage> {
         child: ListView.builder(
           itemCount: cartItems.length,
           itemBuilder: (context, index) {
+            final item = cartItems[index];
             return Dismissible(
               key: Key(cartItems[index].foodListId.toString()), // Key là một giá trị duy nhất cho mỗi món ăn
               background: Container(
@@ -115,126 +116,78 @@ class _CartPageState extends State<CartPage> {
                   margin: EdgeInsets.only(bottom: 10),
                   child: ListTile(
                     leading: Image.network(
-                      cartItems[index].uploadImage ?? "",
+                      item.uploadImage ?? "",
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
                     ),
-                    title: Text( cartItems[index].foodName + ' x ${cartItems[index].qty}'),
+                    title: Text(item.foodName),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        SizedBox(height: 5),
+                        Row(
+                          children: [
+                            BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
+                            SizedBox(width: 20),
+                            BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                final kq = await Navigator.pushNamed(
+                                  context,
+                                  "/productdetail",
+                                  arguments: {'data': item},
+                                );
 
-                        BigText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format( cartItems[index].price *  cartItems[index].qty ?? 0), color: AppColors.mainColor,size: Dimensions.font13,),
-                        GestureDetector(
-                          onTap: () async {
-                            final kq = await Navigator.pushNamed(
-                              context,
-                              "/productdetail",
-                              arguments: {'data':  cartItems[index]},
-                            );
-                            if(kq == true){
-                              _loadCartItems();
-                            }
-                          },
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.edit,
-                                color: Colors.blueAccent,
-                                size: 15,
+                                if (kq != null && kq is bool) {
+                                  setState(() {
+                                    _loadCartItems();
+                                  });
+                                }
+                              },
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.edit,
+                                    color: Colors.blueAccent,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 5),
+                                  BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
+                                ],
                               ),
-                              Text('Chỉnh sửa', style: TextStyle(color: Colors.blueAccent)),
-                            ],
-                          ),
-                        ),                    ],
+                            ),
+                            SizedBox(width: 20),
+                            GestureDetector(
+                              onTap: () async {
+                                _removeItemCart(item);
+                                _loadCartItems();
+                              },
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 5),
+                                  BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-//                 Card(
-//                   color: Colors.white,
-//                   elevation: 2, // Độ nâng của thẻ
-//                   margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Khoảng cách giữa các thẻ
-//                   child: Padding(
-//                     padding: EdgeInsets.all(8),
-//                     child: ListTile(
-//                       leading: Image.network(
-//                         cartItems[index].uploadImage ?? " ",
-//                         fit: BoxFit.fill,
-//                         width: 40,
-//                       ),
-//                       title: Text(cartItems[index].foodName),
-//                       subtitle: Row(
-//                         children: [
-//                           SmallText(text: 'Số lượng: '+cartItems[index].qty.toString(),color: Colors.black54,),
-//                           InkWell(
-//                             onTap: () {
-//                               _decreaseQuantity(cartItems[index]);
-//                             },
-//                             child: Padding(
-//                               padding: EdgeInsets.all(6), // Điều chỉnh giá trị này để thay đổi kích thước của nút
-//                               child: Icon(
-//                                 Icons.edit,
-//                                 size: 20,
-//                                 color: AppColors.mainColor,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//
-// /*
-//                     subtitle: Row(
-//                       children: [
-//                         Card(
-//                           child: InkWell(
-//                             onTap: () {
-//                               _decreaseQuantity(cartItems[index]);
-//                             },
-//                             child: Padding(
-//
-//                               padding: EdgeInsets.all(6), // Điều chỉnh giá trị này để thay đổi kích thước của nút
-//                               child: Icon(
-//                                 Icons.remove,
-//                                 size: 20,
-//
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                         Padding(
-//                           padding: EdgeInsets.all(4),
-//                           // Điều chỉnh giá trị này để thay đổi kích thước của nút
-//                         ),
-//                         Card(
-//                           child: InkWell(
-//                             onTap: () {
-//                               _increaseQuantity(cartItems[index]);
-//                             },
-//                             child: Padding(
-//
-//                               padding: EdgeInsets.all(6), // Điều chỉnh giá trị này để thay đổi kích thước của nút
-//                               child: Icon(
-//                                 Icons.add,
-//                                 size: 20,
-//
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),*/
-//                       trailing: Text(
-//                         NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-//                             .format(cartItems[index].price * cartItems[index].qty  ?? 0),
-//                         style: TextStyle(
-//                           color: Colors.redAccent,
-//                           fontSize: Dimensions.font13,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
+                )
               ),
 
             );

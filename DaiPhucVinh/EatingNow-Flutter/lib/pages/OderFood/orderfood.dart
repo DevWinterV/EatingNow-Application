@@ -26,6 +26,8 @@ class OrderPage extends StatefulWidget {
   _OrderPage createState() => _OrderPage();
 }
 class _OrderPage extends State<OrderPage> {
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController phoneNumbercontroller = TextEditingController();
   late LocationStorage localtionStorge;
   FirebaseAuth _auth = FirebaseAuth.instance;
   final orderservice = OrderService();//lấy cửa hàng gần nhất
@@ -103,184 +105,196 @@ class _OrderPage extends State<OrderPage> {
         // Các thuộc tính khác của AppBar
         backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
       ),
-      body: Padding(
+      body:
+    SingleChildScrollView(
+      physics: AlwaysScrollableScrollPhysics(),
+      child:     Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-           Column(
-             mainAxisAlignment: MainAxisAlignment.start, // Đảm bảo dòng text ở giữa
-             children: [
-               Row(
-                 children: [
-                   Icon(
-                     Icons.error,
-                     color: Colors.redAccent, // Màu sắc của biểu tượng "!"
-                   ),
-                   SizedBox(width: 5,),
-                   Flexible(
-                     child: Text(
-                       'Kiểm tra lại thông tin và vị trí nhận hàng của bạn',
-                       style: TextStyle(
-                         fontSize: Dimensions.font16,
-                         fontStyle: FontStyle.italic,
-                       ),
-                       overflow: TextOverflow.ellipsis,
-                       maxLines: 2,
-                     ),
-                   ),
-                 ],
-               ),
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 children: [
-                    Container(
-                      child: Row(children:
-                      [ Icon(
-                        Icons.person,
-                        color: Colors.black,
-                        // Màu sắc của biểu tượng vị trí
-                      ),
-                        SizedBox(width: 5,),
-                        Text("Đông Châu"),
-                        IconButton(onPressed: (){}, icon: Icon(Icons.edit, size: 15,))],),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,// Đảm bảo dòng text ở giữa
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.error,
+                      color: Colors.redAccent,
+                      size: 18,// Màu sắc của biểu tượng "!"
                     ),
-                 ],
-               ),
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 children: [
-                   Container(
-                     child:
-                     Row(
-                       children: [
-                         Icon(
-                           Icons.phone,
-                           color: Colors.black,
-                           // Màu sắc của biểu tượng vị trí
-                         ),
-                         SizedBox(width: 5,),
-                         Text("0766837068"),
-                         IconButton(onPressed: (){}, icon: Icon(Icons.edit, size: 15,))
-                       ],
-                     ),
-                   )
-                 ],
-               ),
-               Row(
-                 children: [
-                   Icon(
-                     Icons.location_on,
-                     color: Colors.green,
-                     // Màu sắc của biểu tượng vị trí
-                   ),
-                   SizedBox(width: 5,),
-                   GestureDetector(
-                     onTap: () {
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(builder: (context) => LocationPage(link: "/order")), // truyền vào link cần trở lại khi đã chọn được vị trí
-                       );
-                     },
-                     child: Row(
-                       children: [
-                        Container(
-                             height: Dimensions.height45,
-                             width: Dimensions.screenWidth - 95,
-                             child: BigText(text: locationData.address, size: Dimensions.font13,),
-                           ),
-                         Divider(),
-                         Icon(
-                           Icons.arrow_drop_down_rounded,
-                           size: 30,
-                         ),
-                       ],
-                     ),
+                    SizedBox(width: 5,),
+                    Flexible(
+                      child: Text(
+                        'Kiểm tra lại thông tin và vị trí nhận hàng của bạn',
+                        style: TextStyle(
+                          fontSize: Dimensions.font13,
+                          fontStyle: FontStyle.normal,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),child:TextField(
+                  controller: namecontroller,
+                  decoration: InputDecoration(
+                    labelText: 'Tên người nhận',
+                    hintText: "Nhập tên người nhận hàng ...",
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 1,
+                  keyboardType: TextInputType.multiline,
+                ),),
+                Padding(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),child:TextField(
+                  controller: phoneNumbercontroller,
+                  decoration: InputDecoration(
+                    labelText: 'Số điện thoại',
+                    hintText: "Nhập số điện thoại nhận hàng ...",
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 1,
+                  keyboardType: TextInputType.multiline,
+                ),),
+                Text(
+                  'Địa chỉ nhận hàng',
+                  style: TextStyle(fontSize: Dimensions.font16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LocationPage(link: "/order")), // truyền vào link cần trở lại khi đã chọn được vị trí
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: Dimensions.height45,
+                            width: Dimensions.screenWidth - 95,
+                            child: BigText(text: locationData.address, size: Dimensions.font16,),
+                          ),
+                          Divider(),
+                          Icon(
+                            Icons.arrow_drop_down_rounded,
+                            size: 40,
+                          ),
+                        ],
+                      ),
 
-                   )
-                 ],
-               )
-             ],
-           ),
+                    )
+                ),
+              ],
+            ),
             Text(
               'Sản phẩm trong đơn hàng',
               style: TextStyle(fontSize: Dimensions.font16,
                 fontWeight: FontWeight.bold,
-                 ),
+              ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height:10),
-            for (var item in cartItem)
-            Card(
-                color: Colors.white,
-                margin: EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  leading: Image.network(
-                    item.uploadImage ?? "",
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(item.foodName + ' x ${item.qty}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      BigText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0), color: AppColors.mainColor,size: Dimensions.font13,),
-                      Row(
-                        children: [
-                        GestureDetector(
-                          onTap: () async {
-                            final kq = await Navigator.pushNamed(
-                              context,
-                              "/productdetail",
-                              arguments: {'data': item},
-                            );
-
-                            if (kq != null && kq is bool) {
-                              setState(() {
-                                result = kq;
-                              });
-                            }
-                          },
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.edit,
-                                color: Colors.blueAccent,
-                                size: 15,
-                              ),
-                            ],
-                          ),
+            Container(
+              height: cartItem.length.toDouble() * 130,
+              child: ListView.builder(
+                itemCount: cartItem.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = cartItem[index];
+                  return
+                    Card(
+                      color: Colors.white,
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        leading: Image.network(
+                          item.uploadImage ?? "",
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
                         ),
-                        SizedBox(width: 20,),
-                        GestureDetector(
-                          onTap: () async {
-                            _removeItemCart(item);
-                            _loadCartItems();
-                          },
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.delete,
-                                color: Colors.redAccent,
-                                size: 15,
-                              ),
-                            ],
-                          ),
+                        title: Text(item.foodName),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
+                                SizedBox(width: 20),
+                                BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    final kq = await Navigator.pushNamed(
+                                      context,
+                                      "/productdetail",
+                                      arguments: {'data': item},
+                                    );
+
+                                    if (kq != null && kq is bool) {
+                                      setState(() {
+                                        result = kq;
+                                      });
+                                    }
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.edit,
+                                        color: Colors.blueAccent,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 5),
+                                      BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                GestureDetector(
+                                  onTap: () async {
+                                    _removeItemCart(item);
+                                    _loadCartItems();
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.delete,
+                                        color: Colors.redAccent,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 5),
+                                      BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-
-                      ],)
-
-                    ],
-                  ),
-                ),
+                      ),
+                    );
+                },
               ),
-
+            ),
             Padding(padding: EdgeInsets.all(0),
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         'Phí giao hàng: ' + NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000.0),
@@ -289,7 +303,7 @@ class _OrderPage extends State<OrderPage> {
                     ],
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         'Tổng tạm tính: ' + NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount),
@@ -298,7 +312,7 @@ class _OrderPage extends State<OrderPage> {
                     ],
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         'Tổng cộng: ' + NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000 + totalAmount),
@@ -311,21 +325,21 @@ class _OrderPage extends State<OrderPage> {
             ),
             cartItem.length > 0 ?
             Center(
-                child:
-                 ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                // Customize the background color
-                primary: AppColors.mainColor,
-                // Customize the text color
-                onPrimary: Colors.white,
-                // Add other customizations as needed
-                padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+              child:
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  // Customize the background color
+                  primary: AppColors.mainColor,
+                  // Customize the text color
+                  onPrimary: Colors.white,
+                  // Add other customizations as needed
+                  padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
-              ),
-              onPressed: () async {
-                try {
+                onPressed: () async {
+                  try {
                     orderRequest.completeName = "Đông Châu";
                     orderRequest.formatAddress = locationData.address;
                     orderRequest.nameAddress = locationData.name;
@@ -337,57 +351,55 @@ class _OrderPage extends State<OrderPage> {
                     orderRequest.userId = 14;
                     orderRequest.latitude = locationData.latitude;
                     orderRequest.longitude = locationData.longitude;
-                    orderRequest.recipientName = "Đông Châu";
-                    orderRequest.recipientPhone = "0766837068";
+                    orderRequest.recipientName = namecontroller.text;
+                    orderRequest.recipientPhone = phoneNumbercontroller.text;
                     orderRequest.payment = null;
                     orderRequest.userId = 15;
                     orderRequest.payment ="PaymentOnDelivery";
-                  final responseBody = await orderservice.postOrder(orderRequest);
 
-                  // Xử lý kết quả trả về từ API
-                  if (responseBody.success == true) {
-                    if(responseBody.Message != ""){
-                      _launchInWebView(Uri.parse(responseBody.Message?? ""));
+                    final responseBody = await orderservice.postOrder(orderRequest);
+
+                    // Xử lý kết quả trả về từ API
+                    if (responseBody.success == true) {
+                      if(responseBody.Message != ""){
+                        _launchInWebView(Uri.parse(responseBody.Message?? ""));
+                      }
+                      else {
+                        await CartStorage.ClearCart();
+                        Fluttertoast.showToast(msg: "Đặt món ăn thành công",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM_LEFT,
+                            backgroundColor: AppColors.toastSuccess,
+                            textColor: Colors.black54,
+                            timeInSecForIosWeb: 1,
+                            fontSize: 10);
+                        Navigator.of(context).popAndPushNamed("/");
+                      }
+                    } else{
+                      if(responseBody.CustomData != null){
+                        Fluttertoast.showToast(msg: responseBody.Message!,
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM_LEFT,
+                            backgroundColor: AppColors.toastSuccess,
+                            textColor: Colors.black54,
+                            timeInSecForIosWeb: 1,
+                            fontSize: 10);
+                      }
                     }
-                    else {
-                      await CartStorage.ClearCart();
-                      Fluttertoast.showToast(msg: "Đặt món ăn thành công",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.BOTTOM_LEFT,
-                          backgroundColor: AppColors.toastSuccess,
-                          textColor: Colors.black54,
-                          timeInSecForIosWeb: 1,
-                          fontSize: 10);
-                      Navigator.pushReplacement(
-                          context,
-                          Navigator.pushNamed(context, "/") as Route<Object?>
-                      );
-                    }
-                } else{
-                    if(responseBody.CustomData != null){
-                      Fluttertoast.showToast(msg: responseBody.Message!,
+                  } catch (e) {
+                    print(e);
+                    // Xử lý lỗi kết nối hoặc lỗi khác
+                    Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.BOTTOM_LEFT,
-                        backgroundColor: AppColors.toastSuccess,
+                        backgroundColor: Colors.red[400],
                         textColor: Colors.black54,
                         timeInSecForIosWeb: 1,
                         fontSize: 10);
-                    }
-
                   }
-                } catch (e) {
-                  // Xử lý lỗi kết nối hoặc lỗi khác
-                  Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.BOTTOM_LEFT,
-                      backgroundColor: Colors.red[400],
-                      textColor: Colors.black54,
-                      timeInSecForIosWeb: 1,
-                      fontSize: 10);
-                }
-              },
-              child: Text('Đặt đơn'),
-            ),
+                },
+                child: Text('Đặt đơn'),
+              ),
             )
                 : Center(
               child:ElevatedButton(
@@ -405,12 +417,13 @@ class _OrderPage extends State<OrderPage> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('Quay lại trang chủ'),
+                child: Text('Trang chủ'),
               ),
             )
           ],
         ),
       ),
+    )
     );
   }
 
