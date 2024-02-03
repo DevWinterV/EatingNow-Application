@@ -346,7 +346,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {
                 var query = _datacontext.EN_FoodList.AsQueryable();
-                query = query.Where(d => d.Category.CategoryId == Id);
+                query = query.Where(d => d.Category.CategoryId == Id && d.Status == true);
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
                 var resultList = data.MapTo<FoodListResponse>();
@@ -371,7 +371,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {   
                 var query = _datacontext.EN_FoodList.AsQueryable();
-                query = query.Where(d => d.UserId == request.Id && d.FoodName.Contains(request.keyWord) || d.Description.Contains(request.keyWord));
+                query = query.Where(d => d.UserId == request.Id && d.FoodName.Contains(request.keyWord) || d.Description.Contains(request.keyWord)   && d.Status == true);
                 // Có kiểm soát số lượng tồn
                 if(request.Qtycontrolled != 2)
                 {
