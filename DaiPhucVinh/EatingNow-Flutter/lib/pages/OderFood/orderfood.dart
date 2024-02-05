@@ -42,7 +42,6 @@ class _OrderPage extends State<OrderPage> {
       cartItem = loadedItems;
     });
     locationData = await localtionStorge.getSavedLocation();
-    print('cartItem $cartItem');
   }
   late bool result;
 

@@ -5,6 +5,7 @@ import 'package:fam/pages/food/recommened_food_detail.dart';
 import 'package:fam/pages/home/Login.dart';
 import 'package:fam/pages/home/getCurrentLocation_page.dart';
 import 'package:fam/pages/home/main_food_page.dart';
+import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/cartstorage.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
@@ -63,7 +64,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: _locationData!.name == null ? '/getlocation' : "/",
+      initialRoute: _locationData == null ? '/getlocation' : "/",
       defaultTransition: Transition.rightToLeft,
       getPages: [
         GetPage(
@@ -91,6 +92,10 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/productdetail',
           page: () => RecommenedFoodDetail(),
+        ),
+        GetPage(
+          name: '/storedetail',
+          page: () => StoreDetailPage(),
         ),
       ],
     );

@@ -34,12 +34,10 @@ class LocationStorage {
      }
 
      if (prefs != null) {
-       print(prefs);
        final String name = prefs!.getString('name') ?? '';
        final double latitude = prefs!.getDouble('latitude') ?? 0.0;
        final double longitude = prefs!.getDouble('longitude') ?? 0.0;
        final String address = prefs!.getString('address') ?? '';
-
        return LocationData(
          name: name,
          latitude: latitude,

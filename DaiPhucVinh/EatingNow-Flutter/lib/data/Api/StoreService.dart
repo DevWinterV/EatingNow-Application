@@ -28,13 +28,12 @@ class StoreService {
     }
   }
 
-  Future<ProductRecommended?> TakeFoodListByStoreId(Map<String, dynamic> requestData) async {
-    final response = await http.post(
-      Uri.parse(apiUrl),
+  Future<ProductRecommended?> TakeFoodListByStoreId(int id) async {
+    final response = await http.get(
+      Uri.parse(apiUrl+"?Id=${id}"),
       headers: {
         'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
       },
-      body: json.encode(requestData), // Chuyển đổi dữ liệu thành chuỗi JSON và gửi đi
     );
 
     if (response.statusCode == 200) {
@@ -72,7 +71,7 @@ class StoreService {
       },
       body: json.encode(requestData), // Chuyển đổi dữ liệu thành chuỗi JSON và gửi đi
     );
-    print(response);
+    print(response.body);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       return StoreNearUserModel.fromJson(jsonData);

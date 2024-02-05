@@ -551,60 +551,65 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
     }
 
-    return Transform(
-      transform: matrix,
-      child: Stack(
-        children: [
-          Container(
-            height: Dimensions.pageViewContainer,
-            margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Dimensions.radius30),
-                color:index.isEven?Color(0xFF69c5df):Color(0xFF9294cc),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-                        popularProduct?.absoluteImage ?? "https://cdn-icons-png.flaticon.com/128/869/869636.png"
-                    )
-                )
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: Dimensions.pageViewTextContainer,
-              margin: EdgeInsets.only(left: Dimensions.width30, right: Dimensions.width30,bottom: Dimensions.height30),
+    return GestureDetector(
+      onTap: (){
+        Navigator.of(context).pushNamed("/storedetail", arguments: {'data': popularProduct });
+      },
+      child: Transform(
+        transform: matrix,
+        child: Stack(
+          children: [
+            Container(
+              height: Dimensions.pageViewContainer,
+              margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radius15),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFFe8e8e8),
-                      blurRadius: 5.0,
-                      offset: Offset(0,5),
-                    ),
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(-5,0),
-                    ),
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(5,0),
-                    )
-                  ]
+                  borderRadius: BorderRadius.circular(Dimensions.radius30),
+                  color:index.isEven?Color(0xFF69c5df):Color(0xFF9294cc),
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                          popularProduct?.absoluteImage ?? "https://cdn-icons-png.flaticon.com/128/869/869636.png"
+                      )
+                  )
               ),
-              // Tên cửa hàng
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
               child: Container(
-                padding: EdgeInsets.only(top: Dimensions.height5,left: Dimensions.height5, right: Dimensions.height5),
-                child:
+                  height: Dimensions.pageViewTextContainer,
+                  margin: EdgeInsets.only(left: Dimensions.width30, right: Dimensions.width30,bottom: Dimensions.height30),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Dimensions.radius15),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFFe8e8e8),
+                          blurRadius: 5.0,
+                          offset: Offset(0,5),
+                        ),
+                        BoxShadow(
+                          color: Colors.white,
+                          offset: Offset(-5,0),
+                        ),
+                        BoxShadow(
+                          color: Colors.white,
+                          offset: Offset(5,0),
+                        )
+                      ]
+                  ),
+                  // Tên cửa hàng
+                  child: Container(
+                    padding: EdgeInsets.only(top: Dimensions.height5,left: Dimensions.height5, right: Dimensions.height5),
+                    child:
                     AppColumn(text:popularProduct?.fullName ?? "", rating: random.nextInt(4) + 2, latitude: popularProduct?.latitude?? 0.0, longtitude: popularProduct?.longitude?? 0.0,time: popularProduct?.time?? 0.0, prefs: prefs,),
                     // Sử dụng widget RatingStars để hiển thị số sao dựa trên tỉ lệ đánh giá
-                )
+                  )
               ),
 
             ),
-        ],
-      ),
+          ],
+        ),
+      )
     );
   }
 }

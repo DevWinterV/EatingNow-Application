@@ -3,7 +3,7 @@ class CategoryModel {
   Null? message;
   Null? customData;
   Null? item;
-  List<Data>? data;
+  List<Category>? data;
   int? dataCount;
 
   CategoryModel(
@@ -20,9 +20,9 @@ class CategoryModel {
     customData = json['CustomData'];
     item = json['Item'];
     if (json['Data'] != null) {
-      data = <Data>[];
+      data = <Category>[];
       json['Data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new Category.fromJson(v));
       });
     }
     dataCount = json['DataCount'];
@@ -42,7 +42,7 @@ class CategoryModel {
   }
 }
 
-class Data {
+class Category {
   int? categoryId;
   String? categoryName;
   String? nameStore;
@@ -55,7 +55,7 @@ class Data {
   double? latitude;
   double? longitude;
 
-  Data(
+  Category(
       {this.categoryId,
         this.categoryName,
         this.nameStore,
@@ -68,7 +68,7 @@ class Data {
         this.latitude,
         this.longitude});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  Category.fromJson(Map<String, dynamic> json) {
     categoryId = json['CategoryId'];
     categoryName = json['CategoryName'];
     nameStore = json['NameStore'];

@@ -10,13 +10,12 @@ class  CategoryService{
 
   CategoryService({required this.apiUrl});
 
-  Future<CategoryModel?> TakeCategoryByStoreId(Map<String, dynamic> requestData) async {
-    final response = await http.post(
-      Uri.parse(apiUrl),
+  Future<CategoryModel?> TakeCategoryByStoreId(int Id) async {
+    final response = await http.get(
+      Uri.parse(apiUrl+"?Id=${Id}"),
       headers: {
         'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
       },
-      body: json.encode(requestData), // Chuyển đổi dữ liệu thành chuỗi JSON và gửi đi
     );
 
     if (response.statusCode == 200) {
