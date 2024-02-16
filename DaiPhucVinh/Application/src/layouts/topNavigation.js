@@ -130,7 +130,7 @@ export default function TopNavigation() {
         </div>
 
        
-        <div class="dropdown">
+        <div className="dropdown">
           <span>
               <img src="/assets/images/generic_avatar.png" alt="" height="24" />
               <span className="d-none d-xl-inline-block ms-1">
@@ -138,7 +138,7 @@ export default function TopNavigation() {
               </span>
               <i className="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
           </span>
-          <div class="dropdown-content">
+          <div className="dropdown-content">
                 <div
                   style={{ cursor: 'pointer', color: 'black', fontSize: '12px' }}
                   onClick={() => setModalChangePass(true)}

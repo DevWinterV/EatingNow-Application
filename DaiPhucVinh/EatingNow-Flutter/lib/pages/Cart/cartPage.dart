@@ -1,6 +1,4 @@
-import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/util/Colors.dart';
-import 'package:fam/util/app_constants.dart';
 import 'package:fam/util/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

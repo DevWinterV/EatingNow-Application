@@ -3,6 +3,7 @@ import SimpleBar from "simplebar-react";
 import { Link } from "react-router-dom";
 import { SiteMap } from "./siteMap";
 import { decrypt } from "../framework/encrypt";
+import 'metismenu';
 
 export default class LeftSidebar extends React.Component {
   state = {

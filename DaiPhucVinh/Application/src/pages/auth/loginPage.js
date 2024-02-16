@@ -19,7 +19,7 @@ export default function LoginPage() {
     if (username.length == 0) {
       Swal.fire({
         title: "Error!",
-        text: "User name is required!",
+        text: "Nhập tên đăng nhập !",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (password.length == 0) {
       Swal.fire({
         title: "Error!",
-        text: "User name is required!",
+        text: "Vui lòng nhập mật khẩu !",
         icon: "error",
         confirmButtonText: "OK",
       });

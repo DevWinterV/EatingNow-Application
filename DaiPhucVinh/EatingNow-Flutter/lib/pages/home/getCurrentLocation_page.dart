@@ -174,9 +174,9 @@ class _LocationPageState extends State<LocationPage> {
               "Chọn vị trí chính xác nhất để tài xế có thể giao hàng nhanh và chính xác nhất",
               style: TextStyle(
                 fontSize: Dimensions.font20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
                 color: Colors.grey,
-                fontStyle: FontStyle.normal, // Đặt fontStyle thành italic
+                fontStyle: FontStyle.italic, // Đặt fontStyle thành italic
               ),
               textAlign: TextAlign.justify,
             ),

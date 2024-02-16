@@ -242,7 +242,6 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                   return SizedBox();
                 }),
           ),
-
           StreamBuilder<ProductStreamSum?>(
               stream: streamSum.stream,
               initialData: productStreamSum,
