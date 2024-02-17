@@ -58,7 +58,7 @@ class _LocationPageState extends State<LocationPage> {
   // Danh sách các địa điểm đã lưu
   List<LocationData> savedLocations = [
     LocationData(
-      name: 'Nhà trọ bà mười',
+      name: 'Nhà trọ bà Mười',
       latitude: 10.3753666,
       longitude: 105.4378349,
       address: '9CGQ+45P, Phường Mỹ Xuyên, Thành phố Long Xuyên, An Giang, Việt Nam',
@@ -171,7 +171,7 @@ class _LocationPageState extends State<LocationPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
-              "Chọn vị trí chính xác nhất để tài xế có thể giao hàng nhanh và chính xác nhất",
+              "Cho chúng tôi biết vị trí của bạn để tài xế có thể giao hàng nhanh nhất",
               style: TextStyle(
                 fontSize: Dimensions.font20,
                 fontWeight: FontWeight.normal,

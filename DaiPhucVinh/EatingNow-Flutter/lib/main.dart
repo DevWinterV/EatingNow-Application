@@ -1,3 +1,4 @@
+import 'package:fam/data/Api/firebase_api.dart';
 import 'package:fam/models/LocationData.dart';
 import 'package:fam/pages/Cart/cartPage.dart';
 import 'package:fam/pages/OderFood/orderfood.dart';
@@ -10,6 +11,7 @@ import 'package:fam/storage/cartstorage.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -22,6 +24,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseApi().initNotifications();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   runApp(MyApp());
 }
@@ -53,6 +56,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _locationData = loadedData;
     });
+    print(_locationData?.address ?? "");
   }
 
   @override
@@ -64,7 +68,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: _locationData == null ? '/order' : "/order",
+      initialRoute: _locationData?.address == null ? '/getlocation' : "/",
       defaultTransition: Transition.rightToLeft,
       getPages: [
         GetPage(

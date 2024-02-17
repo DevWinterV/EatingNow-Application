@@ -322,9 +322,11 @@ class _StoreDetailState extends State<StoreDetailPage> {
                               StreamBuilder<List<DataProduct>?>(
                                 stream: streamListProduct.stream,
                                 builder: (context, snapshot) {
-                                  print(snapshot.hasData);
+                                  if(snapshot.connectionState == ConnectionState.waiting){
+                                    return Center(child: BigText(text: "Đang tải ... ", color: Colors.grey,),);
+                                  }
                                   if(!snapshot.hasData){
-                                    return Center(child: BigText(text: "Chưa sản phẩm nào", color: Colors.grey,),);
+                                    return Center(child: BigText(text: "Cửa hàng chưa có sản phẩm ... ", color: Colors.grey,),);
                                   }
                                   if (snapshot.hasData) {
                                     return ListView.builder(
