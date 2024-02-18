@@ -36,14 +36,31 @@ class _LoginPageState extends State<LoginPage> {
     FlutterNativeSplash.remove();
   }
 
+  void SaveDataUser(PhoneAuthCredential credential) async {
+    final userAuth = await _auth.signInWithCredential(credential);
+    final result = await customerService.fecthUserData({
+      "CustomerId": userAuth.user?.uid ?? "",
+      "Phone": _phoneNumber
+    });
+    print('result.data ${result.data}');
+    if(result.data!.length > 0){
+      UserAccount userAccount = new UserAccount(userId: result.data?[0].customerId ?? "", name: result.data?[0].completeName ?? "", phone: result.data?[0].phone ?? "");
+      UserAccountStorage userAccountStorage = new UserAccountStorage();
+      userAccountStorage.saveUserAccount(userAccount);
+      navigateToHome();
+    }
+    else{
+      navigateToNewUser();
+    }
+  }
+
   Future<void> _signInWithPhoneNumber(String phoneNumber) async {
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-          navigateToHome();
-        },
+             SaveDataUser(credential);
+          },
         verificationFailed: (FirebaseAuthException e) {
           print('Verification failed: $e');
         },
@@ -65,31 +82,22 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacementNamed(context, "/");
     }
   }
+  void navigateToNewUser() {
+    if (_auth.currentUser?.uid != null) {
+      Navigator.pushReplacementNamed(context, "/");
+    }
+  }
+
+
 
   Future<void> _login() async {
     try {
       if (_isCodeSent) {
-        PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: _verificationId,
-          smsCode: _otpController.text,
-        );
-        final userAuth = await _auth.signInWithCredential(credential);
-        print(userAuth.user?.uid ?? "Chưa đăng nhập");
-        if(userAuth != null){
-          final result = await customerService.fecthUserData({
-            "CustomerId": userAuth.user?.uid ?? "",
-            "Phone": _phoneNumber
-          });
-          print('result.data ${result.data}');
-          if(result.data != null){
-            navigateToHome();
-          }
-          else{
-            // di chuyển đến trang nhập thông tin xác thực.
-          }
-        }
-      }
-      else {
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(
+            verificationId: _verificationId,
+            smsCode: _otpController.text,
+          );
+          SaveDataUser(credential);
       }
     } catch (e) {
       print('Đăng nhập không thành công: $e');

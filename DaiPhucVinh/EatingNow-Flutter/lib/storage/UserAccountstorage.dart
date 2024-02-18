@@ -3,23 +3,16 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAccountStorage {
-  late SharedPreferences prefs;
-
-  UserAccountStorage() {
-    initPrefs();
-  }
-
-  Future<void> initPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-  }
-
   Future<void> saveUserAccount(UserAccount user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     // Chuyển đối tượng UserAccount thành chuỗi JSON trước khi lưu
     final String userJson = user.toJson();
     await prefs.setString('useraccount', userJson);
+    final userSaved = await getSavedUserAccount();
+    print('userSaved $userSaved');
   }
-
-  UserAccount getSavedUserAccount() {
+  Future<UserAccount> getSavedUserAccount() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final String savedUserJson = prefs.getString('useraccount') ?? '';
     // Chuyển chuỗi JSON thành đối tượng UserAccount khi lấy ra
     final UserAccount savedUser = UserAccount.fromJson(savedUserJson);

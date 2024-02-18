@@ -17,6 +17,7 @@ class CustomerService {
     );
 
     if (response.statusCode == 200) {
+      print('Fetch data user response: $response');
       final jsonData = json.decode(response.body);
       return UserAccountModel.fromJson(jsonData);
     } else {
