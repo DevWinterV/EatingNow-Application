@@ -3,6 +3,7 @@ import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/Widget/app_icon.dart';
 import 'package:fam/Widget/exandable.dart';
+import 'package:fam/models/product_recommended_model.dart';
 import 'package:fam/pages/Cart/cartPage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/dimensions.dart';
@@ -35,7 +36,6 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
     } else {
       msgAdd = 'Đã thêm vào giỏ hàng';
     }
-
     // Lưu lại danh sách giỏ hàng sau khi thêm
     if (await CartStorage.addToCart(item)) {
       Fluttertoast.showToast(
@@ -283,6 +283,8 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                             onTap: () {
                               if (productSum.qty! > 0 && dataProduct != null) {
                                 double price =  dataProduct!.price!.toDouble();
+                                print('dataProduct.userId: ${dataProduct.userId}');
+                                print('dataProduct.storename: ${dataProduct.storeName}');
                                 CartItem newItem = CartItem(
                                   foodName: dataProduct.foodName ?? "",
                                   categoryId: dataProduct.categoryId ?? 0,
@@ -293,7 +295,10 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                                   dataProduct.uploadImage ?? "",
                                   description: dataProduct.description,
                                   descriptionBuy: noteController.text,
+                                  userId: dataProduct.userId ?? 0,
+                                  storeName: dataProduct.storeName ?? ""
                                 );
+                                print(newItem.storeName);
                                 _addToCart(newItem);
                               }
                             },

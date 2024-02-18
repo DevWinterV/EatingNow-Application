@@ -26,6 +26,7 @@ class OrderPage extends StatefulWidget {
   _OrderPage createState() => _OrderPage();
 }
 class _OrderPage extends State<OrderPage> {
+  late int? userId;
   TextEditingController namecontroller = TextEditingController();
   TextEditingController phoneNumbercontroller = TextEditingController();
   late LocationStorage localtionStorge;
@@ -48,11 +49,13 @@ class _OrderPage extends State<OrderPage> {
     }
   }
   void _loadCartItems() async {
+    locationData = await localtionStorge.getSavedLocation();
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    userId = arguments['data'] as int; // Nhận dữ liệu UserId
     List<CartItem> loadedItems = await CartStorage.getCartItems();
     setState(() {
-      cartItem = loadedItems;
+      cartItem = loadedItems.where((element) => element.userId == userId).toList();
     });
-    locationData = await localtionStorge.getSavedLocation();
   }
   late bool result;
 
@@ -66,6 +69,7 @@ class _OrderPage extends State<OrderPage> {
     _loadCartItems();
     _loadUserData();
   }
+
   Future<void> _launchInWebView(Uri url) async {
     try {
       // Sử dụng url_launcher để mở liên kết trong trình duyệt hệ thống
@@ -95,8 +99,6 @@ class _OrderPage extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    //final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    //  final cartItem = arguments['data']; // Access 'your_data' here
     double totalAmount = cartItem.fold( 0, (total, item) => total + (item.price * item.qty));
     if (result) {
       reloadContent(); // Automatically call reloadContent when result is true
@@ -136,9 +138,9 @@ class _OrderPage extends State<OrderPage> {
                         SizedBox(width: 5,),
                         Flexible(
                           child: Text(
-                            'Kiểm tra lại thông tin và vị trí nhận hàng của bạn',
+                            'Kiểm tra lại thông tin và địa chỉ nhận hàng của bạn',
                             style: TextStyle(
-                              fontSize: Dimensions.font14,
+                              fontSize: Dimensions.font13,
                               fontStyle: FontStyle.normal,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -363,211 +365,217 @@ class _OrderPage extends State<OrderPage> {
             ),
           ),
         ), bottomNavigationBar:
-    Container(
-        height: 120,
-        width: MediaQuery.of(context).size.width,
-        child:  Column(
-          children: [
-            Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
-              child: Column(
+            Container(
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBackqroundColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(Dimensions.radius15 * 1),
+                    topRight: Radius.circular(Dimensions.radius15 * 1),
+                  ),
+                ),
+                height: 120,
+                width: MediaQuery.of(context).size.width,
+                child:  Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Phí giao hàng: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            child: Icon(Icons.info_outline, size: 15),
-                            onTap: () {
-                              // Xử lý khi người dùng chạm vào biểu tượng
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text("Thông tin phí giao hàng", style: TextStyle(fontSize: Dimensions.font20),),
-                                    content:
-                                    Container(
-                                        height: 100,
-                                        child:   Column(
-                                          children: [
-                                            Text("- Khoảng cách từ cửa hàng đến vị trí nhận hàng của bạn: 2.88 Km."),
-                                            Text("- Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km."),
+                  Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Phí giao hàng: ',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  child: Icon(Icons.info_outline, size: 15),
+                                  onTap: () {
+                                    // Xử lý khi người dùng chạm vào biểu tượng
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text("Thông tin phí giao hàng", style: TextStyle(fontSize: Dimensions.font20),),
+                                          content:
+                                          Container(
+                                              height: 100,
+                                              child:   Column(
+                                                children: [
+                                                  Text("- Khoảng cách từ cửa hàng đến vị trí nhận hàng của bạn: 2.88 Km."),
+                                                  Text("- Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km."),
+                                                ],
+                                              )
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop(); // Đóng dialog
+                                              },
+                                              child: Text("Đóng"),
+                                            ),
                                           ],
-                                        )
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(); // Đóng dialog
-                                        },
-                                        child: Text("Đóng"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          SizedBox(width: 2,),
-                          Text(
-                            NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000.0),
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                SizedBox(width: 2,),
+                                Text(
+                                  NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000.0),
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
 
-                    ],
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tổng tạm tính: ',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tổng cộng: ' ,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000 + totalAmount),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tổng tạm tính: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tổng cộng: ' ,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000 + totalAmount),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+
+                    Padding(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      child:   cartItem.length > 0 ?
+                      Center(
+                        child:
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            // Customize the background color
+                            primary: AppColors.mainColor,
+                            // Customize the text color
+                            onPrimary: Colors.white,
+                            // Add other customizations as needed
+                            padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                          ),
+                          onPressed: () async {
+                            if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
+                            {
+                              Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM_LEFT,
+                                  backgroundColor: Colors.red[400],
+                                  textColor: Colors.black54,
+                                  timeInSecForIosWeb: 1,
+                                  fontSize: 10);
+                              return;
+                            }
+                            try {
+                              orderRequest.completeName = namecontroller.text ;
+                              orderRequest.formatAddress = locationData.address;
+                              orderRequest.nameAddress = locationData.name;
+                              orderRequest.orderLine = cartItem;
+                              orderRequest.customerId = _auth.currentUser!.uid;
+                              orderRequest.intoMoney = totalAmount.toInt();
+                              orderRequest.transportFee = 12000;
+                              orderRequest.totalAmt = totalAmount.toInt() - 12000;
+                              orderRequest.latitude = locationData.latitude;
+                              orderRequest.longitude = locationData.longitude;
+                              orderRequest.recipientName = namecontroller.text;
+                              orderRequest.recipientPhone = phoneNumbercontroller.text;
+                              orderRequest.payment = null;
+                              orderRequest.userId = userId ?? 0;
+                              orderRequest.payment ="PaymentOnDelivery";
+                              final responseBody = await orderservice.postOrder(orderRequest);
+
+                              // Xử lý kết quả trả về từ API
+                              if (responseBody.success == true) {
+                                if(responseBody.Message != ""){
+                                  _launchInWebView(Uri.parse(responseBody.Message?? ""));
+                                }
+                                else {
+                                  await CartStorage.ClearCart();
+                                  final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
+                                  await userAccountStorage.saveUserAccount(user);
+                                  Fluttertoast.showToast(msg: "Đặt món ăn thành công",
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM_LEFT,
+                                      backgroundColor: AppColors.toastSuccess,
+                                      textColor: Colors.black54,
+                                      timeInSecForIosWeb: 1,
+                                      fontSize: 10);
+                                  Navigator.of(context).popAndPushNamed("/");
+                                }
+                              } else{
+                                if(responseBody.CustomData != null){
+                                  Fluttertoast.showToast(msg: responseBody.Message!,
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM_LEFT,
+                                      backgroundColor: AppColors.toastSuccess,
+                                      textColor: Colors.black54,
+                                      timeInSecForIosWeb: 1,
+                                      fontSize: 10);
+                                }
+                              }
+                            } catch (e) {
+                              print(e);
+                              // Xử lý lỗi kết nối hoặc lỗi khác
+                              Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM_LEFT,
+                                  backgroundColor: Colors.red[400],
+                                  textColor: Colors.black54,
+                                  timeInSecForIosWeb: 1,
+                                  fontSize: 10);
+                            }
+                          },
+                          child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),
+                        ),
+                      )
+                          :
+                      Center(
+                        child:ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            // Customize the background color
+                            primary: AppColors.mainColor,
+                            // Customize the text color
+                            onPrimary: Colors.white,
+                            // Add other customizations as needed
+                            padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Quay về trang chính', style: TextStyle(fontSize: Dimensions.font16),),
+                        ), ) ,
+                    )
                 ],
-              ),
-            ),
-
-              Padding(
-                padding: EdgeInsets.only(left: 10, right: 10),
-                child:   cartItem.length > 0 ?
-                Center(
-                  child:
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      // Customize the background color
-                      primary: AppColors.mainColor,
-                      // Customize the text color
-                      onPrimary: Colors.white,
-                      // Add other customizations as needed
-                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
-                    ),
-                    onPressed: () async {
-                      if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
-                      {
-                        Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM_LEFT,
-                            backgroundColor: Colors.red[400],
-                            textColor: Colors.black54,
-                            timeInSecForIosWeb: 1,
-                            fontSize: 10);
-                        return;
-                      }
-                      try {
-                        orderRequest.completeName = "Đông Châu";
-                        orderRequest.formatAddress = locationData.address;
-                        orderRequest.nameAddress = locationData.name;
-                        orderRequest.orderLine = cartItem;
-                        orderRequest.customerId = _auth.currentUser!.uid;
-                        orderRequest.intoMoney = totalAmount.toInt();
-                        orderRequest.transportFee = 12000;
-                        orderRequest.totalAmt = totalAmount.toInt() - 12000;
-                        orderRequest.latitude = locationData.latitude;
-                        orderRequest.longitude = locationData.longitude;
-                        orderRequest.recipientName = namecontroller.text;
-                        orderRequest.recipientPhone = phoneNumbercontroller.text;
-                        orderRequest.payment = null;
-                        orderRequest.userId = 15;
-                        orderRequest.payment ="PaymentOnDelivery";
-                        final responseBody = await orderservice.postOrder(orderRequest);
-
-                        // Xử lý kết quả trả về từ API
-                        if (responseBody.success == true) {
-                          if(responseBody.Message != ""){
-                            _launchInWebView(Uri.parse(responseBody.Message?? ""));
-                          }
-                          else {
-                            await CartStorage.ClearCart();
-                            final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
-                            await userAccountStorage.saveUserAccount(user);
-                            Fluttertoast.showToast(msg: "Đặt món ăn thành công",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM_LEFT,
-                                backgroundColor: AppColors.toastSuccess,
-                                textColor: Colors.black54,
-                                timeInSecForIosWeb: 1,
-                                fontSize: 10);
-                            Navigator.of(context).popAndPushNamed("/");
-                          }
-                        } else{
-                          if(responseBody.CustomData != null){
-                            Fluttertoast.showToast(msg: responseBody.Message!,
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM_LEFT,
-                                backgroundColor: AppColors.toastSuccess,
-                                textColor: Colors.black54,
-                                timeInSecForIosWeb: 1,
-                                fontSize: 10);
-                          }
-                        }
-                      } catch (e) {
-                        print(e);
-                        // Xử lý lỗi kết nối hoặc lỗi khác
-                        Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM_LEFT,
-                            backgroundColor: Colors.red[400],
-                            textColor: Colors.black54,
-                            timeInSecForIosWeb: 1,
-                            fontSize: 10);
-                      }
-                    },
-                    child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16)),
-                  ),
-                )
-                    :
-                Center(
-                  child:ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      // Customize the background color
-                      primary: AppColors.mainColor,
-                      // Customize the text color
-                      onPrimary: Colors.white,
-                      // Add other customizations as needed
-                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Quay về trang chính', style: TextStyle(fontSize: Dimensions.font16),),
-                  ), ) ,
-              )
-
-          ],
-        )// ĐẶT ĐƠN,
+              )// ĐẶT ĐƠN,
     )
     );
   }

@@ -67,7 +67,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
         })
             : storeServiceFoodList.TakeFoodListByStoreId(Id)
       ]);
-
+      print(results[0]!.data?[0]);
       streamListProduct.add(results[0]!.data ?? []);
     } catch (e) {
       print(e);
@@ -96,8 +96,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
       print('Could not launch $url');
     }
   }
-
-
   @override
   void initState() {
     super.initState();
@@ -267,7 +265,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             BigText(text: "Menu cửa hàng", color: AppColors.mainColor, size: Dimensions.font23,),
-                            SizedBox(height: 3,),
+                            SizedBox(height: 2,),
                             Container(
                               decoration: BoxDecoration(
                                 color: AppColors.mainColor,
@@ -334,6 +332,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                       scrollDirection: Axis.vertical,
                                       itemBuilder: (BuildContext context, int index) {
                                         final item = snapshot.data![index];
+                                        print(item.storeName);
                                         return Padding(
                                             padding: const EdgeInsets.all(0),
                                             child: GestureDetector(

@@ -60,7 +60,7 @@ namespace AI.FoodList
                     FoodListId = data.FoodListId
                 });
                 //Kiểm tra xem điểm số (Score) từ kết quả dự đoán có lớn hơn hoặc bằng 2.8 hay không. Nếu có, thì thêm đối tượng resultmodel vào danh sách kết quả.
-                if (resultmodel.Score >= 3.6)
+                if (resultmodel.Score >= 2.8)
                 {   
                     results.Add(resultmodel);
                 }
@@ -206,7 +206,7 @@ namespace AI.FoodList
                 LabelColumnName = nameof(InputData.Rating),// Đây là tên cột trong dữ liệu đầu vào (InputData) chứa điểm đánh giá. Tùy chọn này xác định cột dùng để đo lường sự tương quan giữa các yếu tố trong ma trận đánh giá.
                 MatrixColumnIndexColumnName = "Encoded_CustomerId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
                 MatrixRowIndexColumnName = "Encoded_FoodListId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
-                NumberOfIterations = 200,//Số lần lặp trong quá trình đào tạo.
+                NumberOfIterations = 300,//Số lần lặp trong quá trình đào tạo.
                 ApproximationRank = 100,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
             };
             var trainer = context.Recommendation().Trainers.MatrixFactorization(options);

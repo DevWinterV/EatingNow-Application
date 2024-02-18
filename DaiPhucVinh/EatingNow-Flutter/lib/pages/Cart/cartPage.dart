@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/dimensions.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../Widget/Big_text.dart';
 import '../../storage/cartstorage.dart';
@@ -12,6 +12,7 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  List<StoreUserCart> groupedCart = [];
   List<CartItem> cartItems = [];
   @override
   void initState() {
@@ -23,15 +24,42 @@ class _CartPageState extends State<CartPage> {
 
   // Phương thức để load danh sách món ăn từ SharedPreferences
   void _loadCartItems() async {
+    List<StoreUserCart> groupedCartfunct = [];
     List<CartItem> loadedItems = await CartStorage.getCartItems();
     setState(() {
       cartItems = loadedItems;
+    });
+    cartItems.forEach((item) {
+      // Kiểm tra xem cặp cửa hàng và người dùng đã tồn tại trong danh sách chưa
+      var existingPair = groupedCartfunct.firstWhere((pair) =>
+      pair.nameStore == item.storeName && pair.userId == item.userId,
+          orElse: () => StoreUserCart(
+            nameStore: "notfound",
+            userId: 0,
+            items: [],
+          ));
+
+      // Nếu không tìm thấy, thêm một cặp mới
+      if (existingPair.userId == 0) {
+        groupedCartfunct.add(StoreUserCart(
+          nameStore: item.storeName?? "",
+          userId: item.userId,
+          items: [item],
+        ));
+      } else {
+        // Nếu đã tồn tại, thêm mục vào danh sách mục của cặp đó
+        existingPair.items.add(item);
+      }
+    });
+    setState(() {
+      groupedCart = groupedCartfunct;
     });
   }
 
   // Hàm xóa item cart
   void _removeItemCart(CartItem item) {
     CartStorage.RemoveItemToCart(item);
+    _loadCartItems();
   }
 
   @override
@@ -51,143 +79,208 @@ class _CartPageState extends State<CartPage> {
         backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
       ),
       body:
-      cartItems.length ==0 ?
+      // Chưa có sản phẩm trong giỏ hàng
+      groupedCart.length == 0 ?
       Container(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-                  Image.asset(
-                      "assets/image/emptycart.png",
-                        height: 100,
-                        width: 100,),
-                  Text(
-                    "Chưa có sản phẩm trong giỏ hàng",
-                    style: TextStyle(
-                        fontSize: Dimensions.font16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/image/emptycart.png",
+                  height: 100,
+                  width: 100,),
+                Text(
+                  "Chưa có sản phẩm trong giỏ hàng",
+                  style: TextStyle(
+                      fontSize: Dimensions.font16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey
+                  ),
+                )
+              ],
             )
-          ],
-          )
         ),
-      ):
+      )
+          :
+      // đã có sản phẩm trong giỏ hàng
       Container(
         child: ListView.builder(
-          itemCount: cartItems.length,
+          itemCount: groupedCart.length,
           itemBuilder: (context, index) {
-            final item = cartItems[index];
-            return Dismissible(
-              key: Key(cartItems[index].foodListId.toString()), // Key là một giá trị duy nhất cho mỗi món ăn
-              background: Container(
-                color: Colors.red, // Màu nền khi vuốt để xóa
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.white,
+            final storeUserCart = groupedCart[index];
+            double totalAmount = groupedCart[index].items.fold( 0, (total, item) => total + (item.price * item.qty));
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child:
+                        Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  storeUserCart.nameStore ?? "",
+                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                ),
+                                GestureDetector(
+                                  onTap: (){
+                                    Navigator.pushReplacement(
+                                        context,
+                                        Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                    );
+                                  },
+                                  child:  Text(
+                                    'Đặt đơn',
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: Colors.blue[700]),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${groupedCart[index].items.length.toString()} sản phẩm',
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                                ),
+                                Text(
+                                  'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount ?? 0)}',
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                                ),
+                              ],
+                            )
+                          ],
+                    )
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8),
+                  child: Container(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: storeUserCart.items.length,
+                      itemBuilder: (context, itemIndex) {
+                        final item = storeUserCart.items[itemIndex];
+                        return Dismissible(
+                          key: Key(item.foodListId.toString()), // Key là một giá trị duy nhất cho mỗi món ăn
+                          background: Container(
+                            color: Colors.red, // Màu nền khi vuốt để xóa
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onDismissed: (direction) {
+                            // Xử lý khi món ăn bị xóa
+                            _removeItemCart(item);
+                          },
+                          child: GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                    context,
+                                    Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                );
+                              },
+                              child:
+                              Card(
+                                color: Colors.white,
+                                margin: EdgeInsets.only(bottom: 10),
+                                child: ListTile(
+                                  leading: Image.network(
+                                    item.uploadImage ?? "",
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  title: Text(item.foodName),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
+                                          SizedBox(width: 20),
+                                          BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
+                                        ],
+                                      ),
+                                      SizedBox(height: 5),
+                                      BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final kq = await Navigator.pushNamed(
+                                                context,
+                                                "/productdetail",
+                                                arguments: {'data': item},
+                                              );
+
+                                              if (kq != null && kq is bool) {
+                                                setState(() {
+                                                  _loadCartItems();
+                                                });
+                                              }
+                                            },
+                                            child: Row(
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.edit,
+                                                  color: Colors.blueAccent,
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(width: 20),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              _removeItemCart(item);
+                                              _loadCartItems();
+                                            },
+                                            child: Row(
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.delete,
+                                                  color: Colors.redAccent,
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                          ),
+
+                        );
+                      },
                     ),
                   ),
                 ),
-              ),
-              onDismissed: (direction) {
-                // Xử lý khi món ăn bị xóa
-                _removeItemCart(cartItems[index]);
-                setState(() {
-                  cartItems.removeAt(index);
-                });
-              },
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                      context,
-                      Navigator.popAndPushNamed(context, "/order", arguments: {'data': cartItems }) as Route<Object?>
-                  );
-                },
-                child:
-                Card(
+                Divider(
+                  thickness: 4, // Adjust the thickness of the divider as needed
                   color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: ListTile(
-                    leading: Image.network(
-                      item.uploadImage ?? "",
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(item.foodName),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 5),
-                        Row(
-                          children: [
-                            BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
-                            SizedBox(width: 20),
-                            BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-                        BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                final kq = await Navigator.pushNamed(
-                                  context,
-                                  "/productdetail",
-                                  arguments: {'data': item},
-                                );
-
-                                if (kq != null && kq is bool) {
-                                  setState(() {
-                                    _loadCartItems();
-                                  });
-                                }
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.edit,
-                                    color: Colors.blueAccent,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 5),
-                                  BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            GestureDetector(
-                              onTap: () async {
-                                _removeItemCart(item);
-                                _loadCartItems();
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.delete,
-                                    color: Colors.redAccent,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 5),
-                                  BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ),
-
+                ),
+              ],
             );
           },
         ),

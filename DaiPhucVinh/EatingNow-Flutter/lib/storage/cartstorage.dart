@@ -9,6 +9,7 @@ class CartStorage {
   static Future<List<CartItem>> getCartItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final cartData = prefs.getString(_key);
+    print('cartData $cartData');
     if (cartData != null) {
       final List<dynamic> decodedData = json.decode(cartData);
       final List<CartItem> cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
@@ -25,7 +26,6 @@ class CartStorage {
       final List<dynamic> decodedData = json.decode(cartData);
       cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
     }
-
     // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng hay chưa
     bool found = false;
     for (int i = 0; i < cartItems.length; i++) {
@@ -39,13 +39,11 @@ class CartStorage {
         break;
       }
     }
-
     print(cartItems);
     // Nếu món ăn chưa tồn tại, thêm nó vào giỏ hàng
     if (!found) {
       cartItems.add(newItem);
     }
-
     // Lưu lại danh sách giỏ hàng cập nhật
     final updatedCartData = json.encode(cartItems);
     await prefs.setString(_key, updatedCartData);
@@ -59,8 +57,6 @@ class CartStorage {
       final List<dynamic> decodedData = json.decode(cartData);
       cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
     }
-
-    // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng hay chưa
     bool found = false;
     for (int i = 0; i < cartItems.length; i++) {
       if (cartItems[i].foodListId == newItem.foodListId) {
@@ -134,6 +130,8 @@ class CartItem {
   final String uploadImage;
   String description;
   String descriptionBuy;
+  String storeName;
+  int userId;
 
   CartItem({
     required this.foodListId,
@@ -143,7 +141,9 @@ class CartItem {
     required this.qty,
     required this.uploadImage,
     required this.description,
-    required this.descriptionBuy
+    required this.descriptionBuy,
+    required this.storeName,
+    required this.userId
   });
 
   // Hàm để ánh xạ dữ liệu từ CartItem sang DataProduct
@@ -157,7 +157,7 @@ class CartItem {
       category: null,
       categoryId: categoryId,
       description: descriptionBuy,
-      userId: null,
+      userId: userId,
       status: null,
     );
   }
@@ -171,7 +171,9 @@ class CartItem {
     'uploadImage': uploadImage,
     'description': description,
     'descriptionBuy': descriptionBuy,
-    'categoryId': categoryId
+    'categoryId': categoryId,
+    'storeName': storeName,
+    'userId': userId
   };
 
   // Chuyển đổi dữ liệu CartItem thành một Map
@@ -189,12 +191,15 @@ class CartItem {
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       foodListId: json['foodListId'],
-        categoryId: json['categoryId'],
+      categoryId: json['categoryId'],
       foodName: json['foodName'],
       price: json['price'],
       qty: json['qty'],
       uploadImage: json['uploadImage'],
-      description: json['description'], descriptionBuy:  json['descriptionBuy']
+      description: json['description'],
+      descriptionBuy:  json['descriptionBuy'],
+      storeName: json['storeName'],
+      userId: json['userId']
     );
   }
   String toString() {
@@ -209,4 +214,15 @@ class CartItem {
         ", descriptionBuy='" + descriptionBuy + '\'' +
         '}';
   }
+}
+class StoreUserCart {
+  String nameStore;
+  int userId;
+  List<CartItem> items;
+
+  StoreUserCart({
+    required this.nameStore,
+    required this.userId,
+    required this.items,
+  });
 }

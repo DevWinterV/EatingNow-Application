@@ -84,7 +84,10 @@ class OrderRequest {
           price: v['price'],
           qty: v['qty'],
           uploadImage: v['uploadImage'],
-          description: v['description'], descriptionBuy: v['descriptionBuy'],
+          description: v['description'],
+          descriptionBuy: v['descriptionBuy'],
+          storeName: v['storeName'],
+          userId: v['userId'],
         );
       }).toList();
     }

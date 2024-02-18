@@ -41,6 +41,7 @@ using DaiPhucVinh.Services.MainServices.Hubs;
 using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using System.Xml.Linq;
 using DaiPhucVinh.Shared.OrderHeader;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
@@ -345,11 +346,23 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<FoodListResponse> { };
             try
             {
+                var newfoodlist = new List<FoodList_Store>();
                 var query = _datacontext.EN_FoodList.AsQueryable();
                 query = query.Where(d => d.Category.CategoryId == Id && d.Status == true);
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
-                var resultList = data.MapTo<FoodListResponse>();
+                var foodlistfirst = data[0];
+                var store = await _datacontext.EN_Store.FirstOrDefaultAsync(x => x.UserId == foodlistfirst.UserId);
+                foreach (var item in data)
+                {
+                    newfoodlist.Add(
+                        new FoodList_Store
+                        {
+                            foodItem = item,
+                            Storeitem = store
+                        });
+                }
+                var resultList = newfoodlist.MapTo<FoodListResponse>();
                 result.Data = resultList;
                 result.Success = true;
             }
@@ -365,6 +378,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
 
         public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(FoodListFillterRequest request)
         {
+            var newfoodlist = new List<FoodList_Store>();
+            var store = await _datacontext.EN_Store.FirstOrDefaultAsync(x => x.UserId.Equals(request.Id));
             DateTime currentDate = DateTime.Now;
             DateTime oneMonthFromNow = DateTime.Now.AddMonths(1);
             var result = new BaseResponse<FoodListResponse> { };
@@ -395,7 +410,16 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 }*/
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();
-                var resultList = data.MapTo<FoodListResponse>();
+                foreach (var item in data)
+                {
+                    newfoodlist.Add(
+                        new FoodList_Store
+                        {
+                            foodItem = item,
+                            Storeitem = store
+                        });
+                }
+                var resultList = newfoodlist.MapTo<FoodListResponse>();
                 result.Data = resultList;
                 result.Success = true;
             }

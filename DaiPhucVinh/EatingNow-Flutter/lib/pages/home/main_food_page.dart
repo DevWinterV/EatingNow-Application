@@ -1,12 +1,8 @@
 import 'package:fam/Widget/Big_text.dart';
-import 'package:fam/Widget/Small_text.dart';
-import 'package:fam/models/LocationData.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../storage/locationstorage.dart';
 import '../../util/Colors.dart';
 import '../../util/dimensions.dart';
-import '../Cart/cartPage.dart';
 import 'food_page_body.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +44,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
     return Scaffold(
       body: Stack(
          children: [
-
            Column(
              children: [
                // Phần Header
@@ -96,12 +91,9 @@ class _MainFoodPageState extends State<MainFoodPage> {
                        )
                    )
                ),
-
                //showing the body
-               Expanded(child: SingleChildScrollView(
-                 child:  FoodPageBody(),
-               )),
-
+               Expanded(child:  FoodPageBody(),
+               ),
              ],
            ),
            Positioned(
@@ -109,10 +101,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
              right: 20,
              child: GestureDetector(
                onTap: () {
-                 Navigator.push(
-                   context,
-                   MaterialPageRoute(builder: (context) => CartPage()),
-                 );
+                 Navigator.pushNamed(context, "/cartdetails");
                },
                child: Container(
                  padding: EdgeInsets.all(10),
@@ -138,8 +127,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
            )
          ],
       )
-
-
     );
   }
 }
