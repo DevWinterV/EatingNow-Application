@@ -41,6 +41,11 @@ class _OrderPage extends State<OrderPage> {
   void _loadUserData() async {
     final user = await userAccountStorage.getSavedUserAccount();
     namecontroller.text = user.name;
+    if( user.phone != null){
+      phoneNumbercontroller.text = user.phone;
+    }else{
+      phoneNumbercontroller.text = FirebaseAuth.instance.currentUser?.phoneNumber ?? "";
+    }
   }
   void _loadCartItems() async {
     List<CartItem> loadedItems = await CartStorage.getCartItems();
@@ -58,7 +63,6 @@ class _OrderPage extends State<OrderPage> {
     setState(() {
       result = false;
     });
-    phoneNumbercontroller.text = FirebaseAuth.instance.currentUser?.phoneNumber ?? "";
     _loadCartItems();
     _loadUserData();
   }
@@ -190,11 +194,15 @@ class _OrderPage extends State<OrderPage> {
                           textAlign: TextAlign.start,
                         ),
                         GestureDetector(
-                          onTap: (){
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => LocationPage(link: "/order")), // truyền vào link cần trở lại khi đã chọn được vị trí
                             );
+                            print('result $result');
+                            if(result == true){
+                              _loadCartItems();
+                            }
                           },
                           child: Text("Thay đổi", style: TextStyle(color: Colors.blue[800], fontSize: 12),),
                         )
@@ -204,10 +212,16 @@ class _OrderPage extends State<OrderPage> {
                         padding: EdgeInsets.only(top: 5, bottom: 5),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => LocationPage(link: "/order")), // truyền vào link cần trở lại khi đã chọn được vị trí
-                            );
+                            // final result =  Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => LocationPage(link: "/order")), // truyền vào link cần trở lại khi đã chọn được vị trí
+                            // );
+                            // print('result $result');
+                            // if(result == true){
+                            //   setState(() async {
+                            //     locationData = await localtionStorge.getSavedLocation();
+                            //   });
+                            // }
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

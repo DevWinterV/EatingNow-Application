@@ -101,7 +101,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     if (request.Phone != "")
                     {
                         string phone = request.Phone;
-                        string phoneoutput = phone.Replace("84", "");
+                        string phoneoutput = phone.Replace("+84", "");
                         var queryphone = _datacontext.EN_Customer.Where(x => x.Phone.Contains(phoneoutput)).AsQueryable();
                         queryphone = queryphone.OrderBy(d => d.CustomerId);
                         if (queryphone.Any())

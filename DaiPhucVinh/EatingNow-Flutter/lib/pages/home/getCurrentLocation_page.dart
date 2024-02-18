@@ -88,13 +88,8 @@ class _LocationPageState extends State<LocationPage> {
   Future<void> getAddressdeliveryOnTap(LocationData locationData) async {
     await locationStorage.saveLocation(
         locationData.name, locationData.latitude, locationData.longitude, locationData.address);
-
     if (link != "") {
-      // Chuyển đổi route tới link và truyền dữ liệu caritems
-      Navigator.pushReplacement(
-        context,
-          Navigator.pushNamed(context, link!, arguments: {'data': cartItems }) as Route<Object?>
-      );
+      Navigator.pop(context, true);
     } else {
       // Otherwise, go to the MainFoodPage
       Navigator.pushReplacement(
@@ -109,11 +104,7 @@ class _LocationPageState extends State<LocationPage> {
     await locationStorage.saveLocation(
         addressResult.name_address ?? "", position.latitude, position.longitude, addressResult.formatted_address ?? "");
     if (link != "") {
-      // Chuyển đổi route tới link và truyền dữ liệu caritems
-      Navigator.pushReplacement(
-          context,
-          Navigator.pushNamed(context, link!, arguments: {'data': cartItems }) as Route<Object?>
-      );
+      Navigator.pop(context, true);
     } else {
       // Otherwise, go to the MainFoodPage
       Navigator.pushReplacement(
@@ -281,7 +272,6 @@ class _LocationPageState extends State<LocationPage> {
                   margin: EdgeInsets.only(top: Dimensions.bottomHeightBar),
                   child: Column(
                     children: [
-
                       ElevatedButton(
                         onPressed: isloadingdata ? null : () {
                           getAddressdelivery();
