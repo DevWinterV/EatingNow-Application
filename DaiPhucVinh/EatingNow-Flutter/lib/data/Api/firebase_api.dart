@@ -1,4 +1,8 @@
+import 'package:fam/data/Api/CustomerService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+import '../../util/app_constants.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -6,11 +10,25 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class FirebaseApi {
+  CustomerService customerService = CustomerService(apiUrl: AppConstants.UpdateToken);
+
   final _firebasemsg = FirebaseMessaging.instance;
+
   Future<void> initNotifications () async {
     final fmcToken = await _firebasemsg.getToken();
-    print('Token ${fmcToken}');
-    NotificationSettings settings = await _firebasemsg.requestPermission(
+
+    // Update Token App to send notification
+    if(FirebaseAuth.instance.currentUser?.uid != null){
+      final reponse  = await customerService.updateToken({
+        "TokenApp": fmcToken,
+        "CustomerId": FirebaseAuth.instance.currentUser?.uid,
+      });
+      if(reponse.success != true){
+        print("Xảy ra lỗi khi cập nhật Token App ... ");
+      }
+    }
+
+    await _firebasemsg.requestPermission(
       alert: true,
       announcement: true,
       badge: true,
@@ -19,16 +37,15 @@ class FirebaseApi {
       provisional: false,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
       if (message.notification != null) {
         print('Message also contained a notification: ${message.notification}');
         print('Message title: ${message.notification?.title}');
         print('Message body: ${message.notification?.body}');
       }
     });
+
     FirebaseMessaging.onBackgroundMessage((msg) => _firebaseMessagingBackgroundHandler(msg));
   }
 }

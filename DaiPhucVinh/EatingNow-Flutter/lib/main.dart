@@ -1,3 +1,4 @@
+import 'package:fam/data/Api/CustomerService.dart';
 import 'package:fam/data/Api/firebase_api.dart';
 import 'package:fam/models/LocationData.dart';
 import 'package:fam/pages/Cart/cartPage.dart';
@@ -26,6 +27,7 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   runApp(MyApp());
 }
+
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
