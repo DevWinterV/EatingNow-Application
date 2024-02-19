@@ -675,6 +675,18 @@ const Order = () => {
                                     if (response.success) {
                                       sendOrderNotification(item);
                                       setNotification({ ...notification, 
+                                        to: item.TokenApp,
+                                        data: { ...notification.data,            
+                                                body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                              }, 
+                                            notification: { ...notification.notification,            
+                                              body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                          } 
+                                          
+                                      });
+                                      setNotification({ ...notification, 
                                         to: item.TokenWeb,
                                         data: { ...notification.data,            
                                                 body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
@@ -714,6 +726,17 @@ const Order = () => {
                                   ApproveOrder(item).then((response) => {
                                     if (response.success) {
                                       sendOrderNotification(item);
+                                      setNotificationCancle({ ...notification, 
+                                        to: item.TokenApp,
+                                        data: { ...notification.data,            
+                                                body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
+                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                              }, 
+                                            notification: { ...notification.notification,            
+                                              body:`Đơn hàng ${item.OrderHeaderId} đã bị hủy.`,
+                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                            } 
+                                          });
                                       setNotificationCancle({ ...notification, 
                                         to: item.TokenWeb,
                                         data: { ...notification.data,            

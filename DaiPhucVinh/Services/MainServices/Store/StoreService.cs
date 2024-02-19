@@ -1190,7 +1190,9 @@ namespace DaiPhucVinh.Services.MainServices.Province
                     if (!orderHeader.Status)
                     {
                         orderHeader.Status = true;
+
                         // Gửi thông báo đến email của khách hàng
+                        /*
                         if(account.Email != null)
                         {
                             try
@@ -1214,7 +1216,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
                             {
                                 result.Success = false;
                             }
-                        }
+                        }*/
+
                         var newnotification = new EN_CustomerNotifications
                         {
                             CustomerID = request.CustomerId,

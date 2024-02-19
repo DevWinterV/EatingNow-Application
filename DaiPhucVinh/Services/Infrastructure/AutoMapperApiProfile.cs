@@ -428,8 +428,9 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.CustomerName, o => o.MapFrom(s => s.EN_Customer.CompleteName))
                 .ForMember(d => d.StoreName, o => o.MapFrom(s => s.EN_Store.FullName))
                 .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_Customer.Phone))
-                .ForMember(d => d.TokenWeb, o => o.MapFrom(s => s.EN_Customer.TokenWeb));
-
+                .ForMember(d => d.TokenWeb, o => o.MapFrom(s => s.EN_Customer.TokenWeb))
+                .ForMember(d => d.TokenApp, o => o.MapFrom(s => s.EN_Customer.TokenApp));
+    
             CreateMap<EN_Customer, EN_CustomerResponse>();
 
             CreateMap<EN_OrderLine, OrderLineReponse>()

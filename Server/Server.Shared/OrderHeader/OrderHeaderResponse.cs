@@ -12,6 +12,7 @@ namespace DaiPhucVinh.Shared.OrderHeaderResponse
         public string Address { get; set; }
         public string CustomerId { get; set; }
         public string TokenWeb { get; set; }
+        public string TokenApp { get; set; }
         public double TotalAmt { get; set; }
         public double TransportFee { get; set; }
         public double IntoMoney { get; set; }
