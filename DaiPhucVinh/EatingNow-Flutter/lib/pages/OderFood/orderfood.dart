@@ -2,6 +2,7 @@ import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/data/Api/OrderService.dart';
 import 'package:fam/models/LocationData.dart';
 import 'package:fam/models/OrderRequest.dart';
+import 'package:fam/signalR/signalR_client.dart';
 import 'package:fam/storage/UserAccountstorage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class OrderPage extends StatefulWidget {
   _OrderPage createState() => _OrderPage();
 }
 class _OrderPage extends State<OrderPage> {
+  late SignalRClient signalRClient;
   late int? userId;
   TextEditingController namecontroller = TextEditingController();
   TextEditingController phoneNumbercontroller = TextEditingController();
@@ -62,6 +64,7 @@ class _OrderPage extends State<OrderPage> {
   @override
   initState() {
     super.initState();
+    connectToSignalR();
     localtionStorge = LocationStorage();
     setState(() {
       result = false;
@@ -69,7 +72,18 @@ class _OrderPage extends State<OrderPage> {
     _loadCartItems();
     _loadUserData();
   }
+  void connectToSignalR() async {
+    print("kết nối đến server");
+    signalRClient = SignalRClient();
+    await signalRClient.connectToServer();
+    await signalRClient.setCustomerId(FirebaseAuth.instance.currentUser?.uid ?? "");
+  }
 
+  void SendOrderNotificationToUser(String UserId) async {
+    print("Gửi thông báo đến cửa hàng");
+    await signalRClient.SendOrderNotificationToUser(UserId);
+
+  }
   Future<void> _launchInWebView(Uri url) async {
     try {
       // Sử dụng url_launcher để mở liên kết trong trình duyệt hệ thống
@@ -518,14 +532,15 @@ class _OrderPage extends State<OrderPage> {
                                   await CartStorage.ClearCart();
                                   final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
                                   await userAccountStorage.saveUserAccount(user);
-                                  Fluttertoast.showToast(msg: "Đặt món ăn thành công",
+                                  SendOrderNotificationToUser(userId.toString());
+                                  Fluttertoast.showToast(msg: "Đặt đơn hàng thành công",
                                       toastLength: Toast.LENGTH_LONG,
                                       gravity: ToastGravity.BOTTOM_LEFT,
                                       backgroundColor: AppColors.toastSuccess,
                                       textColor: Colors.black54,
                                       timeInSecForIosWeb: 1,
                                       fontSize: 10);
-                                  Navigator.of(context).popAndPushNamed("/");
+                                  Navigator.of(context).pop();
                                 }
                               } else{
                                 if(responseBody.CustomData != null){

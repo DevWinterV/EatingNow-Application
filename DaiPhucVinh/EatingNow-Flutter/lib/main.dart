@@ -11,6 +11,7 @@ import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -23,7 +24,6 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await FirebaseApi().initNotifications();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   runApp(MyApp());
 }
@@ -43,22 +43,20 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initializeLocationStorage();
+    FirebaseApi().initNotifications();
   }
 
   Future<void> initializeLocationStorage() async {
     locationStorage = LocationStorage();
     await _loadLocationData();
   }
-
   // Phương thức để load location data từ SharedPreferences
   Future<void> _loadLocationData() async {
     LocationData? loadedData = await locationStorage.getSavedLocation();
     setState(() {
       _locationData = loadedData;
     });
-    print(_locationData?.address ?? "");
   }
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
