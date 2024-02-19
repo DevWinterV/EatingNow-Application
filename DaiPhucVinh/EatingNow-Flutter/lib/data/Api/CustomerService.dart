@@ -24,4 +24,20 @@ class CustomerService {
       throw Exception('Failed to load store data');
     }
   }
+  Future<bool> updateToken(Map<String, dynamic> requestData) async {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
+      },
+      body: json.encode(requestData), // Chuyển đổi dữ liệu thành chuỗi JSON và gửi đi
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }
