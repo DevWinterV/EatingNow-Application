@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
           middlewares: [AuthMiddleware()],
         ),
         GetPage(
-          name: '/profile',
+          name: '/profiledetail',
           page: () => ProfilePage(),
           // middlewares: [AuthMiddleware()],
         ),

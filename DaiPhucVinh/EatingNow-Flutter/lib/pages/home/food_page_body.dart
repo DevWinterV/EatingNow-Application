@@ -128,7 +128,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   Widget build(BuildContext context) {
     return
         RefreshIndicator(
-          color: AppColors.mainColor,
+          color: AppColors.iconColor1,
           onRefresh: () async {
             fetchData();
           },

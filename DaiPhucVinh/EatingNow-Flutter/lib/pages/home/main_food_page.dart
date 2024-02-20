@@ -150,7 +150,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                         )
                                     ),
                                     onTap: (){
-                                      Navigator.pushNamed(context, "/profile");
+                                      Navigator.of(context).pushNamed("/profiledetail");
                                     }
 
                                 ),
