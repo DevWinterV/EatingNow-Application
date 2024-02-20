@@ -115,7 +115,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                    children: [
                                      Container(
                                        height: Dimensions.height45,
-                                       width: Dimensions.screenWidth - 110,
+                                       width: Dimensions.screenWidth - 150,
                                        child: BigText(text: addressdelivery, size: Dimensions.font13,),
                                      ),
                                      Icon(Icons.arrow_drop_down_rounded)
@@ -124,15 +124,38 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                )
                              ],
                            ),
-                           Container(
-                               width:Dimensions.height40,
-                               height:Dimensions.height40,
-                               child:Icon(Icons.search, color:Colors.white, size: Dimensions.iconSize16,),
-                               decoration: BoxDecoration(
-                                 borderRadius: BorderRadius.circular(Dimensions.radius15),
-                                 color: AppColors.mainColor,
-                               )
-                           )
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Tìm kiếm
+                                Container(
+                                    width:Dimensions.height40,
+                                    height:Dimensions.height40,
+                                    child:Icon(Icons.search, color:Colors.white, size: Dimensions.iconSize16,),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius15),
+                                      color: AppColors.mainColor,
+                                    )
+                                ),
+                                SizedBox(width: 5,),
+                                // Xem thông tin cá nhân
+                                GestureDetector(
+                                    child: Container(
+                                        width:Dimensions.height40,
+                                        height:Dimensions.height40,
+                                        child:Icon(Icons.person, color:Colors.white, size: Dimensions.iconSize16,),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(Dimensions.radius15),
+                                          color: AppColors.mainColor,
+                                        )
+                                    ),
+                                    onTap: (){
+                                      Navigator.pushNamed(context, "/profile");
+                                    }
+
+                                ),
+                              ],
+                            )
                          ],
                        )
                    )

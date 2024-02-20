@@ -7,6 +7,7 @@ import 'package:fam/pages/food/recommened_food_detail.dart';
 import 'package:fam/pages/home/Login.dart';
 import 'package:fam/pages/home/getCurrentLocation_page.dart';
 import 'package:fam/pages/home/main_food_page.dart';
+import 'package:fam/pages/profile/profile_page.dart';
 import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
@@ -90,6 +91,11 @@ class _MyAppState extends State<MyApp> {
           name: '/cartdetails',
           page: () => CartPage(),
           middlewares: [AuthMiddleware()],
+        ),
+        GetPage(
+          name: '/profile',
+          page: () => ProfilePage(),
+          // middlewares: [AuthMiddleware()],
         ),
         GetPage(
           name: '/productdetail',

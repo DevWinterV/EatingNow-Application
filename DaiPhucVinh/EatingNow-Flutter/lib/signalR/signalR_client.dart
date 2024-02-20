@@ -1,7 +1,8 @@
+import 'package:fam/util/app_constants.dart';
 import 'package:signalr_flutter/signalr_flutter.dart';
 
 class SignalRClient {
-  final String serverUrl = "https://ef7e-2402-800-63a4-c5fe-682f-cfdb-b515-4824.ngrok-free.app/signalr/hubs";
+  final String serverUrl = "${AppConstants.BASE_URL}/signalr/hubs";
   final String hubName = "OrderNotificationHub";
   final List<String> hubMethods = ["SendOrderNotification", "SetCustomerId", "SendOrderNotificationToUser", "RemoveUserConnection"];
 
