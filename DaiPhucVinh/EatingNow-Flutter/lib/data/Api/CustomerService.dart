@@ -1,9 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:fam/models/cuisine_model.dart';
 import 'package:fam/models/stores_model.dart';
+import 'package:fam/models/updateinfoCustomerResponse.dart';
 import 'package:fam/models/updatetoken_model.dart';
 import 'package:fam/models/user_account_model.dart';
+import 'package:get/get_connect/http/src/multipart/form_data.dart';
+import 'package:get/get_connect/http/src/multipart/multipart_file.dart';
 import 'package:http/http.dart' as http;
+
+import '../../models/customerReqeust.dart';
 
 class CustomerService {
   final String apiUrl ;
@@ -42,7 +48,29 @@ class CustomerService {
       throw Exception('Failed to updateTokenApp');
     }
   }
+  Future<UpdateInfoCustomerResonseModel> updateInfoCustomer(EN_CustomerRequest request, {File? imageFile}) async {
+    try {
+      final Uri uri = Uri.parse(apiUrl);
+      FormData formData = FormData({
+        'CustomerId': request.customerId,
+        'CompleteName': request.completeName,
+        'Email': request.email,
+        'Phone': request.phone,
+        'file': imageFile
+      });
+      final http.Response response = await http.post(
+        uri,
+        body: formData,
+      );
 
-
-
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        return UpdateInfoCustomerResonseModel.fromJson(jsonResponse);
+      } else {
+        throw Exception('Failed to update customer info: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Failed to update customer info: $e');
+    }
+  }
 }
