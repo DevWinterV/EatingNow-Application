@@ -4,8 +4,9 @@ class EN_CustomerRequest {
   final String phone;
   final String email;
   final bool status;
-
+  final String ImageProfile;
   EN_CustomerRequest({
+    required this.ImageProfile,
     required this.customerId,
     required this.completeName,
     required this.phone,
@@ -20,6 +21,7 @@ class EN_CustomerRequest {
       'Phone': phone,
       'Email': email,
       'Status': status,
+      'ImageProfile': ImageProfile
     };
   }
 }

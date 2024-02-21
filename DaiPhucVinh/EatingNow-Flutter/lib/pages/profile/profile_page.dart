@@ -127,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           children: [
                                             Row(
                                               children: [
-                                                userdata?.imageProfile == null
+                                                userdata?.imageProfile == null || userdata?.imageProfile == ""
                                                     ? ClipOval(
                                                   child: Image.asset(
                                                     "assets/image/logo_xpressEat.png",
@@ -153,8 +153,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ],
                                             ),
                                             IconButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pushNamed('viewprofiledetail', arguments: {"data": userdata });
+                                                onPressed: () async {
+                                                  final result = await Navigator.of(context).pushNamed('viewprofiledetail', arguments: {"data": userdata });
+                                                  if(result == true){
+                                                    _onRefresh();
+                                                  }
                                                 },
                                                 icon: Icon(Icons.chevron_right))
                                           ],

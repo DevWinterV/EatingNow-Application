@@ -53,6 +53,7 @@ dependencies:
   pin_input_text_field: ^4.5.1
   signalr_flutter: ^0.2.0
   image_picker: ^1.0.7
+  dio: ^5.4.1
 
 dev_dependencies:
   flutter_test:

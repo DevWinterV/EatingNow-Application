@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:fam/models/cuisine_model.dart';
-import 'package:fam/models/stores_model.dart';
+import 'package:dio/dio.dart';
 import 'package:fam/models/updateinfoCustomerResponse.dart';
 import 'package:fam/models/updatetoken_model.dart';
 import 'package:fam/models/user_account_model.dart';
-import 'package:get/get_connect/http/src/multipart/form_data.dart';
-import 'package:get/get_connect/http/src/multipart/multipart_file.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/customerReqeust.dart';
@@ -50,24 +47,33 @@ class CustomerService {
   }
   Future<UpdateInfoCustomerResonseModel> updateInfoCustomer(EN_CustomerRequest request, {File? imageFile}) async {
     try {
-      final Uri uri = Uri.parse(apiUrl);
-      FormData formData = FormData({
-        'CustomerId': request.customerId,
-        'CompleteName': request.completeName,
-        'Email': request.email,
-        'Phone': request.phone,
-        'file': imageFile
-      });
-      final http.Response response = await http.post(
-        uri,
-        body: formData,
+      FormData formData = FormData();
+      // Thêm dữ liệu từ request
+      formData.fields.add(
+          MapEntry('form', jsonEncode(request)),
+      );
+      // Nếu có file, thêm file vào formData
+      if (imageFile != null) {
+        formData.files.add(MapEntry(
+          'file[]',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: imageFile.path.split('/').last, // Trích xuất tên tệp từ đường dẫn
+          ),
+        ));
+      }
+
+
+      Options options = Options(
+        contentType: 'multipart/form-data',
       );
 
+      final response = await Dio().post(apiUrl, data: formData, options: options);
+      print(response.data);
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        return UpdateInfoCustomerResonseModel.fromJson(jsonResponse);
+        return UpdateInfoCustomerResonseModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update customer info: ${response.reasonPhrase}');
+        throw Exception('Failed to update customer info: ${response.data['message']}');
       }
     } catch (e) {
       throw Exception('Failed to update customer info: $e');
