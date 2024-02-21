@@ -168,7 +168,6 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             return result;
         }
 
-
         public async Task<BaseResponse<bool>> UpdateToken(EN_CustomerRequest request)
         {
             var result = new BaseResponse<bool> { };

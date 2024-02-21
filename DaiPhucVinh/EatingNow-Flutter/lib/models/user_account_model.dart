@@ -47,16 +47,16 @@ class Data {
   String? completeName;
   int? provinceId;
   int? districtId;
-  Null? provinceName;
-  Null? districtName;
-  Null? wardName;
+  dynamic? provinceName;
+  dynamic? districtName;
+  dynamic? wardName;
   int? wardId;
   String? phone;
   String? email;
-  Null? address;
+  dynamic? address;
   bool? status;
-  String? tokenWeb;
-  Null? tokenApp;
+  dynamic? tokenWeb;
+  dynamic? tokenApp;
   String? imageProfile;
 
   Data(

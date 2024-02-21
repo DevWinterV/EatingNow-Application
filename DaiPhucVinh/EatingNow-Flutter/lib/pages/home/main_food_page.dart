@@ -1,4 +1,6 @@
 import 'package:fam/Widget/Big_text.dart';
+import 'package:fam/data/Api/firebase_api.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +68,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
     super.initState();
     initialization();
     getAddressDelivery();
+    FirebaseApi().initNotifications();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         String notificationMessage = message.notification!.body ?? '';
@@ -150,7 +153,12 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                         )
                                     ),
                                     onTap: (){
-                                      Navigator.of(context).pushNamed("/profiledetail");
+                                      if(FirebaseAuth.instance.currentUser != null){
+                                        Navigator.of(context).pushNamed("/profiledetail");
+                                      }
+                                      else{
+                                        Navigator.of(context).pushNamed("/login");
+                                      }
                                     }
 
                                 ),

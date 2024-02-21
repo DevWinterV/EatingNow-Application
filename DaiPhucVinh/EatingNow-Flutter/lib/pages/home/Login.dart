@@ -42,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
       "CustomerId": userAuth.user?.uid ?? "",
       "Phone": _phoneNumber
     });
-    print('result.data ${result.data}');
     if(result.data!.length > 0){
       UserAccount userAccount = new UserAccount(userId: result.data?[0].customerId ?? "", name: result.data?[0].completeName ?? "", phone: result.data?[0].phone ?? "");
       UserAccountStorage userAccountStorage = new UserAccountStorage();
@@ -79,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void navigateToHome() {
     if (_auth.currentUser?.uid != null) {
-      Navigator.pushReplacementNamed(context, "/");
+      Navigator.pop(context);
     }
   }
   void navigateToNewUser() {

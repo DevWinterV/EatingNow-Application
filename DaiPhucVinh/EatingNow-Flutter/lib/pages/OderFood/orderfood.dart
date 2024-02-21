@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../../data/Api/firebase_api.dart';
 import '../../storage/cartstorage.dart';
 import '../../storage/locationstorage.dart';
 import '../../util/Colors.dart';
@@ -64,6 +65,7 @@ class _OrderPage extends State<OrderPage> {
   @override
   initState() {
     super.initState();
+    FirebaseApi().initNotifications();
     connectToSignalR();
     localtionStorge = LocationStorage();
     setState(() {
@@ -73,14 +75,12 @@ class _OrderPage extends State<OrderPage> {
     _loadUserData();
   }
   void connectToSignalR() async {
-    print("kết nối đến server");
     signalRClient = SignalRClient();
     await signalRClient.connectToServer();
-    await signalRClient.setCustomerId(FirebaseAuth.instance.currentUser?.uid ?? "");
+    // await signalRClient.setCustomerId(FirebaseAuth.instance.currentUser?.uid ?? "");
   }
 
   void SendOrderNotificationToUser(String UserId) async {
-    print("Gửi thông báo đến cửa hàng");
     await signalRClient.SendOrderNotificationToUser(UserId);
 
   }

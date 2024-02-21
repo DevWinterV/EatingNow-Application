@@ -16,9 +16,6 @@ class FirebaseApi {
       CustomerService(apiUrl: AppConstants.UpdateToken);
   final _firebasemsg = FirebaseMessaging.instance;
 
-
-
-
   Future<void> initNotifications() async {
     final fmcToken = await _firebasemsg.getToken();
     // Update Token App to send notification
