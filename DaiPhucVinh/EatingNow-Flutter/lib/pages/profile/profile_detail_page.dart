@@ -18,20 +18,14 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   File? _imageFile;
-
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
     final arguments =  ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final userData =  arguments['data'] as Data;
     // Khởi tạo giá trị cho các TextEditingController nếu có dữ liệu từ userData
-     _nameController.text = userData.completeName ??"";
-     _phoneController.text = userData.phone ?? "";
-     _emailController.text = userData.email ?? "";
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    _nameController.text = userData.completeName ??"";
+    _phoneController.text = userData.phone ?? "";
+    _emailController.text = userData.email ?? "";
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -53,7 +47,7 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildImagePicker(),
+                  _buildImagePicker(userData),
                   TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
@@ -79,11 +73,22 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                   ),
                   SizedBox(height: 20.0),
                   SizedBox(height: 20.0),
+
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
 
                     },
-                    child: Text('Lưu thay đổi'),
+                    child: Text(
+                      "Lưu thay đổi",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: Dimensions.font16,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: AppColors.mainColor,
+                      minimumSize: Size(double.infinity, 43),
+                    ),
                   ),
                 ],
               ),
@@ -94,29 +99,65 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
     );
   }
 
-  Widget _buildImagePicker() {
+  Widget _buildImagePicker(Data userdata) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Hình ảnh',
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Hình ảnh',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            _imageFile != null && userdata!.imageProfile != null ?
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  _imageFile = null;
+                });
+              },
+              child: Text("Sử dụng ảnh cũ",
+                style: TextStyle(
+                  color: Colors.blue
+              ),),
+            ) : SizedBox(),
+            _imageFile != null ?
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  _imageFile = null;
+                });
+              },
+              child: Text("Hủy chọn ảnh",
+                style: TextStyle(
+                    color: Colors.red
+                ),),
+            ) : SizedBox(),
+          ],
         ),
         SizedBox(height: 10.0),
         _imageFile != null
-            ? Image.file(
-          _imageFile!,
-          height: 150.0,
-          width: 150.0,
-          fit: BoxFit.cover,
-        )
-            : Placeholder(
-          fallbackHeight: 150.0,
-          fallbackWidth: 150.0,
-        ),
+            ?
+          Image.file(
+            _imageFile!,
+            fit: BoxFit.contain,
+            height: 100,
+            width: 100,
+          )
+            :
+        userdata.imageProfile != null ?
+        ClipOval(
+          child:
+          Image.network(
+              userdata.imageProfile ?? "",
+            height: 100,
+            width: 100,
+          ),
+        ) : SizedBox(),
         SizedBox(height: 10.0),
         ElevatedButton(
           onPressed: () async {
@@ -126,7 +167,17 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               _imageFile = File(pickedImage!.path);
             });
           },
-          child: Text('Chọn ảnh'),
+          child: Text(
+            "Chọn ảnh",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: Dimensions.font16,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            primary: AppColors.mainColor,
+            minimumSize: Size(double.infinity, 43),
+          ),
         ),
       ],
     );

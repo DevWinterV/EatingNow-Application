@@ -98,7 +98,6 @@ class _ProfilePageState extends State<ProfilePage> {
               child: StreamBuilder<Data?>(
                 stream: _userDataStreamController.stream,
                 builder: (BuildContext context, AsyncSnapshot<Data?> snapshot) {
-                  print(snapshot);
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                       child: CircularProgressIndicator(
@@ -154,7 +153,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ],
                                             ),
                                             IconButton(
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  Navigator.of(context).pushNamed('viewprofiledetail', arguments: {"data": userdata });
+                                                },
                                                 icon: Icon(Icons.chevron_right))
                                           ],
                                         ),
