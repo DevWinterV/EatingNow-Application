@@ -20,6 +20,7 @@ class ApiResult {
 }
 class OrderService {
   static const String apiUrl = AppConstants.CreateOreder;
+  static const String apiUrlTakeOrderByCustomer = AppConstants.TakeOrderByCustomer;
 
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
@@ -48,11 +49,10 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
-
   Future<OrderCustomerResponse?> TakeOrderByCustomer(OrderCustomerRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse(apiUrlTakeOrderByCustomer),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -75,7 +75,6 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
-
 }
 
 

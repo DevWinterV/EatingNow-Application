@@ -3,6 +3,7 @@ import 'package:fam/data/Api/firebase_api.dart';
 import 'package:fam/models/LocationData.dart';
 import 'package:fam/pages/Cart/cartPage.dart';
 import 'package:fam/pages/OderFood/orderfood.dart';
+import 'package:fam/pages/OrderCustomer/ordercustomer_list.dart';
 import 'package:fam/pages/food/recommened_food_detail.dart';
 import 'package:fam/pages/home/Login.dart';
 import 'package:fam/pages/home/getCurrentLocation_page.dart';
@@ -86,6 +87,11 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/order',
           page: () => OrderPage(),
+          middlewares: [AuthMiddleware()],
+        ),
+        GetPage(
+          name: '/orderlist',
+          page: () => OrderCustomerPage(),
           middlewares: [AuthMiddleware()],
         ),
         GetPage(
