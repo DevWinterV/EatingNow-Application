@@ -326,9 +326,13 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                     return Center(
                                       child:
                                           Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-
-                                              BigText(text: "Cửa hàng hiện chưa kinh doanh sản phẩm", color: Colors.grey,),
+                                              Image.asset(
+                                                "assets/image/empty-box.png",
+                                                height: 100,
+                                                width: 100,),
+                                              BigText(text: "Cửa hàng hiện chưa có sản phẩm kinh doanh", color: Colors.grey,),
                                             ],
                                           )
                                     );
