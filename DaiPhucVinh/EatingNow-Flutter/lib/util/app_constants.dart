@@ -13,5 +13,5 @@ class AppConstants{
   static const String CheckCustomer= BASE_URL+"/api/customer/CheckCustomer";
   static const String UpdateToken= BASE_URL+"/api/customer/UpdateToken";
   static const String UpdateInfoCustomer= BASE_URL+"/api/customer/UpdateInfoCustomer";
-
+  static const String TakeOrderByCustomer= BASE_URL+"/api/customer/TakeOrderByCustomer";
 }

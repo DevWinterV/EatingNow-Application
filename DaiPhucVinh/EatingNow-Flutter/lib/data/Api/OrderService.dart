@@ -1,3 +1,5 @@
+import 'package:fam/models/ordercustomerRequest_model.dart';
+import 'package:fam/models/ordercustomerResponse_model.dart';
 import 'package:fam/util/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -52,6 +54,32 @@ class OrderService {
     }
   }
 
+  Future<OrderCustomerResponse?> TakeOrderByCustomer(OrderCustomerRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        if (responseBody["Success"] == true) {
+          return OrderCustomerResponse.fromJson(responseBody);
+        } else {
+          return OrderCustomerResponse.fromJson(responseBody);
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      // Xử lý khi có lỗi kết nối
+      print('Error posting order: $e');
+      throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
+    }
+  }
 
 
 }
