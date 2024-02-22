@@ -21,11 +21,6 @@ class ApiResult {
 class OrderService {
   static const String apiUrl = AppConstants.CreateOreder;
 
-  Future<void> _launchInWebView(Uri url) async {
-    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-      throw Exception('Could not launch $url');
-    }
-  }
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
       print(order.toJson());
@@ -80,7 +75,6 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
-
 
 }
 
