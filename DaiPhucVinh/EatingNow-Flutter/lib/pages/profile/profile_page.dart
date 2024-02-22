@@ -20,17 +20,6 @@ class _ProfilePageState extends State<ProfilePage> {
   late StreamController<Data?> _userDataStreamController;
   late CustomerService customerService;
 
-  // Future<Data?> fetchDataUser() async {
-  //   final result = await customerService.fecthUserData({
-  //     "CustomerId": FirebaseAuth.instance.currentUser?.uid ?? "",
-  //     "Phone": FirebaseAuth.instance.currentUser?.phoneNumber ?? ""
-  //   });
-  //
-  //   if (result.success == true) {
-  //     return result.data?[0] ?? null;
-  //   }
-  // }
-
   void _fetchDataUser() async {
     final result = await customerService.fecthUserData({
       "CustomerId": FirebaseAuth.instance.currentUser?.uid ?? "",
@@ -111,7 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         Expanded(
                             child: RefreshIndicator(
-                                color: AppColors.mainColor,
+                                color: AppColors.iconColor1,
                                 onRefresh: () async {
                                   _onRefresh();
                                 },

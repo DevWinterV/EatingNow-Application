@@ -67,7 +67,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
         })
             : storeServiceFoodList.TakeFoodListByStoreId(Id)
       ]);
-      print(results[0]!.data?[0]);
       streamListProduct.add(results[0]!.data ?? []);
     } catch (e) {
       print(e);
@@ -78,7 +77,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
   Future<CategoryModel?> TakeListCategory() async {
     try {
       final results = await categoryService.TakeCategoryByStoreId(storeData!.userId ?? 0);
-      print("results ${results!.data}");
+      print("results ${results!.data![0].categoryName}");
       if(results!.success == true){
         return results;
       }
@@ -321,10 +320,18 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                 stream: streamListProduct.stream,
                                 builder: (context, snapshot) {
                                   if(snapshot.connectionState == ConnectionState.waiting){
-                                    return Center(child: BigText(text: "Đang tải ... ", color: Colors.grey,),);
+                                    return Center(child: CircularProgressIndicator(color: AppColors.mainColor,),);
                                   }
-                                  if(!snapshot.hasData){
-                                    return Center(child: BigText(text: "Cửa hàng chưa có sản phẩm ... ", color: Colors.grey,),);
+                                  if(!snapshot.hasData || snapshot.data?.length == 0 ){
+                                    return Center(
+                                      child:
+                                          Column(
+                                            children: [
+
+                                              BigText(text: "Cửa hàng hiện chưa kinh doanh sản phẩm", color: Colors.grey,),
+                                            ],
+                                          )
+                                    );
                                   }
                                   if (snapshot.hasData) {
                                     return ListView.builder(
@@ -332,7 +339,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                       scrollDirection: Axis.vertical,
                                       itemBuilder: (BuildContext context, int index) {
                                         final item = snapshot.data![index];
-                                        print(item.storeName);
                                         return Padding(
                                             padding: const EdgeInsets.all(0),
                                             child: GestureDetector(
@@ -575,7 +581,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
       child: GestureDetector(
         onTap: () {
           _selectedCategoryController.add(categoryId);
-          // Additional logic for handling the selected category, if needed
           fetchData(categoryId);
         },
         child: Container(

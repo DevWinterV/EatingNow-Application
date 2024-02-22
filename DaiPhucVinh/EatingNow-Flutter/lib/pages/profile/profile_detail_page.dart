@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:fam/models/customerReqeust.dart';
 import 'package:fam/models/user_account_model.dart';
@@ -15,23 +16,28 @@ class ProfileDetailPage extends StatefulWidget {
 }
 
 class _ProfileDetailPageState extends State<ProfileDetailPage> {
+  late StreamController<bool?> _loadStream;
   late CustomerService customerService;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   File? _imageFile;
+
+  @override
+  void dispose() {
+    _loadStream.close();
+    super.dispose();
+  }
+
   @override
   void initState(){
     super.initState();
     customerService = CustomerService(apiUrl: AppConstants.UpdateInfoCustomer);
+    _loadStream = StreamController<bool?>();
   }
-  bool isLoading = false;
 
   void _updateInfo(EN_CustomerRequest request) async {
-    setState(() {
-      isLoading = true; // Bắt đầu hiển thị vòng tròn load
-    });
-
+    _loadStream.add(true);
     final response = await customerService.updateInfoCustomer(request, imageFile : _imageFile);
     if(response.success == true){
       Fluttertoast.showToast(msg: "Cập nhật thông tin thành công !",
@@ -54,10 +60,7 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
           fontSize: 10
       );
     }
-
-    setState(() {
-      isLoading = false; // Kết thúc hiển thị vòng tròn load
-    });
+    _loadStream.add(false);
   }
 
   @override
@@ -155,10 +158,23 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               ),
             ],
           ),
-          if (isLoading)
-            Center(
-              child : CircularProgressIndicator(color: AppColors.mainColor,),
-            ),
+          StreamBuilder<bool?>
+            (stream: _loadStream.stream,
+              builder: (builder, snapshot){
+                if(snapshot.data == false){
+                  return SizedBox();
+                }
+                if(snapshot.data == true){
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.mainColor,
+                      backgroundColor: Colors.white10,
+                    ),
+                  );
+                }
+                return SizedBox();
+              }
+          )
         ],
       ),
     );
