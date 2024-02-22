@@ -175,10 +175,10 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                             if (snapshot.connectionState == ConnectionState.waiting) {
                                               return SizedBox(); // Show a loading indicator while waiting for the result
                                             } else if (snapshot.hasError) {
-                                              return Text("Error: ${snapshot.error}");
+                                              return Text("Lỗi: ${snapshot.error}");
                                             } else {
                                               final km = (snapshot.data! / 1000).toStringAsFixed(1);
-                                              final minite = (double.parse(km) * 60) / 35;
+                                              final minite = (double.parse(km) * 60) / 25;
                                               return
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -197,7 +197,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                                       iconColor: AppColors.mainColor,),
                                                     // Thời gian
                                                     IconAndTextWidget(
-                                                      icon: Icons.timer,
+                                                      icon: Icons.access_time_rounded,
                                                       text: "${minite.toStringAsFixed(1)} phút",
                                                       iconColor: AppColors.mainColor,),
                                                   ],
@@ -211,12 +211,21 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                         onTap: () {
                                           _launchPhoneCall(storeData!.phone ?? "");
                                         },
-                                        child: BigText(
-                                          text: "Điện thoại: ${storeData!.phone}",
-                                          maxlines: 2,
-                                          size: 14,
-                                          color: AppColors.paraColor,
-                                        ),
+                                        child: Row(
+                                          children: [
+                                            BigText(
+                                              text: "Điện thoại: ${storeData!.phone}",
+                                              maxlines: 2,
+                                              size: 14,
+                                              color: AppColors.paraColor,
+                                            ),
+                                            SizedBox(width: 2,),
+                                            Icon(
+                                              Icons.phone,
+                                              size: 15,
+                                            )
+                                          ],
+                                        )
                                       ),
                                       Row(
                                         children: [
@@ -263,7 +272,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            BigText(text: "Menu cửa hàng", color: AppColors.mainColor, size: Dimensions.font23,),
+                            BigText(text: "Menu của quán", color: AppColors.mainColor, size: Dimensions.font23,),
                             SizedBox(height: 2,),
                             Container(
                               decoration: BoxDecoration(
@@ -314,7 +323,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                               ),
                             ),
                             Container(
-                              height: 300,
+                              height: 400,
                               child:
                               StreamBuilder<List<DataProduct>?>(
                                 stream: streamListProduct.stream,

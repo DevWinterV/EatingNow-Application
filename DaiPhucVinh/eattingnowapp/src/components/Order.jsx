@@ -30,7 +30,7 @@ import $ from 'jquery'; // Ensure you have jQuery installed
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 //Kết nối đến SignalR Ordernotication
-let connection = $.hubConnection('https://9ddc-2402-800-63a4-c5fe-682f-cfdb-b515-4824.ngrok-free.app/signalr/hubs');
+let connection = $.hubConnection('https://0829-2402-800-63a4-c5fe-9d23-c384-55ef-a28b.ngrok-free.app/signalr/hubs');
 let proxy = connection.createHubProxy('OrderNotificationHub');
 let subtitle;
 
