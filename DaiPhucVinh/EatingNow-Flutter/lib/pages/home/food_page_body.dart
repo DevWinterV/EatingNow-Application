@@ -153,7 +153,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                     ],
                   ),
                 ),
-              ) :Column(
+              ) :
+              Column(
                 children: [
                   _headerContainer(AppConstants.APP_NAME, "Loại món ăn 🍔"),
                   buldCatagoryItem(),

@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: _locationData?.address == null ? '/getlocation' : "/",
+      initialRoute: _locationData == null ? '/getlocation' : "/",
       defaultTransition: Transition.rightToLeft,
       getPages: [
         GetPage(

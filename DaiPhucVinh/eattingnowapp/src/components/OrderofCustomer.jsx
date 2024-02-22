@@ -209,8 +209,8 @@ export default function OrderofCustomer({id, onDelete}) {
                             <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
                             <h1 className="order-info">{Orderheader.StoreName}</h1>
                             {
-                              Orderheader.PaymentStatusID ==2 ?(          
-                              <h1 className="order-info">Đã thanh toán</h1>
+                              Orderheader.PaymentStatusID == 2 ?(          
+                                <h1 className="order-info">Đã thanh toán</h1>
                               ):(
                                 <h1 className="order-info">Thanh toán khi nhận hàng</h1>
                               )

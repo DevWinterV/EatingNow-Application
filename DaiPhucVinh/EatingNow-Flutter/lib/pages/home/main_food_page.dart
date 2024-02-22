@@ -26,42 +26,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
   String addressdelivery = '';
   String nameAddressdelivery ='';
   late  SharedPreferences prefs;
-  void showNotificationDialog(String message) {
-    showDialog(
-      context: Get.overlayContext ?? context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white, // Màu nền của dialog
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)), // Bo viền của dialog
-          title: Row(
-            children: [
-              Icon(Icons.notifications, color: AppColors.mainColor, size: 20,), // Biểu tượng thông báo
-              SizedBox(width: 5),
-              BigText(text: "Thông báo")
-            ],
-          ),
-          content: Text(
-            message,
-            style: TextStyle(color: Colors.black87),
-          ), // Nội dung thông báo
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Xem chi tiết", style: TextStyle(color: Colors.blue)), // Nút đóng với màu sắc tùy chỉnh
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Đóng", style: TextStyle(color: Colors.red[400])), // Nút đóng với màu sắc tùy chỉnh
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   initState() {
@@ -69,19 +33,12 @@ class _MainFoodPageState extends State<MainFoodPage> {
     initialization();
     getAddressDelivery();
     FirebaseApi().initNotifications();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null) {
-        String notificationMessage = message.notification!.body ?? '';
-        showNotificationDialog(notificationMessage);
-      }
-    });
   }
   void getAddressDelivery() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
       addressdelivery = prefs.getString('address') ?? '';
       nameAddressdelivery =prefs.getString('name') ?? '';
-
     });
   }
 

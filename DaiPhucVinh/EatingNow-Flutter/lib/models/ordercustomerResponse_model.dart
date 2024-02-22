@@ -51,9 +51,9 @@ class Data {
   String? customerId;
   String? tokenWeb;
   dynamic? tokenApp;
-  int? totalAmt;
-  int? transportFee;
-  int? intoMoney;
+  double? totalAmt;
+  double? transportFee;
+  double? intoMoney;
   int? userId;
   String? storeName;
   bool? status;

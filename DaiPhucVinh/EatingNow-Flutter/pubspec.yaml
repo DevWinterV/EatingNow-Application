@@ -54,6 +54,7 @@ dependencies:
   signalr_flutter: ^0.2.0
   image_picker: ^1.0.7
   dio: ^5.4.1
+  flutter_local_notifications: ^16.3.2
 
 dev_dependencies:
   flutter_test:

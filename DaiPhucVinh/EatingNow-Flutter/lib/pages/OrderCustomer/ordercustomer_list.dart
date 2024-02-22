@@ -1,16 +1,17 @@
 import 'dart:async';
-
 import 'package:fam/Widget/Big_text.dart';
+import 'package:fam/Widget/Icon_and_Text_widget.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/data/Api/OrderService.dart';
 import 'package:fam/models/ordercustomerRequest_model.dart';
 import 'package:fam/util/Colors.dart';
-import 'package:fam/util/app_constants.dart';
+import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/ordercustomerResponse_model.dart';
+import '../../util/dimensions.dart';
 
 class OrderCustomerPage extends StatefulWidget {
   const OrderCustomerPage({super.key});
@@ -48,54 +49,146 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<OrderCustomerResponse?>(
-        initialData: null,
-        stream: _OrderListStreamController.stream,
-        builder: (builder, snapshot){
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return Center(
-              child: CircularProgressIndicator(
-                color: AppColors.mainColor,
-              ),
-            );
-          }
-          if(!snapshot.hasData || snapshot.data!.data!.length! == 0 ){
-            return Center(
-                child:
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/image/empty-box.png",
-                      height: 100,
-                      width: 100,),
-                    BigText(text: "Bạn hiện chưa đặt đơn hàng nào", color: Colors.grey,),
-                  ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Đơn hàng của bạn',
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(
+            fontSize: Dimensions.font20,
+          ), // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
+        ),
+        centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
+        // Các thuộc tính khác của AppBar
+        backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
+      ),
+      body:  RefreshIndicator(
+          color: AppColors.iconColor1,
+          onRefresh: () async{
+            _initStreamOrderList();
+          },
+            child:  SingleChildScrollView(
+                  child:
+                  Column(
+                    children: [
+                      StreamBuilder<OrderCustomerResponse?>(
+                          initialData: null,
+                          stream: _OrderListStreamController.stream,
+                          builder: (builder, snapshot){
+                            if(snapshot.connectionState == ConnectionState.waiting){
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.mainColor,
+                                ),
+                              );
+                            }
+                            if(!snapshot.hasData || snapshot.data!.data!.length! == 0 ){
+                              return Center(
+                                  child:
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        "assets/image/empty-box.png",
+                                        height: 100,
+                                        width: 100,),
+                                      BigText(text: "Bạn hiện chưa đặt đơn hàng nào", color: Colors.grey,),
+                                    ],
+                                  )
+                              );
+                            }
+                            if(snapshot.hasData && snapshot.data!.data!.length! > 0 ){
+                              return Container(
+                                height: snapshot.data!.data!.length! * 156,
+                                child: ListView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: snapshot.data?.data?.length ?? 0,
+                                    itemBuilder: (itemBuilder, index){
+                                      final order = snapshot.data?.data?[index];
+                                      return Padding(padding: EdgeInsets.all(0),
+                                          child:  Column(
+                                            children: [
+                                              ListTile(
+                                                title: BigText(text: order?.orderHeaderId ?? ""),
+                                                subtitle:
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SmallText(
+                                                      text: "Đặt lúc: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse(order?.creationDate ?? "").toLocal())}" ,
+                                                      color: Colors.black,
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        SmallText(text: "Trạng thái: ",color: Colors.black,),
+                                                        SmallText(text: order?.status == true ? "Đã xét duyệt" : "Chờ xét duyệt" , color: order?.status == true ? Colors.green : Colors.red,),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        BigText(text:
+                                                        'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(order?.intoMoney ?? 0)}',
+                                                            size: Dimensions.font13,
+                                                            color: Colors.red[400]
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    BigText(
+                                                        text:
+                                                        order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
+                                                        size: Dimensions.font13,
+                                                        color:  order?.paymentStatusID == 2 ? Colors.green : Colors.red
+                                                    ),
+                                                  ],
+                                                ),
+                                                selectedColor: Colors.white60,
+                                                iconColor: AppColors.mainColor,
+                                                trailing: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    order?.status != true ?
+                                                    BigText(text:
+                                                    'Hủy đơn',
+                                                        size: Dimensions.font13,
+                                                        color: Colors.red[400]
+                                                    )
+                                                        :
+                                                    SizedBox(),
+                                                    BigText(text:
+                                                    'Xem chi tiết ',
+                                                        size: Dimensions.font13,
+                                                        color: Colors.blue
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              Divider(thickness: 4,
+                                                color: Colors.white,)
+                                            ],
+                                          )
+                                      );
+                                    }
+
+                                ),
+                              );
+                            }
+                            if(snapshot.connectionState == ConnectionState.waiting){
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.mainColor,
+                                ),
+                              );
+                            }
+                            return SizedBox();
+                          })
+                    ],
+                  ),
                 )
-            );
-          }
-          if(snapshot.hasData && snapshot.data!.data!.length! > 0 ){
-            return ListView.builder(
-                itemCount: snapshot.data?.data?.length ?? 0,
-                itemBuilder: (itemBuilder, index){
-                  final order = snapshot.data?.data?[index];
-                  return ListTile(
-                    title: BigText(text: order?.orderHeaderId ?? ""),
-                    subtitle: SmallText(text: order?.creationDate ?? "",),
-                    iconColor: AppColors.mainColor,
-                    trailing: SmallText(text: order?.totalAmt.toString() ?? "",),
-                  );
-                }
-            );
-          }
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return Center(
-              child: CircularProgressIndicator(
-                color: AppColors.mainColor,
-              ),
-            );
-          }
-          return SizedBox();
-    });
+        ),
+    );
   }
 }

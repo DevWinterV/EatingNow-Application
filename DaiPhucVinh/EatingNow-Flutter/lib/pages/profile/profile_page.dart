@@ -165,18 +165,23 @@ class _ProfilePageState extends State<ProfilePage> {
                                           crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                           children: [
-                                            Column(
-                                              children: [
-                                                Image.asset(
-                                                  "assets/image/listorder.png",
-                                                  height: 100,
-                                                  width: 100,
-                                                ),
-                                                BigText(
-                                                  text: 'Đơn hàng',
-                                                  size: 13,
-                                                )
-                                              ],
+                                            GestureDetector(
+                                              onTap: (){
+                                                Navigator.of(context).pushNamed("/orderlist");
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/image/listorder.png",
+                                                    height: 100,
+                                                    width: 100,
+                                                  ),
+                                                  BigText(
+                                                    text: 'Đơn hàng',
+                                                    size: 13,
+                                                  )
+                                                ],
+                                              ),
                                             ),
                                             Column(
                                               children: [
