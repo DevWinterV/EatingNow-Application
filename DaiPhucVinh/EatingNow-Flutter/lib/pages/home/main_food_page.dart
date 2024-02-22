@@ -1,11 +1,8 @@
 import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/data/Api/firebase_api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import '../../util/Colors.dart';
 import '../../util/dimensions.dart';
 import 'food_page_body.dart';

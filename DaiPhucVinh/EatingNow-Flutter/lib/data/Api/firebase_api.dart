@@ -2,13 +2,12 @@ import 'dart:async';
 import 'package:fam/data/Api/CustomerService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 
 import '../../util/app_constants.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
+
 }
 
 class FirebaseApi {
@@ -39,6 +38,9 @@ class FirebaseApi {
       sound: true,
     );
 
+    FirebaseMessaging.onMessage.listen((event) {
+
+    });
 
     FirebaseMessaging.onBackgroundMessage(
         (msg) => _firebaseMessagingBackgroundHandler(msg));
