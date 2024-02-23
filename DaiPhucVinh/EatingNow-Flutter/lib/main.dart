@@ -13,6 +13,7 @@ import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
+import 'package:fam/util/notificationService.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -25,6 +26,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService.init();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   runApp(MyApp());
 }
