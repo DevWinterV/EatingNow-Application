@@ -13,8 +13,7 @@ import flutter_local_notifications
     GeneratedPluginRegistrant.register(with: self)
 
     if #available(iOS 10.0, *) {
-        // Set the delegate for UNUserNotificationCenter
-        UNUserNotificationCenter.current().delegate = self
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
