@@ -13,18 +13,12 @@ import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Middleware/AuthMiddleware.dart';
 import 'firebase_options.dart';
-
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
