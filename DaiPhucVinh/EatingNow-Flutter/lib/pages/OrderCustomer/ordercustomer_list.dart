@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/ordercustomerResponse_model.dart';
 import '../../util/dimensions.dart';
+import '../../util/notificationService.dart';
 
 class OrderCustomerPage extends StatefulWidget {
   const OrderCustomerPage({super.key});
@@ -32,6 +33,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
   void _initStreamOrderList() async {
      final orderlist = await _takeorderBycustomer();
      _OrderListStreamController.sink.add(orderlist);
+     NotificationService.onclickNotification.sink.add("null");
   }
 
   Future<OrderCustomerResponse?> _takeorderBycustomer() async{

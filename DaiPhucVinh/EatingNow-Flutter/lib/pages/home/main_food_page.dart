@@ -5,12 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../util/Colors.dart';
 import '../../util/dimensions.dart';
+import '../../util/notificationService.dart';
 import 'food_page_body.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'getCurrentLocation_page.dart';
-
 
 class MainFoodPage extends StatefulWidget {
   const MainFoodPage({super.key});
@@ -30,7 +29,8 @@ class _MainFoodPageState extends State<MainFoodPage> {
     initialization();
     getAddressDelivery();
     FirebaseApi().initNotifications();
-  }
+    listtenToNotification();
+    }
   void getAddressDelivery() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -38,10 +38,17 @@ class _MainFoodPageState extends State<MainFoodPage> {
       nameAddressdelivery =prefs.getString('name') ?? '';
     });
   }
-
   void initialization() async {
     FlutterNativeSplash.remove();
   }
+
+  listtenToNotification(){
+    NotificationService.onclickNotification.stream.listen((event) {
+      if(event != "null")
+        Navigator.pushNamed(context, "/orderlist");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,13 +67,16 @@ class _MainFoodPageState extends State<MainFoodPage> {
                            Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                               BigText(text: "Giao tới: "+nameAddressdelivery, color: AppColors.mainColor),
+                               BigText(text: "Giao tới: ${nameAddressdelivery}", color: AppColors.mainColor),
                                GestureDetector(
-                                 onTap: () {
-                                   Navigator.push(
+                                 onTap: () async {
+                                   final result = await Navigator.push(
                                      context,
                                      MaterialPageRoute(builder: (context) => LocationPage(link: "",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
                                    );
+                                   if(result == true){
+                                      Navigator.of(context).popAndPushNamed("/");
+                                   }
                                  },
                                  child: Row(
                                    children: [
@@ -123,7 +133,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                    )
                ),
                //showing the body
-               Expanded(child:  FoodPageBody(),
+               Expanded(child: FoodPageBody(),
                ),
              ],
            ),
