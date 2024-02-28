@@ -75,49 +75,50 @@ export default function DetailCustomerPage() {
         </div>
       </div>
       */}
-      <div className="row">
-            <div className="col-lg-3">
-              <div className="mb-3">
-                <label className="d-flex fw-bold">Tìm kiếm</label>
-                <div className="input-group">
-                  <input
-                    type="search"
-                    className="form-control"
-                    placeholder="Mã đơn hàng, món ăn,..."
-                    value={filter.term}
-                    onChange={(e) =>
-                      setFilter({ ...filter, term: e.target.value })
-                    }
-                    onKeyDown={(e) => {
-                      if (e.code == "Enter") {
-                        onViewAppearing();
-                        setFilter({ ...filter,
-                          term: e.target.value,
-                           page: 0 });
-                      }
-                    }}
-                    style={{ fontSize: "12px" }}
-                  />
-                  <button
-                    className="btn btn-success "
-                    type="button"
-                    onClick={() => {
-                      onViewAppearing();
-                      setFilter({
-                        ...filter,
-                        page: 0,
-                      });
-                    }}
-                  >
-                    <i className="bx bx-search-alt-2"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-      </div>
+
    
       <div className="card" style={{ fontSize: "12px" }}>
         <div className="card-body">
+          <div className="row">
+              <div className="col-lg-3">
+                <div className="mb-3">
+                  <label className="d-flex fw-bold">Tìm kiếm</label>
+                  <div className="input-group">
+                    <input
+                      type="search"
+                      className="form-control"
+                      placeholder="Mã đơn hàng, món ăn,..."
+                      value={filter.term}
+                      onChange={(e) =>
+                        setFilter({ ...filter, term: e.target.value })
+                      }
+                      onKeyDown={(e) => {
+                        if (e.code == "Enter") {
+                          onViewAppearing();
+                          setFilter({ ...filter,
+                            term: e.target.value,
+                            page: 0 });
+                        }
+                      }}
+                      style={{ fontSize: "12px" }}
+                    />
+                    <button
+                      className="btn btn-success "
+                      type="button"
+                      onClick={() => {
+                        onViewAppearing();
+                        setFilter({
+                          ...filter,
+                          page: 0,
+                        });
+                      }}
+                    >
+                      <i className="bx bx-search-alt-2"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+          </div>
           <Table className="table table-striped">
             <Thead className="table-light">
               <Tr>

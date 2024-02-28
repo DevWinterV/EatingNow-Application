@@ -542,6 +542,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\AccountController.cs" />
     <Compile Include="Api\AttendancesController.cs" />
     <Compile Include="Api\AuthController.cs" />
     <Compile Include="Api\BaseApiController.cs" />

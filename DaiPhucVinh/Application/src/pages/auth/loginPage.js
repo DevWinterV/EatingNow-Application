@@ -19,7 +19,7 @@ export default function LoginPage() {
     if (username.length == 0) {
       Swal.fire({
         title: "Error!",
-        text: "Nhập tên đăng nhập !",
+        text: "Vui lòng nhập tên đăng nhập !",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -97,7 +97,16 @@ export default function LoginPage() {
                   /> */}
                 </div>
               </div>
-
+              <div className="row">
+                <div
+                  className="text-center"
+                  // style={{ marginTop: "20px", marginBottom: "20px" }}
+                >
+                  <label className="text-info text-30">
+                      CHÀO MỪNG BẠN ĐẾN VỚI TRANG QUẢN TRỊ HỆ THỐNG XPRESSEAT.
+                  </label>
+                </div>
+              </div>
               <div className="card-body pt-0">
                 <div className="p-2">
                   <form className="form-horizontal" action="index.html">

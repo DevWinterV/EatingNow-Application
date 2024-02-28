@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../models/OrderRequest.dart';
-import 'package:url_launcher/url_launcher.dart';
 class ApiResult {
   final bool success;
   final Map<String, dynamic>? data;
@@ -21,7 +20,6 @@ class ApiResult {
 class OrderService {
   static const String apiUrl = AppConstants.CreateOreder;
   static const String apiUrlTakeOrderByCustomer = AppConstants.TakeOrderByCustomer;
-
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
       print(order.toJson());
@@ -36,7 +34,7 @@ class OrderService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         if (responseBody["Success"] == true) {
-          return ApiResult(success: true, data: responseBody["Data"], Message: responseBody["Message"]);
+          return ApiResult(success: true, data: responseBody["Data"], Message: responseBody["Message"], CustomData: responseBody["CustomData"]);
         } else {
           return ApiResult(success: false, Message: responseBody["Message"], CustomData: responseBody["CustomData"]);
         }

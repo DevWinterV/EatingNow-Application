@@ -11,6 +11,8 @@ import { CreateProvince, ListProvince } from "./pages/Province";
 import { CreateDistrict, ListDistrict } from "./pages/District";
 import { CreateWard, ListWard } from "./pages/Ward";
 import { CreateAccountType, ListAccountType } from "./pages/AccountType";
+import { CreateAccount, ListAccount } from "./pages/Account";
+
 const Routers = ({ auth }) => {
   return (
     <Routes>
@@ -49,6 +51,9 @@ const Routers = ({ auth }) => {
           <Route path="/accounttype" element={<ListAccountType />} />
           <Route path="/accounttype/create" element={<CreateAccountType />} />
           <Route path="/accounttype/edit/:id" element={<CreateAccountType />} />
+          <Route path="/accounts" element={<ListAccount />} />
+          <Route path="/accounts/create" element={<CreateAccount />} />
+          <Route path="/accounts/edit/:id" element={<CreateAccount />} />
         </>
       )}
     </Routes>

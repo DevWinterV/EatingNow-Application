@@ -60,6 +60,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         Task<BaseResponse<EN_CustomerAddressResponse>> CheckCustomerAddress(EN_CustomerRequest request);
         Task<BaseResponse<bool>> DeleteAddress(EN_CustomerAddressRequest Id);
         Task<BaseResponse<bool>> RemoveOrderLine(OrderLineRequest request);
+
+        Task<BaseResponse<bool>> RemoveCustomer(EN_CustomerRequest Id);
         Task<BaseResponse<bool>> RemoveOrderHeader(OrderLineRequest request);
         Task<BaseResponse<bool>> DeleteAllNotification(EN_CustomerNotificationRequest request);
         Task<BaseResponse<bool>> SetIsReadAllNotification(EN_CustomerNotificationRequest request);
@@ -410,42 +412,6 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 }
                 //Thanh toán với VNPAY
                 else if(request.Payment == "VNPay"){
-                    var createOrderHeader = new EN_OrderHeader()
-                    {
-                        OrderHeaderId = OrderHeaderId,
-                        CreationDate = DateTime.Now,
-                        CustomerId = request.CustomerId,
-                        TotalAmt = request.TotalAmt,
-                        TransportFee = request.TransportFee,
-                        IntoMoney = request.IntoMoney,
-                        UserId = request.UserId,
-                        Latitude = request.Latitude,
-                        Longitude = request.Longitude,
-                        FormatAddress = request.Format_Address,
-                        NameAddress = request.Name_Address,
-                        RecipientName = request.RecipientName,
-                        RecipientPhone = request.RecipientPhone,
-                        Status = false,
-                        PaymentStatusID = 5,
-                    };
-                    _datacontext.EN_OrderHeader.Add(createOrderHeader);
-
-                    foreach (var item in request.OrderLine.ToList())
-                    {
-                        var createOrderLine = new EN_OrderLine()
-                        {
-                            OrderHeaderId = OrderHeaderId,
-                            FoodListId = item.FoodListId,
-                            CategoryId = item.CategoryId,
-                            FoodName = item.FoodName,
-                            Price = item.Price,
-                            qty = item.qty,
-                            UploadImage = item.UploadImage,
-                            Description = item.Description,
-                        };
-                        _datacontext.EN_OrderLine.Add(createOrderLine);
-                    }
-                    await _datacontext.SaveChangesAsync();
                     string urlvnp = ConfigurationManager.AppSettings["Url"];
                     string returnUrl = ConfigurationManager.AppSettings["ReturnUrl"];
                     //   string tmnCode = ConfigurationManager.AppSettings["TmnCode"];
@@ -469,10 +435,10 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     pay.AddRequestData("vnp_TxnRef", OrderHeaderId); //mã hóa đơn
 
                     string paymentUrl = pay.CreateRequestUrl(urlvnp, hashSecret);
+                    result.CustomData = OrderHeaderId;
                     result.Message = paymentUrl != "/*" ? paymentUrl : "/*";
                     result.Success = true;
                     return result;
-
                 }
                 else
                 {
@@ -1337,8 +1303,6 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                             pay.AddResponseData(key, value);
                         }
                     }
-
-
                     string orderId = request.Vnp_TxnRef; //mã hóa đơn
                     string vnpayTranId = request.Vnp_TransactionNo; //mã giao dịch tại hệ thống VNPAY
                     string vnp_ResponseCode = request.Vnp_ResponseCode; //response code: 00 - thành công, khác 00 - xem thêm https://sandbox.vnpayment.vn/apis/docs/bang-ma-loi/
@@ -1349,22 +1313,48 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     {
                         if (vnp_ResponseCode == "00")
                         {
-                            var order = await _datacontext.EN_OrderHeader.FirstOrDefaultAsync(x => x.OrderHeaderId.Equals(orderId));
-                            order.PaymentStatusID = 2;
+                            var createOrderHeader = new EN_OrderHeader()
+                            {
+                                OrderHeaderId = orderId,
+                                CreationDate = DateTime.Now,
+                                CustomerId = request.requestOrder.CustomerId,
+                                TotalAmt = request.requestOrder.TotalAmt,
+                                TransportFee = request.requestOrder.TransportFee,
+                                IntoMoney = request.requestOrder.IntoMoney,
+                                UserId = request.requestOrder.UserId,
+                                Latitude = request.requestOrder.Latitude,
+                                Longitude = request.requestOrder.Longitude,
+                                FormatAddress = request.requestOrder.Format_Address,
+                                NameAddress = request.requestOrder.Name_Address,
+                                RecipientName = request.requestOrder.RecipientName,
+                                RecipientPhone = request.requestOrder.RecipientPhone,
+                                Status = false,
+                                PaymentStatusID = 5,
+                            };
+                            _datacontext.EN_OrderHeader.Add(createOrderHeader);
+
+                            foreach (var item in request.requestOrder.OrderLine.ToList())
+                            {
+                                var createOrderLine = new EN_OrderLine()
+                                {
+                                    OrderHeaderId = orderId,
+                                    FoodListId = item.FoodListId,
+                                    CategoryId = item.CategoryId,
+                                    FoodName = item.FoodName,
+                                    Price = item.Price,
+                                    qty = item.qty,
+                                    UploadImage = item.UploadImage,
+                                    Description = item.Description,
+                                };
+                                _datacontext.EN_OrderLine.Add(createOrderLine);
+                            }
                             await _datacontext.SaveChangesAsync();
                             //Thanh toán thành công
-                            result.Message = "Thanh toán thành công hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId;
+                            result.Message = "Bạn đã thanh toán thành công đơn hàng: " + orderId + " | Mã giao dịch: " + vnpayTranId;
                             result.Success = true;
                         }
                         else
                         {
-                            var order = await _datacontext.EN_OrderHeader.FirstOrDefaultAsync(x => x.OrderHeaderId.Equals(orderId));
-                            var listorderline = await _datacontext.EN_OrderLine.Where(x => x.OrderHeaderId.Equals(orderId)).ToListAsync();
-                            _datacontext.EN_OrderLine.RemoveRange(listorderline);
-                            await _datacontext.SaveChangesAsync();
-                            _datacontext.EN_OrderHeader.Remove(order);
-                            await _datacontext.SaveChangesAsync();
-
                             //Thanh toán không thành công. Mã lỗi: vnp_ResponseCode
                             result.Message = "Có lỗi xảy ra trong quá trình xử lý hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId + " | Mã lỗi: " + vnp_ResponseCode;
                             result.Success = false;
@@ -1373,10 +1363,62 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     }
                     else
                     {
-                        result.Message = "Có lỗi xảy ra trong quá trình xử lý";
+                        result.Message = "Thanh toán không thành công. Đã có lỗi xảy ra trong quá trình xử lý";
                         result.Success = false;
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> RemoveCustomer(EN_CustomerRequest request)
+        {
+            var result = new BaseResponse<bool>();
+
+            try
+            {
+                // Kiểm tra xem khách hàng có tồn tại không
+                var checkCustomer = await _datacontext.EN_Customer
+                    .FirstOrDefaultAsync(x => x.CustomerId == request.CustomerId);
+                if (checkCustomer == null)
+                {
+                    result.Success = false;
+                    result.Message = "CustomerNotFound";
+                    return result;
+                }
+                // Xóa dữ liệu thông báo
+                var listNotifi = await _datacontext.EN_CustomerNotifications.Where(x => x.CustomerID.Equals(request.CustomerId)).ToListAsync();
+                _datacontext.EN_CustomerNotifications.RemoveRange(listNotifi);
+                await _datacontext.SaveChangesAsync();
+                // Xóa dữ liệu địa chỉ
+                var listAddress = await _datacontext.EN_CustomerAddress.Where(x => x.CustomerId.Equals(request.CustomerId)).ToListAsync();
+                _datacontext.EN_CustomerAddress.RemoveRange(listAddress);
+                await _datacontext.SaveChangesAsync();
+                // Xóa thông tin KH
+                 _datacontext.EN_Customer.Remove(checkCustomer);
+
+
+                // Xóa dữ liệu hóa đơn
+                var listOrder = await _datacontext.EN_OrderHeader.Where(x => x.CustomerId.Equals(request.CustomerId)).ToListAsync();
+                foreach(var order in listOrder)
+                {
+                    var listorderline = await _datacontext.EN_OrderLine.Where(x => x.OrderHeaderId.Equals(order.OrderHeaderId)).ToListAsync();
+                    _datacontext.EN_OrderLine.RemoveRange(listorderline);
+                    await _datacontext.SaveChangesAsync();
+                }
+                _datacontext.EN_OrderHeader.RemoveRange(listOrder);
+                await _datacontext.SaveChangesAsync();
+
+                // Sử dụng tính năng bất đồng bộ để lưu thay đổi vào cơ sở dữ liệu
+                await _datacontext.SaveChangesAsync();
+                result.Message = "DeleteSuccess";
+                result.Success = true;
             }
             catch (Exception ex)
             {

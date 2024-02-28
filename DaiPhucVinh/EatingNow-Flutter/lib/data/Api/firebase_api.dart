@@ -8,7 +8,7 @@ import '../../util/app_constants.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-
+  print("Nhận thông báo dưới nền");
 }
 
 class FirebaseApi {
@@ -45,13 +45,17 @@ class FirebaseApi {
       String title = message.notification?.title ?? "";
       String body = message.notification?.body ?? "";
       String? payload = message.data['body']; // Accessing the payload as String?
-      print(payload);
       NotificationService.showNotification(title: title, body: body, payload: payload);
     });
 
     //Nhận thông báo dưới nền
     FirebaseMessaging.onBackgroundMessage(
         (msg) => _firebaseMessagingBackgroundHandler(msg));
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      NotificationService.onclickNotificationBack.add(message.data["body"]);
+    });
+
 
     //Làm mới token và cập nhật lại CSDL
     _firebasemsg.onTokenRefresh.listen((fcmToken) async {
@@ -68,4 +72,6 @@ class FirebaseApi {
         .onError((err) {
     });
   }
+
+
 }

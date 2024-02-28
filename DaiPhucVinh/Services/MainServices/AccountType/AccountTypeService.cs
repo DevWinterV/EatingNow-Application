@@ -36,6 +36,10 @@ namespace DaiPhucVinh.Services.MainServices.Province
             try
             {
                 var query = _datacontext.EN_AccountType.AsQueryable();
+                if (!string.IsNullOrEmpty(request.Term))
+                {
+                    query = query.Where(x => x.Name.Contains(request.Term));
+                }
                 query = query.OrderBy(d => d.Name);
                 result.DataCount = await query.CountAsync();
                 var data = await query.ToListAsync();

@@ -22,5 +22,10 @@ namespace DaiPhucVinh.Api
         [HttpPost]
         [Route("LoginInFront")]
         public async Task<BaseResponse<AccountResponse>> LoginInFront(AccountRequest request) => await _authService.LoginInFront(request);
+
+        [HttpPost]
+        [Route("CheckStatusAccout")]
+        public async Task<BaseResponse<bool>> CheckStatusAccout(AccountRequest request) => await _authService.CheckStatusAccout(request);
+        
     }
 }

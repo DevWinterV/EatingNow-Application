@@ -1,5 +1,4 @@
 import 'package:fam/Widget/Big_text.dart';
-import 'package:fam/data/Api/firebase_api.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +27,8 @@ class _MainFoodPageState extends State<MainFoodPage> {
     super.initState();
     initialization();
     getAddressDelivery();
-    FirebaseApi().initNotifications();
     listtenToNotification();
+    listtenToNotificationBack();
     }
   void getAddressDelivery() async {
     prefs = await SharedPreferences.getInstance();
@@ -44,6 +43,15 @@ class _MainFoodPageState extends State<MainFoodPage> {
 
   listtenToNotification(){
     NotificationService.onclickNotification.stream.listen((event) {
+      print("Lăng nghe ");
+      if(event != "null")
+        Navigator.pushNamed(context, "/orderlist");
+    });
+  }
+
+  listtenToNotificationBack(){
+    NotificationService.onclickNotificationBack.stream.listen((event) {
+      print("Lăng nghe nền ");
       if(event != "null")
         Navigator.pushNamed(context, "/orderlist");
     });

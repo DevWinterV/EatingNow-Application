@@ -84,16 +84,17 @@ const Order = () => {
         image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
       },
     });
+    
     const [customerDetail, setCustomerDetail] = React.useState(
       {
           customerName: "",
           customerPhone: "",
           customerAddress: "",
       });
- // Xử lý khi nút "Yêu cầu tài xế" được nhấn
-  async function handleButtonClick() {
-      setisDriverAvailabel(true);
-  }
+  // Xử lý khi nút "Yêu cầu tài xế" được nhấn
+    async function handleButtonClick() {
+        setisDriverAvailabel(true);
+    }
 
     const [notificationCancle, setNotificationCancle] = React.useState(
       {
@@ -114,6 +115,7 @@ const Order = () => {
           image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
         },
       });
+
       const handleStatusChange = (event) => {
         const selectedStatus = event.target.value;
         setStatus(selectedStatus);
@@ -220,6 +222,8 @@ const Order = () => {
       }
     );
   }, [notification, notificationCancle]);
+
+
 
   useEffect(() => {
     GetOrderLineDetails();
@@ -605,7 +609,10 @@ const Order = () => {
                       Ngày tạo
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                      Chi tiết
+                      Thanh toán
+                    </Th>
+                    <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
+                      Xem chi tiết
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                       Xác nhận
@@ -639,6 +646,11 @@ const Order = () => {
                         </Td>
                         <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
                           {formatDate(item.CreationDate)}
+                        </Td>
+                        <Td className="capitalize p-3 text-sm font-bold text-orange-900 whitespace-nowrap text-center">
+                            <label className={item.PaymentStatusID == 2 ? 'text-success' : 'text-danger'}>
+                              {item.PaymentStatusID == 2 ? "Đã thanh toán" : "COD"}
+                            </label>
                         </Td>
                         <Td className="capitalize p-3 text-sm font-bold text-green-600 whitespace-nowrap text-center">
                           <button
@@ -684,7 +696,6 @@ const Order = () => {
                                               body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
                                               action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
                                           } 
-                                          
                                       });
                                       setNotification({ ...notification, 
                                         to: item.TokenWeb,

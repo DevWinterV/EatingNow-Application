@@ -235,7 +235,7 @@ const Header = () => {
       {/* desktop & tablet  */}
       <div className="hidden md:flex w-full h-full items-center justify-between">
         <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
-          <p className="text-orange-600 text-xl font-bold px-4">XpressEat.</p>
+          <p className="text-orange-800 text-xl font-bold px-4">XpressEat.</p>
         </Link>
         {
           curentAddress != "Chưa lấy được vị trí ..." ?      

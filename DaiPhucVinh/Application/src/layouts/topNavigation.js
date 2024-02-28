@@ -109,8 +109,7 @@ export default function TopNavigation() {
                 <span className="logo-lg" style={{ marginLeft: "-70px" }}>
                   {/* <img src="/assets/images/my-logo.png" alt="" height="50" /> */}
                 </span>
-                Xpress 
-                Eat
+                XpressEat.
               </a>
               ):(
                 null

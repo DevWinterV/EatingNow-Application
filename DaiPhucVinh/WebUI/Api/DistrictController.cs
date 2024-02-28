@@ -19,22 +19,27 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeAllDistrict")]
         public async Task<BaseResponse<DistrictResponse>> TakeAllDistrict([FromBody] DistrictRequest request) => await _districtService.TakeAllDistrict(request);
+        [Authorize]
 
         [HttpPost]
         [Route("CreateNewDistrict")]
         public async Task<BaseResponse<bool>> CreateNewDistrict([FromBody] DistrictRequest request) => await _districtService.CreateNewDistrict(request);
+        [Authorize]
 
         [HttpPost]
         [Route("UpdateNewDistrict")]
         public async Task<BaseResponse<bool>> UpdateNewDistrict([FromBody] DistrictRequest request) => await _districtService.UpdateNewDistrict(request);
+        [Authorize]
 
         [HttpPost]
         [Route("DeleteDistrict")]
         public async Task<BaseResponse<bool>> DeleteDistrict([FromBody] DistrictRequest request) => await _districtService.DeleteDistrict(request);
+        [Authorize]
 
         [HttpPost]
         [Route("SearchDistrict")]
         public async Task<BaseResponse<DistrictResponse>> SearchDistrict(string cuisineName) => await _districtService.SearchDistrict(cuisineName);
+        [Authorize]
 
         [HttpGet]
         [Route("TakeDistrictById")]

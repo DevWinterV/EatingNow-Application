@@ -14,7 +14,7 @@ export default function CreateVideosPage() {
   const { state } = useLocation();
   const breadcrumbSources = [
     {
-      name: "Danh sách loại món ăn",
+      name: "Danh sách loại hình kinh doanh",
       href: "/cuisine",
     },
     {
@@ -103,7 +103,7 @@ export default function CreateVideosPage() {
       if (!response.success) {
         Swal.fire({
           title: "Lỗi!",
-          text: "Lưu dữ liệu không thành công 11111, vui lòng kiểm tra lại dữ liệu đã nhập !",
+          text: "Lưu dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
           icon: "error",
           confirmButtonText: "OK",
         });
@@ -145,15 +145,15 @@ export default function CreateVideosPage() {
       <Breadcrumb
         title={
           request.CuisineId > 0
-            ? "Cập nhật loại món ăn"
-            : "Thêm mới loại món ăn"
+            ? "Cập nhật loại hình kinh doanh"
+            : "Thêm mới loại hình kinh doanh"
         }
         sources={breadcrumbSources}
       />
       <div className="row">
         <div className="col-sm-4">
           <label style={{ fontSize: "12px" }} className="form-label fw-bold">
-            Thông tin loại món ăn
+            Thông tin loại hình kinh doanh
           </label>
         </div>
       </div>
@@ -163,12 +163,12 @@ export default function CreateVideosPage() {
             <div className="col-lg-12">
               <div className="mb-3">
                 <label className="form-label fw-bold">
-                  Tên loại hình món ăn
+                  Tên loại hình kinh doanh
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Tên loại hình kinh doanh..."
                   defaultValue={request.Name}
                   onChange={(e) => {
                     setRequest({

@@ -108,7 +108,7 @@ const OTPAuthen = () => {
 
   const loaded = () => {
     if (faceIO && !faceioInstance) {
-      faceioInstance = new faceIO('fioa8957')// Public ID
+      faceioInstance = new faceIO('fioa1773')// Public ID
     }
   }
 

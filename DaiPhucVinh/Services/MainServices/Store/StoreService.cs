@@ -735,7 +735,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
             {
                 var query = _datacontext.EN_OrderHeader.AsQueryable();
                 query = query.Where(d => d.UserId == request.Id ).OrderByDescending(d => d.CreationDate).ThenByDescending(d => d.Status == false);
-                query = query.Where(d => d.OrderHeaderId.Contains(request.keyword)
+                query = query.Where(d =>
+                                    d.OrderHeaderId.Contains(request.keyword)
                                  || d.FormatAddress.Contains(request.keyword)
                                  || d.OrderHeaderId.Contains(request.keyword)
                                  || d.RecipientName.Contains(request.keyword)
@@ -1269,7 +1270,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var result = new BaseResponse<OrderHeaderResponse>();
             try
             {
-                var query = _datacontext.EN_OrderHeader.AsQueryable();
+               var query = _datacontext.EN_OrderHeader.AsQueryable();
                 if (!string.IsNullOrEmpty(request.Term))
                 {
                     query = query.Where(x => x.OrderHeaderId.Contains(request.Term)

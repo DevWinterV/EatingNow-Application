@@ -131,15 +131,13 @@ const UpdateCustomer = async (formModalDetail) => {
   }
   return result;
 };
-const RemoveCustomer = async (e) => {
+const RemoveCustomer = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
       "post",
       ServiceEndPoint + API.RemoveCustomer,
-      {
-        Id: e,
-      },
+      request,
       true
     );
     if (response.data.Success) {

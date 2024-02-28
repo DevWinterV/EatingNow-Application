@@ -8,6 +8,7 @@ using System.Web.Http;
 
 namespace PCheck.WebUI.Api
 {
+    [Authorize]
     [RoutePrefix("api/accounttype")]
     public class AccountTypeController : BaseApiController
     {

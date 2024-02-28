@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DaiPhucVinh.Shared.CustomerDto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace DaiPhucVinh.Shared.Payment
         public string Vnp_TransactionStatus { get; set; }
         public string Vnp_TxnRef { get; set; }
         public string Vnp_SecureHash { get; set; }
+        public EN_CustomerRequest requestOrder { get;set; }
+
         public Dictionary<string, string> ToDictionary()
         {
             var dictionary = new Dictionary<string, string>

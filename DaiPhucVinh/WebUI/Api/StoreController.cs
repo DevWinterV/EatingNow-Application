@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using AuthorizeAttribute = System.Web.Http.AuthorizeAttribute;
 
 namespace PCheck.WebUI.Api
 {
@@ -28,28 +29,32 @@ namespace PCheck.WebUI.Api
         {
             _storeService = storeService;
         }
+
+        [Authorize]
         [HttpPost]
         [Route("TakeAllStore")]
         public async Task<BaseResponse<StoreResponse>> TakeAllStore([FromBody] StoreRequest request) => await _storeService.TakeAllStore(request);
-
+        [Authorize]
         [HttpPost]
         [Route("SearchStore")]
         public async Task<BaseResponse<StoreResponse>> SearchStore([FromBody] StoreRequest request) => await _storeService.SearchStore(request);
-
+        [Authorize]
         [HttpPost]
         [Route("TakeAllOrder")]
         public async Task<BaseResponse<OrderHeaderResponse>> TakeAllOrder([FromBody] OrderHeaderRequest request) => await _storeService.TakeAllOrder(request);
-
+        [Authorize]
         [HttpPost]
         [Route("TakeAllDeliveryDriver")]
         public async Task<BaseResponse<DeliveryDriverResponse>> TakeAllDeliveryDriver([FromBody] DeliveryDriverRequest request) => await _storeService.TakeAllDeliveryDriver(request);
+        
         [HttpPost]
         [Route("ApproveOrder")]
         public async Task<BaseResponse<bool>> ApproveOrder([FromBody] OrderHeaderRequest request) => await _storeService.ApproveOrder(request);
+        [Authorize]
         [HttpPost]
         [Route("ApproveDelvery")]
         public async Task<BaseResponse<bool>> ApproveDelvery([FromBody] DeliveryDriverRequest request) => await _storeService.ApproveDelvery(request);
-
+        [Authorize]
         [HttpPost]
         [Route("CreateNewStore")]
         public async Task<BaseResponse<bool>> CreateNewStore()
@@ -74,7 +79,7 @@ namespace PCheck.WebUI.Api
                 Message = "File not found!"
             };
         }
-
+        [Authorize]
         [HttpPost]
         [Route("CreateNewDeliver")]
         public async Task<BaseResponse<bool>> CreateNewDeliver()
@@ -99,7 +104,7 @@ namespace PCheck.WebUI.Api
                 Message = "File not found!"
             };
         }
-
+        [Authorize]
         [HttpPost]
         [Route("DeleteStore")]
         public async Task<BaseResponse<bool>> DeleteStore([FromBody] StoreRequest request) => await _storeService.DeleteStore(request);
@@ -123,6 +128,7 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeAllFoodListByStoreId")]
         public async Task<BaseResponse<FoodListResponse>> TakeAllFoodListByStoreId(FoodListFillterRequest request) => await _storeService.TakeAllFoodListByStoreId(request);
+        [Authorize]
         [HttpPost]
         [Route("ApproveStore")]
         public async Task<BaseResponse<bool>> ApproveStore([FromBody] StoreRequest request) => await _storeService.ApproveStore(request);
@@ -143,7 +149,7 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeStoreByCuisineUserLogin")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreByCuisineUserLogin(FilterStoreByCusineRequest filter) => await _storeService.TakeStoreByCuisineUserLogin(filter);
-        
+
         [HttpPost]
         [Route("PostAllFoodListByStoreId")]
         public async Task<BaseResponse<FoodListResponse>> PostAllFoodListByStoreId([FromBody] SimpleUserRequest request) => await _storeService.PostAllFoodListByStoreId(request);
@@ -151,6 +157,8 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeAllOrderLineByCustomerId")]
         public async Task<BaseResponse<OrderLineReponse>> TakeAllOrderLineByCustomerId([FromBody] EN_CustomerRequest request) => await _storeService.TakeAllOrderLineByCustomerId(request);
+
+        [Authorize]
         [HttpPost]
         [Route("RemoveDriver")]
         public async Task<BaseResponse<bool>> RemoveDriverr([FromBody] DeliveryDriverRequest request) => await _storeService.RemoveDriverr(request);

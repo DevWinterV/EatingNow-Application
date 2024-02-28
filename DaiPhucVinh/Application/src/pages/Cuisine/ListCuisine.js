@@ -13,7 +13,7 @@ export default function ListCuisine() {
   const history = useNavigate();
   const breadcrumbSources = [
     {
-      name: "Danh sách loại hình món ăn",
+      name: "Danh sách loại hình kinh doanh",
       href: "#",
     },
     {
@@ -55,7 +55,7 @@ export default function ListCuisine() {
   return (
     <>
       <Breadcrumb
-        title="Danh sách loại hình món ăn"
+        title="Danh sách loại hình kinh doanh"
         sources={breadcrumbSources}
       />
       <div className="row" style={{ fontSize: "12px" }}>
@@ -70,7 +70,7 @@ export default function ListCuisine() {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="Tên nhóm sản phẩm..."
+                    placeholder="Tên loại hình kinh doanh..."
                     value={filter.term}
                     onChange={(e) => {
                       setFilter({ ...filter, term: e.target.value });
@@ -114,8 +114,7 @@ export default function ListCuisine() {
                       onClick={() => {}}
                       style={{ fontSize: "12px" }}
                     >
-                      <i className="mdi mdi-plus me-1"></i> Thêm nhóm loại hình
-                      ăn uống
+                      <i className="mdi mdi-plus me-1"></i> Thêm mới loại hình kinh doanh
                     </button>
                   </Link>
                 </div>
@@ -126,9 +125,9 @@ export default function ListCuisine() {
                 <Tr>
                   <Th className="align-middle">STT</Th>
                   <Th className="align-middle">Ảnh đại diện</Th>
-                  <Th className="align-middle">Tên nhóm loại hình món ăn</Th>
-                  <Th className="align-middle"></Th>
-                  <Th className="align-middle"></Th>
+                  <Th className="align-middle">Tên nhóm loại hình kinh doanh</Th>
+                  <Th className="align-middle">Cập nhật</Th>
+                  <Th className="align-middle">Xóa</Th>
                 </Tr>
               </Thead>
 
@@ -184,8 +183,8 @@ export default function ListCuisine() {
                                 className="text-danger"
                                 onClick={() => {
                                   Swal.fire({
-                                    title: "Xóa nhóm sản phẩm ?",
-                                    text: "Bạn muốn xóa nhóm sản phẩm này ra khỏi danh sách !",
+                                    title: "Xóa loại hình kinh doanh ?",
+                                    text: "Bạn muốn xóa loại hình kinh doanh này ra khỏi danh sách !",
                                     icon: "warning",
                                     showCancelButton: true,
                                     confirmButtonColor: "#3085d6",
@@ -205,7 +204,7 @@ export default function ListCuisine() {
                                           } else {
                                             Swal.fire({
                                               title: "Lỗi!",
-                                              text: "Không thể xóa. Nhóm sản phẩm này đã tồn tại sản phẩm!",
+                                              text: "Không thể xóa. Loại hình kinh doanh này đã có cửa hàng đăng ký!",
                                               icon: "error",
                                               confirmButtonText: "OK",
                                             });

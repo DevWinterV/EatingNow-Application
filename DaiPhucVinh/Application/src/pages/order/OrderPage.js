@@ -1,14 +1,21 @@
 import * as React from "react";
-import Select from "react-select";
+import { SendNotification } from "../../api/fcm/fcmService";
 import { Paginate } from "../../controls";
 import { Breadcrumb } from "../../controls";
 import { useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { TakeAllOrder, ApproveOrder , GetListOrderLineDetails} from "../../api/order/orderService";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { RemoveOrderHeader } from "../../api/customer/customerService";
+
+import $ from 'jquery'; // Ensure you have jQuery installed
+window.jQuery = $;
+require('signalr'); // Ensure you have the SignalR library installed
+//Kết nối đến SignalR Ordernotication
+let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
+let proxy = connection.createHubProxy('OrderNotificationHub');
+
 
 export default function OrderPage() {
   const [isShown, setIsShown] = React.useState(false);
@@ -33,6 +40,46 @@ export default function OrderPage() {
   const [data, setData] = React.useState([]);
   const [datadetail, setDatadetail ] = React.useState([]);
 
+  const [notification, setNotification] = React.useState(
+    {
+      to: "",
+      data: 
+      {
+        body: "Đơn hàng đã được xác nhận",
+        title: "Thông báo",
+        icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+        image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        action_link: "localhost:3001/account",
+      },
+      notification: 
+      {
+        body: "Đơn hàng đã được xác nhận",
+        title: "Thông báo",
+        icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+        image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+      },
+    });
+    
+
+  const [notificationCancle, setNotificationCancle] = React.useState(
+      {
+        to: "",
+        data: 
+        {
+          body: "Đơn hàng của bạn đã bị hủy",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+          action_link: "localhost:3001/account",
+        },
+        notification: 
+        {
+          body: "Đơn hàng của bạn đã bị hủy",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        },
+    });
   const [loading, setLoading] = React.useState(false);
   const [pageTotal, setPageTotal] = React.useState(1);
   async function changeSearch(e) {
@@ -64,6 +111,72 @@ export default function OrderPage() {
       setDatadetail(response.data);
     }
   }
+
+
+  React.useEffect(() => {
+    // Attempt connection and handle connection and error events
+    connection.start()
+      .done(() => {
+        console.log('Kết nối thành công SignalR');
+      })
+      .fail((error) => {
+        console.error('Could not connect:', error);
+      });
+  
+    // Log the connection status
+    connection.stateChanged((change) => {
+      console.log('Connection state changed:', change.newState);
+    });
+  }, []);
+
+  // Sử dụng useEffect để theo dõi sự thay đổi trong notification và gửi thông báo khi nó thay đổi
+  React.useEffect(() => {
+    onViewAppearing();
+    SendNotification(notificationCancle).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo hủy đơn hàng thành công.",
+            "success"
+          );
+          setNotificationCancle({...notificationCancle, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo hủy đơn hàng.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+    SendNotification(notification).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo xác nhận thành công.",
+            "success"
+          );
+          setNotification({...notification, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo xác nhận đơn hàng!",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+  }, [notification, notificationCancle]);
+
+
   React.useEffect(() => {
     onViewAppearing(); 
   }, [filter.page, filter.pageSize, filter.term]);
@@ -111,6 +224,7 @@ export default function OrderPage() {
                 </div>
               </div>
             </div>
+            {/*         Thêm mới đơn hàng    
             <div
               className="col d-flex justify-content-end align-items-right"
               style={{ marginTop: "27px" }}
@@ -127,7 +241,10 @@ export default function OrderPage() {
                   </button>
                 </Link>
               </div>
-            </div>
+            </div> 
+            */}
+
+
           </div>
           <div className="flex items-center justify-between">
           </div>  
@@ -198,6 +315,30 @@ export default function OrderPage() {
                                     if (result.isConfirmed) {
                                       ApproveOrder(i).then((response) => {
                                         if (response.success) {
+                                          setNotificationCancle({ ...notification, 
+                                            to: i.TokenApp,
+                                            data: { ...notification.data,            
+                                                    body:`Đơn hàng ${i.OrderHeaderId} đã bị hủy.`,
+                                                    action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                  }, 
+                                                notification: { ...notification.notification,            
+                                                  body:`Đơn hàng ${i.OrderHeaderId} đã bị hủy.`,
+                                                  action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                } 
+                                              });
+                                          setNotificationCancle({ ...notification, 
+                                            to: i.TokenWeb,
+                                            data: { ...notification.data,            
+                                                    body:`Đơn hàng ${i.OrderHeaderId} đã bị hủy.`,
+                                                    action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                  }, 
+                                                notification: { ...notification.notification,            
+                                                  body:`Đơn hàng ${i.OrderHeaderId} đã bị hủy.`,
+                                                  action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                } 
+                                              });
+
+
                                           Swal.fire(
                                             "Hoàn thành!",
                                             "Bỏ duyệt đơn hàng thành công.",
@@ -240,6 +381,29 @@ export default function OrderPage() {
                                     if (result.isConfirmed) {
                                       ApproveOrder(i).then((response) => {
                                         if (response.success) {
+                                          setNotification({ ...notification, 
+                                            to: i.TokenApp,
+                                            data: { ...notification.data,            
+                                                    body:`Đơn hàng ${i.OrderHeaderId} đã được xác nhận.`,
+                                                    action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                  }, 
+                                                notification: { ...notification.notification,            
+                                                  body:`Đơn hàng ${i.OrderHeaderId} đã được xác nhận.`,
+                                                  action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                              } 
+                                          });
+                                          setNotification({ ...notification, 
+                                            to: i.TokenWeb,
+                                            data: { ...notification.data,            
+                                                    body:`Đơn hàng ${i.OrderHeaderId} đã được xác nhận.`,
+                                                    action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                                  }, 
+                                                notification: { ...notification.notification,            
+                                                  body:`Đơn hàng ${i.OrderHeaderId} đã được xác nhận.`,
+                                                  action_link:`http://localhost:3001/order/${i.OrderHeaderId}`
+                                              } 
+                                              
+                                          });
                                           Swal.fire(
                                             "Hoàn thành!",
                                             "Duyệt đơn hàng thành công.",

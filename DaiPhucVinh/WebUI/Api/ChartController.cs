@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PCheck.WebUI.Api
 {
+    [Authorize]
     [RoutePrefix("api/dashboard")]
     public class ChartController : SecureApiController
     {

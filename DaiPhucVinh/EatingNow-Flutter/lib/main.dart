@@ -26,9 +26,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseApi().initNotifications();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   await NotificationService.init();
-  FirebaseApi().initNotifications();
   runApp(MyApp());
 }
 
@@ -57,11 +57,14 @@ class _MyAppState extends State<MyApp> {
   // Phương thức để load location data từ SharedPreferences
   Future<void> _loadLocationData() async {
     LocationData? loadedData = await locationStorage.getSavedLocation();
+    print('loadedData ${loadedData}');
+    print('loadedData name ${loadedData?.name}');
     setState(() {
       _locationData = loadedData;
     });
+    print('_locationData ${_locationData}');
+    print('_locationData name ${_locationData?.name}');
   }
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -71,7 +74,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: _locationData?.name != "" || _locationData != null ? "/" : "/getlocation",
+      initialRoute: _locationData?.name != "" && _locationData != null ? "/" : "/getlocation",
       defaultTransition: Transition.rightToLeft,
       getPages: [
         GetPage(

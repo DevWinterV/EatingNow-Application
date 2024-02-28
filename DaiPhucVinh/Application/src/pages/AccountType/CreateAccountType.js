@@ -17,7 +17,7 @@ export default function CreateProvince() {
       href: "/accounttype",
     },
     {
-      name: state?.data?.ProvinceId > 0 ? "Cập nhật" : "Thêm mới",
+      name: state?.data?.Id > 0 ? "Cập nhật" : "Thêm mới",
       active: true,
     },
   ];
@@ -108,7 +108,7 @@ export default function CreateProvince() {
     <>
       <Breadcrumb
         title={
-          request.ProvinceId > 0 ? "Cập nhật tỉnh thành" : "Thêm mới tỉnh thành"
+          request.Id > 0 ? "Cập nhật loại tài khoản" : "Thêm mới loại tài khoản"
         }
         sources={breadcrumbSources}
       />
@@ -128,7 +128,7 @@ export default function CreateProvince() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tên món..."
+                  placeholder="Tên loại tài khoản"
                   defaultValue={request.Name}
                   onChange={(e) => {
                     setRequest({

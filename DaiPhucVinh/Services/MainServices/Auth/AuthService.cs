@@ -12,6 +12,7 @@ using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Services.Helper;
 using System.Text;
 using System.Security.Cryptography;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace DaiPhucVinh.Services.MainServices.Auth
 {
@@ -19,6 +20,7 @@ namespace DaiPhucVinh.Services.MainServices.Auth
     {
         Task<TokenResponse> Login(TokenRequest request);
         Task<BaseResponse<AccountResponse>> LoginInFront(AccountRequest request);
+        Task<BaseResponse<bool>> CheckStatusAccout(AccountRequest request);
         Task<Ticket> Validate(string userName, string password);
     }
 
@@ -283,19 +285,36 @@ namespace DaiPhucVinh.Services.MainServices.Auth
             var result = new BaseResponse<AccountResponse> { };
             try
             {
+                var checkAccount = await _context.EN_Account.FirstOrDefaultAsync(x => x.Username.Equals(request.Username));
+                if(checkAccount == null)
+                {
+                    result.Message = "Email chưa đăng ký tài khoản trên hệ thống. Vui lòng liện hệ quán trị hệ thống để đăng ký tài khoản";
+                    result.Success = false;
+                }
                 var query = _context.EN_Account.AsQueryable();
-                string covertPass = MD5Hash(Base64Encode(request.Password));
-                query = query.Where(d => d.Username.Contains(request.Username) && d.Password.Contains(covertPass));
+                string covertPass = MD5Hash(Base64Encode(request.Password));   
+                query = query.Where(d => d.Username.Equals(request.Username) && d.Password.Equals(covertPass));
                 result.DataCount = await query.CountAsync();
-                if (result.DataCount != 0)
+                if (result.DataCount > 0)
                 {
                     var data = await query.ToListAsync();
-                    var resultList = data.MapTo<AccountResponse>();
-                    result.Data = resultList;
-                    result.Success = true;
+                    if (data[0].Status == true)
+                    {
+                        var resultList = data.MapTo<AccountResponse>();
+                        result.Data = resultList;
+                        result.Message = "Đăng nhập thành công";
+                        result.Success = true;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Tài khoản của bạn đã bị khóa. Vui lòng liện hệ quản trị hệ thống để biết thêm chi tiết";
+                    }
+
                 }
                 else
                 {
+                    result.Message = "Tài khoản hoặc mật khẩu không đúng";
                     result.Success = false;
                 }
             }
@@ -350,6 +369,39 @@ namespace DaiPhucVinh.Services.MainServices.Auth
                 hash.Append(bytes[i].ToString("x2"));
             }
             return hash.ToString();
+        }
+
+        public async Task<BaseResponse<bool>> CheckStatusAccout(AccountRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var checkAccount = await _context.EN_Account.FirstOrDefaultAsync(x => x.Username.Equals(request.Username));
+                if(checkAccount == null)
+                {
+                    result.Success = false;
+                    result.Message = "Email chưa đăng ký tài khoản trên hệ thống. Vui lòng liện hệ quán trị hệ thống để đăng ký tài khoản";
+                    return result;
+                }
+                else
+                {
+                    if(checkAccount.Status == true)
+                    {
+                        result.Success = true;
+                        result.Message = "Đăng nhập thành công";
+                        return result;
+                    }
+                    result.Success = false;
+                    result.Message = "Tài khoản của bạn đã bị khóa. Vui lòng liện hệ quản trị hệ thống để biết thêm chi tiết";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
         }
     }
 }

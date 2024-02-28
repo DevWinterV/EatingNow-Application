@@ -20,11 +20,10 @@ namespace PCheck.WebUI.Api
         {
             _cuisineService = cuisineService;
         }
-
         [HttpPost]
         [Route("TakeAllCuisine")]
         public async Task<BaseResponse<CuisineResponse>> TakeAllCuisine([FromBody] CuisineRequest request) => await _cuisineService.TakeAllCuisine(request);
-
+        [Authorize]
         [HttpPost]
         [Route("CreateNewCuisine")]
         public async Task<BaseResponse<bool>> CreateNewCuisine()
@@ -49,6 +48,7 @@ namespace PCheck.WebUI.Api
                 Message = "File not found!"
             };
         }
+        [Authorize]
         [HttpPost]
         [Route("UpdateNewCuisine")]
         public async Task<BaseResponse<bool>> UpdateNewCuisine()
@@ -89,15 +89,15 @@ namespace PCheck.WebUI.Api
                 };
             }
         }
-
+        [Authorize]
         [HttpPost]
         [Route("DeleteCuisine")]
         public async Task<BaseResponse<bool>> DeleteCuisine([FromBody] CuisineRequest request) => await _cuisineService.DeleteCuisine(request);
-
+        [Authorize]
         [HttpPost]
         [Route("SearchCuisine")]
         public async Task<BaseResponse<CuisineResponse>> SearchCuisine(string cuisineName) => await _cuisineService.SearchCuisine(cuisineName);
-
+        [Authorize]
         [HttpGet]
         [Route("TakeCuisineById")]
         public async Task<BaseResponse<CuisineResponse>> TakeCuisineById(int Id) => await _cuisineService.TakeCuisineById(Id);

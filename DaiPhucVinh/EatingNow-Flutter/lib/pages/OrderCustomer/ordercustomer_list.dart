@@ -33,7 +33,8 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
   void _initStreamOrderList() async {
      final orderlist = await _takeorderBycustomer();
      _OrderListStreamController.sink.add(orderlist);
-     NotificationService.onclickNotification.sink.add("null");
+     NotificationService.onclickNotification.add("null");
+     NotificationService.onclickNotificationBack.add("null");
   }
 
   Future<OrderCustomerResponse?> _takeorderBycustomer() async{

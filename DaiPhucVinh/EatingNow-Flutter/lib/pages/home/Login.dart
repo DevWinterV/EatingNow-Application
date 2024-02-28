@@ -9,6 +9,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/Api/CustomerService.dart';
+import '../../data/Api/firebase_api.dart';
 import '../../util/app_constants.dart';
 
 class LoginPage extends StatefulWidget {
@@ -46,9 +47,11 @@ class _LoginPageState extends State<LoginPage> {
       UserAccount userAccount = new UserAccount(userId: result.data?[0].customerId ?? "", name: result.data?[0].completeName ?? "", phone: result.data?[0].phone ?? "");
       UserAccountStorage userAccountStorage = new UserAccountStorage();
       userAccountStorage.saveUserAccount(userAccount);
+      await FirebaseApi().initNotifications();
       navigateToHome();
     }
     else{
+      await FirebaseApi().initNotifications();
       navigateToNewUser();
     }
   }

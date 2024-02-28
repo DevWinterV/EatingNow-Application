@@ -88,14 +88,27 @@ class _LocationPageState extends State<LocationPage> {
   Future<void> getAddressdeliveryOnTap(LocationData locationData) async {
     await locationStorage.saveLocation(
         locationData.name, locationData.latitude, locationData.longitude, locationData.address);
-    Navigator.pop(context, true);
+    if (link != "") {
+      Navigator.pop(context, true);
+    } else {
+      Navigator.popAndPushNamed(context,'/', result: true);
+    }
   }
 
   // Lưu vị trí khách hàng chọn giao hàng và chuyển san màn hình Home Page
   Future<void> getAddressdelivery() async {
     await locationStorage.saveLocation(
         addressResult.name_address ?? "", position.latitude, position.longitude, addressResult.formatted_address ?? "");
-    Navigator.pop(context, true);
+    if (link != "") {
+      Navigator.pop(context, true);
+    } else {
+      // // Otherwise, go to the MainFoodPage
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => MainFoodPage()),
+      // );
+      Navigator.popAndPushNamed(context,'/', result: true);
+    }
   }
 
   // Hàm lấy vị trí hiện tại của người dùng
@@ -116,7 +129,14 @@ class _LocationPageState extends State<LocationPage> {
       }
 
     } catch (e) {
-
+      // Fluttertoast.showToast(
+      //     msg: "Đã có lỗi khi lấy vị trí của bạn. Vui lòng load lại ứng dụng.",
+      //     toastLength: Toast.LENGTH_LONG,
+      //     gravity: ToastGravity.TOP,
+      //     backgroundColor: AppColors.toastSuccess,
+      //     textColor: Colors.black54,
+      //     timeInSecForIosWeb: 1,
+      //     fontSize: 15);
     }
   }
 
@@ -130,6 +150,7 @@ class _LocationPageState extends State<LocationPage> {
         maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
         ),
         centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
+        // Các thuộc tính khác của AppBar
         backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
       ),
       body: Container(

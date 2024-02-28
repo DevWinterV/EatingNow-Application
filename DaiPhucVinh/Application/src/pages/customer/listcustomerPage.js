@@ -19,7 +19,7 @@ export default function ListCustomerPage() {
   const history = useNavigate();
   const breadcrumbSources = [
     {
-      name: "Khách hàng",
+      name: "Danh sách khách hàng",
       href: "#",
     },
     {
@@ -810,7 +810,9 @@ export default function ListCustomerPage() {
                                   confirmButtonText: "Xác nhận !",
                                 }).then((result) => {
                                   if (result.isConfirmed) {
-                                    RemoveCustomer(i.Id).then((response) => {
+                                    RemoveCustomer({
+                                      "CustomerId":i.CustomerId
+                                    } ).then((response) => {
                                       if (response.success) {
                                         Swal.fire(
                                           "Hoàn thành!",

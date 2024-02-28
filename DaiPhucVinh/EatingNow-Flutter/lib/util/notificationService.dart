@@ -3,7 +3,9 @@ import 'package:rxdart/rxdart.dart';
 
 class NotificationService{
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
-  static final onclickNotification = BehaviorSubject<String>();
+  static final onclickNotification = BehaviorSubject<String>.seeded("null");
+  static final onclickNotificationBack = BehaviorSubject<String>.seeded("null");
+
   static void onTapNotification (NotificationResponse response){
     onclickNotification.add(response.payload!);
   }
@@ -22,11 +24,9 @@ class NotificationService{
         android: initializationSettingsAndroid,
         iOS: initializationSettingsDarwin,
         linux: initializationSettingsLinux);
-
     await flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: onTapNotification,
-        // onDidReceiveBackgroundNotificationResponse: (response) => onTapNotification(response)
     );
   }
 
@@ -38,7 +38,10 @@ class NotificationService{
     String? payload
   }) async{
     const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails('your channel id', 'your channel name',
+    AndroidNotificationDetails(
+        'your channel id',
+        'your channel name',
+        icon: "@mipmap/ic_launcher",
         channelDescription: 'Thông báo',
         importance: Importance.max,
         priority: Priority.high,
@@ -53,6 +56,7 @@ class NotificationService{
         title,
         body,
         notificationDetails,
-        payload: payload);
+        payload: payload
+    );
   }
 }

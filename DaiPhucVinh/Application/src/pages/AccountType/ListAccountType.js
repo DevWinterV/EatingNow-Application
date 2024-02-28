@@ -125,8 +125,8 @@ export default function ListProvince() {
                 <Tr>
                   <Th className="align-middle">STT</Th>
                   <Th className="align-middle">Tên loại tài khoản</Th>
-                  <Th className="align-middle"></Th>
-                  <Th className="align-middle"></Th>
+                  <Th className="align-middle">Cập nhật</Th>
+                  <Th className="align-middle">Xóa</Th>
                 </Tr>
               </Thead>
 
@@ -176,8 +176,8 @@ export default function ListProvince() {
                                 className="text-danger"
                                 onClick={() => {
                                   Swal.fire({
-                                    title: "Xóa nhóm sản phẩm ?",
-                                    text: "Bạn muốn xóa nhóm sản phẩm này ra khỏi danh sách !",
+                                    title: "Xóa loại tài khoản?",
+                                    text: "Bạn muốn xóa loại tài khoản này ra khỏi danh sách !",
                                     icon: "warning",
                                     showCancelButton: true,
                                     confirmButtonColor: "#3085d6",
@@ -197,7 +197,7 @@ export default function ListProvince() {
                                           } else {
                                             Swal.fire({
                                               title: "Lỗi!",
-                                              text: "Không thể xóa. Nhóm sản phẩm này đã tồn tại sản phẩm!",
+                                              text: "Không thể xóa loại tài khoản này!",
                                               icon: "error",
                                               confirmButtonText: "OK",
                                             });

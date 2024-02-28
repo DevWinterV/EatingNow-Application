@@ -53,6 +53,7 @@ using Microsoft.ML;
 using Microsoft.AspNet.SignalR;
 using DaiPhucVinh.Services.MainServices.Hubs;
 using Microsoft.AspNet.SignalR.Hubs;
+using DaiPhucVinh.Services.MainServices.Account;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -129,6 +130,7 @@ namespace DaiPhucVinh.Services.Infrastructure
 
             container.Register<IOrderHeaderService, OrderHeaderService>(Lifestyle.Scoped);
             container.Register<IENCustomerService, ENCustomerService>(Lifestyle.Scoped);
+            container.Register<IAccountService, AccountService>(Lifestyle.Scoped);
 
         }
         public static void ApiServerRegister(Container container)

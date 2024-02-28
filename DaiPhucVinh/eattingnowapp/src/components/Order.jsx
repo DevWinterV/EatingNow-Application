@@ -26,18 +26,21 @@ import { TbCircleX, TbInfoCircle} from "react-icons/tb";
 import { calculateDistanceAndTimeProxy } from "../api/googleApi/googleApiDirection";
 import { TakeStoreLocation } from "../api/store/storeService";
 import { BiLoader } from "react-icons/bi";
+
+
 import $ from 'jquery'; // Ensure you have jQuery installed
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 //Kết nối đến SignalR Ordernotication
-let connection = $.hubConnection('https://0829-2402-800-63a4-c5fe-9d23-c384-55ef-a28b.ngrok-free.app/signalr/hubs');
+let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
 let proxy = connection.createHubProxy('OrderNotificationHub');
+
+
 let subtitle;
 
-const Order = () => {
+const Order = () => {   
   const locations = useLocation();
   const searchParams = new URLSearchParams(locations.search);
-
   const vnp_Amount = searchParams.get('vnp_Amount');
   const vnp_BankCode = searchParams.get('vnp_BankCode');
   const vnp_BankTranNo = searchParams.get('vnp_BankTranNo');
@@ -52,7 +55,6 @@ const Order = () => {
   const vnp_SecureHash = searchParams.get('vnp_SecureHash');
 
   useEffect(() => {
-
     const fetchData = async () => {
       // Kiểm tra nếu tất cả dữ liệu không phải là null, "", hoặc undefined
       const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
@@ -71,20 +73,9 @@ const Order = () => {
             vnp_TransactionNo,
             vnp_TransactionStatus,
             vnp_TxnRef,
-            vnp_SecureHash
+            vnp_SecureHash, 
+            request
           });
-          console.log('vnp_Amount:', vnp_Amount);
-          console.log('vnp_BankCode:', vnp_BankCode);
-          console.log('vnp_BankTranNo:', vnp_BankTranNo);
-          console.log('vnp_CardType:', vnp_CardType);
-          console.log('vnp_OrderInfo:', vnp_OrderInfo);
-          console.log('vnp_PayDate:', vnp_PayDate);
-          console.log('vnp_ResponseCode:', vnp_ResponseCode);
-          console.log('vnp_TmnCode:', vnp_TmnCode);
-          console.log('vnp_TransactionNo:', vnp_TransactionNo);
-          console.log('vnp_TransactionStatus:', vnp_TransactionStatus);
-          console.log('vnp_TxnRef:', vnp_TxnRef);
-          console.log('vnp_SecureHash:', vnp_SecureHash);
           if (response.success) {
             toast.success('Thanh toán và đặt món ăn thành công!', { autoClose: 3000 });
             localStorage.setItem("cartItems", JSON.stringify(null));
@@ -92,7 +83,7 @@ const Order = () => {
               type: actionType.SET_CARTITEMS,
               cartItems: null,
             });
-            sendOrderNotification(request.UserId);
+            // sendOrderNotification(request.UserId);
             // Đợi 2 giây trước khi chuyển về "/"
             setTimeout(function () {
               window.location.href = "/";
@@ -129,7 +120,6 @@ const Order = () => {
     vnp_SecureHash
   ]);
   
-
   const key = 'AIzaSyC-N1CyjegpbGvp_PO666Ie9sNQy9xW2Fo'
   const [location, setlocation] = useState({
     latitude: 0.0,
@@ -310,14 +300,25 @@ const Order = () => {
 
   // Gửi 
   function sendOrderNotification(UserId) {
-    proxy
-      .invoke('SendOrderNotificationToUser', 'Thông báo mới', UserId)
+    connection.start()
       .done(() => {
-        console.log('Gửi thông báo thành công');
+        console.log('Kết nối thành công SignalR');
+        // Đăng ký người dùng khi kết nối thành công
+        if (customer !== null) {
+          proxy
+          .invoke('SendOrderNotificationToUser', 'Thông báo mới', UserId)
+          .done(() => {
+            console.log('Gửi thông báo thành công');
+          })
+          .fail((error) => {
+            console.error('Lỗi không gửi được thông báo:', error);
+          });
+        }
       })
       .fail((error) => {
-        console.error('Lỗi không gửi được thông báo:', error);
+        console.error('Could not connect:', error);
       });
+
   }
   // Thanh toán
   async function order() {

@@ -347,6 +347,7 @@
     <Compile Include="Infrastructure\WebRegistration.cs" />
     <Compile Include="Infrastructure\DependencyRegistra.cs" />
     <Compile Include="Infrastructure\SimpleContainer.cs" />
+    <Compile Include="MainServices\Account\AccountService.cs" />
     <Compile Include="MainServices\Attendances\AttendancesService.cs" />
     <Compile Include="MainServices\Auth\AuthService.cs" />
     <Compile Include="MainServices\Auth\RoleService.cs" />

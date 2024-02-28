@@ -29,18 +29,24 @@ const Login = () => {
 
   async function HandleLogin() {
     if (request.username == "" || request.password == "") {
-      toaster.warning("Tài khoản hoặc mật khẩu không  được bỏ trống !!!");
+      toaster.warning("Tài khoản hoặc mật khẩu không được bỏ trống !");
     } else {
       let response = await LoginInFront(request);
       if (response.success) {
-        dispatch({
-          type: actionType.SET_USER,
-          user: response.data[0],
-        });
-        localStorage.setItem("user", JSON.stringify(response.data[0]));
-        navigate("/auth");
+        if(response.data[0].AccountId == 1){
+          dispatch({
+            type: actionType.SET_USER,
+            user: response.data[0],
+          });
+          localStorage.setItem("user", JSON.stringify(response.data[0]));
+          toaster.success(response.message);
+          navigate("/auth");
+        }
+        else{
+          toaster.danger("Tài khoản của bạn không có quyền đăng nhập vào trang quản trị cửa hàng !")
+        }
       } else {
-        toaster.danger("Sai tài khoản hoặc mật khẩu");
+        toaster.danger(response.message);
         return;
       }
     }
