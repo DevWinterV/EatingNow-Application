@@ -47,6 +47,35 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
+
+  Future<ApiResult> PaymentConfirm(PaymentTransaction paymentTransaction) async {
+    try {
+      print(paymentTransaction.toJson());
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(paymentTransaction.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        if (responseBody["Success"] == true) {
+          return ApiResult(success: true, data: responseBody["Data"], Message: responseBody["Message"]);
+        } else {
+          return ApiResult(success: false, Message: responseBody["Message"]);
+        }
+      } else {
+        return ApiResult(success: false, Message: 'Failed to post order');
+      }
+    } catch (e) {
+      // Xử lý khi có lỗi kết nối
+      print('Error posting order: $e');
+      throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
+    }
+  }
+
   Future<OrderCustomerResponse?> TakeOrderByCustomer(OrderCustomerRequest request) async {
     try {
       final response = await http.post(
