@@ -21,6 +21,8 @@ class ApiResult {
 class OrderService {
   static const String apiUrl = AppConstants.CreateOreder;
   static const String apiUrlTakeOrderByCustomer = AppConstants.TakeOrderByCustomer;
+  static const String apiUrlPaymentConfirm = AppConstants.PaymentConfirm;
+
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
       print(order.toJson());
@@ -53,7 +55,7 @@ class OrderService {
     try {
       print(paymentTransaction.toJson());
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse(apiUrlPaymentConfirm),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

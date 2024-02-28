@@ -1329,7 +1329,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                                 RecipientName = request.requestOrder.RecipientName,
                                 RecipientPhone = request.requestOrder.RecipientPhone,
                                 Status = false,
-                                PaymentStatusID = 5,
+                                PaymentStatusID = 2,
                             };
                             _datacontext.EN_OrderHeader.Add(createOrderHeader);
 

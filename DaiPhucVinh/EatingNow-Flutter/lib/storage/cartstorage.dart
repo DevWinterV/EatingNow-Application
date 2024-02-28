@@ -113,6 +113,22 @@ class CartStorage {
 
     return false;
   }
+
+  static Future<bool> ClearCartByUserId(int UserId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final cartData = prefs.getString(_key);
+    List<CartItem> cartItems = [];
+    if (cartData != null) {
+      final List<dynamic> decodedData = json.decode(cartData);
+      cartItems = decodedData.map((data) => CartItem.fromJson(data)).toList();
+    }
+    cartItems = cartItems.where((element) => element.userId != UserId ).toList();
+    // Lưu lại danh sách giỏ hàng cập nhật
+    final updatedCartData = json.encode(cartItems);
+    await prefs.setString(_key, updatedCartData);
+    return true;
+  }
+
   static Future<bool> ClearCart() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<CartItem> cartItems = [];
