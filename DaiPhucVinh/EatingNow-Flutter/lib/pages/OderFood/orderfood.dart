@@ -12,6 +12,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../Widget/Small_text.dart';
+import '../../Widget/paymentMethod.dart';
 import '../../data/Api/firebase_api.dart';
 import '../../storage/cartstorage.dart';
 import '../../storage/locationstorage.dart';
@@ -269,7 +270,7 @@ class _OrderPage extends State<OrderPage> {
                     ],
                   ),
                   Text(
-                    'Sản phẩm đã chọn',
+                    'Danh sách sản phẩm chọn',
                     style: TextStyle(fontSize: Dimensions.font16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -391,276 +392,290 @@ class _OrderPage extends State<OrderPage> {
                 ],
               ),
             ),
-          ), bottomNavigationBar:
-      Container(
-          decoration: BoxDecoration(
-            color: AppColors.buttonBackqroundColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(Dimensions.radius15 * 1),
-              topRight: Radius.circular(Dimensions.radius15 * 1),
-            ),
           ),
-          height: 150,
-          width: MediaQuery.of(context).size.width,
-          child:  Column(
-            children: [
-              Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Phương thức thanh toán: ' ,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Phí giao hàng: ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              child: Icon(Icons.info_outline, size: 15),
-                              onTap: () {
-                                // Xử lý khi người dùng chạm vào biểu tượng
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("Thông tin phí giao hàng", style: TextStyle(fontSize: Dimensions.font20),),
-                                      content:
-                                      Container(
-                                          height: 100,
-                                          child:   Column(
-                                            children: [
-                                              Text("- Khoảng cách từ cửa hàng đến vị trí nhận hàng của bạn: 2.88 Km."),
-                                              Text("- Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km."),
-                                            ],
-                                          )
-                                      ),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop(); // Đóng dialog
-                                          },
-                                          child: Text("Đóng"),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                            SizedBox(width: 2,),
-                            Text(
-                              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000.0),
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tổng tạm tính: ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tổng cộng: ' ,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000 + totalAmount),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+        bottomNavigationBar:
+        Container(
+            decoration: BoxDecoration(
+              color: AppColors.buttonBackqroundColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(Dimensions.radius15 * 1),
+                topRight: Radius.circular(Dimensions.radius15 * 1),
               ),
+            ),
+            height: 145,
+            width: MediaQuery.of(context).size.width,
+            child:  Column(
+              children: [
+                Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Phương thức thanh toán: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "Tiền mặt",
+                            style: TextStyle(
+                              color: Colors.blue
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Phí giao hàng: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                child: Icon(Icons.info_outline, size: 15),
+                                onTap: () {
+                                  // Xử lý khi người dùng chạm vào biểu tượng
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Thông tin phí giao hàng", style: TextStyle(fontSize: Dimensions.font20),),
+                                        content:
+                                        Container(
+                                            height: 100,
+                                            child:   Column(
+                                              children: [
+                                                Text("- Khoảng cách từ cửa hàng đến vị trí nhận hàng của bạn: 2.88 Km."),
+                                                Text("- Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km."),
+                                              ],
+                                            )
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Đóng dialog
+                                            },
+                                            child: Text("Đóng"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              SizedBox(width: 2,),
+                              Text(
+                                NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000.0),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
 
-              Padding(
-                padding: EdgeInsets.only(left: 10, right: 10),
-                child:   cartItem.length > 0 ?
-                Center(
-                  child:
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      // Customize the background color
-                      primary: AppColors.mainColor,
-                      // Customize the text color
-                      onPrimary: Colors.white,
-                      // Add other customizations as needed
-                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                        ],
                       ),
-                      minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
-                    ),
-                    onPressed: () async {
-                      if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
-                      {
-                        Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM_LEFT,
-                            backgroundColor: Colors.red[400],
-                            textColor: Colors.black54,
-                            timeInSecForIosWeb: 2,
-                            fontSize: 20);
-                        return;
-                      }
-                      try {
-                        orderRequest.completeName = namecontroller.text ;
-                        orderRequest.formatAddress = locationData.address;
-                        orderRequest.nameAddress = locationData.name;
-                        orderRequest.orderLine = cartItem;
-                        orderRequest.customerId = _auth.currentUser!.uid;
-                        orderRequest.intoMoney = totalAmount.toInt() + 12000;
-                        orderRequest.transportFee = 12000;
-                        orderRequest.totalAmt = totalAmount.toInt();
-                        orderRequest.latitude = locationData.latitude;
-                        orderRequest.longitude = locationData.longitude;
-                        orderRequest.recipientName = namecontroller.text;
-                        orderRequest.recipientPhone = phoneNumbercontroller.text;
-                        orderRequest.payment = null;
-                        orderRequest.userId = userId ?? 0;
-                        // orderRequest.payment ="PaymentOnDelivery";
-                        orderRequest.payment ="VNPay";
-                        final responseBody = await orderservice.postOrder(orderRequest);
-                        // Xử lý kết quả trả về từ API
-                        if (responseBody.success == true) {
-                          if(responseBody.Message != ""){
-                            final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-                            flutterWebviewPlugin.onDestroy.listen((event) {
-                            });
-                            flutterWebviewPlugin.onUrlChanged.listen((url) async {
-                              if (url.contains('vnp_ResponseCode')) {
-                                final params = Uri.parse(url).queryParameters;
-                                if (params['vnp_ResponseCode'] == '00') {
-                                  final payment_request = PaymentTransaction(Vnp_Amount: params['vnp_Amount'] ?? '', Vnp_BankCode: params['vnp_BankCode'] ?? '', Vnp_BankTranNo: params['vnp_BankTranNo'] ?? '', Vnp_CardType:  params['vnp_CardType'] ?? '', Vnp_OrderInfo: params['vnp_OrderInfo'] ?? '', Vnp_PayDate: params['vnp_PayDate'] ?? '', Vnp_ResponseCode:  params['vnp_ResponseCode'] ?? '', Vnp_SecureHash: params['vnp_SecureHash'] ?? '', Vnp_TmnCode: params['vnp_TmnCode'] ?? '', Vnp_TransactionNo: params['vnp_TransactionNo'] ?? '', Vnp_TransactionStatus: params['vnp_TransactionStatus'] ?? '', Vnp_TxnRef: params['vnp_TxnRef'] ?? '', requestOrder: orderRequest);
-                                  final responsePayment = await orderservice.PaymentConfirm(payment_request);
-                                  if (responsePayment.success) {
-                                    await CartStorage.ClearCartByUserId(userId ?? 0);
-                                    final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
-                                    await userAccountStorage.saveUserAccount(user);
-                                    SendOrderNotificationToUser(userId.toString());
-                                    flutterWebviewPlugin.close();
-                                    Fluttertoast.showToast(msg: responsePayment.Message ?? "",
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.BOTTOM_LEFT,
-                                        backgroundColor: AppColors.toastSuccess,
-                                        textColor: Colors.black54,
-                                        timeInSecForIosWeb: 1,
-                                        fontSize: 10);
-                                    Navigator.of(context).pop();
-                                  }
-                                  else{
-                                    flutterWebviewPlugin.close();
-                                    Fluttertoast.showToast(msg: responsePayment.Message ?? "",
-                                        toastLength: Toast.LENGTH_LONG,
-                                        gravity: ToastGravity.BOTTOM_LEFT,
-                                        backgroundColor: AppColors.toastSuccess,
-                                        textColor: Colors.black54,
-                                        timeInSecForIosWeb: 1,
-                                        fontSize: 10);
-                                  }
-                                } else {
-                                  flutterWebviewPlugin.close();
-                                  Fluttertoast.showToast(msg: "Đã xảy ra lỗi trong quá trình thanh toán! Vui lòng thử lại.",
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.BOTTOM_LEFT,
-                                      backgroundColor: AppColors.toastSuccess,
-                                      textColor: Colors.black54,
-                                      timeInSecForIosWeb: 1,
-                                      fontSize: 10);
-                                }
-                              }
-                            });
-                            flutterWebviewPlugin.launch(responseBody.Message ?? "");
-                          }
-                          else {
-                            await CartStorage.ClearCartByUserId(userId ?? 0);
-                            final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
-                            await userAccountStorage.saveUserAccount(user);
-                            SendOrderNotificationToUser(userId.toString());
-                            Fluttertoast.showToast(msg: "Đặt đơn hàng thành công",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM_LEFT,
-                                backgroundColor: AppColors.toastSuccess,
-                                textColor: Colors.black54,
-                                timeInSecForIosWeb: 1,
-                                fontSize: 10);
-                            Navigator.of(context).pop();
-                          }
-                        } else{
-                          if(responseBody.CustomData != null){
-                            Fluttertoast.showToast(msg: responseBody.Message!,
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM_LEFT,
-                                backgroundColor: AppColors.toastSuccess,
-                                textColor: Colors.black54,
-                                timeInSecForIosWeb: 1,
-                                fontSize: 10);
-                          }
-                        }
-                      } catch (e) {
-                        print(e);
-                        // Xử lý lỗi kết nối hoặc lỗi khác
-                        Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM_LEFT,
-                            backgroundColor: Colors.red[400],
-                            textColor: Colors.black54,
-                            timeInSecForIosWeb: 1,
-                            fontSize: 10);
-                      }
-                    },
-                    child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng tạm tính: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng cộng: ' ,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(12000 + totalAmount),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                )
-                    :
-                Center(
-                  child:ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      // Customize the background color
-                      primary: AppColors.mainColor,
-                      // Customize the text color
-                      onPrimary: Colors.white,
-                      // Add other customizations as needed
-                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child:   cartItem.length > 0 ?
+                  Center(
+                    child:
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // Customize the background color
+                        primary: AppColors.mainColor,
+                        // Customize the text color
+                        onPrimary: Colors.white,
+                        // Add other customizations as needed
+                        padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                       ),
-                      minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                      onPressed: () async {
+                        if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
+                        {
+                          Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM_LEFT,
+                              backgroundColor: Colors.red[400],
+                              textColor: Colors.black54,
+                              timeInSecForIosWeb: 2,
+                              fontSize: 20);
+                          return;
+                        }
+                        try {
+                          orderRequest.completeName = namecontroller.text ;
+                          orderRequest.formatAddress = locationData.address;
+                          orderRequest.nameAddress = locationData.name;
+                          orderRequest.orderLine = cartItem;
+                          orderRequest.customerId = _auth.currentUser!.uid;
+                          orderRequest.intoMoney = totalAmount.toInt() + 12000;
+                          orderRequest.transportFee = 12000;
+                          orderRequest.totalAmt = totalAmount.toInt();
+                          orderRequest.latitude = locationData.latitude;
+                          orderRequest.longitude = locationData.longitude;
+                          orderRequest.recipientName = namecontroller.text;
+                          orderRequest.recipientPhone = phoneNumbercontroller.text;
+                          orderRequest.payment = null;
+                          orderRequest.userId = userId ?? 0;
+                          // orderRequest.payment ="PaymentOnDelivery";
+                          orderRequest.payment ="VNPay";
+                          final responseBody = await orderservice.postOrder(orderRequest);
+                          // Xử lý kết quả trả về từ API
+                          if (responseBody.success == true) {
+                            if(responseBody.Message != ""){
+                              final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
+                              flutterWebviewPlugin.onDestroy.listen((event) {
+                              });
+                              flutterWebviewPlugin.onUrlChanged.listen((url) async {
+                                if (url.contains('vnp_ResponseCode')) {
+                                  final params = Uri.parse(url).queryParameters;
+                                  if (params['vnp_ResponseCode'] == '00') {
+                                    final payment_request = PaymentTransaction(Vnp_Amount: params['vnp_Amount'] ?? '', Vnp_BankCode: params['vnp_BankCode'] ?? '', Vnp_BankTranNo: params['vnp_BankTranNo'] ?? '', Vnp_CardType:  params['vnp_CardType'] ?? '', Vnp_OrderInfo: params['vnp_OrderInfo'] ?? '', Vnp_PayDate: params['vnp_PayDate'] ?? '', Vnp_ResponseCode:  params['vnp_ResponseCode'] ?? '', Vnp_SecureHash: params['vnp_SecureHash'] ?? '', Vnp_TmnCode: params['vnp_TmnCode'] ?? '', Vnp_TransactionNo: params['vnp_TransactionNo'] ?? '', Vnp_TransactionStatus: params['vnp_TransactionStatus'] ?? '', Vnp_TxnRef: params['vnp_TxnRef'] ?? '', requestOrder: orderRequest);
+                                    final responsePayment = await orderservice.PaymentConfirm(payment_request);
+                                    if (responsePayment.success) {
+                                      await CartStorage.ClearCartByUserId(userId ?? 0);
+                                      final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
+                                      await userAccountStorage.saveUserAccount(user);
+                                      SendOrderNotificationToUser(userId.toString());
+                                      flutterWebviewPlugin.close();
+                                      Fluttertoast.showToast(msg: responsePayment.Message ?? "",
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.BOTTOM_LEFT,
+                                          backgroundColor: AppColors.toastSuccess,
+                                          textColor: Colors.black54,
+                                          timeInSecForIosWeb: 1,
+                                          fontSize: 10);
+                                      Navigator.of(context).pop();
+                                    }
+                                    else{
+                                      flutterWebviewPlugin.close();
+                                      Fluttertoast.showToast(msg: responsePayment.Message ?? "",
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.BOTTOM_LEFT,
+                                          backgroundColor: AppColors.toastSuccess,
+                                          textColor: Colors.black54,
+                                          timeInSecForIosWeb: 1,
+                                          fontSize: 10);
+                                    }
+                                  } else {
+                                    flutterWebviewPlugin.close();
+                                    Fluttertoast.showToast(msg: "Đã xảy ra lỗi trong quá trình thanh toán! Vui lòng thử lại.",
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.BOTTOM_LEFT,
+                                        backgroundColor: AppColors.toastSuccess,
+                                        textColor: Colors.black54,
+                                        timeInSecForIosWeb: 1,
+                                        fontSize: 10);
+                                  }
+                                }
+                              });
+                              flutterWebviewPlugin.launch(responseBody.Message ?? "");
+                            }
+                            else {
+                              await CartStorage.ClearCartByUserId(userId ?? 0);
+                              final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
+                              await userAccountStorage.saveUserAccount(user);
+                              SendOrderNotificationToUser(userId.toString());
+                              Fluttertoast.showToast(msg: "Đặt đơn hàng thành công",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM_LEFT,
+                                  backgroundColor: AppColors.toastSuccess,
+                                  textColor: Colors.black54,
+                                  timeInSecForIosWeb: 1,
+                                  fontSize: 10);
+                              Navigator.of(context).pop();
+                            }
+                          } else{
+                            if(responseBody.CustomData != null){
+                              Fluttertoast.showToast(msg: responseBody.Message!,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM_LEFT,
+                                  backgroundColor: AppColors.toastSuccess,
+                                  textColor: Colors.black54,
+                                  timeInSecForIosWeb: 1,
+                                  fontSize: 10);
+                            }
+                          }
+                        } catch (e) {
+                          print(e);
+                          // Xử lý lỗi kết nối hoặc lỗi khác
+                          Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM_LEFT,
+                              backgroundColor: Colors.red[400],
+                              textColor: Colors.black54,
+                              timeInSecForIosWeb: 1,
+                              fontSize: 10);
+                        }
+                      },
+                      child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),
                     ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Quay về trang chính', style: TextStyle(fontSize: Dimensions.font16),),
-                  ), ) ,
-              )
-            ],
-          )// ĐẶT ĐƠN,
-      )
+                  )
+                      :
+                  Center(
+                    child:ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // Customize the background color
+                        primary: AppColors.mainColor,
+                        // Customize the text color
+                        onPrimary: Colors.white,
+                        // Add other customizations as needed
+                        padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Quay về trang chính', style: TextStyle(fontSize: Dimensions.font16),),
+                    ), ) ,
+                )
+              ],
+            )// ĐẶT ĐƠN,
+        )
+
+      // Container(
+      //         height: 300,
+      //         child: Column(
+      //           children: [
+      //             PaymentMethodWidget(),
+      //           ],
+      //         ),
+      //       )
       );
 
   }
