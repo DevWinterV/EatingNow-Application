@@ -12,8 +12,8 @@ class PaymentMethodStorage {
       print(e);
       return false;
     }
-
   }
+
   Future<String> getSavedPaymentMethod() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String paymentmethod = prefs.getString('paymentMethod') ?? '';
