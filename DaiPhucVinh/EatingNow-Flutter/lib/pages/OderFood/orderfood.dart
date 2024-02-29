@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/data/Api/OrderService.dart';
 import 'package:fam/models/LocationData.dart';
@@ -5,6 +7,7 @@ import 'package:fam/models/OrderRequest.dart';
 import 'package:fam/models/paymentconfirm_request.dart';
 import 'package:fam/signalR/signalR_client.dart';
 import 'package:fam/storage/UserAccountstorage.dart';
+import 'package:fam/storage/paymentmethod_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +15,6 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../Widget/Small_text.dart';
-import '../../Widget/paymentMethod.dart';
 import '../../data/Api/firebase_api.dart';
 import '../../storage/cartstorage.dart';
 import '../../storage/locationstorage.dart';
@@ -31,6 +33,8 @@ class OrderPage extends StatefulWidget {
   _OrderPage createState() => _OrderPage();
 }
 class _OrderPage extends State<OrderPage> {
+  late StreamController<String> streamPaymentmethod;
+  late PaymentMethodStorage _paymentMethodStorage;
   late SignalRClient signalRClient;
   late int? userId;
   TextEditingController namecontroller = TextEditingController();
@@ -43,9 +47,21 @@ class _OrderPage extends State<OrderPage> {
   UserAccountStorage userAccountStorage = UserAccountStorage();
   String addressdelivery = '';
   String nameAddressdelivery ='';
+  String paymentMethod = '';
   late LocationData locationData;
   List<CartItem> cartItem = [];
 
+
+  void _loadPaymentMethod() async {
+    final paymentStorage = await _paymentMethodStorage.getSavedPaymentMethod();
+    if(paymentStorage == ''){
+      orderRequest.payment = "PaymentOnDelivery";
+    }else{
+      orderRequest.payment = paymentStorage;
+    }
+    print('orderRequest.payment ${orderRequest.payment}');
+    streamPaymentmethod.sink.add(paymentStorage);
+  }
   void _loadUserData() async {
     final user = await userAccountStorage.getSavedUserAccount();
     namecontroller.text = user.name;
@@ -69,6 +85,8 @@ class _OrderPage extends State<OrderPage> {
   @override
   initState() {
     super.initState();
+    _paymentMethodStorage = PaymentMethodStorage();
+    streamPaymentmethod = StreamController<String>();
     FirebaseApi().initNotifications();
     connectToSignalR();
     localtionStorge = LocationStorage();
@@ -77,6 +95,7 @@ class _OrderPage extends State<OrderPage> {
     });
     _loadCartItems();
     _loadUserData();
+    _loadPaymentMethod();
   }
   void connectToSignalR() async {
     signalRClient = SignalRClient();
@@ -409,21 +428,65 @@ class _OrderPage extends State<OrderPage> {
                 Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Phương thức thanh toán: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "Tiền mặt",
-                            style: TextStyle(
-                              color: Colors.blue
-                            ),
-                          ),
-                        ],
-                      ),
+                      StreamBuilder<String>(
+                          stream: streamPaymentmethod.stream,
+                          builder: (builder, snapshot){
+                            return GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      height: 120, // Điều chỉnh chiều cao tùy theo nhu cầu
+                                      child: ListView(
+                                        children: [
+                                          ListTile(
+                                            leading: Image.asset(
+                                              "assets/image/cod.png",
+                                              height: 30,
+                                              width: 30,),
+                                            title: Text('Thanh toán khi nhận hàng'),
+                                            onTap: () async {
+                                              await _paymentMethodStorage.savePaymentMethodStorage("PaymentOnDelivery");
+                                              _loadPaymentMethod();
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          ListTile(
+                                            leading: Image.asset(
+                                              "assets/image/VNPay_logo.png",
+                                              height: 30,
+                                              width: 30,),
+                                            title: Text('Cổng thanh toán VNPay'),
+                                            onTap: () async{
+                                              await _paymentMethodStorage.savePaymentMethodStorage("VNPay");
+                                              _loadPaymentMethod();
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          // Thêm các phần tử danh sách khác tại đây
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Phương thức thanh toán:',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    snapshot.data == "PaymentOnDelivery" || snapshot.data == "" ?
+                                    "Tiền mặt" : snapshot.data == "VNPay" ? "Cổng VNPay" : "Vui lòng chọn",
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -547,21 +610,19 @@ class _OrderPage extends State<OrderPage> {
                           orderRequest.longitude = locationData.longitude;
                           orderRequest.recipientName = namecontroller.text;
                           orderRequest.recipientPhone = phoneNumbercontroller.text;
-                          orderRequest.payment = null;
                           orderRequest.userId = userId ?? 0;
-                          // orderRequest.payment ="PaymentOnDelivery";
-                          orderRequest.payment ="VNPay";
                           final responseBody = await orderservice.postOrder(orderRequest);
                           // Xử lý kết quả trả về từ API
                           if (responseBody.success == true) {
                             if(responseBody.Message != ""){
                               final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-                              flutterWebviewPlugin.onDestroy.listen((event) {
-                              });
+                              flutterWebviewPlugin.launch(responseBody.Message ?? "");
                               flutterWebviewPlugin.onUrlChanged.listen((url) async {
                                 if (url.contains('vnp_ResponseCode')) {
                                   final params = Uri.parse(url).queryParameters;
-                                  if (params['vnp_ResponseCode'] == '00') {
+                                  if (params['vnp_ResponseCode'] == '00')
+                                  {
+                                    flutterWebviewPlugin.close();
                                     final payment_request = PaymentTransaction(Vnp_Amount: params['vnp_Amount'] ?? '', Vnp_BankCode: params['vnp_BankCode'] ?? '', Vnp_BankTranNo: params['vnp_BankTranNo'] ?? '', Vnp_CardType:  params['vnp_CardType'] ?? '', Vnp_OrderInfo: params['vnp_OrderInfo'] ?? '', Vnp_PayDate: params['vnp_PayDate'] ?? '', Vnp_ResponseCode:  params['vnp_ResponseCode'] ?? '', Vnp_SecureHash: params['vnp_SecureHash'] ?? '', Vnp_TmnCode: params['vnp_TmnCode'] ?? '', Vnp_TransactionNo: params['vnp_TransactionNo'] ?? '', Vnp_TransactionStatus: params['vnp_TransactionStatus'] ?? '', Vnp_TxnRef: params['vnp_TxnRef'] ?? '', requestOrder: orderRequest);
                                     final responsePayment = await orderservice.PaymentConfirm(payment_request);
                                     if (responsePayment.success) {
@@ -569,14 +630,13 @@ class _OrderPage extends State<OrderPage> {
                                       final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
                                       await userAccountStorage.saveUserAccount(user);
                                       SendOrderNotificationToUser(userId.toString());
-                                      flutterWebviewPlugin.close();
                                       Fluttertoast.showToast(msg: responsePayment.Message ?? "",
                                           toastLength: Toast.LENGTH_LONG,
                                           gravity: ToastGravity.BOTTOM_LEFT,
                                           backgroundColor: AppColors.toastSuccess,
                                           textColor: Colors.black54,
                                           timeInSecForIosWeb: 1,
-                                          fontSize: 10);
+                                          fontSize: 20);
                                       Navigator.of(context).pop();
                                     }
                                     else{
@@ -589,7 +649,8 @@ class _OrderPage extends State<OrderPage> {
                                           timeInSecForIosWeb: 1,
                                           fontSize: 10);
                                     }
-                                  } else {
+                                  }
+                                  else {
                                     flutterWebviewPlugin.close();
                                     Fluttertoast.showToast(msg: "Đã xảy ra lỗi trong quá trình thanh toán! Vui lòng thử lại.",
                                         toastLength: Toast.LENGTH_LONG,
@@ -601,7 +662,6 @@ class _OrderPage extends State<OrderPage> {
                                   }
                                 }
                               });
-                              flutterWebviewPlugin.launch(responseBody.Message ?? "");
                             }
                             else {
                               await CartStorage.ClearCartByUserId(userId ?? 0);
@@ -629,7 +689,6 @@ class _OrderPage extends State<OrderPage> {
                             }
                           }
                         } catch (e) {
-                          print(e);
                           // Xử lý lỗi kết nối hoặc lỗi khác
                           Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
                               toastLength: Toast.LENGTH_LONG,
@@ -667,18 +726,7 @@ class _OrderPage extends State<OrderPage> {
               ],
             )// ĐẶT ĐƠN,
         )
-
-      // Container(
-      //         height: 300,
-      //         child: Column(
-      //           children: [
-      //             PaymentMethodWidget(),
-      //           ],
-      //         ),
-      //       )
       );
 
   }
-
-
 }
