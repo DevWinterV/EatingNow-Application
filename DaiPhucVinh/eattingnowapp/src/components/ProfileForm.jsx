@@ -61,8 +61,6 @@ function ProfileForm() {
         return <Account />;
       } else if (selectedTab === 'setting') {
         return <Setting />;
-      }else if (selectedTab === 'banking') {
-        return <BankAccountForm />;
       }
       else if (selectedTab === 'address') {
         return <CustomerAddressContainer/>
@@ -101,12 +99,6 @@ function ProfileForm() {
                 onClick={() => setSelectedTab('address')}
               >
                 Địa chỉ
-              </li>
-              <li
-                className={`cursor-pointer py-1 px-2 mb-2 rounded-lg ${selectedTab === 'banking' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
-                onClick={() => setSelectedTab('banking')}
-              >
-                Tài khoản ngân hàng
               </li>
               {
                 /*

@@ -58,7 +58,6 @@ const Order = () => {
     const fetchData = async () => {
       // Kiểm tra nếu tất cả dữ liệu không phải là null, "", hoặc undefined
       const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
-  
       if (allDataExists) {
         try {
           let response = await PaymentConfirm({
@@ -673,7 +672,7 @@ const Order = () => {
             <div className="container">
               <div className="marker-container">
                 <div className="marker-icon"></div>
-                    <h2 className="font-italic text-1xl text-[#171a1f] text-start capitalize">
+                    <h2 className="font-italic text-1xl text-[#171a1f] text-start">
                       Giao hàng đến:
                     </h2>
                   </div>
@@ -712,8 +711,8 @@ const Order = () => {
 
               </div>
             <div className="flex-center-y">
-              <h2 className="font-bold text-2xl text-[#171a1f] text-center capitalize">
-                Danh sách món ăn
+              <h2 className="font-bold text-2xl text-[#171a1f] text-center mt-2">
+                Danh sách đã chọn
               </h2>
               <div className="w-340 h-340 md:h-42 py-5 flex flex-col gap-3 overflow-y-scroll scrollbar-none">
                 {/* cart item */}
@@ -731,14 +730,14 @@ const Order = () => {
             <div className="flex-center-y">
             <div className="w-340 flex-1 rounded-t-[2rem] flex flex-col items-center justify-evenly px-8 py-2">
               <div className="w-full flex items-center justify-between">
-                <p className="text-gray-400 text-base font-semibold">Tổng tiền</p>
+                <p className="text-gray-600 text-base font-semibold">Tổng tiền</p>
                 <p className="text-textColor text-base font-semibold">
                   {tot.toLocaleString()}
                   <span className="text-base text-red-500"> vnđ</span>
                 </p>
               </div>
               <div className="w-full flex items-center justify-between">
-                          <p className="text-gray-400 text-base font-semibold">
+                          <p className="text-gray-600 text-base font-semibold">
                             Phí vận chuyển 
                           </p>
                           {
@@ -757,7 +756,7 @@ const Order = () => {
                         <div className="w-full border-b border-gray-600 my-2"></div>
         
                         <div className="w-full flex items-center justify-between">
-                          <p className="text-textColor text-lg font-semibold">Thanh toán</p>
+                          <p className="text-gray-600 text-lg font-semibold">Thanh toán</p>
                           <p className="text-textColor text-lg font-semibold">
                               {(tot + roundToNearestHundred(calculateDeliveryCost(km))).toLocaleString()}
                             <span className="text-base text-red-500"> vnđ</span>

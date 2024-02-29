@@ -400,13 +400,23 @@ class _OrderPage extends State<OrderPage> {
               topRight: Radius.circular(Dimensions.radius15 * 1),
             ),
           ),
-          height: 120,
+          height: 150,
           width: MediaQuery.of(context).size.width,
           child:  Column(
             children: [
               Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
                 child: Column(
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Phương thức thanh toán: ' ,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+
+                      ],
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
