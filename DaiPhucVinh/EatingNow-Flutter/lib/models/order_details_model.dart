@@ -3,7 +3,7 @@ class OrderDetailsResponse {
   Null? message;
   Null? customData;
   Null? item;
-  List<Data>? data;
+  List<OrderDetail>? data;
   int? dataCount;
 
   OrderDetailsResponse(
@@ -20,9 +20,9 @@ class OrderDetailsResponse {
     customData = json['CustomData'];
     item = json['Item'];
     if (json['Data'] != null) {
-      data = <Data>[];
+      data = <OrderDetail>[];
       json['Data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new OrderDetail.fromJson(v));
       });
     }
     dataCount = json['DataCount'];
@@ -42,7 +42,7 @@ class OrderDetailsResponse {
   }
 }
 
-class Data {
+class OrderDetail {
   int? orderLineId;
   String? orderHeaderId;
   int? foodListId;
@@ -52,9 +52,9 @@ class Data {
   int? qty;
   String? uploadImage;
   String? description;
-  int? totalPrice;
+  double? totalPrice;
 
-  Data(
+  OrderDetail(
       {this.orderLineId,
         this.orderHeaderId,
         this.foodListId,
@@ -66,7 +66,7 @@ class Data {
         this.description,
         this.totalPrice});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  OrderDetail.fromJson(Map<String, dynamic> json) {
     orderLineId = json['OrderLineId'];
     orderHeaderId = json['OrderHeaderId'];
     foodListId = json['FoodListId'];

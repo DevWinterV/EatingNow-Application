@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:fam/Widget/Big_text.dart';
-import 'package:fam/Widget/Icon_and_Text_widget.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/data/Api/OrderService.dart';
 import 'package:fam/models/ordercustomerRequest_model.dart';
@@ -161,10 +160,15 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                     )
                                                         :
                                                     SizedBox(),
-                                                    BigText(text:
-                                                    'Xem chi tiết ',
-                                                        size: Dimensions.font13,
-                                                        color: Colors.blue
+                                                    GestureDetector(
+                                                      onTap: (){
+                                                        Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
+                                                      },
+                                                      child: BigText(text:
+                                                      'Xem chi tiết ',
+                                                          size: Dimensions.font13,
+                                                          color: Colors.blue
+                                                      ),
                                                     )
                                                   ],
                                                 ),

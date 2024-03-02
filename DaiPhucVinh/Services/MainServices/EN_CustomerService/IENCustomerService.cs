@@ -317,11 +317,18 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 }
                 if (request.Payment != "PaymentOnDelivery")
                 {
-                    if (VNPaySetting == null || MomoSetting == null)
+                    if(request.Payment == "VNPay" && VNPaySetting == null)
                     {
                         result.Success = false;
                         result.CustomData = 1;
-                        result.Message = "Cửa hàng chưa áp dụng phương thức thanh toán trực tuyến !";
+                        result.Message = "Cửa hàng chưa áp dụng phương thức thanh toán trực tuyến cổng VNPay!";
+                        return result;
+                    }
+                    else if (request.Payment == "MOMO" && MomoSetting == null)
+                    {
+                        result.Success = false;
+                        result.CustomData = 1;
+                        result.Message = "Cửa hàng chưa áp dụng phương thức thanh toán trực tuyến MOMO!";
                         return result;
                     }
                 }

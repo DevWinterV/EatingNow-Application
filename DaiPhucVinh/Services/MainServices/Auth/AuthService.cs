@@ -304,6 +304,17 @@ namespace DaiPhucVinh.Services.MainServices.Auth
                     {
                         var resultList = data.MapTo<AccountResponse>();
                         resultList[0].Name = checkRole.Name;
+                        resultList[0].AccessToken = TokenHelper.CreateToken(
+                                                   24,
+                                                   new Ticket
+                                                   {
+                                                       UserId = resultList[0].UserId,
+                                                       Role = resultList[0].Name,
+                                                       RoleSystem = resultList[0].Name,
+                                                       Claims = null,
+                                                       UserName = request.Username,
+                                                       LocationCode = ""
+                                                   }); 
                         result.Data = resultList;
                         result.Message = "Đăng nhập thành công";
                         result.Success = true;

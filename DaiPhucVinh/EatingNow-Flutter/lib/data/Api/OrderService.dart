@@ -120,7 +120,8 @@ class OrderService {
       // );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.data);
+        final Map<String, dynamic> responseBody = response.data;
+        print('responseBody ${responseBody}');
         if (responseBody["Success"] == true) {
           return OrderDetailsResponse.fromJson(responseBody);
         } else {

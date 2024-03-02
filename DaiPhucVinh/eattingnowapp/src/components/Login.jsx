@@ -10,7 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useStateValue } from "../context/StateProvider";
 import CartContainer from "./CartContainer";
 import { actionType } from "../context/reducer";
-import Swal from "sweetalert2";
+import { decrypt, encrypt } from "../framework/encrypt";
 import { LoginInFront } from "../api/auth/authService";
 import { Pane, Portal, toaster } from "evergreen-ui";
 
@@ -39,6 +39,7 @@ const Login = () => {
             user: response.data[0],
           });
           localStorage.setItem("user", JSON.stringify(response.data[0]));
+          // localStorage.setItem("user", encrypt(response.data[0]));
           toaster.success("Đang đăng nhập với quyền: "+response.data[0].Name);
           navigate("/auth");
         }

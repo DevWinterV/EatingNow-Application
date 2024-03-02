@@ -288,12 +288,25 @@ class _OrderPage extends State<OrderPage> {
                       ),
                     ],
                   ),
-                  Text(
-                    'Danh sách sản phẩm chọn',
-                    style: TextStyle(fontSize: Dimensions.font16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Danh sách sản phẩm chọn',
+                        style: TextStyle(fontSize: Dimensions.font16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        '${cartItem.length.toString()} sản phẩm' ,
+                        style: TextStyle(fontSize: Dimensions.font13,
+                          fontWeight: FontWeight.normal,
+                          color: Colors.blue[800],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                   // DANH SÁCH SẢN PHẨM
                   Container(
@@ -421,12 +434,13 @@ class _OrderPage extends State<OrderPage> {
                 topRight: Radius.circular(Dimensions.radius15 * 1),
               ),
             ),
-            height: 145,
+            height: 150,
             width: MediaQuery.of(context).size.width,
             child:  Column(
               children: [
                 Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       StreamBuilder<String>(
                           stream: streamPaymentmethod.stream,
@@ -481,7 +495,7 @@ class _OrderPage extends State<OrderPage> {
                                   Text(
                                     snapshot.data == "PaymentOnDelivery" || snapshot.data == "" ?
                                     "Tiền mặt" : snapshot.data == "VNPay" ? "Cổng VNPay" : "Vui lòng chọn",
-                                    style: TextStyle(color: Colors.blue),
+                                    style: TextStyle(color: Colors.blue[800],),
                                   ),
                                 ],
                               ),
@@ -594,10 +608,11 @@ class _OrderPage extends State<OrderPage> {
                               backgroundColor: Colors.red[400],
                               textColor: Colors.black54,
                               timeInSecForIosWeb: 2,
-                              fontSize: 20);
+                              fontSize: Dimensions.font14);
                           return;
                         }
                         try {
+                          orderRequest.TokenApp = await FirebaseApi().getFCMToken();
                           orderRequest.completeName = namecontroller.text ;
                           orderRequest.formatAddress = locationData.address;
                           orderRequest.nameAddress = locationData.name;
@@ -636,7 +651,7 @@ class _OrderPage extends State<OrderPage> {
                                           backgroundColor: AppColors.toastSuccess,
                                           textColor: Colors.black54,
                                           timeInSecForIosWeb: 1,
-                                          fontSize: 20);
+                                          fontSize: Dimensions.font14);
                                       Navigator.of(context).pop();
                                     }
                                     else{
@@ -647,7 +662,7 @@ class _OrderPage extends State<OrderPage> {
                                           backgroundColor: AppColors.toastSuccess,
                                           textColor: Colors.black54,
                                           timeInSecForIosWeb: 1,
-                                          fontSize: 10);
+                                          fontSize: Dimensions.font14);
                                     }
                                   }
                                   else {
@@ -658,7 +673,7 @@ class _OrderPage extends State<OrderPage> {
                                         backgroundColor: AppColors.toastSuccess,
                                         textColor: Colors.black54,
                                         timeInSecForIosWeb: 1,
-                                        fontSize: 10);
+                                        fontSize: Dimensions.font14);
                                   }
                                 }
                               });
@@ -674,7 +689,7 @@ class _OrderPage extends State<OrderPage> {
                                   backgroundColor: AppColors.toastSuccess,
                                   textColor: Colors.black54,
                                   timeInSecForIosWeb: 1,
-                                  fontSize: 10);
+                                  fontSize: Dimensions.font14);
                               Navigator.of(context).pop();
                             }
                           } else{
@@ -685,7 +700,7 @@ class _OrderPage extends State<OrderPage> {
                                   backgroundColor: AppColors.toastSuccess,
                                   textColor: Colors.black54,
                                   timeInSecForIosWeb: 1,
-                                  fontSize: 10);
+                                  fontSize: Dimensions.font14);
                             }
                           }
                         } catch (e) {
@@ -696,7 +711,7 @@ class _OrderPage extends State<OrderPage> {
                               backgroundColor: Colors.red[400],
                               textColor: Colors.black54,
                               timeInSecForIosWeb: 1,
-                              fontSize: 10);
+                              fontSize: Dimensions.font14);
                         }
                       },
                       child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),

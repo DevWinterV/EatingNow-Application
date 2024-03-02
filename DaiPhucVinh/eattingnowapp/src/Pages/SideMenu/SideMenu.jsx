@@ -35,7 +35,7 @@ const   SideMenu = () => {
           type: actionType.SET_USER,
           user: null,
         });
-        localStorage.setItem("user", JSON.stringify(null));
+        localStorage.clear();
         history("/auth");
       }
     });

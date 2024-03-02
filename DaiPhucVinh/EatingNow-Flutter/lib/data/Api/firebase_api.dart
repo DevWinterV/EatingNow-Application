@@ -12,11 +12,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class FirebaseApi {
+
+
   CustomerService customerService =
       CustomerService(apiUrl: AppConstants.UpdateToken);
 
   final _firebasemsg = FirebaseMessaging.instance;
 
+
+  Future<String?> getFCMToken() async {
+    return await _firebasemsg.getToken();
+    }
   Future<void> initNotifications() async {
     final fmcToken = await _firebasemsg.getToken();
 

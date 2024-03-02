@@ -29,6 +29,8 @@ class OrderRequest {
   int? userId;
   int? wardId;
   String? wardName;
+  String? TokenApp;
+
 
   OrderRequest(
       {this.addressId,
@@ -140,7 +142,7 @@ class OrderRequest {
     data['UserId'] = this.userId;
     data['WardId'] = this.wardId;
     data['WardName'] = this.wardName;
-    print(data);
+    data['TokenApp'] = this.TokenApp;
     return data;
   }
 }

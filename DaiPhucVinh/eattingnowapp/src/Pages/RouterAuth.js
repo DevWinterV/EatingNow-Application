@@ -27,7 +27,7 @@ const RouterAuth = () => {
           type: actionType.SET_USER,
           user: null,
         });
-        localStorage.setItem("user", null);
+        localStorage.clear();
         toaster.danger(reponse.message);
       }
     }
