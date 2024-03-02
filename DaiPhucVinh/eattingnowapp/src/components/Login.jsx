@@ -33,13 +33,13 @@ const Login = () => {
     } else {
       let response = await LoginInFront(request);
       if (response.success) {
-        if(response.data[0].AccountId == 1){
+        if(response.data[0].AccountId == 1 || response.data[0].AccountId == 7){
           dispatch({
             type: actionType.SET_USER,
             user: response.data[0],
           });
           localStorage.setItem("user", JSON.stringify(response.data[0]));
-          toaster.success(response.message);
+          toaster.success("Đang đăng nhập với quyền: "+response.data[0].Name);
           navigate("/auth");
         }
         else{

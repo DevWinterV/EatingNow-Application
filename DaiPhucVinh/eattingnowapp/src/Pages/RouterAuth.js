@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Route, Routes, json } from "react-router-dom";
+import { Route, Routes  } from "react-router-dom";
 import { Login, OTPAuthen } from "../components";
 import {
   Body,
@@ -32,6 +32,7 @@ const RouterAuth = () => {
       }
     }
   }
+
   useEffect(()=> {
     onViewAppearing();
   },[])
@@ -39,7 +40,7 @@ const RouterAuth = () => {
     <div className="w-screen h-auto flex flex-col bg-white">
       {user != null && user.AccountId == 1 ?
         (
-        <div className="flex items-center justify-center bg-white">
+          <div className="flex items-center justify-center bg-white">
           <div className="flex shadow-2xl m-auto h-[100vh] items-center justify-center w-[100vw]  rounded-xl overflow-hidden">
             <SideMenu />
             <Routes>
@@ -51,6 +52,18 @@ const RouterAuth = () => {
               <Route path="/settings" element={<Setting />} />
               <Route path="/createfoodlist" element={<CreateFoodList />} />
               <Route path="/editfoodlist/:id" element={<CreateFoodList />} />
+            </Routes>
+          </div>
+          </div>
+        ) : user != null && user.AccountId == 7 ? (
+          <div className="flex items-center justify-center bg-white">
+          <div className="flex shadow-2xl m-auto h-[100vh] items-center justify-center w-[100vw]  rounded-xl overflow-hidden">
+            <SideMenu />
+            <Routes>
+              <Route path="/*" element={<Body />} />
+              <Route path="/statistical" element={<Statistical />} />
+              <Route path="/foodlists" element={<Body />} />
+              <Route path="/orders" element={<Order />} />
             </Routes>
           </div>
           </div>

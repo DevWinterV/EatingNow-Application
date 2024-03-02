@@ -63,6 +63,9 @@ const   SideMenu = () => {
           Xin chào{" "}
         </span>
         <h3 className="font-bold text-orange-900">{user.StoreName}</h3>
+        <span className="opacity-70 mt-2 text-orange-900 font-bold">
+          Quyền: {user.Name}
+        </span>
       </div>
 
       {/* Simple menu */}

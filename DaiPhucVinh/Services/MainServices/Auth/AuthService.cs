@@ -294,13 +294,16 @@ namespace DaiPhucVinh.Services.MainServices.Auth
                 var query = _context.EN_Account.AsQueryable();
                 string covertPass = MD5Hash(Base64Encode(request.Password));   
                 query = query.Where(d => d.Username.Equals(request.Username) && d.Password.Equals(covertPass));
+                var checkRole = await _context.EN_AccountType.FindAsync(checkAccount.AccountId);
                 result.DataCount = await query.CountAsync();
                 if (result.DataCount > 0)
                 {
                     var data = await query.ToListAsync();
+                    
                     if (data[0].Status == true)
                     {
                         var resultList = data.MapTo<AccountResponse>();
+                        resultList[0].Name = checkRole.Name;
                         result.Data = resultList;
                         result.Message = "Đăng nhập thành công";
                         result.Success = true;

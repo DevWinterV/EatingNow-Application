@@ -302,12 +302,26 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var checkPayment = await _datacontext.EN_Paymentonlines.Include(x => x.CategoryPayment).Where(x => x.userId.Equals(request.UserId)).ToListAsync();
                 var VNPaySetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("VNPay"));
                 var MomoSetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("MOMO"));
+                var checkCustomer = await _datacontext.EN_Customer.FindAsync(request.CustomerId);
+                if(checkCustomer == null)
+                {
+                    var Customeradd = new EN_Customer
+                    {
+                        CustomerId = request.CustomerId,
+                        CompleteName = request.CompleteName,
+                        Phone = request.RecipientPhone,
+                        Status = true,
+                    };
+                    _datacontext.EN_Customer.Add(Customeradd);
+                    await _datacontext.SaveChangesAsync();  
+                }
                 if (request.Payment != "PaymentOnDelivery")
                 {
-                    if (VNPaySetting == null || MomoSetting != null)
+                    if (VNPaySetting == null || MomoSetting == null)
                     {
                         result.Success = false;
-                        result.Message = "Not_Payment";
+                        result.CustomData = 1;
+                        result.Message = "Cửa hàng chưa áp dụng phương thức thanh toán trực tuyến !";
                         return result;
                     }
                 }
@@ -535,6 +549,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             }
             catch (Exception ex)
             {
+                result.Success = false;
                 result.Message = ex.ToString();
                 _logService.InsertLog(ex);
             }
