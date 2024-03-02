@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fam/models/ordercustomerRequest_model.dart';
 import 'package:fam/models/ordercustomerResponse_model.dart';
 import 'package:fam/util/app_constants.dart';
@@ -5,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../models/OrderRequest.dart';
+import '../../models/order_details_model.dart';
 import '../../models/paymentconfirm_request.dart';
 class ApiResult {
   final bool success;
@@ -22,7 +24,7 @@ class OrderService {
   static const String apiUrl = AppConstants.CreateOreder;
   static const String apiUrlTakeOrderByCustomer = AppConstants.TakeOrderByCustomer;
   static const String apiUrlPaymentConfirm = AppConstants.PaymentConfirm;
-
+  static const String apiUrlGetListOrderLineDetails = AppConstants.GetListOrderLineDetails;
   Future<ApiResult> postOrder(OrderRequest order) async {
     try {
       print(order.toJson());
@@ -50,7 +52,6 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
-
   Future<ApiResult> PaymentConfirm(PaymentTransaction paymentTransaction) async {
     try {
       print(paymentTransaction.toJson());
@@ -78,7 +79,6 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
-
   Future<OrderCustomerResponse?> TakeOrderByCustomer(OrderCustomerRequest request) async {
     try {
       final response = await http.post(
@@ -105,6 +105,37 @@ class OrderService {
       throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
     }
   }
+  Future<OrderDetailsResponse?> GetListOrderLineDetails(String orderId) async {
+    try {
+      final response = await Dio().get(
+          apiUrlGetListOrderLineDetails,
+          queryParameters: {"Id" :orderId }
+      );
+      // final response = await http.get(
+      //   Uri.parse(apiUrlTakeOrderByCustomer),
+      //   headers: <String, String>{
+      //     'Content-Type': 'application/json; charset=UTF-8',
+      //   },
+      //
+      // );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.data);
+        if (responseBody["Success"] == true) {
+          return OrderDetailsResponse.fromJson(responseBody);
+        } else {
+          return OrderDetailsResponse.fromJson(responseBody);
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      // Xử lý khi có lỗi kết nối
+      print('Error posting order: $e');
+      throw e; // Ném exception để báo cáo lỗi ra khỏi phương thức
+    }
+  }
+
 }
 
 

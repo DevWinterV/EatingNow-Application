@@ -15,5 +15,5 @@ class AppConstants{
   static const String UpdateInfoCustomer= BASE_URL+"/api/customer/UpdateInfoCustomer";
   static const String TakeOrderByCustomer= BASE_URL+"/api/customer/TakeOrderByCustomer";
   static const String PaymentConfirm= BASE_URL+"/api/customer/PaymentConfirm";
-
+  static const String GetListOrderLineDetails= BASE_URL+"/api/store/GetListOrderLineDetails";
 }
