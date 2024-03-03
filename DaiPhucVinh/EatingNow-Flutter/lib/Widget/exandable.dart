@@ -20,8 +20,8 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   late String secondHalf;
 
   bool hiddenText = true;
-  String text  = "Hiển thị thêm";
-  double textHeight = Dimensions.screenHeight/5.63;
+  String text  = "Xem thêm";
+  double textHeight = Dimensions.screenHeight/9.68;
 
   @override
   void initState(){

@@ -145,29 +145,30 @@ class _StoreDetailState extends State<StoreDetailPage> {
                     toolbarHeight: 70,
                     actions: [
                       Container(
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.mainColor,
-                        ),
-                        child:  Icon(
-                            Icons.search_outlined,
-                            color: Colors.white,
-                            size: 22,
-                        )),
-                      SizedBox(width: 10,)
+                          width:Dimensions.height40,
+                          height:Dimensions.height40,
+                          child:Icon(
+                            Icons.search,
+                            color:Colors.white,
+                            size: Dimensions.iconSize16,),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(Dimensions.radius15),
+                            color: AppColors.mainColor,
+                          )
+                      ),
+
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.circle,
+                      //     color: AppColors.mainColor,
+                      //   ),
+                      //   child:  Icon(
+                      //       Icons.search_outlined,
+                      //       color: Colors.white,
+                      //       size: 22,
+                      //   )),
+                      SizedBox(width: 13,)
                     ],
-                    // title: Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     IconButton(onPressed: (){
-                    //       // Quay lại
-                    //         Navigator.of(context).pop();
-                    //     },
-                    //         icon: Icon(Icons.arrow_circle_left_rounded, color: AppColors.mainColor)),
-                    //
-                    //   ],
-                    // ),
                     bottom: PreferredSize(
                       preferredSize: Size.fromHeight(100),
                       // THONG TIN CỬA HÀNG
@@ -296,7 +297,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                             Container(
                               decoration: BoxDecoration(
                                 color: AppColors.mainColor,
-                                borderRadius: BorderRadius.circular(13), // Adjust the radius as needed
+                                borderRadius: BorderRadius.circular(10), // Adjust the radius as needed
                               ),
                               height: 35, // Set a fixed height for horizontal ListView
                               child:
@@ -617,7 +618,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
         child: Container(
           decoration: BoxDecoration(
             color: isSelected ? Colors.orange : AppColors.mainColor,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

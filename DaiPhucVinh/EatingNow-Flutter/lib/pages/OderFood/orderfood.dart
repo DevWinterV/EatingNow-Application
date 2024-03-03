@@ -310,8 +310,8 @@ class _OrderPage extends State<OrderPage> {
                   ),
                   // DANH SÁCH SẢN PHẨM
                   Container(
-                    // height: cartItem.length.toDouble() * 130,
-                      height: 300,
+                      height: MediaQuery.of(context).size.height - 500,
+                      // height: 300,
                       child:
                       cartItem.length > 0 ?
                       ListView.builder(
@@ -333,7 +333,7 @@ class _OrderPage extends State<OrderPage> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    SizedBox(height: 5),
+                                    SizedBox(height: 1),
                                     Row(
                                       children: [
                                         BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
@@ -341,9 +341,9 @@ class _OrderPage extends State<OrderPage> {
                                         BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
                                       ],
                                     ),
-                                    SizedBox(height: 5),
+                                    SizedBox(height: 1),
                                     BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
-                                    SizedBox(height: 10),
+                                    SizedBox(height: 1),
                                     Row(
                                       children: [
                                         GestureDetector(
@@ -608,7 +608,7 @@ class _OrderPage extends State<OrderPage> {
                               backgroundColor: Colors.red[400],
                               textColor: Colors.black54,
                               timeInSecForIosWeb: 2,
-                              fontSize: Dimensions.font14);
+                              fontSize: Dimensions.font13);
                           return;
                         }
                         try {
@@ -651,7 +651,7 @@ class _OrderPage extends State<OrderPage> {
                                           backgroundColor: AppColors.toastSuccess,
                                           textColor: Colors.black54,
                                           timeInSecForIosWeb: 1,
-                                          fontSize: Dimensions.font14);
+                                          fontSize: Dimensions.font13);
                                       Navigator.of(context).pop();
                                     }
                                     else{
@@ -662,7 +662,7 @@ class _OrderPage extends State<OrderPage> {
                                           backgroundColor: AppColors.toastSuccess,
                                           textColor: Colors.black54,
                                           timeInSecForIosWeb: 1,
-                                          fontSize: Dimensions.font14);
+                                          fontSize: Dimensions.font13);
                                     }
                                   }
                                   else {
@@ -673,7 +673,7 @@ class _OrderPage extends State<OrderPage> {
                                         backgroundColor: AppColors.toastSuccess,
                                         textColor: Colors.black54,
                                         timeInSecForIosWeb: 1,
-                                        fontSize: Dimensions.font14);
+                                        fontSize: Dimensions.font13);
                                   }
                                 }
                               });
@@ -689,7 +689,7 @@ class _OrderPage extends State<OrderPage> {
                                   backgroundColor: AppColors.toastSuccess,
                                   textColor: Colors.black54,
                                   timeInSecForIosWeb: 1,
-                                  fontSize: Dimensions.font14);
+                                  fontSize: Dimensions.font13);
                               Navigator.of(context).pop();
                             }
                           } else{
@@ -700,7 +700,7 @@ class _OrderPage extends State<OrderPage> {
                                   backgroundColor: AppColors.toastSuccess,
                                   textColor: Colors.black54,
                                   timeInSecForIosWeb: 1,
-                                  fontSize: Dimensions.font14);
+                                  fontSize: Dimensions.font13);
                             }
                           }
                         } catch (e) {
@@ -711,7 +711,7 @@ class _OrderPage extends State<OrderPage> {
                               backgroundColor: Colors.red[400],
                               textColor: Colors.black54,
                               timeInSecForIosWeb: 1,
-                              fontSize: Dimensions.font14);
+                              fontSize: Dimensions.font13);
                         }
                       },
                       child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),

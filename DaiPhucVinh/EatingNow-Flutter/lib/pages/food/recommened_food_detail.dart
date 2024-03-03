@@ -45,7 +45,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
           backgroundColor: AppColors.toastSuccess,
           textColor: Colors.black54,
           timeInSecForIosWeb: 1,
-          fontSize: 10);
+          fontSize: 13);
       Navigator.of(context).pop(true); // true indicates that something has changed
     }
   }

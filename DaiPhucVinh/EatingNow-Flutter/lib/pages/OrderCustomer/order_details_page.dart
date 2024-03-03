@@ -5,6 +5,7 @@ import 'package:fam/models/ordercustomerResponse_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../Widget/Big_text.dart';
 import '../../data/Api/OrderService.dart';
 import '../../util/Colors.dart';
@@ -38,6 +39,18 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     });
     print( 'order.creationDate ${order.creationDate ?? ""}');
     _initStreamOrderList();
+  }
+  _launchGoogleMaps(double latitude, double longitude ) async {
+    // Tạo URL dựa trên tọa độ
+    String googleMapsUrl = 'https://www.google.com/maps?q=$latitude,$longitude';
+
+    // Kiểm tra xem ứng dụng Google Maps đã được cài đặt trên thiết bị hay không
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else {
+      // Trường hợp không thể mở ứng dụng Google Maps, bạn có thể hướng dẫn người dùng cài đặt ứng dụng này.
+      throw 'Could not launch $googleMapsUrl';
+    }
   }
 
   void _initStreamOrderList() async {
@@ -92,7 +105,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       //   topRight: Radius.circular(Dimensions.radius15 * 1),
                       // ),
                     ),
-                    height: 145,
+                    height: 130,
                     width: MediaQuery.of(context).size.width,
                     child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -131,13 +144,22 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Địa chỉ nhận: ',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                ],
+                                  GestureDetector(
+                                    onTap: () {
+                                      _launchGoogleMaps(order.latitude?? 0.0, order.longitude?? 0.0);
+                                    },
+                                    child: SmallText(
+                                      text: 'Xem trên bản đồ',
+                                      color: Colors.blue[400],
+                                      size: Dimensions.font13,
+                                    ),
+                                  )                                ],
                               ),
                               BigText(
                                   text:
@@ -177,16 +199,19 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                   ),
                                   Text(
                                     '${orderDetails?.length.toString() ?? ""} sản phẩm',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
 
                             Padding(
-                                padding: EdgeInsets.only(top: 5,bottom: 5),
+                                padding: EdgeInsets.only(top: 0,bottom: 5),
                                 child:   Container(
-                                  height: MediaQuery.of(context).size.height - 420,
+                                  height: MediaQuery.of(context).size.height - 440,
                                   child:
                                   orderDetails!.length > 0 ?
                                   ListView.builder(
@@ -209,7 +234,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                             subtitle: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: <Widget>[
-                                                SizedBox(height: 5),
+                                                SizedBox(height: 1),
                                                 Row(
                                                   children: [
                                                     BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
@@ -217,9 +242,15 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                     BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
                                                   ],
                                                 ),
-                                                SizedBox(height: 5),
+                                                item.description != "" ?
+                                                    Column(
+                                                      children: [
+                                                        SizedBox(height: 1),
+                                                        BigText(text: "Ghi chú: ${item.description }", color: Colors.black, size: Dimensions.font13),
+                                                      ],
+                                                    ) : SizedBox(),
+                                                SizedBox(height: 1),
                                                 BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalItem)}", color: AppColors.mainColor, size: Dimensions.font13),
-                                                SizedBox(height: 5),
                                               ],
                                             ),
                                           ),

@@ -277,7 +277,7 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
                 Divider(
-                  thickness: 4, // Adjust the thickness of the divider as needed
+                  thickness: 5, // Adjust the thickness of the divider as needed
                   color: Colors.white,
                 ),
               ],

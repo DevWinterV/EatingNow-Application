@@ -48,6 +48,7 @@ class _LocationPageState extends State<LocationPage> {
   initState() {
     super.initState();
     initialization();
+    print('link ${link}');
     requestLocationPermission();
     // Tự động lấy vị trí đã sử dụng gần nhất
     getCurrentLocation();
@@ -87,13 +88,16 @@ class _LocationPageState extends State<LocationPage> {
 
   Future<void> getAddressdeliveryOnTap(LocationData locationData) async {
     await locationStorage.saveLocation(
-        locationData.name, locationData.latitude, locationData.longitude, locationData.address);
-    if (link != "") {
+        locationData.name, locationData.latitude, locationData.longitude,
+        locationData.address);
+    if (link == "/" || link == "/order") {
       Navigator.pop(context, true);
-    } else {
-      Navigator.popAndPushNamed(context,'/', result: true);
+    }
+    else {
+      Navigator.popAndPushNamed(context, link ?? "", result: true);
     }
   }
+
 
   // Lưu vị trí khách hàng chọn giao hàng và chuyển san màn hình Home Page
   Future<void> getAddressdelivery() async {
@@ -102,12 +106,12 @@ class _LocationPageState extends State<LocationPage> {
     if (link != "") {
       Navigator.pop(context, true);
     } else {
-      // // Otherwise, go to the MainFoodPage
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => MainFoodPage()),
-      // );
-      Navigator.popAndPushNamed(context,'/', result: true);
+      // Otherwise, go to the MainFoodPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainFoodPage()),
+      );
+      // Navigator.popAndPushNamed(context,'/', result: true);
     }
   }
 
@@ -156,10 +160,10 @@ class _LocationPageState extends State<LocationPage> {
       body: Container(
         padding: const EdgeInsets.all(10.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
-              "Cho chúng tôi biết vị trí của bạn để tài xế có thể giao hàng nhanh nhất",
+              "Cho XpressEat biết vị trí của bạn để tài xế có thể giao hàng nhanh nhất",
               style: TextStyle(
                 fontSize: Dimensions.font20,
                 fontWeight: FontWeight.normal,
@@ -200,13 +204,6 @@ class _LocationPageState extends State<LocationPage> {
                 : Container(
               child: Column(
                 children: <Widget>[
-                  // CircularProgress đã chỉnh sửa theo ý muốn
-                  // DottedCircularProgressIndicator(
-                  //   radius: 18.0,
-                  //   color: Colors.orange,
-                  //   dotRadius: 2.0,
-                  //   numberOfDots: 9, // Số lượng dấu chấm
-                  // ),
                   CircularProgressIndicator(color: AppColors.mainColor,),
                   SizedBox(height: Dimensions.height10),
                   // Khoảng cách giữa vòng tròn tải và văn bản
@@ -214,60 +211,10 @@ class _LocationPageState extends State<LocationPage> {
                 ],
               ),
             ),
-            SizedBox(height: Dimensions.height45,),
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                // Để tiêu đề căn trái
-                children: [
-                  Card(
-                    color: Colors.grey, // Màu nền của khung
-                    elevation: 10, // Độ nâng của khung
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 2.0),
-                      child: Text(
-                        "ĐÃ SỬ DỤNG GẦN ĐÂY",
-                        style: TextStyle(fontSize: Dimensions.font16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ]
-            ),
-            // LISTVIEW CÁC ĐIỂM ĐÃ LƯU
+
             Flexible(
                 child: Container(
-                  height: 170,
-                  child: ListView.builder(
-                    itemCount: savedLocations.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final locationData = savedLocations[index];
-                      return Container(
-                        child: ListTile(
-                          leading: Icon(Icons.location_on,
-                            size: 33,
-                            color: Colors.redAccent,),
-                          title: Text(
-                            locationData.name + " | " + locationData.address,
-                            style: TextStyle(fontSize: Dimensions.font16,
-                                fontWeight: FontWeight.bold),
-                            softWrap: true,
-                            // Cho phép xuống dòng nếu văn bản quá dài
-                            maxLines: 3, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
-                          ),
-                          onTap: ()  {
-                            getAddressdeliveryOnTap(locationData);
-                             },
-                        ),
-                      );
-                    },
-                  ),
-                )
-            )
-            ,
-            // SizedBox(height: Dimensions.height),
-            Flexible(
-                child: Container(
-                  margin: EdgeInsets.only(top: Dimensions.bottomHeightBar),
+                  margin: EdgeInsets.only(top: 10),
                   child: Column(
                     children: [
                       ElevatedButton(
@@ -287,25 +234,22 @@ class _LocationPageState extends State<LocationPage> {
                         ),
                       ),
                       SizedBox(height: Dimensions.height5),
-
-
-                      // ElevatedButton(
-                      //   onPressed: isloadingdata ? null : () {
-                      //     changeOrAddNewAddressDelivery();
-                      //   },
-                      //   child: Text(
-                      //     "Thêm hoặc thay đổi vị trí",
-                      //     style: TextStyle(
-                      //       color: Colors.black,
-                      //       fontSize: Dimensions.font16,
-                      //     ),
-                      //   ),
-                      //   style: ElevatedButton.styleFrom(
-                      //     primary: AppColors.mainColor,
-                      //     minimumSize: Size(double.infinity, 48),
-                      //   ),
-                      // )
-
+                      ElevatedButton(
+                        onPressed: isloadingdata ? null : () {
+                          getAddressdelivery();
+                        },
+                        child: Text(
+                          "Chọn vị trí khác",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: Dimensions.font16,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: AppColors.mainColor,
+                          minimumSize: Size(double.infinity, 48),
+                        ),
+                      ),
                     ],
                   ),
                 )

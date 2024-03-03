@@ -80,7 +80,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                  onTap: () async {
                                    final result = await Navigator.push(
                                      context,
-                                     MaterialPageRoute(builder: (context) => LocationPage(link: "",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
+                                     MaterialPageRoute(builder: (context) => LocationPage(link: "/",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
                                    );
                                    if(result == true){
                                       Navigator.of(context).popAndPushNamed("/");
@@ -175,7 +175,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
              ),
            )
          ],
-      )
+      ),
     );
   }
 }

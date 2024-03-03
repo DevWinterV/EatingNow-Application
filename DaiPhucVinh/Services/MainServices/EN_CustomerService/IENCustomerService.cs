@@ -303,6 +303,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 var VNPaySetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("VNPay"));
                 var MomoSetting = checkPayment.FirstOrDefault(x => x.CategoryPayment.name.Equals("MOMO"));
                 var checkCustomer = await _datacontext.EN_Customer.FindAsync(request.CustomerId);
+                // Kiểm tra khách hàng đã có thoongtin chưa
                 if(checkCustomer == null)
                 {
                     var Customeradd = new EN_Customer
@@ -316,6 +317,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     _datacontext.EN_Customer.Add(Customeradd);
                     await _datacontext.SaveChangesAsync();  
                 }
+                //Kiêm tra cửa hàng có đăng ký thanh toán online không 
                 if (request.Payment != "PaymentOnDelivery")
                 {
                     if(request.Payment == "VNPay" && VNPaySetting == null)
@@ -333,6 +335,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         return result;
                     }
                 }
+
                 if (request.CustomerId == null)
                 {
                     result.Success = false;
@@ -349,7 +352,8 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 
                 foreach( var item in request.OrderLine)
                 {
-                    var checkQty = await _checkQuantity(item.FoodListId);
+                    var checkQty = await _checkQuantity(item.FoodListId, item.qty);
+
                     if (!checkQty)
                     {
                         result.Success = false;
@@ -592,14 +596,19 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         }
 
         //Kiểm soát số lượng tồn của món ăn khi khách đặt
-        private async Task<bool> _checkQuantity(int FoodId)
+        private async Task<bool> _checkQuantity(int FoodId, int qtyBy)
         {
             var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
             if(food == null) return false; 
             if(food.Qtycontrolled == true)
             {
                 int? quantity = food.qty;
-                return quantity > 0 ? true : false;
+                if (quantity <= 0)
+                    return false;
+                if(quantity >= qtyBy)
+                    return  true;
+                else
+                    return false;
             }
             else
             {
