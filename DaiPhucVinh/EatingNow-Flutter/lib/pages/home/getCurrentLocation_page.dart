@@ -218,37 +218,41 @@ class _LocationPageState extends State<LocationPage> {
                   child: Column(
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          // Customize the background color
+                          primary: AppColors.mainColor,
+                          // Customize the text color
+                          onPrimary: Colors.white,
+                          // Add other customizations as needed
+                          padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                        ),
                         onPressed: isloadingdata ? null : () {
                           getAddressdelivery();
                         },
-                        child: Text(
-                          "Sử dụng vị trí hiện tại",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: Dimensions.font16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          primary: AppColors.mainColor,
-                          minimumSize: Size(double.infinity, 48),
-                        ),
+                        child: Text('Sử dụng vị trí hiện tại', style: TextStyle(fontSize: Dimensions.font16),),
                       ),
                       SizedBox(height: Dimensions.height5),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          // Customize the background color
+                          primary: AppColors.mainColor,
+                          // Customize the text color
+                          onPrimary: Colors.white,
+                          // Add other customizations as needed
+                          padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                        ),
                         onPressed: isloadingdata ? null : () {
                           getAddressdelivery();
                         },
-                        child: Text(
-                          "Chọn vị trí khác",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: Dimensions.font16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          primary: AppColors.mainColor,
-                          minimumSize: Size(double.infinity, 48),
-                        ),
+                        child: Text('Chọn từ bản đồ', style: TextStyle(fontSize: Dimensions.font16),),
                       ),
                     ],
                   ),
