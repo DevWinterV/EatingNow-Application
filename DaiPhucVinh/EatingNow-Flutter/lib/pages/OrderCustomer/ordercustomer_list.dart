@@ -108,7 +108,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                     itemCount: snapshot.data?.data?.length ?? 0,
                                     itemBuilder: (itemBuilder, index){
                                       final order = snapshot.data?.data?[index];
-                                      return Padding(padding: EdgeInsets.all(0),
+                                      return Padding(padding: EdgeInsets.only(top: 5, bottom: 5),
                                           child:  Column(
                                             children: [
                                               // ListTile(
@@ -236,13 +236,13 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                           SizedBox(height: 6,),
                                                           Container(
                                                             height: 20,
-                                                            width: 120,
+                                                            width: 100,
                                                             child:  ElevatedButton(
                                                               onPressed: (){
                                                                 Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
                                                               },
                                                               child: BigText(text:
-                                                              'Xem chi tiết ',
+                                                              'Chi tiết ',
                                                                   size: Dimensions.font13,
                                                                   color: Colors.white
                                                               ),
@@ -257,6 +257,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                           SizedBox(height: 6,),
                                                           order?.status != true ?
                                                           Container(
+                                                            width: 100,
                                                             height: 20,
                                                             child:  ElevatedButton(
                                                               onPressed: (){
@@ -279,7 +280,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                     ],
                                                   ),
                                               ),
-                                              Divider(thickness: 4,
+                                              Divider(thickness: 8,
                                                 color: Colors.white,)
                                             ],
                                           )

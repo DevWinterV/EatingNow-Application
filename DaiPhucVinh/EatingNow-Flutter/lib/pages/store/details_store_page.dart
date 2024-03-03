@@ -126,17 +126,36 @@ class _StoreDetailState extends State<StoreDetailPage> {
               body: CustomScrollView(
                 slivers: [
                   SliverAppBar(
+                    centerTitle: true,
+                    title:Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(0),
+                        child: Text(
+                          storeData?.fullName ?? "",
+                          maxLines: 1,
+                          style:
+                          TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold
+                          ),
+                        )
+                      ),
+                    ),
                     toolbarHeight: 70,
                     actions: [
-                      IconButton(
-                          color: Colors.white,
-                          onPressed: (){
-                            // tìm kiếm ...
-                          },
-                          icon: Icon(
-                              Icons.search_rounded,
-                              color: AppColors.mainColor
-                          )),
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.mainColor,
+                        ),
+                        child:  Icon(
+                            Icons.search_outlined,
+                            color: Colors.white,
+                            size: 22,
+                        )),
+                      SizedBox(width: 10,)
                     ],
                     // title: Row(
                     //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,9 +178,9 @@ class _StoreDetailState extends State<StoreDetailPage> {
                               children: [
                                 SizedBox(height: 5,),
                                 // TEN CUA HANG
-                                Padding(padding: EdgeInsets.all(15),child: BigText(
-                                    size: Dimensions.font23, text: storeData!.fullName ?? ""),
-                                ),
+                                // Padding(padding: EdgeInsets.all(15),child: BigText(
+                                //     size: Dimensions.font23, text: storeData!.fullName ?? ""),
+                                // ),
                                 Padding(
                                   padding: EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 10),
                                   child: Column(
@@ -266,14 +285,14 @@ class _StoreDetailState extends State<StoreDetailPage> {
                     ),
                   ),
                   // MENU CUA HANG
+
                   SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            BigText(text: "Menu của quán", color: AppColors.mainColor, size: Dimensions.font23,),
-                            SizedBox(height: 2,),
+                            // BigText(text: "Menu của quán", color: AppColors.mainColor, size: Dimensions.font23,),
                             Container(
                               decoration: BoxDecoration(
                                 color: AppColors.mainColor,
@@ -292,6 +311,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                       stream: _selectedCategoryController.stream,
                                       initialData: null,
                                       builder: (context, selectedSnapshot) {
+                                        // Danh loại món ăn
                                         return ListView.separated(
                                           itemCount: snapshot.data!.data!.length + 1, // Add 1 for the "All" item
                                           scrollDirection: Axis.horizontal,
@@ -323,7 +343,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                               ),
                             ),
                             Container(
-                              height: 400,
+                              height: 450,
                               child:
                               StreamBuilder<List<DataProduct>?>(
                                 stream: streamListProduct.stream,
@@ -352,31 +372,28 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                       scrollDirection: Axis.vertical,
                                       itemBuilder: (BuildContext context, int index) {
                                         final item = snapshot.data![index];
-                                        return Padding(
-                                            padding: const EdgeInsets.all(0),
-                                            child: GestureDetector(
-                                                onTap: (){
-                                                  Navigator.pushReplacement(
-                                                      context,
-                                                      Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
-                                                  );
-                                                },
-                                                child:
-                                                Column(
-                                                  children: [
-                                                    ListTile(
-                                                        leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
-                                                        title: BigText(text: item.foodName ?? "", size: 15,),
-                                                        subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
-                                                          size: 13,
-                                                        )
-                                                    ),
-                                                    Divider(
-                                                      thickness: 1, // Adjust the thickness of the divider as needed
-                                                      color: Colors.black26, // Set the color of the divider
-                                                    ),
-                                                  ],
-                                                )
+                                        return GestureDetector(
+                                            onTap: (){
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
+                                              );
+                                            },
+                                            child:
+                                            Column(
+                                              children: [
+                                                ListTile(
+                                                    leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
+                                                    title: BigText(text: item.foodName ?? "", size: 15,),
+                                                    subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
+                                                      size: 13,
+                                                    )
+                                                ),
+                                                Divider(
+                                                  thickness: 1, // Adjust the thickness of the divider as needed
+                                                  color: Colors.black26, // Set the color of the divider
+                                                ),
+                                              ],
                                             )
                                         );
                                       },
@@ -399,6 +416,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                   )
                 ],
               ),
+
               // bottomNavigationBar: Column(
               //   mainAxisSize: MainAxisSize.min,
               //   children: [

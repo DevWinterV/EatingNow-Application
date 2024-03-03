@@ -92,7 +92,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       //   topRight: Radius.circular(Dimensions.radius15 * 1),
                       // ),
                     ),
-                    height: 130,
+                    height: 145,
                     width: MediaQuery.of(context).size.width,
                     child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -165,6 +165,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         final orderDetails = snapshot.data!.data;
                         return Column(
                           children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 5,bottom: 5, left: 12, right: 12),
+                              child:
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Sản phẩm trong đơn: ',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    '${orderDetails?.length.toString() ?? ""} sản phẩm',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+
                             Padding(
                                 padding: EdgeInsets.only(top: 5,bottom: 5),
                                 child:   Container(
@@ -339,11 +357,16 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       children: [
                         Text(
                           'Tổng cộng: ' ,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,
+                              color: Colors.red
+                          ),
                         ),
                         Text(
                           NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(order.intoMoney ?? 0),
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            color: Colors.red
+                          ),
                         ),
                       ],
                     ),
