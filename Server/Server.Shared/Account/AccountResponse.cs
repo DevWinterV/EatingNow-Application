@@ -16,5 +16,7 @@ namespace DaiPhucVinh.Shared.Account
         public string Image { get; set; }
         public bool Status { get; set; }
         public int AccountId { get; set; }
+
+        public string AccessToken { get; set; }
     }
 }

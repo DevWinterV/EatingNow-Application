@@ -111,67 +111,173 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                       return Padding(padding: EdgeInsets.all(0),
                                           child:  Column(
                                             children: [
-                                              ListTile(
-                                                title: BigText(text: order?.orderHeaderId ?? ""),
-                                                subtitle:
-                                                Column(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    SmallText(
-                                                      text: "Đặt lúc: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse(order?.creationDate ?? "").toLocal())}" ,
-                                                      color: Colors.black,
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        SmallText(text: "Trạng thái: ",color: Colors.black,),
-                                                        SmallText(text: order?.status == true ? "Đã xét duyệt" : "Chờ xét duyệt" , color: order?.status == true ? Colors.green : Colors.red,),
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        BigText(text:
-                                                        'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(order?.intoMoney ?? 0)}',
-                                                            size: Dimensions.font13,
-                                                            color: Colors.red[400]
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    BigText(
-                                                        text:
-                                                        order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
-                                                        size: Dimensions.font13,
-                                                        color:  order?.paymentStatusID == 2 ? Colors.green : Colors.red
-                                                    ),
-                                                  ],
-                                                ),
-                                                selectedColor: Colors.white60,
-                                                iconColor: AppColors.mainColor,
-                                                trailing: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    order?.status != true ?
-                                                    BigText(text:
-                                                    'Hủy đơn',
-                                                        size: Dimensions.font13,
-                                                        color: Colors.red[400]
-                                                    )
-                                                        :
-                                                    SizedBox(),
-                                                    GestureDetector(
-                                                      onTap: (){
-                                                        Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
-                                                      },
-                                                      child: BigText(text:
-                                                      'Xem chi tiết ',
-                                                          size: Dimensions.font13,
-                                                          color: Colors.blue
+                                              // ListTile(
+                                              //   title: BigText(text: order?.orderHeaderId ?? ""),
+                                              //   subtitle:
+                                              //   Column(
+                                              //     mainAxisAlignment: MainAxisAlignment.start,
+                                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                                              //     children: [
+                                              //       SmallText(
+                                              //         text: "Đặt lúc: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse(order?.creationDate ?? "").toLocal())}" ,
+                                              //         color: Colors.black,
+                                              //       ),
+                                              //       Row(
+                                              //         children: [
+                                              //           SmallText(text: "Trạng thái: ",color: Colors.black,),
+                                              //           SmallText(text: order?.status == true ? "Đã xét duyệt" : "Chờ xét duyệt" , color: order?.status == true ? Colors.green : Colors.red,),
+                                              //         ],
+                                              //       ),
+                                              //       Row(
+                                              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              //         children: [
+                                              //           BigText(text:
+                                              //           'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(order?.intoMoney ?? 0)}',
+                                              //               size: Dimensions.font13,
+                                              //               color: Colors.red[400]
+                                              //           ),
+                                              //         ],
+                                              //       ),
+                                              //       BigText(
+                                              //           text:
+                                              //           order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
+                                              //           size: Dimensions.font13,
+                                              //           color:  order?.paymentStatusID == 2 ? Colors.green : Colors.red
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              //   selectedColor: Colors.white60,
+                                              //   iconColor: AppColors.mainColor,
+                                              //   trailing: Column(
+                                              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              //     crossAxisAlignment: CrossAxisAlignment.center,
+                                              //     children: [
+                                              //       Container(
+                                              //         height: 20,
+                                              //         child:  ElevatedButton(
+                                              //           onPressed: (){
+                                              //             Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
+                                              //           },
+                                              //           child: BigText(text:
+                                              //           'Xem chi tiết ',
+                                              //               size: Dimensions.font13,
+                                              //               color: Colors.white
+                                              //           ),
+                                              //           style: ElevatedButton.styleFrom(
+                                              //             backgroundColor: Colors.blue,
+                                              //             textStyle: TextStyle(
+                                              //                 color: Colors.white
+                                              //             ),
+                                              //           ),
+                                              //         ),
+                                              //       ),
+                                              //       order?.status != true ?
+                                              //       Container(
+                                              //         height: 20,
+                                              //         child:  ElevatedButton(
+                                              //           onPressed: (){
+                                              //             Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
+                                              //           },
+                                              //           child:  BigText(text:
+                                              //           'Hủy đơn',
+                                              //               size: Dimensions.font13,
+                                              //               color: Colors.white,
+                                              //           ),
+                                              //           style: ElevatedButton.styleFrom(
+                                              //             backgroundColor: Colors.red[400],
+                                              //           ),
+                                              //         ),
+                                              //       )
+                                              //           :
+                                              //       SizedBox(),
+                                              //     ],
+                                              //   ),
+                                              // ),
+                                              Padding(
+                                                  padding: EdgeInsets.only(left: 8, right: 8),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      Column(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            width: 200,
+                                                            child:BigText(text: order?.orderHeaderId ?? "", size: Dimensions.font16,),
+                                                          ),
+                                                          SmallText(
+                                                            text: "Đặt lúc: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse(order?.creationDate ?? "").toLocal())}" ,
+                                                            color: Colors.black,
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              BigText(text:
+                                                              'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(order?.intoMoney ?? 0)}',
+                                                                  size: Dimensions.font13,
+                                                                  color: Colors.red[400]
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          BigText(
+                                                              text:
+                                                              order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
+                                                              size: Dimensions.font13,
+                                                              color:  order?.paymentStatusID == 2 ? Colors.green : Colors.red
+                                                          ),
+                                                        ],
                                                       ),
-                                                    )
-                                                  ],
-                                                ),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          SmallText(text: order?.status == true ? "Đã xác nhận" : "Chờ xác nhận" , color: order?.status == true ? Colors.green : Colors.red, size: Dimensions.font13,),
+                                                          SizedBox(height: 6,),
+                                                          Container(
+                                                            height: 20,
+                                                            width: 120,
+                                                            child:  ElevatedButton(
+                                                              onPressed: (){
+                                                                Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
+                                                              },
+                                                              child: BigText(text:
+                                                              'Xem chi tiết ',
+                                                                  size: Dimensions.font13,
+                                                                  color: Colors.white
+                                                              ),
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor: Colors.blue,
+                                                                textStyle: TextStyle(
+                                                                    color: Colors.white
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(height: 6,),
+                                                          order?.status != true ?
+                                                          Container(
+                                                            height: 20,
+                                                            child:  ElevatedButton(
+                                                              onPressed: (){
+                                                                Navigator.of(context).pushNamed("/ordedetails", arguments: {"data": order});
+                                                              },
+                                                              child:  BigText(text:
+                                                              'Hủy đơn',
+                                                                size: Dimensions.font13,
+                                                                color: Colors.white,
+                                                              ),
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor: Colors.red[400],
+                                                              ),
+                                                            ),
+                                                          )
+                                                              :
+                                                          SizedBox(),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
                                               ),
                                               Divider(thickness: 4,
                                                 color: Colors.white,)

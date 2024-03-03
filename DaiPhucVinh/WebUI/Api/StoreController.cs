@@ -132,9 +132,13 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("ApproveStore")]
         public async Task<BaseResponse<bool>> ApproveStore([FromBody] StoreRequest request) => await _storeService.ApproveStore(request);
+
+        
         [HttpPost]
         [Route("TakeOrderHeaderByStoreId")]
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(OrderHeaderFillterRequest request) => await _storeService.TakeOrderHeaderByStoreId(request);
+       
+        
         [HttpGet]
         [Route("GetListOrderLineDetails")]
         public async Task<BaseResponse<OrderLineReponse>> GetListOrderLineDetails(string Id) => await _storeService.GetListOrderLineDetails(Id);
@@ -166,6 +170,7 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("TakeStoreLocation")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreLocation([FromBody] StoreRequest request) => await _storeService.TakeStoreLocation(request);
+
 
         [HttpGet]
         [Route("TakeLitsFoodSold")]

@@ -77,12 +77,79 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       body:  RefreshIndicator(
           color: AppColors.iconColor1,
           onRefresh: () async{
-
           },
           child:  SingleChildScrollView(
             child:
             Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonBackqroundColor,
+                      // borderRadius: BorderRadius.only(
+                      //   topLeft: Radius.circular(Dimensions.radius15 * 1),
+                      //   topRight: Radius.circular(Dimensions.radius15 * 1),
+                      // ),
+                    ),
+                    height: 130,
+                    width: MediaQuery.of(context).size.width,
+                    child:  Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 5, bottom:5),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Người nhận: ',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    order.recipientName ?? "",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Số điện thoại: ',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    order?.recipientPhone  ?? "",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Địa chỉ nhận: ',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              BigText(
+                                  text:
+                                  order.formatAddress  ??  "",
+                                  size: Dimensions.font14,
+                                  ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )// ĐẶT ĐƠN,
+                ),
                 StreamBuilder<OrderDetailsResponse?>(
                     initialData: null,
                     stream: _OrderDetailtreamController.stream,
@@ -101,8 +168,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             Padding(
                                 padding: EdgeInsets.only(top: 5,bottom: 5),
                                 child:   Container(
-                                // height: cartItem.length.toDouble() * 130,
-                                  height: 300,
+                                  height: MediaQuery.of(context).size.height - 420,
                                   child:
                                   orderDetails!.length > 0 ?
                                   ListView.builder(
@@ -181,7 +247,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           )
       ),
       bottomNavigationBar:
-      Container(
+        Container(
           decoration: BoxDecoration(
             color: AppColors.buttonBackqroundColor,
             borderRadius: BorderRadius.only(
@@ -189,12 +255,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               topRight: Radius.circular(Dimensions.radius15 * 1),
             ),
           ),
-          height: 210,
+          height: 200,
           width: MediaQuery.of(context).size.width,
           child:  Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
+              Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 5),
                 child: Column(
                   children: [
                     Row(
@@ -218,7 +285,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          order?.status == true ? "Đã xét duyệt" : "Chờ xét duyệt",
+                          order?.status == true ? "Đã xác nhận" : "Chờ xác nhận",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: order?.status == true ? Colors.green : Colors.red,

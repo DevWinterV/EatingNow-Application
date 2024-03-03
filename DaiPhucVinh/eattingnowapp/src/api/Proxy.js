@@ -1,5 +1,4 @@
 import axios from "axios";
-import { decrypt } from "../framework/encrypt";
 
 export const Proxy = async (method, api, request) => {
   try {

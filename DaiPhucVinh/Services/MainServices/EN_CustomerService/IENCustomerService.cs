@@ -310,6 +310,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         CustomerId = request.CustomerId,
                         CompleteName = request.CompleteName,
                         Phone = request.RecipientPhone,
+                        TokenApp = request.TokenApp,
                         Status = true,
                     };
                     _datacontext.EN_Customer.Add(Customeradd);
@@ -384,11 +385,10 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                 }
                    
                 string url = "";
-                string OrderHeaderId = "EattingNowOrder_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                string OrderHeaderId = "XpressEatOrder_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
                 //Thanh toán khi nhận
                 if (request.Payment == "PaymentOnDelivery")
                 {
-
                     var createOrderHeader = new EN_OrderHeader()
                     {
                         OrderHeaderId = OrderHeaderId,
@@ -461,6 +461,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Success = true;
                     return result;
                 }
+                //MOMO
                 else
                 {
                     var createOrderHeader = new EN_OrderHeader()
