@@ -122,8 +122,6 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                         ),
                       ),
                       SizedBox(height: 20.0),
-                      SizedBox(height: 20.0),
-
                       ElevatedButton(
                         onPressed: () async {
                           if(_nameController.text =="" ||   _phoneController.text =="" ){
@@ -143,13 +141,21 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                         child: Text(
                           "Lưu thay đổi",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: Dimensions.font16,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
+                          // Customize the background color
                           primary: AppColors.mainColor,
-                          minimumSize: Size(double.infinity, 43),
+                          // Customize the text color
+                          onPrimary: Colors.white,
+                          // Add other customizations as needed
+                          padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                         ),
                       ),
                     ],
@@ -274,6 +280,7 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               :
             SizedBox(),
         SizedBox(height: 10.0),
+
         ElevatedButton(
           onPressed: () async {
             final picker = ImagePicker();
@@ -282,18 +289,28 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
               _imageFile = File(pickedImage!.path);
             });
           },
+          style: ElevatedButton.styleFrom(
+            // Customize the background color
+            primary: AppColors.mainColor,
+            // Customize the text color
+            onPrimary: Colors.white,
+            // Add other customizations as needed
+            padding: EdgeInsets.only(right: 20.0, left: 20.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+          ),
+
           child: Text(
             "Chọn ảnh",
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: Dimensions.font16,
             ),
           ),
-          style: ElevatedButton.styleFrom(
-            primary: AppColors.mainColor,
-            minimumSize: Size(double.infinity, 43),
-          ),
         ),
+
       ],
     );
   }
