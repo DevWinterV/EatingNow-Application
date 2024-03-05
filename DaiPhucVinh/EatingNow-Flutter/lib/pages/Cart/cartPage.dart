@@ -206,7 +206,7 @@ class _CartPageState extends State<CartPage> {
                                   subtitle: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      SizedBox(height: 5),
+                                      SizedBox(height: 1),
                                       Row(
                                         children: [
                                           BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
@@ -214,9 +214,9 @@ class _CartPageState extends State<CartPage> {
                                           BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
                                         ],
                                       ),
-                                      SizedBox(height: 5),
+                                      SizedBox(height: 1),
                                       BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
-                                      SizedBox(height: 10),
+                                      SizedBox(height: 1),
                                       Row(
                                         children: [
                                           GestureDetector(

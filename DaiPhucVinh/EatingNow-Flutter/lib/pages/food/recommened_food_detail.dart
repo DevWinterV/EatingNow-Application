@@ -32,7 +32,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
   Future<void> _addToCart(CartItem item) async {
     String msgAdd = '';
     if (countAvailable > 0) {
-      msgAdd = 'Đã cập nhật lại số lượng';
+      msgAdd = 'Đã cập nhật sản phẩm vào giỏ hàng';
     } else {
       msgAdd = 'Đã thêm vào giỏ hàng';
     }

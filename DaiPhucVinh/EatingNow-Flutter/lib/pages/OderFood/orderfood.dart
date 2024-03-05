@@ -441,6 +441,7 @@ class _OrderPage extends State<OrderPage> {
                 Padding(padding: EdgeInsets.only(left: 12, right: 12, top: 2),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       StreamBuilder<String>(
                           stream: streamPaymentmethod.stream,
@@ -451,7 +452,7 @@ class _OrderPage extends State<OrderPage> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return Container(
-                                      height: 120, // Điều chỉnh chiều cao tùy theo nhu cầu
+                                      height: 130, // Điều chỉnh chiều cao tùy theo nhu cầu
                                       child: ListView(
                                         children: [
                                           ListTile(
