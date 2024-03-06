@@ -9,7 +9,9 @@ using DaiPhucVinh.Services.Settings;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
 using DaiPhucVinh.Shared.FoodList;
+using DaiPhucVinh.Shared.Store;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using Falcon.Web.Core.Log;
@@ -42,7 +44,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<FoodListResponse>> TakeNewFood();
         Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request);
         Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser(EN_CustomerLocationRequest request);
-
+        Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude );
     }
     public class FoodListService : IFoodListService
     {
@@ -550,5 +552,212 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             }
             return result;
         }
+
+
+        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude)
+        {
+            var result = new BaseResponse<FoodListSearchResponse> { };
+            try
+            {
+                var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).Where(
+                    x =>
+                    x.FullName.Contains(keyword)
+                    || x.OwnerName.Contains(keyword)    
+                    || x.Description.Contains(keyword)
+                    || x.Phone.Contains(keyword)
+                    || x.Email.Contains(keyword)
+                    || x.Cuisine.Name.Contains(keyword)
+                    ).ToListAsync();
+                var listResult = new List<FoodListSearchResponse>();
+                var resultList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
+
+
+                // var storeresults = BinarySearch(listStore, keyword);
+                foreach (var store in listStore)
+                {
+                    var resultFoodListSearch = new FoodListSearchResponse();
+                    resultFoodListSearch.storeinFo = store.MapTo<StoreResponse>();
+                    var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
+                        .Where( x => x.UserId.Equals(store.UserId) && x.FoodName.Contains(keyword)).ToListAsync();
+                    //  var foodlistresults = BinarySearch(foodlist, keyword);
+                    resultFoodListSearch.foodList = foodlist.Take(5).MapTo<FoodListResponse>();
+                    listResult.Add(resultFoodListSearch);
+                }
+                result.Success = true;
+                result.Data = listResult;
+                result.Message = "SearchSuccess";
+                result.DataCount = listStore.Count;
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public static double CalculateSimilarity(string str1, string str2)
+        {
+            // Chuyển đổi cả hai chuỗi sang chữ thường
+            str1 = str1.ToLower();
+            str2 = str2.ToLower();
+
+            int minLength = Math.Min(str1.Length, str2.Length);
+            int commonChars = 0;
+
+            // Đếm số lượng ký tự chung
+            for (int i = 0; i < minLength; i++)
+            {
+                if (str1[i] == str2[i])
+                {
+                    commonChars++;
+                }
+            }
+
+            // Tính tỷ lệ giống nhau
+            double similarity = (double)commonChars / Math.Max(str1.Length, str2.Length);
+
+            return similarity;
+        }
+        // Thuật toán tìm kiếm nhị phân
+        public static List<T> BinarySearch<T>(List<T> list, string query) where T : class
+        {
+            List<T> listResult = new List<T>();
+
+            // Kiểm tra trường hợp đặc biệt
+            if (list == null || list.Count == 0 || string.IsNullOrEmpty(query))
+            {
+                return listResult;
+            }
+
+            // Sắp xếp danh sách
+            list.Sort((a, b) => {
+                if (a is EN_FoodList && b is EN_FoodList)
+                {
+                    return string.Compare((a as EN_FoodList).FoodName, (b as EN_FoodList).FoodName);
+                }
+                else if (a is EN_Store && b is EN_Store)
+                {
+                    return string.Compare((a as EN_Store).FullName, (b as EN_Store).FullName);
+                }
+                else
+                {
+                    // Thực hiện sắp xếp theo các tiêu chí khác nếu cần
+                    return 0;
+                }
+            });
+
+            // Chuyển đổi truy vấn sang chữ thường
+            query = query.ToLower();
+
+            int left = 0;
+            int right = list.Count - 1;
+
+            while (left <= right)
+            {
+                int mid = (left + right) / 2;
+
+                if (list[mid] is EN_FoodList)
+                {
+                    EN_FoodList product = list[mid] as EN_FoodList;
+                    string foodName = product.FoodName.ToLower();
+                    string description = product.Description.ToLower();
+                    string category = product.Category.CategoryName.ToLower();
+
+                    if (foodName.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
+    description.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
+    category.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        listResult.Add(product as T);
+                    }
+
+
+                    // So sánh tên sản phẩm với truy vấn
+                    int comparison = string.Compare(foodName, query);
+
+                    // Cập nhật chỉ mục left và right dựa trên kết quả so sánh
+                    if (comparison < 0)
+                    {
+                        left = mid + 1;
+                    }
+                    else
+                    {
+                        right = mid - 1;
+                    }
+                }
+                else if (list[mid] is EN_Store)
+                {
+                    EN_Store store = list[mid] as EN_Store;
+                    string fullName = store.FullName.ToLower();
+                    string description = store.Description.ToLower();
+                    string cuisine = store.Cuisine.Name.ToLower();
+
+                    if (fullName.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        description.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        cuisine.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        listResult.Add(store as T);
+                    }
+
+                    // So sánh tên cửa hàng với truy vấn
+                    int comparison = string.Compare(fullName, query);
+                    int comparisondescription = string.Compare(description, query);
+                    int comparisoncuisine = string.Compare(cuisine, query);
+                    /*
+                    // Cập nhật chỉ mục left và right dựa trên kết quả so sánh
+                    if (comparison < 0 || comparisondescription < 0 || comparisoncuisine < 0)
+                    {
+                        left = mid + 1;
+                    }
+                    else if (comparison > 0 || comparisondescription > 0 || comparisoncuisine > 0)
+                    {
+                        right = mid - 1;
+                    }
+                    else
+                    {
+                        // Khi các kết quả so sánh bằng nhau, ta cũng cần di chuyển chỉ mục left và right để duyệt tiếp
+                        left = mid + 1;
+                        right = mid - 1;
+                    }
+                    */
+                    // Cập nhật chỉ mục left và right dựa trên kết quả so sánh
+                    if (comparison < 0)
+                    {
+                        left = mid + 1;
+                    }
+                    else
+                    {
+                        right = mid - 1;
+                    }
+                }
+            }
+
+            return listResult;
+        }
+
+        public static List<StoreResponse> FindNearestStores(List<StoreResponse> stores, double lat, double lng, int count)
+        {
+            var nearestStores = new List<StoreResponse>();
+
+            // Tính khoảng cách từ điểm đầu tiên đến tất cả các điểm còn lại trong danh sách
+            foreach (var store in stores)
+            {
+                double Lat = Math.Round(store.Latitude, 7);
+                double Lon = Math.Round(store.Longitude, 7);
+                var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
+                store.Distance = distance;
+                //store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
+            }
+
+            foreach (var fillStore in stores)
+            {
+                if (fillStore.Distance <= 10)
+                    nearestStores.Add(fillStore);
+            }
+            nearestStores = nearestStores.OrderBy(store => store.Distance).ToList();
+
+            return nearestStores;
+        }
+
     }
 }

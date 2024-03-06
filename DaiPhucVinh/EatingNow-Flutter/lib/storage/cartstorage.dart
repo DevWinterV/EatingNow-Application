@@ -231,14 +231,22 @@ class CartItem {
         '}';
   }
 }
-class StoreUserCart {
+class StoreChecked{
   String nameStore;
   int userId;
+  bool ischecked = false;
+  StoreChecked({
+    required this.nameStore,
+    required this.userId,
+  });
+}
+
+class StoreUserCart {
+  StoreChecked userChecked;
   List<CartItem> items;
 
   StoreUserCart({
-    required this.nameStore,
-    required this.userId,
+    required this.userChecked,
     required this.items,
   });
 }

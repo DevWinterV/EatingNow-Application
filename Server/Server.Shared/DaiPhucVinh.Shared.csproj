@@ -149,6 +149,7 @@
     <Compile Include="Cuisine\CuisineResponse.cs" />
     <Compile Include="AccountType\AccountTypeRequest.cs" />
     <Compile Include="AccountType\AccountTypeResponse.cs" />
+    <Compile Include="FoodList\FoodListSearchResponse.cs" />
     <Compile Include="FoodList\FoodList_Store.cs" />
     <Compile Include="OrderHeader\OrderHeaderFillterRequest.cs" />
     <Compile Include="OrderHeader\OrderLineReponse.cs" />

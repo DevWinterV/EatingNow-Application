@@ -132,5 +132,9 @@ namespace PCheck.WebUI.Api
         [Route("TakeFavoriteFoodListOfUser")]
         public async Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser([FromBody] EN_CustomerLocationRequest request) => await _foodListService.TakeFavoriteFoodListOfUser(request);
 
+        [HttpGet]
+        [Route("SearchFoodListByUser")]
+        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude) => await _foodListService.SearchFoodListByUser(keyword, latitude, longitude);
+
     }
 }
