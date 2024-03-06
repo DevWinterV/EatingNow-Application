@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:fam/models/foodlistSearchResponse.dart';
 import 'package:fam/models/product_recommended_model.dart';
-import 'package:fam/models/stores_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../../util/app_constants.dart';
@@ -41,7 +39,7 @@ class ProductService {
     }
   }
 
-  Future<FoodListSearchResponse> SearchFoodListByUser(String keyword, Float latitude, Float longitude) async {
+  Future<FoodListSearchResponse> SearchFoodListByUser(String keyword, double latitude, double longitude) async {
     final response = await http.get(
       Uri.parse('${apiUrlSearchFoodListByUser}?keyword=${keyword}&latitude=${latitude}&longitude=${longitude}'),
       headers: {
