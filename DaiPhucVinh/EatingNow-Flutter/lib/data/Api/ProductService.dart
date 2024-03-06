@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:ffi';
+import 'package:fam/models/foodlistSearchResponse.dart';
 import 'package:fam/models/product_recommended_model.dart';
 import 'package:fam/models/stores_model.dart';
 import 'package:http/http.dart' as http;
+
+import '../../util/app_constants.dart';
 
 class ApiResult {
   final bool success;
@@ -16,7 +20,7 @@ class ApiResult {
 }
 class ProductService {
   final String apiUrl;
-
+  final String apiUrlSearchFoodListByUser  = AppConstants.SearchFoodListByUser;
   ProductService({required this.apiUrl});
 
   Future<ProductRecommended> fectProductRecommended(Map<String, dynamic> requestData) async {
@@ -37,22 +41,18 @@ class ProductService {
     }
   }
 
-
-  Future<void> postData(StoreModel store) async {
-    final Map<String, dynamic> data = store.toJson();
-
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+  Future<FoodListSearchResponse> SearchFoodListByUser(String keyword, Float latitude, Float longitude) async {
+    final response = await http.get(
+      Uri.parse('${apiUrlSearchFoodListByUser}?keyword=${keyword}&latitude=${latitude}&longitude=${longitude}'),
+      headers: {
+        'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
       },
-      body: jsonEncode(data),
     );
-
     if (response.statusCode == 200) {
-      print('Data posted successfully');
+      final jsonData = json.decode(response.body);
+      return FoodListSearchResponse.fromJson(jsonData);
     } else {
-      throw Exception('Failed to post data');
+      throw Exception('Failed to load FoodListSearchResponse');
     }
   }
 }

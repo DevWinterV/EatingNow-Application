@@ -571,7 +571,6 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                 var listResult = new List<FoodListSearchResponse>();
                 var resultList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
 
-
                 // var storeresults = BinarySearch(listStore, keyword);
                 foreach (var store in listStore)
                 {
