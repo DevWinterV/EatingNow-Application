@@ -106,7 +106,12 @@ class _MainFoodPageState extends State<MainFoodPage> {
                                 Container(
                                     width:Dimensions.height40,
                                     height:Dimensions.height40,
-                                    child:Icon(Icons.search, color:Colors.white, size: Dimensions.iconSize16,),
+                                    child: IconButton(
+                                          onPressed: (){
+                                            Navigator.of(context).pushNamed("/searchpage");
+                                          },
+                                          icon:  Icon(Icons.search, color:Colors.white, size: Dimensions.iconSize16,),
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(Dimensions.radius15),
                                       color: AppColors.mainColor,

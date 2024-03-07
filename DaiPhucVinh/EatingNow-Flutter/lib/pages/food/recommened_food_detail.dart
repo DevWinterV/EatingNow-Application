@@ -151,7 +151,6 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                         noteController.text = "";
                         noteController.text = value;
                     },
-
                     decoration: InputDecoration(
                       labelText: 'Ghi chú món ăn',
                       hintText: "Không cay, ít đường, ít tiêu, ...",

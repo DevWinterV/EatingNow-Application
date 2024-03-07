@@ -89,8 +89,8 @@ class StoreinFo {
   double? latitude;
   double? longitude;
   String? status;
-  int? distance;
-  int? time;
+  double? distance;
+  double? time;
 
   StoreinFo(
       {this.userId,
@@ -162,7 +162,7 @@ class FoodList {
   String? category;
   int? categoryId;
   String? foodName;
-  Null? storeName;
+  String? storeName;
   int? price;
   int? qty;
   String? uploadImage;
@@ -176,8 +176,8 @@ class FoodList {
   String? expiryDate;
   bool? qtycontrolled;
   bool? qtySuppliedcontrolled;
-  int? latitude;
-  int? longitude;
+  double? latitude;
+  double? longitude;
 
   FoodList(
       {this.foodListId,

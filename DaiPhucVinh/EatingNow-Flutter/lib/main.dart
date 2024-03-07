@@ -10,6 +10,7 @@ import 'package:fam/pages/home/getCurrentLocation_page.dart';
 import 'package:fam/pages/home/main_food_page.dart';
 import 'package:fam/pages/profile/profile_detail_page.dart';
 import 'package:fam/pages/profile/profile_page.dart';
+import 'package:fam/pages/search/searchPage.dart';
 import 'package:fam/pages/store/details_store_page.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
@@ -126,6 +127,10 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/ordedetails',
           page: () => OrderDetailsPage(),
+        ),
+        GetPage(
+          name: '/searchpage',
+          page: () => SearchFoodPage(),
         ),
       ],
     );

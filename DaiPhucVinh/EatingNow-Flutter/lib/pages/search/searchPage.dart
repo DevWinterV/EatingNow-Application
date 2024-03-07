@@ -1,13 +1,19 @@
 import 'dart:async';
 
+import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/data/Api/ProductService.dart';
+import 'package:fam/models/storenearUser.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 
+import '../../Widget/Icon_and_Text_widget.dart';
+import '../../Widget/customSearch.dart';
 import '../../models/LocationData.dart';
 import '../../models/foodlistSearchResponse.dart';
 import '../../util/dimensions.dart';
@@ -40,6 +46,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     super.dispose();
     _streamController.close();
   }
+
   void initLocationData() async{
     prefs = await LocationStorage();
     final results = await prefs.getSavedLocation();
@@ -56,87 +63,282 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     }
     final response = await ProductService(apiUrl: AppConstants.SearchFoodListByUser).SearchFoodListByUser(keyword, locationData.latitude ?? 0.0, locationData.longitude ?? 0.0);
     if(response.success == true){
+      print(response.data);
       _streamController.sink.add(response);
     }
-    else{
-
-    }
   }
+
+
+  Future<double> calculateDistanceToStore(double storeLatitude, double storeLongitude) async {
+    double distanceInMeters = 0;
+    try {
+
+      if(locationData == null){
+        initLocationData();
+      }
+      distanceInMeters = await Geolocator.distanceBetween(
+          locationData.latitude ?? 10.3792302, locationData.longitude ?? 105.3872573, storeLatitude, storeLongitude);
+    } catch (e) {
+      // Xử lý lỗi nếu có
+      print("Lỗi khi tính toán khoảng cách: $e");
+    }
+    return distanceInMeters;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Phần Header tìm kiếm
-              Container(
-                      margin: EdgeInsets.only(top: Dimensions.height45, bottom: Dimensions.height5),
-                      padding: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                                IconButton(
-                                    onPressed: (){
-                                        Navigator.of(context).pop();
-                                }, icon: Icon(Icons.arrow_circle_left, size: 20,)),
-                                TextField(
-                                  onChanged: (value) {
-                                    SearchFoodListByUser(value.trim().toLowerCase());
-                                  },
-                                  style: TextStyle(color: Colors.black),
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    hintText: "Nhập món ăn hoặc cửa hàng bạn muốn tìm ...",
-                                    prefixIcon: Icon(Icons.search_outlined),
-                                    prefixIconColor: AppColors.mainColor
-                                  ),
-                                )
-                            ],
-                          ),
-                        ],
-                      )
-                  ),
-              //showing the body
+              Padding(
+                padding: EdgeInsets.only(top: 30, left: 10, right: 10, bottom: 5),
+                child: CustomSearchBar(
+                  onSubmitted: (value) {
+                    SearchFoodListByUser(value.trim().toLowerCase());
+                  },
+                ),
+              ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: StreamBuilder<FoodListSearchResponse?>(
-                    stream: getstreamController,
-                    builder: (context, snapshot) {
-                      if(snapshot.connectionState == ConnectionState.waiting){
-                        return Center(
-                          child: CircularProgressIndicator(color: AppColors.mainColor,),
-                        );
-                      }
-                      if(snapshot.data!.data!.length! > 0 && snapshot.hasData){
-                        return ListView.builder(
-                            itemCount: snapshot.data!.data!.length,
-                            itemBuilder: (itemBuilder, index){
-                              final item = snapshot.data!.data?[index];
-                              return ListTile(
-                                title: Text(item?.storeinFo?.fullName ?? ""),
+                flex: 2,
+                child:
+                StreamBuilder<FoodListSearchResponse?>(
+                  initialData: null,
+                  stream: getstreamController,
+                  builder: (context, snapshot) {
+                    if(snapshot.data == null){
+                      return Center(
+                       child: SmallText(text: "Bạn đang muốn tìm kiếm gì nào ?",color: Colors.black, size: Dimensions.font14,),
+                      );
+                    }
+                    if(snapshot.connectionState == ConnectionState.waiting){
+                      return Center(
+                        child: CircularProgressIndicator(color: AppColors.mainColor,),
+                        // child: SmallText(text: "Bạn đang muốn tìm kiếm món ăn gì nào ?",color: Colors.black, size: Dimensions.font14,),
+                      );
+                    }
+                    if(snapshot.data!.data!.length! > 0 && snapshot.hasData){
+                      return   ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: snapshot!.data!.data?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final item = snapshot!.data?.data![index];
+                            final storeConvert = DataStoreNearUserModel(
+                              userId: item?.storeinFo?.userId ?? 0,
+                              fullName: item?.storeinFo?.fullName ?? "",
+                              openTime: item?.storeinFo?.openTime ?? "",
+                              ownerName: item?.storeinFo?.ownerName ?? "",
+                              latitude: item?.storeinFo?.latitude ?? 0.0,
+                              longitude: item?.storeinFo?.longitude ?? 0.0,
+                              phone: item?.storeinFo?.phone ?? "",
+                              description: item?.storeinFo?.description ?? "",
+                              absoluteImage: item?.storeinFo?.absoluteImage ?? "",
+                              address: item?.storeinFo?.address ?? "",
+                            );
+                            return
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        // Điều hướng đến trang chi tiết tại đây
+                                        // Chuyển đổi route tới link và truyền dữ liệu caritems
+                                        Navigator.pushReplacement(
+                                            context,
+                                            Navigator.pushNamed(context, "/storedetail", arguments: {'data': storeConvert }) as Route<Object?>
+                                        );
+                                      },
+                                      child:
+                                      Container(
+                                        margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20, bottom: Dimensions.height10),
+                                        child:
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: Dimensions.listViewImgSize,
+                                              height: Dimensions.listViewImgSize,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                                color:  (index % 2 == 0) ? Colors.orange[50] : Colors.amber[100], // Bạn có thể thay thế bằng widget Image.network
+                                                image: DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: NetworkImage(item?.storeinFo?.absoluteImage ?? "" ),
+                                                ),
+                                              ),
+                                            ),
+                                            //text container
+                                            // Phần chứa văn bản
+                                            Expanded(
+                                                child: Container(
+                                                  height: Dimensions.listViewTextContSize,
+                                                  width: Dimensions.listViewTextContSize,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.only(
+                                                      topRight: Radius.circular(Dimensions.radius20),
+                                                      bottomRight: Radius.circular(Dimensions.radius20),
+                                                    ),
+                                                    color: Colors.white,
+                                                  ),
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                      children: [
+                                                        BigText(text: (item?.storeinFo?.fullName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
+                                                        // SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            // SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
+                                                            FutureBuilder<double>(
+                                                              future: calculateDistanceToStore(item?.storeinFo!.latitude ?? 10.323233,item?.storeinFo!.longitude ?? 105.1727172),
+                                                              builder: (context, snapshot) {
+                                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                  return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
+                                                                } else if (snapshot.hasError) {
+                                                                  return SizedBox();
+                                                                } else {
+                                                                  final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                                                  final minite = (double.parse(km) * 60)/ 35;
+                                                                  return
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                                      children: [
+                                                                        IconAndTextWidget(
+                                                                          icon: Icons.access_time_rounded,
+                                                                          text: minite.toStringAsFixed(1) +" phút",
+                                                                          iconColor: AppColors.mainColor,),
+                                                                        IconAndTextWidget(
+                                                                          icon: Icons.location_on,
+                                                                          text: km +" km",
+                                                                          iconColor: AppColors.iconColor2,
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                }
+                                                              },
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                  ),
+                                  item!.foodList!.length > 0 ?
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Divider(thickness: 5,color: Colors.white,),
+                                        // BigText(text: 'Món ăn quán ${(item?.storeinFo?.fullName ?? "")}', size: Dimensions.font16, color: AppColors.signColor, ),
+                                        Container(
+                                          height: item!.foodList!.length * 100,
+                                          child:ListView.builder(
+                                              physics: NeverScrollableScrollPhysics(),
+                                              shrinkWrap: true,
+                                              itemCount: item!.foodList!.length,
+                                              //itemCount: item!.foodList!.length > 2 ? 2 : item!.foodList!.length,
+                                              itemBuilder: (context, index) {
+                                                final product = item!.foodList![index];
+                                                product.storeName = item?.storeinFo?.fullName?? "";
+                                                return
+                                                  GestureDetector(
+                                                      onTap: () {
+                                                        // Điều hướng đến trang chi tiết tại đây
+                                                        // Chuyển đổi route tới link và truyền dữ liệu caritems
+                                                        Navigator.pushReplacement(
+                                                            context,
+                                                            Navigator.pushNamed(context, "/productdetail", arguments: {'data': product }) as Route<Object?>
+                                                        );
+                                                      },
+                                                      child:
+                                                      Container(
+                                                        margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20, bottom: Dimensions.height10),
+                                                        child: Row(
+                                                          children: [
+                                                            //text container
+                                                            // Phần chứa văn bản
+                                                            Expanded(
+                                                                child: Container(
+                                                                  height: Dimensions.listViewTextContSize,
+                                                                  width: Dimensions.listViewTextContSize,
+                                                                  decoration: BoxDecoration(
+                                                                    borderRadius: BorderRadius.only(
+                                                                      topLeft: Radius.circular(Dimensions.radius20),
+                                                                      bottomLeft: Radius.circular(Dimensions.radius20),
+                                                                      topRight: Radius.circular(Dimensions.radius20),
+                                                                      bottomRight: Radius.circular(Dimensions.radius20),
+                                                                    ),
+                                                                    color: Colors.white,
+                                                                  ),
+                                                                  child: Padding(
+                                                                    padding: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
+                                                                    child:
+                                                                    Row(
+                                                                      children: [
+                                                                        Padding(padding: EdgeInsets.only(right: 14), child: Container(
+                                                                          width: Dimensions.listViewFoodImgSize,
+                                                                          height: Dimensions.listViewFoodImgSize,
+                                                                          decoration: BoxDecoration(
+                                                                            borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                                                            color:  (index % 2 == 0) ? Colors.orange[50] : Colors.amber[100], // Bạn có thể thay thế bằng widget Image.network
+                                                                            image: DecorationImage(
+                                                                              fit: BoxFit.cover,
+                                                                              image: NetworkImage(product?.uploadImage ?? "" ),
+                                                                            ),
+                                                                          ),
+                                                                        ),),
+                                                                        Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                                          children: [
+                                                                            BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
+                                                                            Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                              children: [
+                                                                                SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
+                                                                              ],
+                                                                            )
+                                                                          ],
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                )
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )
+                                                  );
+
+
+                                              }),
+                                        ),
+                                        Divider(thickness: 5,color: Colors.white,),
+                                      ],
+                                    ):
+                                  SizedBox(),
+                                ],
                               );
-                            });
-                      }
-                      if(snapshot.data!.dataCount! == 0 && snapshot.hasData){
-                        return Center(
-                          child: SmallText(text: "Không tìm thấy kết quả phù hợp",color: Colors.black, size: Dimensions.font14,),
-                        );
-                      }
+                          });
+                    }
+                    if(snapshot.data!.dataCount! == 0 && snapshot.hasData){
+                      return Center(
+                        child: SmallText(text: "Không tìm thấy kết quả phù hợp",color: Colors.black, size: Dimensions.font14,),
+                      );
+                    }
+                    return SizedBox();
+                  },
 
-                      return SizedBox();
-                    },
-
-                  ),
                 ),
               ),
             ],
@@ -173,6 +375,8 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
         ],
       ),
     );
+
   }
+
 }
 
