@@ -49,6 +49,7 @@ class _OrderPage extends State<OrderPage> {
   String nameAddressdelivery ='';
   String paymentMethod = '';
   late LocationData locationData;
+  late String StoreName;
   List<CartItem> cartItem = [];
 
 
@@ -78,6 +79,12 @@ class _OrderPage extends State<OrderPage> {
     List<CartItem> loadedItems = await CartStorage.getCartItems();
     setState(() {
       cartItem = loadedItems.where((element) => element.userId == userId).toList();
+      if(cartItem.length > 0){
+        StoreName = cartItem[0].storeName;
+      }
+      else{
+        StoreName = "  ";
+      }
     });
   }
   late bool result;
@@ -158,7 +165,7 @@ class _OrderPage extends State<OrderPage> {
                     fontSize: Dimensions.font20,
                   ),// Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
                 ),
-                SmallText(text: cartItem[0].storeName ?? "", size: Dimensions.font16, color: Colors.black)
+                SmallText(text: StoreName, size: Dimensions.font16, color: Colors.black)
               ],
             ),
             centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
@@ -404,10 +411,6 @@ class _OrderPage extends State<OrderPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Image.asset(
-                                "assets/image/emptycart.png",
-                                height: 100,
-                                width: 100,),
                               Text(
                                 "Chưa có sản phẩm trong đơn hàng",
                                 style: TextStyle(
@@ -736,7 +739,7 @@ class _OrderPage extends State<OrderPage> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text('Quay về trang chính', style: TextStyle(fontSize: Dimensions.font16),),
+                      child: Text('Quay về', style: TextStyle(fontSize: Dimensions.font16),),
                     ), ) ,
                 )
               ],

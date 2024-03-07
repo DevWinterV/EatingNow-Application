@@ -342,7 +342,6 @@ class _CartPageState extends State<CartPage> {
                                               GestureDetector(
                                                 onTap: () async {
                                                   _removeItemCart(item);
-                                                  _loadCartItems();
                                                 },
                                                 child: Row(
                                                   children: <Widget>[
