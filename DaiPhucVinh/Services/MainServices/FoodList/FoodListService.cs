@@ -14,8 +14,10 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Falcon.Web.Core.Log;
 using Falcon.Web.Core.Settings;
+using Microsoft.AspNet.SignalR;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 using System;
 using System.Collections.Generic;
@@ -559,6 +561,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             var result = new BaseResponse<FoodListSearchResponse> { };
             try
             {
+                /*
                 var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).Where(
                     x =>
                     x.FullName.Contains(keyword)
@@ -567,21 +570,76 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     || x.Phone.Contains(keyword)
                     || x.Email.Contains(keyword)
                     || x.Cuisine.Name.Contains(keyword)
-                    ).ToListAsync();
+                    ).ToListAsync();*/
+                var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).ToListAsync();
                 var listResult = new List<FoodListSearchResponse>();
-                var resultList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
-
+                var resulStoretList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
                 // var storeresults = BinarySearch(listStore, keyword);
-                foreach (var store in listStore)
+                foreach (var store in resulStoretList)
+                {
+                    var resultFoodListSearch = new FoodListSearchResponse();
+                   
+                    var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
+                        .Where( x => x.UserId.Equals(store.UserId) && x.FoodName.Contains(keyword)).ToListAsync();
+                    if(foodlist.Count > 0)
+                    {
+                        resultFoodListSearch.storeinFo = store;
+                        resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
+                        listResult.Add(resultFoodListSearch);
+                    }
+                    else
+                    {
+                        if (store.FullName.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            || store.OwnerName.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            || store.Description.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            || store.Phone.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0    
+                            || store.Email.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            || store.Cuisine.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            || store.Address.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                            )
+                        {
+                            resultFoodListSearch.storeinFo = store;
+                            resultFoodListSearch.foodList = new List<FoodListResponse>();
+                            listResult.Add(resultFoodListSearch);
+                        }
+                    }
+                }
+                /*
+                foreach (var store in resultList)
                 {
                     var resultFoodListSearch = new FoodListSearchResponse();
                     resultFoodListSearch.storeinFo = store.MapTo<StoreResponse>();
-                    var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
-                        .Where( x => x.UserId.Equals(store.UserId) && x.FoodName.Contains(keyword)).ToListAsync();
-                    //  var foodlistresults = BinarySearch(foodlist, keyword);
-                    resultFoodListSearch.foodList = foodlist.Take(5).MapTo<FoodListResponse>();
+                    var foodlistNearS = (from stores in resultList
+                                         from food in _datacontext.EN_FoodList
+                                         where food.UserId == store.UserId
+                                         select new FoodListResponse
+                                         {
+                                             FoodListId = food.FoodListId,
+                                             FoodName = food.FoodName,
+                                             storeName = store.FullName,
+                                             Price = food.Price,
+                                             qty = food.qty,
+                                             UploadImage = food.UploadImage,
+                                             Description = food.Description,
+                                             UserId = food.UserId,
+                                             Status = food.Status,
+                                             Hint = food.Hint,
+                                             IsNew = food.IsNew,
+                                             IsNoiBat = food.IsNoiBat,
+                                             QuantitySupplied = food.QuantitySupplied,
+                                             ExpiryDate = food.ExpiryDate,
+                                             Qtycontrolled = food.Qtycontrolled,
+                                             QtySuppliedcontrolled = food.QtySuppliedcontrolled,
+                                             Latitude = store.Latitude,
+                                             Longitude = store.Longitude,
+                                         }).ToList();
+
+                    resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
                     listResult.Add(resultFoodListSearch);
                 }
+                
+              */
+
                 result.Success = true;
                 result.Data = listResult;
                 result.Message = "SearchSuccess";

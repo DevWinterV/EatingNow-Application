@@ -419,6 +419,8 @@ namespace DaiPhucVinh.Services.Infrastructure
             .ForMember(d => d.Longitude, o => o.MapFrom(s => s.Storeitem.Longitude))
             .ForMember(d => d.storeName, o => o.MapFrom(s => s.Storeitem.FullName));
 
+
+
             CreateMap<EN_Account, AccountResponse>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Store.AbsoluteImage))
                 .ForMember(d => d.StoreName, o => o.MapFrom(s => s.Store.FullName));

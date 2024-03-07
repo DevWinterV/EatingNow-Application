@@ -344,7 +344,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
                               ),
                             ),
                             Container(
-                              height: 450,
+                              height: MediaQuery.of(context).size.height - 400,
                               child:
                               StreamBuilder<List<DataProduct>?>(
                                 stream: streamListProduct.stream,

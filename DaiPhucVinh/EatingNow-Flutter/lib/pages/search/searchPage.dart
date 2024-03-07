@@ -301,7 +301,19 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                                           children: [
-                                                                            BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
+                                                                            Container(
+                                                                              height: 40,
+                                                                              width: MediaQuery.of(context).size.width - 160,
+                                                                              child: Text(
+                                                                                product?.foodName ?? "",
+                                                                                style: TextStyle(
+                                                                                  fontSize:  Dimensions.font16,
+                                                                                  color: AppColors.signColor,
+                                                                                ),
+                                                                                maxLines: 2,
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
                                                                             Row(
                                                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                               children: [
@@ -331,7 +343,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                               );
                           });
                     }
-                    if(snapshot.data!.dataCount! == 0 && snapshot.hasData){
+                    if(snapshot.data!.data!.length! == 0 && snapshot.hasData){
                       return Center(
                         child: SmallText(text: "Không tìm thấy kết quả phù hợp",color: Colors.black, size: Dimensions.font14,),
                       );
