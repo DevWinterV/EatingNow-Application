@@ -56,6 +56,23 @@ const CategoryPage = () => {
       navigator.geolocation.getCurrentPosition(resolve, reject, options);
     });
   }
+  const [scrollUp, setScrollUp] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 130) {
+        setScrollUp(true);
+      } else {
+        setScrollUp(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,8 +132,14 @@ const CategoryPage = () => {
 
   return (
     <div className="w-full h-auto flex flex-col items-center justify-center">
-      <div>
-        {cartShow ? <CartContainer /> : <LeafletMap locations={newdata} />}
+      <div className="py-2 flex-1 flex flex-col items-start justify-center gap-6">
+        {cartShow ? (
+          <CartContainer />
+        ) : (
+          <div className={`map-container ${scrollUp ? 'fade-out' : ''}`}>
+            <LeafletMap locations={newdata} />
+          </div>
+        )}
       </div>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">

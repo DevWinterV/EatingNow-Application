@@ -249,21 +249,20 @@ const Order = () => {
     proxy.on('ReceiveOrderNotificationOfUser', (orderMessage) => {
       onViewAppearing();
       Swal.fire({
-        title: "Đơn hàng mới",
+        title: orderMessage,
         text: "Bạn có đơn hàng mới",
         minutes: 5,
         icon: "info",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Xem",
+        confirmButtonText: "Xem đơn đặt hàng",
       }).then((result) => {
         if (result.isConfirmed) { 
           onViewAppearing();
         }
       });
     });
-  
     // Attempt connection and handle connection and error events
     connection.start()
       .done(() => {

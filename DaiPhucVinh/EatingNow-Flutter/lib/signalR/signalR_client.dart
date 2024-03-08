@@ -17,7 +17,7 @@ class SignalRClient {
   }
 
   Future<void> SendOrderNotificationToUser(String userId) async {
-    await signalR.invokeMethod(hubMethods[2], arguments: ["Thông báo đơn hàng mới", userId]);
+    await signalR.invokeMethod(hubMethods[2], arguments: ["Thông báo đơn đặt hàng mới", userId]);
   }
   Future<void> setCustomerId(String customerId) async {
     await signalR.invokeMethod(hubMethods[1], arguments: [customerId]);

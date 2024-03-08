@@ -37,7 +37,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     setState(() {
       order = arguments['data'] as Data; // Nhận dữ liệu orderId
     });
-    print( 'order.creationDate ${order.creationDate ?? ""}');
     _initStreamOrderList();
   }
   _launchGoogleMaps(double latitude, double longitude ) async {
@@ -353,7 +352,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             text:
                             order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
                             size: Dimensions.font14,
-                            color:  order?.paymentStatusID == 2 ? Colors.green : Colors.red
+                            color:  order?.paymentStatusID == 2 ? Colors.green : Colors.black
                         ),
                       ],
                     ),

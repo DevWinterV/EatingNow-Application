@@ -3,9 +3,27 @@ import { GiAlarmClock } from "react-icons/gi";
 import LeafletMapStore from "./LeafletMapStore";
 import { useStateValue } from "../context/StateProvider";
 import CartContainer from "./CartContainer";
-
+import { useState, useEffect } from "react";
 const ProfileStoreContainer = ({ data }) => {
   const [{ cartShow }] = useStateValue();
+
+  const [scrollUp, setScrollUp] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrollUp(true);
+      } else {
+        setScrollUp(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   return (
     <section
       key={data?.CategoryId}
@@ -48,8 +66,14 @@ const ProfileStoreContainer = ({ data }) => {
         </div>
       </div>
 
-      <div className="py-2 flex-1 flex flex-col items-start justify-center gap-6 mt-10">
-          {cartShow ? <CartContainer /> :  <LeafletMapStore locations={data} />}
+      <div className="py-2 flex-1 flex flex-col items-start justify-center gap-6">
+        {cartShow ? (
+          <CartContainer />
+        ) : (
+          <div className={`map-container ${scrollUp ? 'fade-out' : ''}`}>
+            <LeafletMapStore locations={data} />
+          </div>
+        )}
       </div>
     </section>
   );

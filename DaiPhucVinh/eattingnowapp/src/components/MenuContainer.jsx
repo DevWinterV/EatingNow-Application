@@ -16,7 +16,15 @@ const MenuContainer = ({ data, state }) => {
   async function onViewAppearing() {
     setIsLoading(true);
     if (filter === "") {
-      let response = await TakeAllFoodListByStoreId(state);
+      let response = await TakeAllFoodListByStoreId({
+        "ExpiryDate": 2,
+        "Id": state,
+        "Qtycontrolled": 2,
+        "QuantitySupplied": 2,
+        "TimeExpiryDate": 2,
+        "filter":"",
+        "keyWord": ""
+      });
       setRowData(response.data);
     } else {
       let response = await TakeFoodListByStoreId(filter);

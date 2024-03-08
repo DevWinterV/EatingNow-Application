@@ -46,7 +46,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         Task<BaseResponse<FoodListResponse>> TakeNewFood();
         Task<BaseResponse<FoodListResponse>> TakeRecommendedFoodList(EN_CustomerLocationRequest request);
         Task<BaseResponse<FoodListResponse>> TakeFavoriteFoodListOfUser(EN_CustomerLocationRequest request);
-        Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude );
+        Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude, int? cuisineId);
     }
     public class FoodListService : IFoodListService
     {
@@ -556,7 +556,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         }
 
 
-        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude)
+        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude, int? cuisineId = 0)
         {
             var result = new BaseResponse<FoodListSearchResponse> { };
             try
@@ -571,39 +571,73 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     || x.Email.Contains(keyword)
                     || x.Cuisine.Name.Contains(keyword)
                     ).ToListAsync();*/
+
                 var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).ToListAsync();
                 var listResult = new List<FoodListSearchResponse>();
-                var resulStoretList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
-                // var storeresults = BinarySearch(listStore, keyword);
-                foreach (var store in resulStoretList)
+                if (cuisineId > 0 || cuisineId != null)
                 {
-                    var resultFoodListSearch = new FoodListSearchResponse();
-                   
-                    var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
-                        .Where( x => x.UserId.Equals(store.UserId) && x.FoodName.Contains(keyword)).ToListAsync();
-                    if(foodlist.Count > 0)
+                    listStore = listStore.Where(x => x.CuisineId.Equals(cuisineId)).ToList();
+                }
+                var resulStoretList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
+
+                if (!keyword.IsNullOrEmpty())
+                {
+                    string improvedSentence = PreprocessSentence(keyword);
+                    // var storeresults = BinarySearch(listStore, keyword);
+                    foreach (var store in resulStoretList)
                     {
-                        resultFoodListSearch.storeinFo = store;
-                        resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
-                        listResult.Add(resultFoodListSearch);
+                        var resultFoodListSearch = new FoodListSearchResponse();
+
+                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
+                            .Where(x => x.UserId.Equals(store.UserId) && x.FoodName.ToLower().Trim().Contains(improvedSentence)).ToListAsync();
+                        if (foodlist.Count > 0)
+                        {
+                            resultFoodListSearch.storeinFo = store;
+                            resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
+                            listResult.Add(resultFoodListSearch);
+                        }
+                        else
+                        {
+                            if (store.FullName.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.OwnerName.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.Description.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.Phone.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.Email.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.Cuisine.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                || store.Address.ToLower().Trim().IndexOf(improvedSentence, StringComparison.OrdinalIgnoreCase) >= 0
+                                )
+                            {
+                                resultFoodListSearch.storeinFo = store;
+                                resultFoodListSearch.foodList = new List<FoodListResponse>();
+                                listResult.Add(resultFoodListSearch);
+                            }
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var store in resulStoretList)
                     {
-                        if (store.FullName.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            || store.OwnerName.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            || store.Description.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            || store.Phone.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0    
-                            || store.Email.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            || store.Cuisine.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            || store.Address.ToLower().IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                            )
+                        var resultFoodListSearch = new FoodListSearchResponse();
+
+                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
+                            .Where(x => x.UserId.Equals(store.UserId)).ToListAsync();
+                        if (foodlist.Count > 0)
+                        {
+                            resultFoodListSearch.storeinFo = store;
+                            resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
+                            listResult.Add(resultFoodListSearch);
+                        }
+                        else
                         {
                             resultFoodListSearch.storeinFo = store;
                             resultFoodListSearch.foodList = new List<FoodListResponse>();
                             listResult.Add(resultFoodListSearch);
                         }
                     }
+
                 }
+
                 /*
                 foreach (var store in resultList)
                 {
@@ -814,6 +848,38 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             nearestStores = nearestStores.OrderBy(store => store.Distance).ToList();
 
             return nearestStores;
+        }
+
+        // Xử lý và trả về kết quả
+        static string PreprocessSentence(string sentence)
+        {
+            string[] stopWords = LoadStopWords();
+            string[] words = sentence.ToLower().Split(' ');
+            string[] meaningfulWords = RemoveStopWords(words, stopWords);
+            string improvedSentence = string.Join(" ", meaningfulWords);
+
+            return improvedSentence;
+        }
+        // Danh sách từ dùng
+        static string[] LoadStopWords()
+        {
+            // Danh sách từ dừng mở rộng
+            string[] stopWords = {
+                "Tôi",
+                "và", "hoặc", "là", "của", "cái", "để", "có", "có thể", "được", "trong", "này",
+                "đó", "này", "một số", "mỗi", "một ít", "với", "ở", "từ", "như", "nhưng", "trên",
+                "dưới", "qua", "sau", "trước", "giữa", "trong suốt", "càng", "hơn", "nhưng", "đến",
+                "khi", "nếu", "bởi vì", "vì", "vậy", "do đó", "sự", "của", "các", "về", "tới", "trước khi",
+                "sau khi", "ngoài ra", "ngoài", "lên", "xuống", "qua", "nếu không", "cho đến khi", "trừ khi",
+                "trong khi", "sau khi", "mặc dù", "bất kể", "bởi vì", "vì", "đối với", "về", "đến"," địa", "bạn", "tớ", "cậu",
+                "tôi", "muốn", "tìm", "ăn uống", "ăn", "uống nước", "mua", "điểm", "shop", "quán", "món", "sản phẩm", "gần nhất", "ngon nhất","tiệm", "gần", "nhất", "ngon", "đây", "quanh"
+            };
+            return stopWords;
+        }
+        // Xóa các từ dừng
+        static string[] RemoveStopWords(string[] words, string[] stopWords)
+        {
+            return words.Where(word => !stopWords.Contains(word)).ToArray();
         }
 
     }

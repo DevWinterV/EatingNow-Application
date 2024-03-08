@@ -453,8 +453,12 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         separatorBuilder: (context, index)=>
           SizedBox(width: 5,),
         itemBuilder: (context, position){
-          return Container(
-              margin: EdgeInsets.only(left: 2),
+          return GestureDetector(
+              onTap: (){
+                Navigator.of(context).pushNamed("/searchpage", arguments: {"data": cuisineData , "IdSelected": cuisineData!.data![position].cuisineId ?? 0 });
+              },
+              child: Container(
+            margin: EdgeInsets.only(left: 2),
             height: 50,
             width: 100,
             decoration: BoxDecoration(
@@ -479,24 +483,24 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
                 ),
 
-              (cuisineData != null && cuisineData!.data != null && position >= 0 && position < cuisineData!.data!.length) ?
+                (cuisineData != null && cuisineData!.data != null && position >= 0 && position < cuisineData!.data!.length) ?
 
 
-              Text(cuisineData!.data![position].name ?? " ",
-                style: TextStyle(fontSize: 12, color: AppColors.paraColor),
-                overflow: TextOverflow.ellipsis,
-                // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
-                maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
-              )
-                  :
-              Text("Invalid Data or Position",
-                overflow: TextOverflow.ellipsis,
-                // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
-                maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
-              ),
-            ],
+                Text(cuisineData!.data![position].name ?? " ",
+                  style: TextStyle(fontSize: 12, color: AppColors.paraColor),
+                  overflow: TextOverflow.ellipsis,
+                  // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
+                  maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
+                )
+                    :
+                Text("Invalid Data or Position",
+                  overflow: TextOverflow.ellipsis,
+                  // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
+                  maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
+                ),
+              ],
             ),
-          );
+          ));
         }
       ),
     ):(

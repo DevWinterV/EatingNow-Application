@@ -280,6 +280,21 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                                 .toLocal())}",
                                                         color: Colors.black,
                                                       ),
+                                                      BigText(
+                                                          text:
+                                                          order
+                                                              ?.paymentStatusID ==
+                                                              2
+                                                              ? 'Đã thanh toán Online'
+                                                              : "Thanh toán khi nhận hàng",
+                                                          size: Dimensions
+                                                              .font13,
+                                                          color: order
+                                                              ?.paymentStatusID ==
+                                                              2
+                                                              ? Colors.green
+                                                              : Colors.black
+                                                      ),
                                                       Row(
                                                         mainAxisAlignment: MainAxisAlignment
                                                             .spaceBetween,
@@ -298,21 +313,6 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                                   .red[400]
                                                           ),
                                                         ],
-                                                      ),
-                                                      BigText(
-                                                          text:
-                                                          order
-                                                              ?.paymentStatusID ==
-                                                              2
-                                                              ? 'Đã thanh toán Online'
-                                                              : "Thanh toán khi nhận hàng",
-                                                          size: Dimensions
-                                                              .font13,
-                                                          color: order
-                                                              ?.paymentStatusID ==
-                                                              2
-                                                              ? Colors.green
-                                                              : Colors.red
                                                       ),
                                                     ],
                                                   ),

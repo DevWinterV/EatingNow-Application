@@ -39,9 +39,9 @@ class ProductService {
     }
   }
 
-  Future<FoodListSearchResponse> SearchFoodListByUser(String keyword, double latitude, double longitude) async {
+  Future<FoodListSearchResponse> SearchFoodListByUser(String keyword, double latitude, double longitude, int? cuisineId) async {
     final response = await http.get(
-      Uri.parse('${apiUrlSearchFoodListByUser}?keyword=${keyword}&latitude=${latitude}&longitude=${longitude}'),
+      Uri.parse('${apiUrlSearchFoodListByUser}?keyword=${keyword}&latitude=${latitude}&longitude=${longitude}&cuisineId=${cuisineId}'),
       headers: {
         'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
       },

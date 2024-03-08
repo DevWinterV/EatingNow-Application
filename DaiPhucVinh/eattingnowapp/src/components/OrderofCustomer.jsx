@@ -6,6 +6,7 @@ import Modal from 'react-modal';
 import { TbCircleX} from "react-icons/tb";
 import { GetListOrderLineDetails } from "../api/store/storeService";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { Label } from "recharts";
 export default function OrderofCustomer({id, onDelete}) {
   const [Id, setId] = useState('');
   console.log(id);
@@ -187,27 +188,15 @@ export default function OrderofCustomer({id, onDelete}) {
                   >
                   <TbCircleX className="text-2xl" />
                   </button>
-                 <div className="row" style={{ display: "flex", alignItems: "center" }}>
+                <div className="row" style={{ display: "flex", alignItems: "center" }}>
                   <h2 className="text-2xl font-semibold">
-                    Chi tiết đơn hàng của bạn
+                    Chi tiết đơn hàng {Orderheader.Id}
                   </h2>
                 </div>
                 <div className="container mt-2 mb-2">
                   <div className="row ">
                     <div className="col-md-6">
-                            <div className="order-details"><div className="order-status">
-                            {
-                                !Orderheader.Status ? (
-                                  <h1 className="order-info">Đang chờ xác nhận</h1>
-                                ) : (
-                                  <h1 className="order-info ">Đã xác nhận</h1>
-
-                                )
-                              }
-                            </div>
-                            <h1 className="order-info">Mã đơn hàng: {Orderheader.Id}</h1>
                             <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
-                            <h1 className="order-info">{Orderheader.StoreName}</h1>
                             {
                               Orderheader.PaymentStatusID == 2 ?(          
                                 <h1 className="order-info">Đã thanh toán</h1>
@@ -215,25 +204,29 @@ export default function OrderofCustomer({id, onDelete}) {
                                 <h1 className="order-info">Thanh toán khi nhận hàng</h1>
                               )
                             }
+                            <h1 className="order-info">Trạng thái: {Orderheader.Status == true ? "Đã xác nhận":"Chờ xác nhận"}</h1>
+                            <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
                             <div className="address-container">
                               <h1 className="address-title">Địa chỉ nhận hàng:</h1>
                               <div className="recipient-info">
                                 <h6 className="recipient-detail">
-                                  <span className="recipient-label">Tên người nhận:</span>
-                                  <span className="recipient-value">{address.RecipientName} | {address.RecipientPhone}</span>
+                                  <span className="recipient-label">Tên người nhận: </span>
+                                  <span className="recipient-value">{address.RecipientName}</span>
+                                </h6>
+                                <h6 className="recipient-detail">
+                                  <span className="recipient-label">Số điện thoại </span>
+                                  <span className="recipient-value">{address.RecipientPhone}</span>
                                 </h6>
                                 <h6 className="recipient-detail">
                                   <span className="recipient-label">Địa chỉ:</span>
                                   <span className="recipient-value">{address.NameAddress} | {address.FormatAddress}</span>
                                 </h6>
                               </div>
-                            </div>
-                      </div>
-                       
+                            </div>                       
                     </div>
                   </div>
                 </div>
-                    <div className="w-full table-auto">
+                <div className="w-full table-auto">
                         <div>
                           <Table className="w-full table-auto">
                             <Thead className="bg-orange-50">
@@ -316,48 +309,56 @@ export default function OrderofCustomer({id, onDelete}) {
                             </Tbody>
                           </Table>
                           <Table className="w-full table-auto">
-                          <Thead className="bg-orange-50">
-                            <Tr>
-                              <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                              </Th>
-                              <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                              </Th>
-                            </Tr>
-                          </Thead>
-                          <Tbody className="bg-orange-50">
-                            <>
-                              {/* Sản phẩm 1 */}
-                              <Tr className="bg-orange-50">
-                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  Tổng tiền món ăn
-                                </Td>
-                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  {Orderheader.OrderMoney}
-                                </Td>
+                            <Thead className="bg-orange-50">
+                              <Tr>
+                                <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-right">
+                                  {/* Content for the first column */}
+                                </Th>
+                                <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-right" >
+                                  {/* Content for the second column */}
+                                </Th>
                               </Tr>
+                            </Thead>
+                            <Tbody className="bg-orange-50">
+                              <>
+                                {/* Sản phẩm 1 */}
+                                <Tr className="bg-orange-50">
+                                  <Td className="p-3 text-sm font-bold text-orange-900 text-right">
+                                    Tổng tiền món ăn
+                                  </Td>
+                                  <Td className="p-3 text-sm font-bold text-orange-900 text-right">
+                                    <label className="mr-9">
+                                      {Orderheader.OrderMoney}
+                                    </label>
+                                  </Td>
+                                </Tr>
 
-                              {/* Sản phẩm 2 */}
-                              <Tr className="bg-orange-50">
-                              <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  Phí vận chuyển
-                                </Td>
-                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  {Orderheader.Ship}
-                                </Td>
-                              </Tr>
+                                {/* Sản phẩm 2 */}
+                                <Tr className="bg-orange-50">
+                                <Td className="p-3 text-sm font-bold text-orange-900 text-right">
+                                    Phí vận chuyển
+                                  </Td>
+                                  <Td className="p-3 text-sm font-bold text-orange-900 text-right">
+                                    <label className="mr-9">
+                                      {Orderheader.Ship}
+                                    </label>
+                                  </Td>
+                                </Tr>
 
-                              {/* Tổng tiền sản phẩm */}
-                              <Tr className="bg-orange-50">
-                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  Tổng thanh toán
-                                </Td>
-                                <Td className="p-3 text-sm font-bold text-orange-900 text-center">
-                                  {Orderheader.TotalMoney}
-                                </Td>
-                              </Tr>
-                            </>
-                          </Tbody>
-                        </Table>
+                                {/* Tổng tiền sản phẩm */}
+                                <Tr className="bg-orange-50">
+                                  <Td className="p-3 text-sm font-bold text-red-400 text-right">
+                                    Tổng thanh toán
+                                  </Td>
+                                  <Td className="p-3 text-sm font-bold text-red-400 text-right">
+                                    <label className="mr-9">
+                                      {Orderheader.TotalMoney}
+                                    </label>
+                                  </Td>
+                                </Tr>
+                              </>
+                            </Tbody>
+                          </Table>
                          {/*footer*/}
                           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                           <button
@@ -371,7 +372,7 @@ export default function OrderofCustomer({id, onDelete}) {
                           </button>
                           </div>  
                           </div>        
-                    </div>
+                </div>
 
       </Modal>
      <h1 className="text-xl mb-2 text-red-700 font-bold">     
