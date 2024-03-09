@@ -81,6 +81,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                           IconButton(
                             icon: Icon(Icons.clear, color: Colors.grey),
                             onPressed: () {
+                              widget.onSubmitted("");
                               _controller.clear();
                             },
                           ),

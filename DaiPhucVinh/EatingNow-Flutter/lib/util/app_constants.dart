@@ -1,7 +1,7 @@
 class AppConstants{
   static const String APP_NAME="XpressEat.";
   static const double APP_VERSION = 1.0;
-  static const String BASE_URL="https://6e14-2402-800-63fe-aeeb-78cb-462a-eb20-7c2e.ngrok-free.app";
+  static const String BASE_URL="https://ea26-2402-800-63fe-aeeb-380f-ef85-cf2e-4451.ngrok-free.app";
   static const String TakeAllStore = BASE_URL+"/api/store/TakeAllStore";
   static const String TakeAllFoodListByStoreId= BASE_URL+"/api/store/TakeAllFoodListByStoreId";
   static const String TakeFoodListByStoreId= BASE_URL+"/api/store/TakeFoodListByStoreId";

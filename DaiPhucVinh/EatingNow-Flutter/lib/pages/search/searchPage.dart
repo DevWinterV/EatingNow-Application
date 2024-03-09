@@ -145,8 +145,11 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                     padding: EdgeInsets.only(top: 30, left: 10, right: 10, bottom: 5),
                     child: CustomSearchBar(
                       onSubmitted: (value) {
-                        _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineId, keyword: value));
-                        SearchFoodListByUser(value.trim().toLowerCase(),snapshot.data?.cuisineId ?? 0 );
+                        _streamCuisineIdController.sink.add(SearchItem(cuisineId: snapshot.data?.cuisineId ?? cuisineId, keyword: value));
+                        print('onSubmitted ${value}');
+                        print('cuisineId ${snapshot.data?.cuisineId ?? 0}');
+
+                        SearchFoodListByUser(value.trim().toLowerCase(), snapshot.data?.cuisineId ?? 0 );
                       },
                     ),
                   ),

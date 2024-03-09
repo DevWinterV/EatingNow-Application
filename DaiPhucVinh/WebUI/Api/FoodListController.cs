@@ -134,7 +134,7 @@ namespace PCheck.WebUI.Api
 
         [HttpGet]
         [Route("SearchFoodListByUser")]
-        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude) => await _foodListService.SearchFoodListByUser(keyword, latitude, longitude);
+        public async Task<BaseResponse<FoodListSearchResponse>> SearchFoodListByUser(string keyword, float latitude, float longitude, int? cuisineId) => await _foodListService.SearchFoodListByUser(keyword, latitude, longitude, cuisineId);
 
     }
 }
