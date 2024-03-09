@@ -58,6 +58,8 @@ dependencies:
   flutter_timezone: ^1.0.8
   rxdart: ^0.27.7
   flutter_webview_plugin: ^0.4.0
+  speech_to_text: ^6.6.1
+  avatar_glow: ^3.0.1
 
 dev_dependencies:
   flutter_test:
