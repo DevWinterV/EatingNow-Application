@@ -146,9 +146,6 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                     child: CustomSearchBar(
                       onSubmitted: (value) {
                         _streamCuisineIdController.sink.add(SearchItem(cuisineId: snapshot.data?.cuisineId ?? cuisineId, keyword: value));
-                        print('onSubmitted ${value}');
-                        print('cuisineId ${snapshot.data?.cuisineId ?? 0}');
-
                         SearchFoodListByUser(value.trim().toLowerCase(), snapshot.data?.cuisineId ?? 0 );
                       },
                     ),
@@ -447,7 +444,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
           builder: (builder, snapshot){
             if(snapshot.connectionState == ConnectionState.waiting){
               return Center(
-                child: CircularProgressIndicator(color: AppColors.mainColor,),
+                child: SizedBox(),
               );
             }
             if(snapshot.data!.data!.length > 0 && snapshot.hasData) {
@@ -467,8 +464,10 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                           children: [
                             GestureDetector(
                                 onTap: (){
-                                  _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineItem?.cuisineId ??0 ,keyword: keyword ));
-                                  SearchFoodListByUser(keyword, cuisineItem?.cuisineId ??0);
+                                  print(cuisineItem!.cuisineId);
+                                  print(snapshot!.data!.data?[position].cuisineId);
+                                  _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineItem!.cuisineId ?? 0 ,keyword: keyword ));
+                                  SearchFoodListByUser(keyword, cuisineItem!.cuisineId ?? 0);
                                 },
                                 child: Container(
                                   margin: EdgeInsets.only(left: 2),
@@ -508,7 +507,13 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                             Positioned(
                               top: 2,
                               right: 2,
-                              child: Icon(Icons.check_circle, color: Colors.green,),
+                              child: GestureDetector(
+                                onTap: (){
+                                  _streamCuisineIdController.sink.add(SearchItem(cuisineId: 0 ,keyword: keyword ));
+                                  SearchFoodListByUser(keyword, 0);
+                                    },
+                                  child: Icon(Icons.check_circle, color: Colors.green,),
+                                ),
                             ) : SizedBox()
                           ],
                         );

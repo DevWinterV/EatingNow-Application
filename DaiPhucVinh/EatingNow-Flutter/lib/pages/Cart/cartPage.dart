@@ -19,9 +19,12 @@ class _CartPageState extends State<CartPage> {
   Stream<bool?> get checkSelectEditStream => _checkSelectEditController.stream;
   StreamController<List<StoreChecked>?> _checkSelectedListStoreIdController = StreamController<List<StoreChecked>?>.broadcast();
   Stream<List<StoreChecked>?> get checkSelectedListStoreIdStream => _checkSelectedListStoreIdController.stream;
+
+  StreamController<List<StoreChecked>?> _checkSelectedListStoreIdRemoveController = StreamController<List<StoreChecked>?>.broadcast();
+  Stream<List<StoreChecked>?> get checkSelectedListStoreIdRemoveStream => _checkSelectedListStoreIdRemoveController.stream;
+
   List<StoreUserCart> groupedCart = [];
   List<CartItem> cartItems = [];
-
 
   @override
   void dispose() {
@@ -38,11 +41,15 @@ class _CartPageState extends State<CartPage> {
   }
 
   void updateCheckSelectEditController(bool? newData) {
-    _checkSelectEditController.sink.add(newData);
+    _checkSelectEditController.add(newData);
   }
 
   void updatecheckSelectedListStoreIdControlle(List<StoreChecked>? newList) {
-    _checkSelectedListStoreIdController.sink.add(newList);
+    _checkSelectedListStoreIdController.add(newList);
+  }
+
+  void updatecheckSelectedListStoreIdRemoveControlle(List<StoreChecked>? newList) {
+    _checkSelectedListStoreIdRemoveController.add(newList);
   }
   // Phương thức để load danh sách món ăn từ SharedPreferences
   void _loadCartItems() async {
@@ -83,6 +90,7 @@ class _CartPageState extends State<CartPage> {
       groupedCart = groupedCartfunct;
     });
     print(groupedCart);
+    _checkSelectedListStoreIdRemoveController.add([]);
     _checkSelectedListStoreIdController.sink.add(groupedCart.map((e) => e.userChecked).toList());
   }
 
@@ -104,52 +112,77 @@ class _CartPageState extends State<CartPage> {
             fontSize: Dimensions.font20,
           ),// Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
         ),
-
         actions: [
-
+          StreamBuilder<List<StoreChecked>?>(
+              stream: _checkSelectedListStoreIdRemoveController.stream,
+              builder: (builder, snapshot){
+                if(snapshot.data != null && snapshot.data!.length > 0 ){
+                  //final newList = snapshot.data!.map((e) => e.ischecked == true).toList();
+                  final listStoreChecked = snapshot.data!.where((e) => e.ischecked == true).toList();
+                  // Kiểm tra xem danh sách newList có ít nhất một phần tử là true hay không
+                  if(listStoreChecked.length > 0) {
+                    return GestureDetector(
+                      onTap: (){
+                        //Xóa các đơn đã chọn
+                        showDialog(
+                          context: context,
+                          builder: (builder) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              title: BigText(text: "Bạn có muốn các đơn hàng đã chọn không ?"),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    listStoreChecked.forEach((element) async {
+                                      await CartStorage.ClearCartByUserId(element.userId);
+                                    });
+                                    _loadCartItems();
+                                    // Gọi hàm xóa các đơn hàng đã chọn
+                                    Navigator.of(context).pop(); // Đóng hộp thoại sau khi thực hiện xong
+                                  },
+                                  child: Text("Đồng ý",style: TextStyle(color: Colors.white),),
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                    backgroundColor: Colors.green
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Đóng hộp thoại khi nhấn nút "Đóng"
+                                  },
+                                  child: Text("Đóng", style: TextStyle(color: Colors.black),),
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      backgroundColor: Colors.white
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BigText(text: "Xóa", color: Colors.red,),
+                          SizedBox(width: 20,),
+                        ],
+                      ),
+                    );
+                  }
+                }
+                return SizedBox();
+              }
+          )
         ],
-        // StreamBuilder<bool?>(
-          //   stream: checkSelectEditStream,
-          //   builder: (context, snapshot) {
-          //     if (!snapshot.hasData || snapshot.data == false) {
-          //       return IconButton(
-          //         onPressed: () {
-          //           updateCheckSelectEditController(true);
-          //         },
-          //         icon: Icon(Icons.edit_calendar_rounded),
-          //       );
-          //     } else {
-          //       return Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //         children: [
-          //           Padding(
-          //             padding: EdgeInsets.only(left: 10, right: 10),
-          //             child: StreamBuilder<List<int>?>(
-          //               initialData: [],
-          //               stream: checkSelectedListStoreIdStream,
-          //               builder: (context, snapshot) {
-          //                 if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-          //                   return GestureDetector(
-          //                     onTap: (){},
-          //                     child: Text(
-          //                       "Xóa",
-          //                       style: TextStyle(
-          //                         color: Colors.blue,
-          //                         fontSize: 16,
-          //                       ),
-          //                     ),
-          //                   );
-          //                 } else {
-          //                   return SizedBox();
-          //                 }
-          //               },
-          //             ),
-          //           ),
-          //         ],
-          //       );
-          //     }
-          //   },
-          // ),
+
         centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
         // Các thuộc tính khác của AppBar
         // Các thuộc tính khác của AppBar
@@ -208,11 +241,9 @@ class _CartPageState extends State<CartPage> {
                                 Checkbox(
                                   value:  storeChecked?.ischecked,
                                   onChanged: (value) {
-                                    storeChecked?.ischecked = !storeChecked!.ischecked;
-                                    print(storeChecked?.nameStore);
-                                    print(storeChecked?.ischecked);
-                                    snapshot.data?.add(storeChecked!);
+                                    snapshot.data?[index].ischecked = !storeChecked!.ischecked;
                                     updatecheckSelectedListStoreIdControlle(snapshot.data);
+                                    updatecheckSelectedListStoreIdRemoveControlle(snapshot.data);
                                   },
                                 ),
                                 Text(
