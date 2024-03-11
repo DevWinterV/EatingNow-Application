@@ -188,23 +188,26 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: products!.data!.take(9).map((data) {
+                      children: products!.data!.take(10).map((data) {
                         return GestureDetector(
                           onTap: () {
-                            // Điều hướng đến trang chi tiết tại đây
-                            // Chuyển đổi route tới link và truyền dữ liệu caritems
-                            Navigator.pushReplacement(
-                                context,
-                                Navigator.pushNamed(context, "/productdetail", arguments: {'data': data }) as Route<Object?>
-                            );
+                            if(data.qtycontrolled == true && data.qty! > 0 ||  data.qtycontrolled == false )
+                            {
+                              // Điều hướng đến trang chi tiết tại đây
+                              // Chuyển đổi route tới link và truyền dữ liệu caritems
+                              Navigator.pushReplacement(
+                                  context,
+                                  Navigator.pushNamed(context, "/productdetail", arguments: {'data': data }) as Route<Object?>
+                              );
+                            }
                           },
                           child:
                           Container(
-                            margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10, bottom: Dimensions.height10),
+                            margin: EdgeInsets.only(left: Dimensions.width5, right: Dimensions.width5, bottom: Dimensions.height10),
                             width: 180, // Đặt chiều rộng của mỗi phần tử
                             height: 250,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(Dimensions.radius15),
+                              borderRadius: BorderRadius.circular(Dimensions.radius20),
                               color: Colors.white, // Màu nền của phần tử
                               boxShadow: [
                                 BoxShadow(
@@ -215,78 +218,106 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                 ),
                               ],
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            child: Stack(
                               children: [
-                                // Hình ảnh
-                                Container(
-                                  height: 140,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(Dimensions.radius20),
-                                      topRight: Radius.circular(Dimensions.radius20),
-                                      bottomRight: Radius.circular(Dimensions.radius20),
-                                      bottomLeft: Radius.circular(Dimensions.radius20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Hình ảnh
+                                    Container(
+                                      height: 140,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(Dimensions.radius20),
+                                          topRight: Radius.circular(Dimensions.radius20),
+                                          bottomRight: Radius.circular(Dimensions.radius20),
+                                          bottomLeft: Radius.circular(Dimensions.radius20),
+                                        ),
+                                        image: DecorationImage(
+                                            fit: BoxFit.fitWidth,
+                                            image:
+                                            NetworkImage(data?.uploadImage ?? "https://cdn-icons-png.flaticon.com/128/2276/2276931.png")
+                                        ),
+                                      ),
                                     ),
-                                    image: DecorationImage(
-                                        fit: BoxFit.fitWidth,
-                                        image:
-                                        NetworkImage(data?.uploadImage ?? "https://cdn-icons-png.flaticon.com/128/2276/2276931.png")
+                                    Padding(
+                                      padding: EdgeInsets.all(0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          BigText(text: (data?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,maxlines: 1,),
+                                          SmallText(text: (data?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
+                                          Container(
+                                            margin: EdgeInsets.only(left: Dimensions.width10),
+                                            child: Text(
+                                              NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(data?.price ?? 0),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: Dimensions.font13,
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ),
+                                          FutureBuilder<double>(
+                                            future: calculateDistanceToStore(data.latitude ?? 10.3792302, data.longitude ?? 105.3872573),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                return SizedBox(); // Show a loading indicator while waiting for the result
+                                              } else if (snapshot.hasError) {
+                                                return Text("Error: ${snapshot.error}");
+                                              } else {
+                                                final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                                final minite = (double.parse(km) * 60)/ 35;
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceAround ,
+                                                  children: [
+                                                    IconAndTextWidget(
+                                                      icon: Icons.location_on,
+                                                      text: km+ " km",
+                                                      iconColor: AppColors.mainColor,
+                                                    ),
+                                                    IconAndTextWidget(
+                                                      icon: Icons.access_time_rounded,
+                                                      text: minite.toStringAsFixed(1) + " phút",
+                                                      iconColor: AppColors.iconColor2,
+                                                    ),
+                                                  ],
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      BigText(text: (data?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,maxlines: 1,),
-                                      SmallText(text: (data?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
-                                      Container(
-                                        margin: EdgeInsets.only(left: Dimensions.width10),
-                                        child: Text(
-                                          NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(data?.price ?? 0),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: Dimensions.font13,
-                                            fontFamily: 'Roboto',
-                                            fontWeight: FontWeight.w400,
+                                Positioned(
+                                  top: 0,
+                                  left: 0,
+                                  child:  Visibility(
+                                    visible: data?.qty == 0 && data?.qtycontrolled == true,
+                                      child: Container(
+                                        width: 180,
+                                        height: 140,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                          color: Colors.grey.withOpacity(0.5), // Mờ đi một chút
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Hết số lượng",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      FutureBuilder<double>(
-                                        future: calculateDistanceToStore(data.latitude ?? 10.3792302, data.longitude ?? 105.3872573),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState == ConnectionState.waiting) {
-                                            return SizedBox(); // Show a loading indicator while waiting for the result
-                                          } else if (snapshot.hasError) {
-                                            return Text("Error: ${snapshot.error}");
-                                          } else {
-                                            final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                            final minite = (double.parse(km) * 60)/ 35;
-                                            return Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceAround ,
-                                              children: [
-                                                IconAndTextWidget(
-                                                  icon: Icons.location_on,
-                                                  text: km+ " km",
-                                                  iconColor: AppColors.mainColor,
-                                                ),
-                                                IconAndTextWidget(
-                                                  icon: Icons.access_time_rounded,
-                                                  text: minite.toStringAsFixed(1) + " phút",
-                                                  iconColor: AppColors.iconColor2,
-                                                ),
-                                              ],
-                                            );
-                                          }
-                                        },
-                                      ),
-                                    ],
                                   ),
-                                ),
+                                )
                               ],
-
                             ),
                           ),
                         );
@@ -308,94 +339,122 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                         return
                           GestureDetector(
                               onTap: () {
-                                // Điều hướng đến trang chi tiết tại đây
-                                // Chuyển đổi route tới link và truyền dữ liệu caritems
-                                Navigator.pushReplacement(
-                                    context,
-                                    Navigator.pushNamed(context, "/productdetail", arguments: {'data': product }) as Route<Object?>
-                                );
+                                if(product.qtycontrolled == true && product.qty! > 0 ||  product.qtycontrolled == false )
+                                 {
+                                   Navigator.pushReplacement(
+                                       context,
+                                       Navigator.pushNamed(context, "/productdetail", arguments: {'data': product }) as Route<Object?>
+                                   );
+                                 }
                               },
                               child:
                               Container(
                                 margin: EdgeInsets.only(left: Dimensions.width20, right: Dimensions.width20, bottom: Dimensions.height10),
-                                child: Row(
+                                child:  Stack(
                                   children: [
-                                    Container(
-                                      width: Dimensions.listViewImgSize,
-                                      height: Dimensions.listViewImgSize,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(Dimensions.radius20),
-                                        color:  (index % 2 == 0) ? Colors.orange[50] : Colors.amber[100], // Bạn có thể thay thế bằng widget Image.network
-                                        image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: NetworkImage(product?.uploadImage ?? "" ),
-                                        ),
-                                      ),
-                                    ),
-                                    //text container
-                                    // Phần chứa văn bản
-                                    Expanded(
-                                        child: Container(
-                                          height: Dimensions.listViewTextContSize,
-                                          width: Dimensions.listViewTextContSize,
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: Dimensions.listViewImgSize,
+                                          height: Dimensions.listViewImgSize,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(Dimensions.radius20),
-                                              bottomRight: Radius.circular(Dimensions.radius20),
+                                            borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                            color:  (index % 2 == 0) ? Colors.orange[50] : Colors.amber[100], // Bạn có thể thay thế bằng widget Image.network
+                                            image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: NetworkImage(product?.uploadImage ?? ""),
                                             ),
-                                            color: Colors.white,
                                           ),
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
-                                                SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
-                                                    FutureBuilder<double>(
-                                                      future: calculateDistanceToStore(product!.latitude ?? 10.323233,product!.longitude ?? 105.1727172),
-                                                      builder: (context, snapshot) {
-                                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                                          return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
-                                                        } else if (snapshot.hasError) {
-                                                          return Text("Error: ${snapshot.error}");
-                                                        } else {
-                                                          final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                                          final minite = (double.parse(km) * 60)/ 35;
-                                                          return
-                                                            Row(
+                                        ),
+                                        // Phần chứa văn bản
+                                        Expanded(
+                                          child: Container(
+                                            height: Dimensions.listViewTextContSize,
+                                            width: Dimensions.listViewTextContSize,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(Dimensions.radius20),
+                                                bottomRight: Radius.circular(Dimensions.radius20),
+                                              ),
+                                              color: Colors.white,
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,),
+                                                  SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
+                                                      FutureBuilder<double>(
+                                                        future: calculateDistanceToStore(product!.latitude ?? 10.323233, product!.longitude ?? 105.1727172),
+                                                        builder: (context, snapshot) {
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
+                                                          } else if (snapshot.hasError) {
+                                                            return Text("Error: ${snapshot.error}");
+                                                          } else {
+                                                            final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
+                                                            final minite = (double.parse(km) * 60) / 35;
+                                                            return Row(
                                                               mainAxisAlignment: MainAxisAlignment.end,
                                                               children: [
                                                                 IconAndTextWidget(
                                                                   icon: Icons.access_time_rounded,
-                                                                  text: minite.toStringAsFixed(1) +" phút",
+                                                                  text: minite.toStringAsFixed(1) + " phút",
                                                                   iconColor: AppColors.mainColor,),
                                                                 IconAndTextWidget(
                                                                   icon: Icons.location_on,
-                                                                  text: km +" km",
+                                                                  text: km + " km",
                                                                   iconColor: AppColors.iconColor2,
                                                                 ),
                                                               ],
                                                             );
-                                                        }
-                                                      },
-                                                    )
-
-                                                  ],
-                                                )
-                                              ],
+                                                          }
+                                                        },
+                                                      )
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        )
-                                    )
+                                        ),
+                                        // Hiển thị thông báo "Hết số lượng" khi qty == 0 và qtycontroled == true
+                                      ],
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      child:  Visibility(
+                                        visible: product?.qty == 0 && product?.qtycontrolled == true,
+                                          child: Container(
+                                            width: Dimensions.listViewImgSize,
+                                            height: Dimensions.listViewImgSize,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                              color: Colors.grey.withOpacity(0.5), // Mờ đi một chút
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "Hết số lượng",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
-                              )
+                              ),
                           );
 
 
@@ -442,6 +501,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       );
 
   }
+
   Container buldCatagoryItem(){
     return !isloading ?
       Container(

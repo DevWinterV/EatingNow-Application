@@ -342,9 +342,9 @@ class _OrderPage extends State<OrderPage> {
                                   children: <Widget>[
                                     SizedBox(height: 1),
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
-                                        SizedBox(width: 20),
                                         BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
                                       ],
                                     ),

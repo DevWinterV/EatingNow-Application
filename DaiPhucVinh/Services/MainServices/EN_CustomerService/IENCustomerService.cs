@@ -349,21 +349,36 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                     result.Message = "No_order";
                     return result;
                 }
-                
-                foreach( var item in request.OrderLine)
+
+                foreach (var item in request.OrderLine)
                 {
                     var checkQty = await _checkQuantity(item.FoodListId, item.qty);
 
-                    if (!checkQty)
+                    if (checkQty > 0)
+                    {
+                        if (checkQty < item.qty)
+                        {
+                            result.Success = false;
+                            result.CustomData = new object[]
+                            {
+                              3
+                            };
+                            result.Message = "Số lượng " + item.FoodName + " chỉ còn " + checkQty.ToString();
+                            return result;
+                        }
+
+                    }
+                    else
                     {
                         result.Success = false;
                         result.CustomData = new object[]
                         {
-                             3
+                            3
                         };
-                        result.Message = "Sản phẩm " + item.FoodName + " hiện đã hết số lượng ... Xin lỗi vì sự bất tiện này!";
+                        result.Message = item.FoodName + " hiện đã hết số lượng. Xin lỗi vì sự bất tiện này!";
                         return result;
                     }
+
                     // Sô lượng hiện còn đủ cung ứng
                     var Quantityremaining = await _checkQuantitySupplied(item.FoodListId);
                     if (Quantityremaining == 0)
@@ -373,7 +388,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
                         {
                             1
                         };
-                        result.Message = item.FoodName +" hiện đã hết số lượng ... Xin lỗi vì sự bất tiện này!";
+                        result.Message = item.FoodName +" hiện đã hết số lượng. Xin lỗi vì sự bất tiện này!";
                         return result;
                     }
                     else if(item.qty > Quantityremaining)
@@ -596,23 +611,27 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
         }
 
         //Kiểm soát số lượng tồn của món ăn khi khách đặt
-        private async Task<bool> _checkQuantity(int FoodId, int qtyBy)
+        private async Task<int?> _checkQuantity(int FoodId, int qtyBy)
         {
             var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
-            if(food == null) return false; 
+            if(food == null) return 0; 
             if(food.Qtycontrolled == true)
             {
                 int? quantity = food.qty;
                 if (quantity <= 0)
-                    return false;
-                if(quantity >= qtyBy)
-                    return  true;
+                    return 0;
+                if(quantity > 0 && quantity < qtyBy)
+                {
+                    return quantity;
+                }
+                if (quantity >= qtyBy)
+                    return quantity;
                 else
-                    return false;
+                    return 0;
             }
             else
             {
-                return true;
+                return 99;
             }
 
         }

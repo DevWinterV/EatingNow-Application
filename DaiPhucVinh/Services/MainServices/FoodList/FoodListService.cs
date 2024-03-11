@@ -574,7 +574,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
 
                 var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).ToListAsync();
                 var listResult = new List<FoodListSearchResponse>();
-                if (cuisineId > 0 || cuisineId != null)
+                if (cuisineId > 0 && cuisineId != null)
                 {
                     listStore = listStore.Where(x => x.CuisineId.Equals(cuisineId)).ToList();
                 }
@@ -588,7 +588,9 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     {
                         var resultFoodListSearch = new FoodListSearchResponse();
 
-                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category).Where(x => x.UserId.Equals(store.UserId) ).ToListAsync();
+                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category).Where(
+                            x => x.UserId.Equals(store.UserId)  
+                            ).ToListAsync();
                         if (foodlist.Count > 0)
                         {
                             /*
@@ -605,7 +607,11 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                                 similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Description.ToLower().Trim()));
                                 similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Category.CategoryName.ToLower().Trim()));
 
-                                if (similarity >= 0.4)
+                                if (similarity >= 0.4 && foodItem.Qtycontrolled == false)
+                                {
+                                    resultFoodListSearch.foodList.Add(foodItem.MapTo<FoodListResponse>());
+                                }
+                                if (similarity >= 0.4 && (foodItem.qty > 0 && foodItem.Qtycontrolled == true))
                                 {
                                     resultFoodListSearch.foodList.Add(foodItem.MapTo<FoodListResponse>());
                                 }
@@ -648,8 +654,12 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                             .Where(x => x.UserId.Equals(store.UserId)).ToListAsync();
                         if (foodlist.Count > 0)
                         {
+
                             resultFoodListSearch.storeinFo = store;
-                            resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
+                            resultFoodListSearch.foodList = foodlist
+                                .Where(food => (food.qty > 0 && food.Qtycontrolled) || !food.Qtycontrolled)
+                                .Take(4)
+                                .MapTo<FoodListResponse>();
                             listResult.Add(resultFoodListSearch);
                         }
                         else
@@ -715,7 +725,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         {
             // Danh sách từ dừng mở rộng
             string[] stopWords = {
-                "Tôi",
+                "Tôi", "toi","nhat","hon","den","do","toi","tao",
                 "và", "hoặc", "là", "của", "cái", "để", "có", "có thể", "được", "trong", "này",
                 "đó", "này", "một số", "mỗi", "một ít", "với", "ở", "từ", "như", "nhưng", "trên",
                 "dưới", "qua", "sau", "trước", "giữa", "trong suốt", "càng", "hơn", "nhưng", "đến",

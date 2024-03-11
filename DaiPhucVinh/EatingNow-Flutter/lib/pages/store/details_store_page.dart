@@ -375,27 +375,58 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                         final item = snapshot.data![index];
                                         return GestureDetector(
                                             onTap: (){
-                                              Navigator.pushReplacement(
-                                                  context,
-                                                  Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
-                                              );
+                                              if(item.qtycontrolled == true && item.qty! > 0 ||  item.qtycontrolled == false )
+                                              {
+                                                Navigator.pushReplacement(
+                                                    context,
+                                                    Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
+                                                );
+                                              }
                                             },
                                             child:
-                                            Column(
-                                              children: [
-                                                ListTile(
-                                                    leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
-                                                    title: BigText(text: item.foodName ?? "", size: 15,),
-                                                    subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
-                                                      size: 13,
+                                                Stack(
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        ListTile(
+                                                            leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
+                                                            title: BigText(text: item.foodName ?? "", size: 15,),
+                                                            subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
+                                                              size: 13,
+                                                            )
+                                                        ),
+                                                        Divider(
+                                                          thickness: 1, // Adjust the thickness of the divider as needed
+                                                          color: Colors.black26, // Set the color of the divider
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Positioned(
+                                                      top: 0,
+                                                      left: 0,
+                                                      child:  Visibility(
+                                                        visible: item?.qty == 0 && item?.qtycontrolled == true,
+                                                        child: Container(
+                                                          width: 110,
+                                                          height: 76,
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey.withOpacity(0.5), // Mờ đi một chút
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              "Hết số lượng",
+                                                              style: TextStyle(
+                                                                color: Colors.white,
+                                                                fontSize: 12.0,
+                                                                fontWeight: FontWeight.bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
                                                     )
-                                                ),
-                                                Divider(
-                                                  thickness: 1, // Adjust the thickness of the divider as needed
-                                                  color: Colors.black26, // Set the color of the divider
-                                                ),
-                                              ],
-                                            )
+                                                  ],
+                                                )
                                         );
                                       },
                                     );
