@@ -456,7 +456,23 @@ const Header = () => {
             )}
           </div>
         </div>
+   
       </div>
+
+      <div class="hidden md:flex w-full h-full items-center justify-center">
+          <div class="row flex items-center">
+              <input type="text" placeholder="Tìm kiếm sản phẩm, cửa hàng gần nhất" class="search-input"></input>
+              <button whileTap={{ scale: 0.70 }} class="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1">
+                  Tìm kiếm
+              </button>
+          </div>
+      </div>
+             
+
+
+
+
+
 
       {/* mobile */}
       <div className="flex items-center justify-between md:hidden w-full h-full">
@@ -658,6 +674,21 @@ const Header = () => {
           )}
         </div>
       </div>
+
+
+
+      {/* mobile search*/}
+      <div className="flex items-center justify-center md:hidden w-full h-full">
+       <div class="row flex items-center">
+              <input type="text" placeholder="Tìm kiếm sản phẩm, cửa hàng gần nhất" className="search-input-mobile"></input>
+              <button whileTap={{ scale: 0.70 }} class="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1">
+                  Tìm
+              </button>
+          </div>
+      </div>
+
+
+
     </header>
   );
 };

@@ -102,12 +102,12 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   }
 
   void SearchFoodListByUser(String keyword, int? cuisineId) async {
+    _streamController.sink.add(null);
     if(locationData == null){
       initLocationData();
     }
     final response = await ProductService(apiUrl: AppConstants.SearchFoodListByUser).SearchFoodListByUser(keyword, locationData.latitude ?? 0.0, locationData.longitude ?? 0.0, cuisineId ?? 0);
     if(response.success == true){
-      print(response.data);
       _streamController.sink.add(response);
     }
   }
@@ -160,13 +160,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                       builder: (context, snapshot) {
                         if(snapshot.data == null){
                           return Center(
-                            child: SmallText(text: "Bạn đang muốn tìm kiếm gì nào ?",color: Colors.black, size: Dimensions.font14,),
-                          );
-                        }
-                        if(snapshot.connectionState == ConnectionState.waiting){
-                          return Center(
-                            child: CircularProgressIndicator(color: AppColors.mainColor,),
-                            // child: SmallText(text: "Bạn đang muốn tìm kiếm món ăn gì nào ?",color: Colors.black, size: Dimensions.font14,),
+                            child: SmallText(text: "Bạn đang muốn tìm gì nào ?",color: Colors.black, size: Dimensions.font14,),
                           );
                         }
                         if(snapshot.data!.data!.length! > 0 && snapshot.hasData){

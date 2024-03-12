@@ -81,7 +81,7 @@ class AppColumn extends StatelessWidget {
               return Text("Error: ${snapshot.error}");
             } else {
               final km = (snapshot.data! / 1000).toStringAsFixed(1);
-              final minite = (double.parse(km) * 60)/ 35;
+              final minite = (double.parse(km) * 60)/ 25;
             return
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                 IconAndTextWidget(

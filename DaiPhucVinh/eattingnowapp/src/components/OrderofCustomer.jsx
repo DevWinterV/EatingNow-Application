@@ -40,7 +40,7 @@ export default function OrderofCustomer({id, onDelete}) {
       marginRight: '-50%',
       width: '80%', // Để bề rộng bằng với chiều rộng của thiết bị
       transform: 'translate(-50%, -50%)',
-      maxHeight: '80vh',
+      maxHeight: '66vh',
       overflow: 'auto',
     },
   }; 
@@ -188,12 +188,15 @@ export default function OrderofCustomer({id, onDelete}) {
                   >
                   <TbCircleX className="text-2xl" />
                   </button>
-                <div className="row" style={{ display: "flex", alignItems: "center" }}>
-                  <h2 className="text-2xl font-semibold">
-                    Chi tiết đơn hàng {Orderheader.Id}
-                  </h2>
-                </div>
+                
+    
+
                 <div className="container mt-2 mb-2">
+                  <div className="row" style={{ display: "flex" }}>
+                    <h2 className="text-2xl font-semibold">
+                      Chi tiết đơn hàng {Orderheader.Id}
+                    </h2>
+                  </div>
                   <div className="row ">
                     <div className="col-md-6">
                             <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
@@ -205,7 +208,6 @@ export default function OrderofCustomer({id, onDelete}) {
                               )
                             }
                             <h1 className="order-info">Trạng thái: {Orderheader.Status == true ? "Đã xác nhận":"Chờ xác nhận"}</h1>
-                            <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
                             <div className="address-container">
                               <h1 className="address-title">Địa chỉ nhận hàng:</h1>
                               <div className="recipient-info">
@@ -224,8 +226,10 @@ export default function OrderofCustomer({id, onDelete}) {
                               </div>
                             </div>                       
                     </div>
+                    
                   </div>
                 </div>
+
                 <div className="w-full table-auto">
                         <div>
                           <Table className="w-full table-auto">

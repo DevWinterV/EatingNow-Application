@@ -782,7 +782,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
 
                 DateTime now = DateTime.Now; // get current date and time
                 double? getStatisticalStoreDate = await _datacontext.EN_OrderHeader
-                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Day == now.Day)
+                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Day == now.Day && x.Status == true)
                     .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                 result.Item.revenueDate = getStatisticalStoreDate ?? 0;
 
@@ -790,24 +790,24 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 int currentWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(now, CalendarWeekRule.FirstDay, DayOfWeek.Sunday);
 
                 var ordersInCurrentWeek = await _datacontext.EN_OrderHeader
-                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year)
+                    .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year && x.Status == true)
                     .ToListAsync();
 
                 double? getStatisticalStoreWeek = ordersInCurrentWeek
-                    .Where(x => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(x.CreationDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Sunday) == currentWeek)
+                    .Where(x => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(x.CreationDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Sunday) == currentWeek && x.Status == true)
                     .Sum(x => (double?)x.IntoMoney ?? 0);
 
                 result.Item.revenueWeek = getStatisticalStoreWeek ?? 0;
 
                 //Doanh thu tháng
                 double? getStatisticalStoreMonth = await _datacontext.EN_OrderHeader
-                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == now.Month)
+                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == now.Month && x.Status == true)
                 .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                 result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
 
                 //Doanh thu năm
                 double? getStatisticalStoreYear = await _datacontext.EN_OrderHeader
-                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year)
+                .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Year == now.Year && x.Status == true)
                 .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                 result.Item.revenueYear = getStatisticalStoreYear ?? 0;
 
@@ -837,7 +837,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                         for (int i = request.startDate.Month; i <= 12; i++)
                         {
                             double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
-                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearStart)
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearStart && x.Status == true)
                             .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                             result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
 
@@ -851,7 +851,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                         for (int i = 1; i <= request.endDate.Month; i++)
                         {
                             double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
-                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd)
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd && x.Status == true)
                             .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                             result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
 
@@ -869,7 +869,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                         for (int i = request.startDate.Month; i <= request.endDate.Month; i++)
                         {
                             double? getStatisticalChartMonth = await _datacontext.EN_OrderHeader
-                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd)
+                            .Where(x => x.UserId == request.storeId && x.CreationDate.Value.Month == i && x.CreationDate.Value.Year == yearEnd && x.Status == true)
                             .SumAsync(x => (double?)x.IntoMoney) ?? 0;
                             result.Item.revenueMonth = getStatisticalStoreMonth ?? 0;
 
@@ -1407,6 +1407,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 {
                     var data = new List<ListOfProductSold>();
                     var query = from od in _datacontext.EN_OrderHeader
+                                where od.Status == true 
                                 join odl in _datacontext.EN_OrderLine on od.OrderHeaderId equals odl.OrderHeaderId
                                 join ctm in _datacontext.EN_Customer on od.CustomerId equals ctm.CustomerId
                                 join fl in _datacontext.EN_FoodList on odl.FoodListId equals fl.FoodListId

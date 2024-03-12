@@ -548,3 +548,33 @@ body {
 .fade-out {
   opacity: 0.5;
 }
+
+
+/* CSS */
+.search-input {
+  /* Thiết lập kích thước ô nhập */
+  height: 40px;
+  width: 400px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* CSS */
+.search-input-mobile {
+  /* Thiết lập kích thước ô nhập */
+  height: 40px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+
+.container {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}

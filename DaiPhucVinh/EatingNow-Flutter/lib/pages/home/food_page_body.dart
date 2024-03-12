@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
@@ -39,8 +40,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   final productService = ProductService(apiUrl: AppConstants.TakeRecommendedFoodList);// lấy món ăn được gợi ý
   final cuisineService = CuiSineService(apiUrl: AppConstants.TakeAllCuisine);// lấy danh sách loại hình món ăn
   late  SharedPreferences prefs;// khai báo dữ liệu localstore
+  final StreamController<double> _streamPage = StreamController<double>.broadcast();  // Tạo một số ngẫu nhiên từ 2 đến 5
 
-  // Tạo một số ngẫu nhiên từ 2 đến 5
   Random random = Random();
   ProductRecommended? products;
   CuisineModel? cuisineData;
@@ -78,8 +79,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     }
   }
   PageController pageController= PageController(viewportFraction: 0.85);
-  var _currPageValue=0.0;
-  double _scaleFactor=0.8;
+  // var _currPageValue= 0.0;
+  double _scaleFactor= 0.8;
   double _height = Dimensions.pageViewContainer;
   NextListFoodPopular(){
   }
@@ -108,9 +109,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     super.initState();
     setPrefs();
     pageController.addListener(() {
-      setState(() {
-        _currPageValue = pageController.page!;
-      });
+        _streamPage.add(pageController.page ?? 0.0);
     });
     _loadCartItems();
   }
@@ -161,27 +160,37 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   _line(),
                   // Kiểm tra isLoading để hiển thị "Loading" hoặc nội dung của PageView.
                   _headerContainer("Các cửa hàng gần nhất", "⚡"),
-                  Container(
-                    height: Dimensions.pageView,
-                    child: PageView.builder(
-                      controller: pageController,
-                      itemCount: storeNearUserModel?.data!.take(5).length ?? 0,
-                      itemBuilder: (context, position) {
-                        final item = storeNearUserModel?.data?[position];
-                        return _buildPageItem(position, item);
-                      },
-                    ),
-                  ),
-                  DotsIndicator(
-                    dotsCount: storeNearUserModel?.data?.take(5).length ?? 1,//độ dài cửa hàng đề cử
-                    position: _currPageValue,
-                    decorator: DotsDecorator(
-                      activeColor: AppColors.mainColor,
-                      size: const Size.square(9.0),
-                      activeSize: const Size(18.0, 9.0),
-                      activeShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                    ),
-                  ),
+                  StreamBuilder(
+                      initialData: 0.0,
+                      stream: _streamPage.stream,
+                      builder: (builder, snapshotPage){
+                        return  Column(
+                          children: [
+                            Container(
+                              height: Dimensions.pageView,
+                              child: PageView.builder(
+                                controller: pageController,
+                                itemCount: storeNearUserModel?.data!.take(10).length ?? 0,
+                                itemBuilder: (context, position) {
+                                  final item = storeNearUserModel?.data?[position];
+                                  return _buildPageItem(position, item, snapshotPage.data ?? 0.0 );
+                                },
+                              ),
+                            ),
+                            DotsIndicator(
+                              dotsCount: storeNearUserModel?.data?.take(10).length ?? 1,//độ dài cửa hàng đề cử
+                              position: snapshotPage.data ?? 0.0,
+                              decorator: DotsDecorator(
+                                activeColor: AppColors.mainColor,
+                                size: const Size.square(9.0),
+                                activeSize: const Size(18.0, 9.0),
+                                activeShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                              ),
+                            )
+                          ],
+                        );
+                      }),
+
                   _line(),
                   _headerContainer("Gợi ý", "Món ngon cho bạn 🧡"),
                   // Danh sách các món ăn yêu thích của khách hàng
@@ -580,23 +589,23 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     );
   }
   //Các cửa hàng gần nhất
-  Widget _buildPageItem(int index,DataStoreNearUserModel? popularProduct){
+  Widget _buildPageItem(int index,DataStoreNearUserModel? popularProduct, double currentPage){
     Matrix4 matrix = new Matrix4.identity();
-    if(index==_currPageValue.floor()){
-      var currScale = 1-(_currPageValue- index)*(1-_scaleFactor);
+    if(index== currentPage.floor()){
+      var currScale = 1-(currentPage- index)*(1-_scaleFactor);
       var currTrans = _height*(1-currScale)/2;
       matrix = Matrix4.diagonal3Values(1, currScale, 1)..setTranslationRaw(0,currTrans,0);
 
     }
-    else if(index == _currPageValue.floor()+1){
-      var currScale = _scaleFactor+(_currPageValue-index+1)*(1-_scaleFactor);
+    else if(index == currentPage.floor()+1){
+      var currScale = _scaleFactor+(currentPage-index+1)*(1-_scaleFactor);
       var currTrans = _height*(1-currScale)/2;
       matrix = Matrix4.diagonal3Values(1, currScale, 1);
       matrix = Matrix4.diagonal3Values(1, currScale, 1)..setTranslationRaw(0,currTrans,0);
 
     }
-    else if(index == _currPageValue.floor()-1) {
-      var currScale = 1-(_currPageValue- index)*(1-_scaleFactor);
+    else if(index == currentPage.floor()-1) {
+      var currScale = 1-(currentPage- index)*(1-_scaleFactor);
       var currTrans = _height * (1 - currScale) / 2;
       matrix = Matrix4.diagonal3Values(1, currScale, 1);
       matrix = Matrix4.diagonal3Values(1, currScale, 1)..setTranslationRaw(0, currTrans, 0);
@@ -606,7 +615,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       matrix = Matrix4.diagonal3Values(1, currScale, 1)..setTranslationRaw(0, _height*(1-_scaleFactor)/2, 1);
 
     }
-
     return GestureDetector(
       onTap: (){
         Navigator.of(context).pushNamed("/storedetail", arguments: {'data': popularProduct });

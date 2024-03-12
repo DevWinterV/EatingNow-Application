@@ -155,7 +155,7 @@ const RowContainer = ({ flag, rowData, scrollValue }) => {
           rowData.map((item) => (
             <div
               key={item?.FoodListId}
-              className="border-4 border-orange-100 bg-white shadow-2xl w-72 h-[310px] md:w-80 md:h-[300px] rounded-3xl py-6 px-4 my-4 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-between relative"
+              className="border-4 border-orange-100 bg-white shadow-2xl w-72 h-[310px] md:w-80 md:h-[310px] rounded-3xl py-6 px-4 my-4 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-between relative"
             >
               <div className="w-full flex items-center justify-center">
                 <div className="border-4 border-orange-100 h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-full">

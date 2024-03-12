@@ -572,7 +572,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     || x.Cuisine.Name.Contains(keyword)
                     ).ToListAsync();*/
 
-                var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).ToListAsync();
+                var listStore = await _datacontext.EN_Store.Include(x => x.Cuisine).Include(x => x.Province).ToListAsync();
                 var listResult = new List<FoodListSearchResponse>();
                 if (cuisineId > 0 && cuisineId != null)
                 {
@@ -604,7 +604,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                             foreach (var foodItem in foodlist)
                             {
                                 double similarity = ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.FoodName.ToLower().Trim());
-                                similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Description.ToLower().Trim()));
+                               // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Description.ToLower().Trim()));
                                 similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Category.CategoryName.ToLower().Trim()));
 
                                 if (similarity >= 0.4 && foodItem.Qtycontrolled == false)
@@ -626,12 +626,13 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                         {
                             // Tính toán mức độ tương đồng giữa improvedSentence và các trường dữ liệu của cửa hàng
                             double similarity = ComputeSimilarity(improvedSentence.ToLower().Trim(), store.FullName.ToLower().Trim());
+                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Province.ToLower().Trim()));
                             similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.OwnerName.ToLower().Trim()));
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Description.ToLower().Trim()));
+                            //similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Description.ToLower().Trim()));
                             similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Phone.ToLower().Trim()));
                             similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Email.ToLower().Trim()));
                             similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Cuisine.ToLower().Trim()));
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Address.ToLower().Trim()));
+                           // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Address.ToLower().Trim()));
 
                             // Nếu mức độ tương đồng lớn hơn hoặc bằng 0.4, thêm cửa hàng vào danh sách kết quả
                             if (similarity >= 0.4)
@@ -675,7 +676,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                 result.Success = true;
                 result.Data = listResult;
                 result.Message = "SearchSuccess";
-                result.DataCount = listStore.Count;
+                result.DataCount = resulStoretList.Count;
             }
             catch (Exception ex)
             {
@@ -725,7 +726,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
         {
             // Danh sách từ dừng mở rộng
             string[] stopWords = {
-                "Tôi", "toi","nhat","hon","den","do","toi","tao",
+                "tôi", "toi","nhat","hon","den","do","toi","tao","hết", "het","ok",
                 "và", "hoặc", "là", "của", "cái", "để", "có", "có thể", "được", "trong", "này",
                 "đó", "này", "một số", "mỗi", "một ít", "với", "ở", "từ", "như", "nhưng", "trên",
                 "dưới", "qua", "sau", "trước", "giữa", "trong suốt", "càng", "hơn", "nhưng", "đến",

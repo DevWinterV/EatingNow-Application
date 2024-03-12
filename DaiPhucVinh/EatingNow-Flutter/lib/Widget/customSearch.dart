@@ -134,13 +134,14 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: snapshotRecord.data == false ? "Tìm món ăn, cửa hàng" : "",
+                        hintText: snapshotRecord.data == false ? "Tìm sản phẩm, cửa hàng" : "",
                         hintStyle: TextStyle(color: Colors.grey),
                         suffixIcon: StreamBuilder<bool>(
                           stream: _searchIconVisibilityStreamController.stream,
                           initialData: false,
                           builder: (context, snapshotsearch) {
                             return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (snapshotsearch.data == true)
