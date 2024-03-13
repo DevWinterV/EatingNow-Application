@@ -6,7 +6,7 @@ const calculateDistanceAndTime = async (origin, destination) => {
   if (!origin || !destination) {
     return;
   }
-  const apiUrl = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&key=${apiKey}`;
+  const apiUrl = `http://localhost:3002/calculateDistanceAndTime?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`;
 
   try {
     const response = await axios.get(apiUrl);

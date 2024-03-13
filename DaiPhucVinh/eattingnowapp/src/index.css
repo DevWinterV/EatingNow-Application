@@ -566,15 +566,54 @@ body {
   /* Thiết lập kích thước ô nhập */
   height: 40px;
   width: 100%;
-  padding: 10px;
+  padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
 }
 
-
 .container {
   display: grid;
   place-items: center;
   height: 100%;
+}
+.search-page {
+  height: 100%;
+  padding: 20px;
+}
+
+/* Thêm CSS tùy chỉnh cho nút tìm kiếm, input và tiêu đề */
+.search-input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.search-page h1 {
+  color: #333;
+}
+
+
+/* CSS cho phần thông tin cửa hàng */
+.store-info {
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+  background-color: #fff; /* Màu nền */
+}
+
+.store-info h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.store-info p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+
+/* Sử dụng media queries để thay đổi kích thước của các phần tử khi cần thiết */
+@media only screen and (max-width: 768px) {
+
 }

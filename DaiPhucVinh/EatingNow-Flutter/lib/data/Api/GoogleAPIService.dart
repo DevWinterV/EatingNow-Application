@@ -17,6 +17,7 @@ class GoogleAPIService {
     );
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
+      print(jsonData);
       final result = AddressResult();
       result.formatted_address = jsonData['results'][0]['formatted_address'];
       result.name_address = jsonData['results'][0]["address_components"][0]['long_name'];
@@ -37,8 +38,36 @@ class GoogleAPIService {
       throw Exception('Error getting location: $e');
     }
   }
+
+  Future<DistanceAndTime> calculateDistanceAndTime(String origin, String destination) async {
+    final apiUrl = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}'; // Thay YOUR_API_KEY bằng key của bạn
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final result = DistanceAndTime();
+    print(response.body);
+      // Kiểm tra xem có routes không và có legs không
+      if (jsonData['routes'] != null && jsonData['routes'].length > 0 && jsonData['routes'][0]['legs'] != null && jsonData['routes'][0]['legs'].length > 0) {
+        result.time = jsonData['routes'][0]['legs'][0]['duration']['text'];
+        result.distance = jsonData['routes'][0]['legs'][0]['distance']['text'];
+
+        return result;
+      } else {
+        throw Exception('Không tìm thấy thông tin khoảng cách và thời gian.');
+      }
+    } else {
+      throw Exception('Failed to fetch data');
+    }
+  }
 }
+
 class AddressResult{
   String? formatted_address;
   String? name_address;
 }
+
+  class DistanceAndTime{
+  String? distance;
+  String? time;
+  }

@@ -7,7 +7,7 @@ import {
   HomePage,
   MainContainer,
   Order,
-  Account,
+  SearchPage,
   ProfileForm
 } from "../components";
 import PaymentConfirm from "../components/PaymentConfirm";
@@ -26,11 +26,10 @@ const RouterHome = () => {
           <Route path="/orderdetail" element={<Order />} />
           <Route path="/account" element={< ProfileForm/>} />
           <Route path="/order/:id" element={< ProfileForm/>} />
-          <Route
-          path="/paymentconfirm"
-          element={<PaymentConfirm/>} />
+          <Route path="/paymentconfirm" element={<PaymentConfirm/>} />
+          <Route path="/paymentconfirm" element={<PaymentConfirm/>} />
+          <Route path="/search/:keyword" element={<SearchPage />} />
         </Routes>
-        
       </main>
     </div>
   );

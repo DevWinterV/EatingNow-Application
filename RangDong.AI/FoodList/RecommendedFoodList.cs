@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.ML.DataOperationsCatalog;
 using Microsoft.ML.Trainers;
+using System.Data.SqlClient;
 
 namespace AI.FoodList
 {
@@ -227,23 +228,81 @@ namespace AI.FoodList
 
             splitData = context.Data.TrainTestSplit(PreProgressData, 0.05);
         }
+
+
+        public static void LoadData()
+        {
+            try
+            {
+                // Define the connection string to your SQL Server database
+                string connectionString = @"Data Source=rangdong\dongchau;Initial Catalog=EattingNowApp;Integrated Security=True";
+
+                // Define the SQL query to retrieve data from the FoodRating table
+                string query = "SELECT CustomerId, foodid, rating FROM FoodRating";
+
+                // Create a SqlConnection to connect to the database
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    // Open the connection
+                    connection.Open();
+
+                    // Create a SqlCommand to execute the SQL query
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        // Execute the SQL query and read the data into a SqlDataReader
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            // Create a list to store the input data
+                            List<InputData> inputDataList = new List<InputData>();
+
+                            // Read each row from the SqlDataReader
+                            while (reader.Read())
+                            {
+                                // Create an InputData object and populate its properties from the data reader
+                                InputData inputData = new InputData
+                                {
+                                    CustomerId = reader.GetString(0), // Assuming CustomerId is stored as a string in the database
+                                    FoodListId = reader.GetInt32(1), // Assuming foodid is stored as an integer in the database
+                                    Rating = (float)reader.GetDouble(2) // Assuming rating is stored as a double in the database and you want to cast it to float
+                                };
+
+                                // Add the InputData object to the list
+                                inputDataList.Add(inputData);
+                            }
+
+                            // Convert the list to an IDataView using ML.NET's DataViewConstructionExtensions.LoadFromEnumerable method
+                            dataView = context.Data.LoadFromEnumerable(inputDataList);
+                        }
+                    }
+                }
+
+                // Successfully loaded data from the database
+                Console.WriteLine("Data loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Error occurred during data loading
+                Console.WriteLine($"An error occurred during data loading: {ex.Message}");
+            }
+        }
+
+        /*
         // Load dữ liệu đầu vào 
         public static void LoadData()
         {
-            /*
+            
             var dbLoader = context.Data.CreateDatabaseLoader<InputData>();
             // Chuỗi kết nối đến CSDL SQL SV
             string con = @"Data Source=rangdong\dongchau;Initial Catalog=EattingNowApp;Integrated Security=True";
             // Câu lệnh trruy vấn lịch sử mua hàng khách hàng
-            // string query = "SELECT CTM.CustomerId, ODL.FoodListId, FLOOR(RAND()*(ODL.FoodListId)+ ODL.FoodListId) AS FoodListRating  FROM Customer CTM  INNER JOIN OrderHeader OD ON CTM.CustomerId = OD.CustomerId INNER JOIN OrderLine ODL ON OD.OrderHeaderId = ODL.OrderHeaderId";
-            string query = "SELECT CTM.CustomerId, ODL.FoodListId, FR.Rating\r\nFROM Customer CTM\r\nINNER JOIN OrderHeader OD ON CTM.CustomerId = OD.CustomerId\r\nINNER JOIN OrderLine ODL ON OD.OrderHeaderId = ODL.OrderHeaderId\r\nLEFT JOIN FoodRating FR ON ODL.FoodListId = FR.FoodId\r\nWHERE FR.Rating IS NOT NULL;\r\n";
+             string query = "SELECT CTM.CustomerId, ODL.FoodListId, FLOOR(RAND()*(ODL.FoodListId)+ ODL.FoodListId) AS FoodListRating  FROM Customer CTM  INNER JOIN OrderHeader OD ON CTM.CustomerId = OD.CustomerId INNER JOIN OrderLine ODL ON OD.OrderHeaderId = ODL.OrderHeaderId";
+            //string query = "select CustomerId, foodid as FoodListId, rating as FoodListRating from FoodRating";
             var databaseSource = new DatabaseSource(SqlClientFactory.Instance, con, query);
             // Traning Data
             dataView = dbLoader.Load(databaseSource);
             var preview = dataView.Preview();
-            */
-            dataView = context.Data.LoadFromTextFile<InputData>("D:\\EATINGNOW\\RangDong.AI\\Data\\dataset_train.csv", ',', true);
-        }
+           // dataView = context.Data.LoadFromTextFile<InputData>("D:\\EATINGNOW\\RangDong.AI\\Data\\dataset_train.csv", ',', true);
+        }*/
     }
 }
 

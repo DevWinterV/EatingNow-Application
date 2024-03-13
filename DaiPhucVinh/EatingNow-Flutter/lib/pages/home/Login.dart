@@ -1,4 +1,3 @@
-import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/storage/UserAccountstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/dimensions.dart';
@@ -6,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../data/Api/CustomerService.dart';
 import '../../data/Api/firebase_api.dart';
 import '../../util/app_constants.dart';

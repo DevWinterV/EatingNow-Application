@@ -16,7 +16,10 @@ import 'package:fam/models/storenearUser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import '../../data/Api/GoogleAPIService.dart';
 import '../../data/Api/StoreService.dart';
+import '../../models/LocationData.dart';
+import '../../storage/locationstorage.dart';
 import '../../util/Colors.dart';
 import '../../util/app_constants.dart';
 import '../../util/dimensions.dart';
@@ -35,12 +38,14 @@ class FoodPageBody extends StatefulWidget {
 }
 
 class _FoodPageBodyState extends State<FoodPageBody> {
+  late LocationStorage prefslocation;
   FirebaseAuth _auth = FirebaseAuth.instance;
   final storeService = StoreService(apiUrl: AppConstants.TakeStoreByCuisineId);//lấy cửa hàng gần nhất
   final productService = ProductService(apiUrl: AppConstants.TakeRecommendedFoodList);// lấy món ăn được gợi ý
   final cuisineService = CuiSineService(apiUrl: AppConstants.TakeAllCuisine);// lấy danh sách loại hình món ăn
   late  SharedPreferences prefs;// khai báo dữ liệu localstore
   final StreamController<double> _streamPage = StreamController<double>.broadcast();  // Tạo một số ngẫu nhiên từ 2 đến 5
+  late LocationData locationData;
 
   Random random = Random();
   ProductRecommended? products;
@@ -88,7 +93,11 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     prefs = await SharedPreferences.getInstance();
     fetchData(); // Lấy dữ liệu các cửa hàng từ API Store
   }
-
+  void initLocationData() async{
+    prefslocation = await LocationStorage();
+    final results = await prefslocation.getSavedLocation();
+    locationData = results;
+  }
   Future<double> calculateDistanceToStore(double storeLatitude, double storeLongitude) async {
     double distanceInMeters = 0;
     try {
@@ -104,6 +113,24 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return distanceInMeters;
   }
 
+  Future<DistanceAndTime?> calculateDistanceAndTime(String end) async {
+    try {
+      if(locationData == null){
+        initLocationData();
+      }
+      String start = locationData.latitude.toString()+','+locationData.longitude.toString();
+      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      if(results != null){
+        return results;
+      }
+    } catch (e) {
+      // Xử lý lỗi nếu có
+      print("Lỗi khi tính toán khoảng cách: $e");
+    }
+    return null;
+  }
+
+
   @override
   initState(){
     super.initState();
@@ -112,6 +139,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         _streamPage.add(pageController.page ?? 0.0);
     });
     _loadCartItems();
+    initLocationData();
   }
   void _loadCartItems() async {
     List<CartItem> loadedItems = await CartStorage.getCartItems();
@@ -155,11 +183,11 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               ) :
               Column(
                 children: [
-                  _headerContainer(AppConstants.APP_NAME, "Loại món ăn 🍔"),
+                  _headerContainer(AppConstants.APP_NAME, "Danh mục loại món ăn 🍔", false),
                   buldCatagoryItem(),
                   _line(),
                   // Kiểm tra isLoading để hiển thị "Loading" hoặc nội dung của PageView.
-                  _headerContainer("Các cửa hàng gần nhất", "⚡"),
+                  _headerContainer("Các cửa hàng gần nhất", "⚡", true),
                   StreamBuilder(
                       initialData: 0.0,
                       stream: _streamPage.stream,
@@ -192,7 +220,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                       }),
 
                   _line(),
-                  _headerContainer("Gợi ý", "Món ngon cho bạn 🧡"),
+                  _headerContainer("Gợi ý", "Món ngon cho bạn 🧡", true),
                   // Danh sách các món ăn yêu thích của khách hàng
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -268,27 +296,25 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                               ),
                                             ),
                                           ),
-                                          FutureBuilder<double>(
-                                            future: calculateDistanceToStore(data.latitude ?? 10.3792302, data.longitude ?? 105.3872573),
+                                          FutureBuilder<DistanceAndTime?>(
+                                            future: calculateDistanceAndTime(data!.latitude.toString() +","+data!.longitude.toString()),
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState == ConnectionState.waiting) {
                                                 return SizedBox(); // Show a loading indicator while waiting for the result
                                               } else if (snapshot.hasError) {
                                                 return Text("Error: ${snapshot.error}");
                                               } else {
-                                                final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                                final minite = (double.parse(km) * 60)/ 35;
                                                 return Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceAround ,
                                                   children: [
                                                     IconAndTextWidget(
                                                       icon: Icons.location_on,
-                                                      text: km+ " km",
+                                                      text: snapshot.data?.distance ?? " ",
                                                       iconColor: AppColors.mainColor,
                                                     ),
                                                     IconAndTextWidget(
                                                       icon: Icons.access_time_rounded,
-                                                      text: minite.toStringAsFixed(1) + " phút",
+                                                      text: snapshot.data?.time ?? " ",
                                                       iconColor: AppColors.iconColor2,
                                                     ),
                                                   ],
@@ -337,7 +363,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   // Đường kẻ ngang
                   _line(),
                   // SizedBox(height: Dimensions.height30,),
-                  _headerContainer("Phổ biến", "Các món ăn đang HOT 🔥"),
+                  _headerContainer("Phổ biến", "Các món ăn đang HOT 🔥", true),
                   //Danh sách các món ăn đang phổ biến
                   ListView.builder(
                       physics: NeverScrollableScrollPhysics(),
@@ -399,26 +425,24 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
-                                                      FutureBuilder<double>(
-                                                        future: calculateDistanceToStore(product!.latitude ?? 10.323233, product!.longitude ?? 105.1727172),
+                                                      FutureBuilder<DistanceAndTime?>(
+                                                        future: calculateDistanceAndTime(product!.latitude.toString() +","+product!.longitude.toString()),
                                                         builder: (context, snapshot) {
                                                           if (snapshot.connectionState == ConnectionState.waiting) {
-                                                            return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
+                                                            return SizedBox(); // Show a loading indicator while waiting for the result
                                                           } else if (snapshot.hasError) {
-                                                            return Text("Error: ${snapshot.error}");
+                                                            return SizedBox();
                                                           } else {
-                                                            final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                                            final minite = (double.parse(km) * 60) / 35;
                                                             return Row(
                                                               mainAxisAlignment: MainAxisAlignment.end,
                                                               children: [
                                                                 IconAndTextWidget(
                                                                   icon: Icons.access_time_rounded,
-                                                                  text: minite.toStringAsFixed(1) + " phút",
+                                                                  text: snapshot.data?.time ?? " ",
                                                                   iconColor: AppColors.mainColor,),
                                                                 IconAndTextWidget(
                                                                   icon: Icons.location_on,
-                                                                  text: km + " km",
+                                                                  text: snapshot.data?.distance ?? " ",
                                                                   iconColor: AppColors.iconColor2,
                                                                 ),
                                                               ],
@@ -482,7 +506,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       color: Colors.white, // Màu xám
     );
   }
-  Container _headerContainer(String text, String text2){
+  Container _headerContainer(String text, String text2, bool nextButton){
     return
       Container(
         margin: EdgeInsets.only(left: Dimensions.width30, bottom:  Dimensions.height5),
@@ -502,9 +526,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
             Expanded( // Sử dụng Expanded để Icon luôn nằm ở cuối
               child: SizedBox(),
             ),
+            nextButton == true ?
             Icon(Icons.navigate_next,
               size: 35,
-              color: Colors.black54,),
+              color: Colors.black54,) : SizedBox()
           ],
         ),
       );

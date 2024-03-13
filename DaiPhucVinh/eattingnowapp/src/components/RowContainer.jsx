@@ -94,130 +94,125 @@ const RowContainer = ({ flag, rowData, scrollValue }) => {
   
   return (
     <div className="w-full overflow-x-hidden">
-          <ToastContainer/>
-          <Modal
-            
-              isOpen={modalIsOpen}
-              onAfterOpen={afterOpenModal}
-              onRequestClose={closeModal}
-              style={customStyles}
-              contentLabel="Nhập số lượng mua"
-          >
-              <div className="modal-content">
-                  <h2 className="modal-title">
-                      Nhập số lượng mua cho {selecteditems?.FoodName}
-                  </h2>
-                  {
-                      selecteditems?.Qtycontrolled &&
-                      <h3 className="qty-remaining">
-                          Số lượng còn {selecteditems?.qty}
-                      </h3>
-                  }
-                  <div className="input-container">
-                      <label htmlFor="quantity-input">Nhập số lượng:</label>
-                      <input
-                          id="quantity-input"
-                          className="quantity-input"
-                          type="number"
-                          min="1"
-                          max="20"
-                          value={qtyBuy}
-                          onChange={(e) => {
-                              setqtyBuy(e.target.value);
-                          }}
-                      />
-                  </div>
-                  <div className="button-container">
-                      <button
-                          className="add-to-cart-btn"
-                          onClick={() => {
-                              addItemToCart(selecteditems);
-                          }}
-                      >
-                          Thêm vào giỏ hàng
-                      </button>
-                      <button className="close-modal-btn" onClick={closeModal}>
-                          Đóng
-                      </button>
-                  </div>
-              </div>
-          </Modal>
-
-      <div
-        ref={rowContainer}
-        className={`w-full flex gap-3 my-5 ${
-          flag
+        <ToastContainer/>
+        <Modal
+            isOpen={modalIsOpen}
+            onAfterOpen={afterOpenModal}
+            onRequestClose={closeModal}
+            style={customStyles}
+            contentLabel="Nhập số lượng mua"
+        >
+            <div className="modal-content">
+                <h2 className="modal-title">
+                    Nhập số lượng mua cho {selecteditems?.FoodName}
+                </h2>
+                {selecteditems?.Qtycontrolled && (
+                    <h3 className="qty-remaining">
+                        Số lượng còn {selecteditems?.qty}
+                    </h3>
+                )}
+                <div className="input-container">
+                    <label htmlFor="quantity-input">Nhập số lượng:</label>
+                    <input
+                        id="quantity-input"
+                        className="quantity-input"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={qtyBuy}
+                        onChange={(e) => {
+                            setqtyBuy(e.target.value);
+                        }}
+                    />
+                </div>
+                <div className="button-container">
+                    <button
+                        className="add-to-cart-btn"
+                        onClick={() => {
+                            addItemToCart(selecteditems);
+                        }}
+                    >
+                        Thêm vào giỏ hàng
+                    </button>
+                    <button className="close-modal-btn" onClick={closeModal}>
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </Modal>
+        <div
+    ref={rowContainer}
+    className={`w-auto flex gap-2 my-1 ${
+        flag
             ? "overflow-x-scroll scrollbar-none"
             : "overflow-hidden flex-wrap justify-center"
-        }`}
-      >
-        {rowData && rowData.length > 0 ? (
-          rowData.map((item) => (
+    }`}
+>
+    {rowData && rowData.length > 0 ? (
+        rowData.map((item, index) => (
             <div
-              key={item?.FoodListId}
-              className="border-4 border-orange-100 bg-white shadow-2xl w-72 h-[310px] md:w-80 md:h-[310px] rounded-3xl py-6 px-4 my-4 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-between relative"
+                key={item?.FoodListId}
+                className={`border-2 border-orange-100 bg-white shadow-2xl w-72 h-[290px] md:w-80 md:h-[300px] rounded-3xl py-6 px-4 my-1 backdrop-blur-lg hover:drop-shadow-lg flex flex-col items-center justify-between relative ${
+                    rowData.length === 1 ? "w-[180px]" : "w-[180px]"
+                }`}
             >
-              <div className="w-full flex items-center justify-center">
-                <div className="border-4 border-orange-100 h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-full">
-                  <img
-                    src={item?.UploadImage}
-                    alt=""
-                    className="w-full h-full object-cover hover:scale-110 transition duration-300 ease-in-out"
-                  />
+            
+                <div className="w-[140px] flex items-center justify-center">
+                    <div className="border-4 border-orange-100 h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-full">
+                        <img
+                            src={item?.UploadImage}
+                            alt=""
+                            className="w-full h-full object-cover hover:scale-110 transition duration-300 ease-in-out"
+                        />
+                    </div>
                 </div>
-              </div>
 
-              <div className="w-full flex flex-col items-center justify-center mt-2">
-                <p className="capitalize text-textColor font-semibold text-sm md:text-base text-center overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full">
-                  {item?.FoodName}
-                </p>
-                <div className="flex items-center mt-2">
-                  <p className="text-base text-headingColor font-semibold">
-                    {item?.Price.toLocaleString()}
-                    <span className="text-sm text-red-500"> vnđ</span>{" "}
-                  </p>
-         
+                <div className="w-[140px] flex flex-col items-center justify-center mt-2">
+                    <p className="capitalize text-textColor font-semibold text-sm md:text-base text-center overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full">
+                        {item?.FoodName}
+                    </p>
+                    <div className="flex items-center mt-2">
+                        <p className="text-base text-headingColor font-semibold">
+                            {item?.Price.toLocaleString()}
+                            <span className="text-sm text-red-500"> vnđ</span>{" "}
+                        </p>
+                    </div>
                 </div>
-              </div>
-         
-              <div className="p-3 w-full flex flex-col items-center justify-center text-black">
-                {
-                    item.qty > 0 && item.Qtycontrolled  ? 
-                      <button
-                          whileTap={{ scale: 0.70 }}
-                          className="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1"
-                          onClick={() => openModal(item)}
-                      >
-                          Chọn mua
-                      </button>
-                      
-                      : item.Qtycontrolled == false ? 
-                      <button
-                      whileTap={{ scale: 0.70 }}
-                      className="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1"
-                      onClick={() => openModal(item)}
-                      >
-                          Chọn mua
-                      </button>
-                      : 
-                    <label>
-                      Hết số lượng
-                    </label>
-                }
-               
-              </div>
+
+                <div className="p-3 w-[140px] flex flex-col items-center justify-center text-black">
+                    {(item.qty > 0 && item.Qtycontrolled == true)  ? (
+                        <button
+                            whileTap={{ scale: 0.70 }}
+                            className="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1"
+                            onClick={() => openModal(item)}
+                        >
+                            Chọn mua
+                        </button>
+                    ) : item.Qtycontrolled == false ?
+                        (<button
+                            whileTap={{ scale: 0.70 }}
+                            className="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1"
+                            onClick={() => openModal(item)}
+                        >
+                            Chọn mua
+                        </button> )
+                        :
+                    (
+                        <label className="text-red-600">Hết số lượng</label>
+                    )}
+                </div>
             </div>
-          ))
-        ) : (
-          <div className="w-full flex flex-col items-center justify-center">
-            <img src={NotFound} className="h-340" alt="Not Found" />
-            <p className="text-xl text-headingColor font-semibold my-2">
-            </p>
-          </div>
-        )}
-      </div>
+        ))
+    ) : (
+        <div className="w-full flex flex-col items-center justify-center">
+            <img src={NotFound} className="h-300" alt="Not Found" />
+            <p className="text-xl text-headingColor font-semibold my-2"></p>
+        </div>
+    )}
+        </div>
     </div>
-  );
+);
+
 };
 
 export default RowContainer;

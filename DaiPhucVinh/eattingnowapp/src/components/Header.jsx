@@ -11,6 +11,9 @@ import $ from 'jquery'; // Ensure you have jQuery installed
 import {searchAddress} from "../api/googleSearchApi/googleApiService";
 import { Button } from "evergreen-ui";
 import { colors } from "@material-ui/core";
+import SearchBarContainer from "./SearchBarContainer"
+import SearchBarContainerMobile from "./SearchBarContainerMobile"
+
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 
@@ -24,6 +27,12 @@ const Header = () => {
   };
   const navigate = useNavigate();
   const [dataNotifi, setdataNotifi] = useState([]);
+  const [dataSearch, setDataSearch] = useState(
+  {
+    keyword: "",
+    latitude: 0.0,
+    longitude: 0.0,
+  });
   const [countnotification, setcountnotification] = useState(0);
   const [showNotifications , setshowNotifications] =useState(false);
   const [location, setLocation] = useState(null);
@@ -189,7 +198,13 @@ const Header = () => {
     }
   };
   
-
+  const onSubmitChange = (value)  => {
+      if(value != "" || value != null && location != null){
+        navigate("/search/" + value, {
+          state: { data: {keyword: value, latitude: location.latitude, longitude: location.longitude} },
+        });
+      }
+  }
   
   useEffect(() => {
     // Set up a client method to receive order notifications
@@ -199,7 +214,6 @@ const Header = () => {
     // Set up a client method to receive user-specific order notifications
     proxy.on('ReceiveOrderNotificationOfUser', (orderMessage) => {
       GetAllNotification();
-      
     });
   
     // Attempt connection and handle connection and error events
@@ -231,7 +245,6 @@ const Header = () => {
   
   return (
     <header className="fixed z-50 w-screen p-3 px-8 md:p-6 md:px-16 bg-orange-50">
-
       {/* desktop & tablet  */}
       <div className="hidden md:flex w-full h-full items-center justify-between">
         <Link to={"/"} className="flex items-center gap-2 cursor-pointer">
@@ -249,7 +262,7 @@ const Header = () => {
                    <button 
                       style={{ backgroundColor: '', color: 'black', padding: '6px 6px', borderRadius: '4px', cursor: 'pointer' }}
                       onClick={handleFetchLocation}>
-                      <p > Sử dụng vị trí hiện tại...</p>
+                      <p > Sử dụng vị trí hiện tại ...</p>
                     </button>
               </div>
         }
@@ -456,24 +469,8 @@ const Header = () => {
             )}
           </div>
         </div>
-   
       </div>
-
-      <div class="hidden md:flex w-full h-full items-center justify-center">
-          <div class="row flex items-center">
-              <input type="text" placeholder="Tìm kiếm sản phẩm, cửa hàng gần nhất" class="search-input"></input>
-              <button whileTap={{ scale: 0.70 }} class="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1">
-                  Tìm kiếm
-              </button>
-          </div>
-      </div>
-             
-
-
-
-
-
-
+      <SearchBarContainer onSubmitChange={onSubmitChange}></SearchBarContainer>        
       {/* mobile */}
       <div className="flex items-center justify-between md:hidden w-full h-full">
         {
@@ -674,21 +671,8 @@ const Header = () => {
           )}
         </div>
       </div>
-
-
-
       {/* mobile search*/}
-      <div className="flex items-center justify-center md:hidden w-full h-full">
-       <div class="row flex items-center">
-              <input type="text" placeholder="Tìm kiếm sản phẩm, cửa hàng gần nhất" className="search-input-mobile"></input>
-              <button whileTap={{ scale: 0.70 }} class="rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-1">
-                  Tìm
-              </button>
-          </div>
-      </div>
-
-
-
+      <SearchBarContainerMobile onSubmitChange={onSubmitChange}></SearchBarContainerMobile>
     </header>
   );
 };

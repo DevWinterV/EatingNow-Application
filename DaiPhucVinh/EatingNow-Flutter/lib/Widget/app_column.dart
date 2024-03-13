@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/Api/GoogleAPIService.dart';
 import '../util/Colors.dart';
 import '../util/dimensions.dart';
 import 'Big_text.dart';
@@ -31,6 +32,21 @@ class AppColumn extends StatelessWidget {
     }
     return distanceInMeters;
   }
+
+  Future<DistanceAndTime?> calculateDistanceAndTime(String end) async {
+    try {
+      String start = prefs.getDouble('latitude').toString()+','+prefs.getDouble('longitude').toString();
+      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      if(results != null){
+        return results;
+      }
+    } catch (e) {
+      // Xử lý lỗi nếu có
+      print("Lỗi khi tính toán khoảng cách: $e");
+    }
+    return null;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,25 +88,23 @@ class AppColumn extends StatelessWidget {
         ),
         SizedBox(height: Dimensions.height5,),
         //time and distance
-        FutureBuilder<double>(
-          future: calculateDistanceToStore(latitude, longtitude),
+        FutureBuilder<DistanceAndTime?>(
+          future: calculateDistanceAndTime(latitude.toString() +","+longtitude.toString()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(); // Show a loading indicator while waiting for the result
             } else if (snapshot.hasError) {
-              return Text("Error: ${snapshot.error}");
+              return SizedBox();
             } else {
-              final km = (snapshot.data! / 1000).toStringAsFixed(1);
-              final minite = (double.parse(km) * 60)/ 25;
             return
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                 IconAndTextWidget(
                   icon: Icons.location_on,
-                  text: km +" Km",
+                  text: snapshot.data?.distance ?? " ",
                   iconColor: AppColors.mainColor,),
                 IconAndTextWidget(
                   icon: Icons.access_time_rounded,
-                  text: minite.toStringAsFixed(1) +" phút",
+                  text: snapshot.data?.time ?? " ",
                   iconColor: AppColors.mainColor,)
               ]
               );

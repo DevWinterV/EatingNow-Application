@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../Widget/Icon_and_Text_widget.dart';
 import '../../Widget/RatingStars.dart';
+import '../../data/Api/GoogleAPIService.dart';
 import '../../models/product_recommended_model.dart';
 import '../../models/storenearUser.dart';
 import '../../util/app_constants.dart';
@@ -37,21 +38,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
   ProductRecommended? productRecommended;
   int categoryId = 0;
 
-
-  Future<double> calculateDistanceToStore(double storeLatitude, double storeLongitude) async {
-    print("storeLatitude $storeLatitude  storeLongitude  $storeLongitude ");
-    double distanceInMeters = 0;
-    try {
-      final prefss = await SharedPreferences.getInstance();
-      distanceInMeters = await Geolocator.distanceBetween(
-          prefss.getDouble('latitude') ?? 10.3792302, prefss.getDouble('longitude') ?? 105.3872573, storeLatitude, storeLongitude);
-    } catch (e) {
-      // Xử lý lỗi nếu có
-      print("Lỗi khi tính toán khoảng cách: $e");
-    }
-    return distanceInMeters;
-  }
-
   Future<void> fetchData(int Id) async {
     try {
       print('storeData?.userId ${storeData?.userId}');
@@ -71,6 +57,20 @@ class _StoreDetailState extends State<StoreDetailPage> {
     } catch (e) {
       print(e);
     }
+  }
+  Future<DistanceAndTime?> calculateDistanceAndTime(String end) async {
+    try {
+      final prefss = await SharedPreferences.getInstance();
+      String start = prefss.getDouble('latitude').toString()+','+ prefss.getDouble('longitude').toString();
+      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      if(results != null){
+        return results;
+      }
+    } catch (e) {
+      // Xử lý lỗi nếu có
+      print("Lỗi khi tính toán khoảng cách: $e");
+    }
+    return null;
   }
 
 
@@ -189,18 +189,18 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // DANH GIA, KHOANG CÁCH, THOI GIAN
-                                      FutureBuilder<double>(
-                                          future: calculateDistanceToStore(storeData!.latitude!, storeData!.longitude!),
+                                      FutureBuilder<DistanceAndTime?>(
+                                          future: calculateDistanceAndTime(storeData!.latitude.toString() +","+storeData!.longitude.toString()),
                                           builder: (context, snapshot) {
                                             if (snapshot.connectionState == ConnectionState.waiting) {
                                               return SizedBox(); // Show a loading indicator while waiting for the result
-                                            } else if (snapshot.hasError) {
-                                              return Text("Lỗi: ${snapshot.error}");
-                                            } else {
-                                              final km = (snapshot.data! / 1000).toStringAsFixed(1);
-                                              final minite = (double.parse(km) * 60) / 25;
-                                              return
-                                                Row(
+                                            }
+                                            else if (snapshot.hasError) {
+                                              return SizedBox();
+                                            }
+                                            else
+                                            {
+                                              return Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     // Đánh giá sao cửa hàng
@@ -213,16 +213,17 @@ class _StoreDetailState extends State<StoreDetailPage> {
                                                     // Khoảng cách
                                                     IconAndTextWidget(
                                                       icon: Icons.location_on,
-                                                      text: "${km} km",
+                                                      text: snapshot.data?.distance ?? " ",
                                                       iconColor: AppColors.mainColor,),
                                                     // Thời gian
                                                     IconAndTextWidget(
                                                       icon: Icons.access_time_rounded,
-                                                      text: "${minite.toStringAsFixed(1)} phút",
+                                                      text: snapshot.data?.time ?? " ",
                                                       iconColor: AppColors.mainColor,),
                                                   ],
                                                 );
                                             }
+                                            return SizedBox();
                                           }
                                       ),
                                       // THOG TIN DIA CHI - SO DIEN THOAI

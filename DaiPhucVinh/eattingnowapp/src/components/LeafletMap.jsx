@@ -159,9 +159,9 @@ useEffect(() => {
                         state: { data: location },
                       });
                     }}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    Xem Menu cửa hàng
+                    className="rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white flex items-center cursor-pointer hover:shadow-md ml-2 px-3 py-3"                            
+                    >
+                    Xem menu cửa hàng
                   </button>
                 </div>
               </div>

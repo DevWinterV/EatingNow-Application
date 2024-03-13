@@ -10,6 +10,7 @@ const API = {
   ChangeIsNoiBatFoodList: "/ChangeIsNoiBatFoodList",
   ChangeIsNewFoodList: "/ChangeIsNewFoodList",
   TakeRecommendedFoodList: "/TakeRecommendedFoodList",
+  SearchFoodListByUser: "/SearchFoodListByUser"
 };
 
 const TakeRecommendedFoodList = async (request) => {
@@ -108,6 +109,27 @@ const TakeFoodListById = async (FoodListId) => {
   return result;
 };
 
+const SearchFoodListByUser = async (keyword, latitude, longitude, cuisineId) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.SearchFoodListByUser,
+      { params: { keyword: keyword, latitude: latitude, longitude: longitude, cuisineId: cuisineId } },
+      true
+    );
+    if (response.Success) {
+      result.data = response.Data
+      result.success = response.Success;
+      result.item = response.Item;
+      result.dataCount = response.DataCount;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
 const ChangeIsNoiBatFoodList = async (e) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -147,4 +169,4 @@ const ChangeIsNewFoodList = async (e) => {
   }
   return result;
 };
-export { CreateFoodItem, DeleteFoodList, UpdateFoodList, TakeFoodListById, ChangeIsNoiBatFoodList, ChangeIsNewFoodList,TakeRecommendedFoodList };
+export { CreateFoodItem, DeleteFoodList, UpdateFoodList, TakeFoodListById, ChangeIsNoiBatFoodList, ChangeIsNewFoodList,TakeRecommendedFoodList, SearchFoodListByUser };

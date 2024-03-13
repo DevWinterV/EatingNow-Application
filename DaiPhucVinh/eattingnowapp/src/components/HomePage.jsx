@@ -132,7 +132,7 @@ const HomePage = () => {
       </section>
       <section className="w-full my-6">
         <p className="text-2xl font-semibold capitalize text-headingColor relative before:absolute before:rounded-lg before:content before:w-16 before:h-1 before:-bottom-2 before:left-0 before:bg-gradient-to-tr from-orange-400 to-orange-600 transition-all ease-in-out duration-100 mr-auto">
-          Gợi ý món ăn cho bạn theo đánh giá
+          Gợi ý món ngon cho bạn
         </p>
         {loadingrecommendedfood ? (
           <div className="text-center pt-20">

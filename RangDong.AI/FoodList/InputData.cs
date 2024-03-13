@@ -14,7 +14,7 @@ namespace AI.FoodList
         [LoadColumn(1)]
         public int FoodListId { get; set; }
         [LoadColumn(2)]
-        public float  Rating { get; set;}
+        public Single  Rating { get; set;}
 
     }
 }

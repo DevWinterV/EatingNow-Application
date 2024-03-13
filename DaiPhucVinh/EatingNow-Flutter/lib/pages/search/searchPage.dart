@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fam/Widget/Big_text.dart';
 import 'package:fam/Widget/Small_text.dart';
+import 'package:fam/data/Api/GoogleAPIService.dart';
 import 'package:fam/data/Api/ProductService.dart';
 import 'package:fam/models/cuisine_model.dart';
 import 'package:fam/models/storenearUser.dart';
@@ -113,22 +114,22 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   }
 
 
-  Future<double> calculateDistanceToStore(double storeLatitude, double storeLongitude) async {
-    double distanceInMeters = 0;
+  Future<DistanceAndTime?> calculateDistanceAndTime(String end) async {
     try {
-
       if(locationData == null){
         initLocationData();
       }
-      distanceInMeters = await Geolocator.distanceBetween(
-          locationData.latitude ?? 10.3792302, locationData.longitude ?? 105.3872573, storeLatitude, storeLongitude);
+      String start = locationData.latitude.toString()+','+locationData.longitude.toString();
+      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      if(results != null){
+        return results;
+      }
     } catch (e) {
       // Xử lý lỗi nếu có
       print("Lỗi khi tính toán khoảng cách: $e");
     }
-    return distanceInMeters;
+    return null;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -233,40 +234,32 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                                           children: [
                                                             BigText(text: (item?.storeinFo?.fullName ?? ""), size: Dimensions.font16, color: AppColors.signColor, ),
                                                             // SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
-                                                            Row(
-                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                              children: [
-                                                                // SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
-                                                                FutureBuilder<double>(
-                                                                  future: calculateDistanceToStore(item?.storeinFo!.latitude ?? 10.323233,item?.storeinFo!.longitude ?? 105.1727172),
-                                                                  builder: (context, snapshot) {
-                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                      return CircularProgressIndicator(); // Show a loading indicator while waiting for the result
-                                                                    } else if (snapshot.hasError) {
-                                                                      return SizedBox();
-                                                                    } else {
-                                                                      final km = (snapshot.data! / 1000).toStringAsFixed(1); // Convert meters to kilometers
-                                                                      final minite = (double.parse(km) * 60)/ 35;
-                                                                      return
-                                                                        Row(
-                                                                          mainAxisAlignment: MainAxisAlignment.end,
-                                                                          children: [
-                                                                            IconAndTextWidget(
-                                                                              icon: Icons.access_time_rounded,
-                                                                              text: minite.toStringAsFixed(1) +" phút",
-                                                                              iconColor: AppColors.mainColor,),
-                                                                            IconAndTextWidget(
-                                                                              icon: Icons.location_on,
-                                                                              text: km +" km",
-                                                                              iconColor: AppColors.iconColor2,
-                                                                            ),
-                                                                          ],
-                                                                        );
-                                                                    }
-                                                                  },
-                                                                )
-                                                              ],
-                                                            ),
+                                                            FutureBuilder<DistanceAndTime?>(
+                                                              future: calculateDistanceAndTime(item!.storeinFo!.latitude.toString()  +","+item!.storeinFo!.longitude.toString()),
+                                                              builder: (context, snapshot) {
+                                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                  return SizedBox(); // Show a loading indicator while waiting for the result
+                                                                } else if (snapshot.hasError) {
+                                                                  return SizedBox();
+                                                                } else {
+                                                                  return
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                      children: [
+                                                                        IconAndTextWidget(
+                                                                          icon: Icons.access_time_rounded,
+                                                                          text: snapshot.data?.time ?? "",
+                                                                          iconColor: AppColors.mainColor,),
+                                                                        IconAndTextWidget(
+                                                                          icon: Icons.location_on,
+                                                                          text: snapshot.data?.distance ?? "",
+                                                                          iconColor: AppColors.iconColor2,
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                }
+                                                              },
+                                                            )
                                                           ],
                                                         ),
                                                       ),
