@@ -403,6 +403,31 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   ],
                 ),
               ),
+              order?.status == true && order?.shippingstatus == 3 ?
+              Padding(
+                  child: Center(
+                    child:ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // Customize the background color
+                        primary: AppColors.mainColor,
+                        // Customize the text color
+                        onPrimary: Colors.white,
+                        // Add other customizations as needed
+                        padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                      ),
+                      onPressed: () {
+                        // Navigator.of(context).pop();
+                      },
+                      child: Text('Đã hoàn thành', style: TextStyle(fontSize: Dimensions.font16),),
+                    ), ) ,
+                  padding: EdgeInsets.only(left: 10, right: 10)
+              )
+                  :
+              order?.status == true && order?.shippingstatus != 3 ?
               Padding(
                 child: Center(
                   child:ElevatedButton(
@@ -424,6 +449,29 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     child: Text('Theo dõi tình trạng giao hàng', style: TextStyle(fontSize: Dimensions.font16),),
                   ), ) ,
                 padding: EdgeInsets.only(left: 10, right: 10)
+              )
+                  :
+              Padding(
+                  child: Center(
+                    child:ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // Customize the background color
+                        primary: AppColors.mainColor,
+                        // Customize the text color
+                        onPrimary: Colors.white,
+                        // Add other customizations as needed
+                        padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                      ),
+                      onPressed: () {
+                        // Navigator.of(context).pop();
+                      },
+                      child: Text('Đang chờ xác nhận', style: TextStyle(fontSize: Dimensions.font16),),
+                    ), ) ,
+                  padding: EdgeInsets.only(left: 10, right: 10)
               )
             ],
           )// ĐẶT ĐƠN,

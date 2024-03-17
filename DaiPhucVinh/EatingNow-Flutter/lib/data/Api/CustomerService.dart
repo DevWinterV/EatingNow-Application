@@ -25,7 +25,7 @@ class CustomerService {
       print(jsonData);
       return UserAccountModel.fromJson(jsonData);
     } else {
-      throw Exception('Failed to load store data');
+      throw Exception('Failed to load user data');
     }
   }
 

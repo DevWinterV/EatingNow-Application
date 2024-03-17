@@ -65,6 +65,7 @@ class Data {
   double? latitude;
   double? longitude;
   int? paymentStatusID;
+  int? shippingstatus;
 
   Data(
       {this.orderHeaderId,
@@ -88,7 +89,9 @@ class Data {
         this.nameAddress,
         this.latitude,
         this.longitude,
-        this.paymentStatusID});
+        this.paymentStatusID,
+        this.shippingstatus
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     orderHeaderId = json['OrderHeaderId'];
@@ -113,6 +116,7 @@ class Data {
     latitude = json['Latitude'];
     longitude = json['Longitude'];
     paymentStatusID = json['PaymentStatusID'];
+    shippingstatus = json['ShippingStatus'];
   }
 
   Map<String, dynamic> toJson() {
@@ -139,6 +143,7 @@ class Data {
     data['Latitude'] = this.latitude;
     data['Longitude'] = this.longitude;
     data['PaymentStatusID'] = this.paymentStatusID;
+    data['ShippingStatus'] = this.shippingstatus;
     return data;
   }
 }
