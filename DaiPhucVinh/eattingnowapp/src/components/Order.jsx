@@ -29,6 +29,7 @@ import { BiLoader } from "react-icons/bi";
 
 
 import $ from 'jquery'; // Ensure you have jQuery installed
+import { da } from "date-fns/locale";
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
 //Kết nối đến SignalR Ordernotication
@@ -54,71 +55,6 @@ const Order = () => {
   const vnp_TxnRef = searchParams.get('vnp_TxnRef');
   const vnp_SecureHash = searchParams.get('vnp_SecureHash');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Kiểm tra nếu tất cả dữ liệu không phải là null, "", hoặc undefined
-      const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
-      if (allDataExists) {
-        try {
-          let response = await PaymentConfirm({
-            vnp_Amount,
-            vnp_BankCode,
-            vnp_BankTranNo,
-            vnp_CardType,
-            vnp_OrderInfo,
-            vnp_PayDate,
-            vnp_ResponseCode,
-            vnp_TmnCode,
-            vnp_TransactionNo,
-            vnp_TransactionStatus,
-            vnp_TxnRef,
-            vnp_SecureHash, 
-            request
-          });
-          if (response.success) {
-            toast.success('Thanh toán và đặt món ăn thành công!', { autoClose: 3000 });
-            localStorage.setItem("cartItems", JSON.stringify(null));
-            dispatch({
-              type: actionType.SET_CARTITEMS,
-              cartItems: null,
-            });
-            // sendOrderNotification(request.UserId);
-            // Đợi 2 giây trước khi chuyển về "/"
-            setTimeout(function () {
-              window.location.href = "/";
-            }, 2000);
-          } else {
-            toast.success(response.message, { autoClose: 3000 });
-          }
-        } catch (error) {
-          // Xử lý lỗi nếu có
-          console.error('Error during PaymentConfirm:', error);
-          // Hiển thị thông báo lỗi cho người dùng
-          toast.error('Có lỗi xảy ra trong quá trình xác nhận thanh toán!', { autoClose: 3000 });
-        }
-      } else {
-        // Hiển thị thông báo hoặc xử lý khác nếu dữ liệu không đầy đủ
-        toast.warning('Vui lòng nhập đầy đủ thông tin thanh toán!', { autoClose: 3000 });
-      }
-    };
-  
-    // Gọi hàm fetchData ngay lập tức
-    fetchData();
-  }, [
-    vnp_Amount,
-    vnp_BankCode,
-    vnp_BankTranNo,
-    vnp_CardType,
-    vnp_OrderInfo,
-    vnp_PayDate,
-    vnp_ResponseCode,
-    vnp_TmnCode,
-    vnp_TransactionNo,
-    vnp_TransactionStatus,
-    vnp_TxnRef,
-    vnp_SecureHash
-  ]);
-  
   const key = 'AIzaSyC-N1CyjegpbGvp_PO666Ie9sNQy9xW2Fo'
   const [location, setlocation] = useState({
     latitude: 0.0,
@@ -223,6 +159,7 @@ const Order = () => {
       Format_Address: selected.formatted_address
     })
   };
+
   const [requestAddress, setRequestAddress] = useState({
     Province: "",
     District: "",
@@ -242,10 +179,10 @@ const Order = () => {
     // Kiểm tra xem khách hàng đã đăng ký tài khoản chưa
     let checkCustomer = await CheckCustomer(request);
     if (checkCustomer.success) {
-      console.log(checkCustomer);
       setCheckCustomer(checkCustomer.dataCount);
     }
   }
+
   function roundToNearestHundred(amount) {
     const roundedAmount = Math.round(amount / 100) * 100;
     return roundedAmount;
@@ -262,7 +199,6 @@ const Order = () => {
     }
     let checkCustomer = await CheckCustomerAddress(request);
     if (checkCustomer.success) {
-      console.log(checkCustomer.data);
       // Nếu đã có địa chỉ mặc định rồi thì sử dụng địa chỉ đó
       setCompleteAddress(checkCustomer.success);
       // Dữ liệu của địa chỉ mặc định
@@ -294,7 +230,6 @@ const Order = () => {
             console.error('Lỗi khi gọi hàm calculateDistanceAndTime:', error);
           });
     }
-
   }
 
   // Gửi 
@@ -305,7 +240,7 @@ const Order = () => {
         // Đăng ký người dùng khi kết nối thành công
         if (customer !== null) {
           proxy
-          .invoke('SendOrderNotificationToUser', 'Thông báo mới', UserId)
+          .invoke('SendOrderNotificationToUser', 'Thông báo đơn đặt hàng mới', UserId)
           .done(() => {
             console.log('Gửi thông báo thành công');
           })
@@ -323,7 +258,6 @@ const Order = () => {
   async function order() {
     if(cartItems != null){
       let response = await CreateOrderCustomer(request);
-      console.log(response);
       if (response.success) {
         if (response.message == "") {
           toast.success('Đặt món ăn thành công!', { autoClose: 3000 });
@@ -422,11 +356,15 @@ const Order = () => {
     { label: "Thanh toán ví Momo", value: "MOMO" },
     { label: "Thanh toán VNPay", value: "VNPay" },
   ]);
+
+
   const [value, setValue] = React.useState("PaymentOnDelivery");
+
   function changeValue(e){
-    console.log(e.target.value);
     setValue(e.target.value);
   }
+
+
   useEffect(() => {
     let totalPrice = cartItems.reduce(function (accumulator, item) {
       return accumulator + item.qty * item.Price;
@@ -444,8 +382,9 @@ const Order = () => {
       Payment: value,
       OrderLine: cartItems,
     });
-    console.log(request);
   }, [tot, flag, customer, value, km]);
+
+
   useEffect(() =>{
     onChangeCustomer();
     checkCustomerAddress();
@@ -458,6 +397,7 @@ const Order = () => {
       return "Phí giao hàng cơ bản là (Km * 10.000đ) + 2.000 nếu > 2 Km";
     }
   }
+
   useEffect(() => {
     // Attempt connection and handle connection and error events
     connection.start()
@@ -486,6 +426,94 @@ const Order = () => {
 
 
 
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const allDataExists = [vnp_Amount, vnp_BankCode, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo, vnp_PayDate, vnp_ResponseCode, vnp_TmnCode, vnp_TransactionNo, vnp_TransactionStatus, vnp_TxnRef, vnp_SecureHash].every(data => data != null && data !== "" && data !== undefined);
+            // Kiểm tra xem tất cả các điều kiện đã đầy đủ chưa
+            if (allDataExists && customer && cartItems.length > 0 && value !== undefined && km !== undefined && data.length >0) {
+                const totalPrice = cartItems.reduce((accumulator, item) => accumulator + item.qty * item.Price, 0);
+                const transportFee = roundToNearestHundred(calculateDeliveryCost(km));
+                const intoMoney = roundToNearestHundred(transportFee + totalPrice);
+                // Tạo yêu cầu mới với tất cả dữ liệu
+                const newRequest = {
+                    ...request,
+                    CustomerId: customer,
+                    TotalAmt: totalPrice,
+                    TransportFee: transportFee,
+                    IntoMoney: intoMoney,
+                    UserId: cartItems[0].UserId,
+                    Payment: value,
+                    OrderLine: cartItems,
+                    RecipientName: data[0].CustomerName,
+                    RecipientPhone:data[0].PhoneCustomer,
+                    Name_Address:data[0].Name_Address,
+                    Format_Address: data[0].Format_Address,
+                    Latitude:data[0].Latitude,
+                    Longitude: data[0].Longitude,
+                    AddressId: data[0].AddressId,
+                };
+                // Thực hiện cuộc gọi API với yêu cầu mới
+                const response = await PaymentConfirm({
+                    vnp_Amount,
+                    vnp_BankCode,
+                    vnp_BankTranNo,
+                    vnp_CardType,
+                    vnp_OrderInfo,
+                    vnp_PayDate,
+                    vnp_ResponseCode,
+                    vnp_TmnCode,
+                    vnp_TransactionNo,
+                    vnp_TransactionStatus,
+                    vnp_TxnRef,
+                    vnp_SecureHash,
+                    "requestOrder": newRequest
+                });
+
+                if (response.success) {
+                    toast.success('Thanh toán và đặt món ăn thành công!', { autoClose: 3000 });
+                    sendOrderNotification(request.UserId);
+
+                    localStorage.setItem("cartItems", JSON.stringify(null));
+                    dispatch({
+                        type: actionType.SET_CARTITEMS,
+                        cartItems: null,
+                    });
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 2000);
+                } else {
+                    toast.error(response.message, { autoClose: 3000 });
+                }
+            }
+
+        } catch (error) {
+            console.error('Error during PaymentConfirm:', error);
+            toast.error('Có lỗi xảy ra trong quá trình xác nhận thanh toán!', { autoClose: 3000 });
+        }
+    };
+
+    fetchData();
+}, [
+    vnp_Amount,
+    vnp_BankCode,
+    vnp_BankTranNo,
+    vnp_CardType,
+    vnp_OrderInfo,
+    vnp_PayDate,
+    vnp_ResponseCode,
+    vnp_TmnCode,
+    vnp_TransactionNo,
+    vnp_TransactionStatus,
+    vnp_TxnRef,
+    vnp_SecureHash,
+    customer,
+    cartItems,
+    value,
+    km
+]);
+
+
   return (
     <section className="bg-min-h-screen flex items-center justify-center">
           {/*Hiển thị thông báo */}
@@ -512,7 +540,7 @@ const Order = () => {
                   >
                   Đóng
                   </button>
-              </Modal>
+          </Modal>
           {/*Modal cập nhật/thêm mới đia chỉ khách hàng*/}
           <Modal
                 isOpen={modalIsOpen}

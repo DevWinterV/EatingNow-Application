@@ -10,7 +10,7 @@ class GoogleAPIService {
   Future<AddressResult> fetchPlacesFromLocation(double latitude, double longitude) async {
     final query = '$latitude,$longitude';
     // final baseUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
-
+    print('${latitude},${longitude}');
     final baseUrl2 = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
     final response = await http.get(
       Uri.parse(baseUrl2),
@@ -19,8 +19,10 @@ class GoogleAPIService {
       final jsonData = json.decode(response.body);
       print(jsonData);
       final result = AddressResult();
-      result.formatted_address = jsonData['results'][0]['formatted_address'];
-      result.name_address = jsonData['results'][0]["address_components"][0]['long_name'];
+      result.formatted_address = jsonData['plus_code']['compound_code'];
+      result.name_address = jsonData['plus_code']["global_code"];
+      //result.formatted_address = jsonData['results'][0]['formatted_address'];
+      // result.name_address = jsonData['results'][0]["address_components"][0]['long_name'];
       print(result);
       return result;
     } else {

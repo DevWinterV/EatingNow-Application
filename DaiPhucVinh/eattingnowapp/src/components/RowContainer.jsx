@@ -26,7 +26,7 @@ const RowContainer = ({ flag, rowData, scrollValue }) => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
 
   function openModal(item) {
-    if(item.qty == 0 || item == null){
+    if(item.qty == 0 && item.Qtycontrolled == true){
       toast.warning("Sản phẩm hết số lượng");
       return;
     }

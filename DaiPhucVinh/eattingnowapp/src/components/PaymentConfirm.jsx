@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 const PaymentConfirm = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-
   const vnp_Amount = searchParams.get('vnp_Amount');
   const vnp_BankCode = searchParams.get('vnp_BankCode');
   const vnp_BankTranNo = searchParams.get('vnp_BankTranNo');

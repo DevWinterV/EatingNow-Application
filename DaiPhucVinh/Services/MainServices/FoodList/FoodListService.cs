@@ -579,7 +579,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     listStore = listStore.Where(x => x.CuisineId.Equals(cuisineId)).ToList();
                 }
                 var resulStoretList = FindNearestStores(listStore.MapTo<StoreResponse>(), latitude, longitude, 20).MapTo<StoreResponse>();
-
+                var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category).ToListAsync();
                 if (!keyword.IsNullOrEmpty())
                 {
                     string improvedSentence = PreprocessSentence(keyword);
@@ -587,21 +587,17 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     foreach (var store in resulStoretList)
                     {
                         var resultFoodListSearch = new FoodListSearchResponse();
-
-                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category).Where(
-                            x => x.UserId.Equals(store.UserId)  
-                            ).ToListAsync();
-                        if (foodlist.Count > 0)
+                        var fodlistOfStore = foodlist.Where(x => x.UserId.Equals(store.UserId)).ToList();
+                        if (fodlistOfStore.Count > 0)
                         {
                             /*
                             resultFoodListSearch.storeinFo = store;
                             resultFoodListSearch.foodList = foodlist.Take(4).MapTo<FoodListResponse>();
                             listResult.Add(resultFoodListSearch);*/
 
-                            resultFoodListSearch.storeinFo = store;
                             resultFoodListSearch.foodList = new List<FoodListResponse>();
 
-                            foreach (var foodItem in foodlist)
+                            foreach (var foodItem in fodlistOfStore)
                             {
                                 double similarity = ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.FoodName.ToLower().Trim());
                                // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), foodItem.Description.ToLower().Trim()));
@@ -616,27 +612,36 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                                     resultFoodListSearch.foodList.Add(foodItem.MapTo<FoodListResponse>());
                                 }
                             }
-                            if(resultFoodListSearch.foodList.Count > 0)
+                            double similarityStore = ComputeSimilarity(improvedSentence.ToLower().Trim(), store.FullName.ToLower().Trim());
+                            similarityStore = Math.Max(similarityStore, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Cuisine.ToLower().Trim()));
+                            similarityStore = Math.Max(similarityStore, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Province.ToLower().Trim()));
+
+                            if (resultFoodListSearch.foodList.Count > 0 || similarityStore >= 0.3)
                             {
+                                store.similarity = similarityStore;
+                                resultFoodListSearch.storeinFo = store;
                                 resultFoodListSearch.foodList = resultFoodListSearch.foodList.Take(4).ToList();
+                                listResult.Add(resultFoodListSearch);
+
                             }
-                            listResult.Add(resultFoodListSearch);
+
                         }
                         else
                         {
                             // Tính toán mức độ tương đồng giữa improvedSentence và các trường dữ liệu của cửa hàng
                             double similarity = ComputeSimilarity(improvedSentence.ToLower().Trim(), store.FullName.ToLower().Trim());
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Province.ToLower().Trim()));
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.OwnerName.ToLower().Trim()));
-                            //similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Description.ToLower().Trim()));
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Phone.ToLower().Trim()));
-                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Email.ToLower().Trim()));
                             similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Cuisine.ToLower().Trim()));
+                            similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Province.ToLower().Trim()));
+                            //similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.OwnerName.ToLower().Trim()));
+                            //similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Description.ToLower().Trim()));
+                           // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Phone.ToLower().Trim()));
+                           // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Email.ToLower().Trim()));
                            // similarity = Math.Max(similarity, ComputeSimilarity(improvedSentence.ToLower().Trim(), store.Address.ToLower().Trim()));
 
                             // Nếu mức độ tương đồng lớn hơn hoặc bằng 0.4, thêm cửa hàng vào danh sách kết quả
-                            if (similarity >= 0.4)
+                            if (similarity >= 0.3)
                             {
+                                store.similarity = similarity;
                                 resultFoodListSearch.storeinFo = store;
                                 resultFoodListSearch.foodList = new List<FoodListResponse>();
                                 listResult.Add(resultFoodListSearch);
@@ -650,16 +655,14 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                     foreach (var store in resulStoretList)
                     {
                         var resultFoodListSearch = new FoodListSearchResponse();
+                        var fodlistOfStore = foodlist.Where(x => x.UserId.Equals(store.UserId)).ToList();
 
-                        var foodlist = await _datacontext.EN_FoodList.Include(x => x.Category)
-                            .Where(x => x.UserId.Equals(store.UserId)).ToListAsync();
-                        if (foodlist.Count > 0)
+                        if (fodlistOfStore.Count > 0)
                         {
-
                             resultFoodListSearch.storeinFo = store;
-                            resultFoodListSearch.foodList = foodlist
+                            resultFoodListSearch.foodList = fodlistOfStore
                                 .Where(food => (food.qty > 0 && food.Qtycontrolled) || !food.Qtycontrolled)
-                                .Take(4)
+                                .Take(4).ToList()
                                 .MapTo<FoodListResponse>();
                             listResult.Add(resultFoodListSearch);
                         }
@@ -674,7 +677,7 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
                 }
 
                 result.Success = true;
-                result.Data = listResult;
+                result.Data = listResult.OrderByDescending(x => x.storeinFo.similarity).ToList();
                 result.Message = "SearchSuccess";
                 result.DataCount = resulStoretList.Count;
             }

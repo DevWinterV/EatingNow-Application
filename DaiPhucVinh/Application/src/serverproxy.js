@@ -31,6 +31,8 @@ app.use('/signalr/hubs', signalRProxy);
 // Define a route for calculateDistanceAndTime
 app.get('/calculateDistanceAndTime', async (req, res) => {
   const { origin, destination } = req.query;
+
+
   if (!origin || !destination) {
     return res.status(400).json({ error: 'Missing origin or destination' });
   }

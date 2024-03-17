@@ -22,5 +22,6 @@ namespace DaiPhucVinh.Shared.Store
         public string Status { get; set; }
         public double Distance { get; set; }
         public double Time { get; set; }
+        public double similarity { get; set; }
     }
 }

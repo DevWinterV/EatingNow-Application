@@ -22,10 +22,13 @@ const messaging = firebase.messaging();
 // Đăng ký sự kiện notificationclick ở cấp độ cao hơn
 self.addEventListener('notificationclick', function(event) {
   const payload = event.notification.data;
-  event.waitUntil(
-    clients.openWindow(payload.action_link)
+  event.waitUntil(()=>{
+        event.notification.close(); // Đóng thông báo
+        event.waitUntil(clients.openWindow(payload.action_link));
+    }
   );
 });
+
 
 // Register a listener for background messages
 messaging.onBackgroundMessage(function(payload) {
@@ -35,7 +38,7 @@ messaging.onBackgroundMessage(function(payload) {
     actions: [
       {
         action: 'open_link',
-        title: 'Đi đên liên kết'
+        title: 'Xem chi tiết đơn hàng'
       }
     ],
     data: {
