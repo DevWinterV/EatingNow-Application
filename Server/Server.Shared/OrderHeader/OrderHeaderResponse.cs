@@ -24,9 +24,10 @@ namespace DaiPhucVinh.Shared.OrderHeaderResponse
         public string RecipientPhone { get; set; }
         public string FormatAddress { get; set; }
         public string NameAddress { get; set; }
-
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public int PaymentStatusID { get; set; }   
+        public int PaymentStatusID { get; set; }
+        public int ShippingStatus { get; set; }
+
     }
 }

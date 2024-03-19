@@ -274,9 +274,8 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          // BigText(text: 'Món ăn quán ${(item?.storeinFo?.fullName ?? "")}', size: Dimensions.font16, color: AppColors.signColor, ),
                                           Container(
-                                            height: item!.foodList!.length * 100,
+                                            height: item!.foodList!.length * 110,
                                             child:ListView.builder(
                                                 physics: NeverScrollableScrollPhysics(),
                                                 shrinkWrap: true,
@@ -338,7 +337,6 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                                                               children: [
                                                                                 Container(
                                                                                   height: 40,
-                                                                                  width: MediaQuery.of(context).size.width - 160,
                                                                                   child: Text(
                                                                                     product?.foodName ?? "",
                                                                                     style: TextStyle(

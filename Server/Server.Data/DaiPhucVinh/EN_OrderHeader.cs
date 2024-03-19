@@ -34,5 +34,7 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         [ForeignKey("PaymentStatusID")]
         public virtual EN_PaymentStatus EN_PaymentStatus { get; set; }
         public string PromotionCode { get; set; }
+        public int ShippingStatus { get; set; }
+        
     }
 }

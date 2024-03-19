@@ -136,13 +136,14 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                 child:
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      "assets/image/empty-box.png",
-                                      height: 100,
-                                      width: 100,),
+                                    // Image.asset(
+                                    //   "assets/image/empty-box.png",
+                                    //   height: 100,
+                                    //   width: 100,),
                                     BigText(
-                                      text: "Bạn hiện chưa đặt đơn hàng nào",
+                                      text: "Không có dữ liệu",
                                       color: Colors.grey,),
                                   ],
                                 )
@@ -151,10 +152,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                           if (snapshot.hasData &&
                               snapshot.data!.data!.length! > 0) {
                             return Container(
-                              height: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .height - 129,
+                              height:snapshot.data!.data!.length! * 136 ,
                               child: ListView.builder(
                                   physics: AlwaysScrollableScrollPhysics(),
                                   itemCount: snapshot.data?.data?.length ?? 0,
@@ -317,6 +315,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                     ],
                                                   ),
                                                   Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
                                                     crossAxisAlignment: CrossAxisAlignment
                                                         .center,
                                                     children: [
@@ -380,8 +379,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                           },
                                                           child: BigText(text:
                                                           'Hủy đơn',
-                                                            size: Dimensions
-                                                                .font13,
+                                                            size: 12,
                                                             color: Colors.white,
                                                           ),
                                                           style: ElevatedButton

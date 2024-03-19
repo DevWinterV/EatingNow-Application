@@ -104,7 +104,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       //   topRight: Radius.circular(Dimensions.radius15 * 1),
                       // ),
                     ),
-                    height: 118,
+                    height: 120,
                     width: MediaQuery.of(context).size.width,
                     child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

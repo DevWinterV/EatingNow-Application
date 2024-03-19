@@ -405,10 +405,8 @@ const Order = () => {
                         className="border rounded-md px-2 py-1"
                       >                 
                       <option value="1">Đang chuẩn bị</option>
-                      <option value="2">
-                        Hoàn thành sản phẩm</option>
-                      <option value="3">Đã giao cho tài xế</option>
-                      <option value="4">Đã nhận hàng</option>
+                      <option value="2">Đã giao cho tài xế</option>
+                      <option value="3">Đã nhận hàng</option>
                     </select>
                  
                   </div>
