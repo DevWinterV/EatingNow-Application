@@ -3,7 +3,7 @@ class FoodRatingResponse {
   String? message;
   Null? customData;
   Null? item;
-  List<Data>? data;
+  List<FoodRatingDTO>? data;
   int? dataCount;
 
   FoodRatingResponse(
@@ -20,9 +20,9 @@ class FoodRatingResponse {
     customData = json['CustomData'];
     item = json['Item'];
     if (json['Data'] != null) {
-      data = <Data>[];
+      data = <FoodRatingDTO>[];
       json['Data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new FoodRatingDTO.fromJson(v));
       });
     }
     dataCount = json['DataCount'];
@@ -42,7 +42,7 @@ class FoodRatingResponse {
   }
 }
 
-class Data {
+class FoodRatingDTO {
   int? foodRatingId;
   int? foodId;
   String? foodName;
@@ -61,7 +61,7 @@ class Data {
   String? orderHeaderId;
   bool? reviewed;
 
-  Data(
+  FoodRatingDTO(
       {this.foodRatingId,
         this.foodId,
         this.foodName,
@@ -80,7 +80,7 @@ class Data {
         this.orderHeaderId,
         this.reviewed});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  FoodRatingDTO.fromJson(Map<String, dynamic> json) {
     foodRatingId = json['FoodRatingId'];
     foodId = json['FoodId'];
     foodName = json['FoodName'];

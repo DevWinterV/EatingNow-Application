@@ -399,26 +399,32 @@ namespace DaiPhucVinh.Services.Infrastructure
             CreateMap<EN_FoodList, FoodListResponse>()
                 .ForMember(d => d.Category, o => o.MapFrom(s => s.Category.CategoryName));
             
-
-
-
-            CreateMap<EN_FoodRating, FoodRatingResponse>();
-
             CreateMap<EN_FoodRating, FoodRatingResponse>()
-           .ForMember(d => d.Email, o => o.MapFrom(s => s.EN_Customer.Email))
-           .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_Customer.Phone))
-           .ForMember(d => d.CompleteName, o => o.MapFrom(s => s.EN_Customer.CompleteName))
-           .ForMember(d => d.FoodName, o => o.MapFrom(s => s.EN_FoodList.FoodName))
-           .ForMember(d => d.Price, o => o.MapFrom(s => s.EN_FoodList.Price))
-           .ForMember(d => d.UploadImage, o => o.MapFrom(s => s.EN_FoodList.UploadImage))
-           .ForMember(d => d.UserId, o => o.MapFrom(s => s.EN_FoodList.UserId))
-           .ForMember(d => d.Status, o => o.MapFrom(s => s.EN_FoodList.Status))
-           .ForMember(d => d.FullName, o => o.MapFrom(s => s.EN_FoodList.Store.FullName));
+               .ForMember(d => d.Email, o => o.MapFrom(s => s.EN_Customer.Email))
+               .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_Customer.Phone))
+               .ForMember(d => d.CompleteName, o => o.MapFrom(s => s.EN_Customer.CompleteName))
+               .ForMember(d => d.FoodName, o => o.MapFrom(s => s.EN_FoodList.FoodName))
+               .ForMember(d => d.Price, o => o.MapFrom(s => s.EN_FoodList.Price))
+               .ForMember(d => d.UploadImage, o => o.MapFrom(s => s.EN_FoodList.UploadImage))
+               .ForMember(d => d.UserId, o => o.MapFrom(s => s.EN_FoodList.UserId))
+               .ForMember(d => d.Status, o => o.MapFrom(s => s.EN_FoodList.Status))
+               .ForMember(d => d.FullName, o => o.MapFrom(s => s.EN_FoodList.Store.FullName));
 
-
-
-
+            CreateMap<EN_OrderLine, FoodRatingResponse>()
+               .ForMember(d => d.Email, o => o.MapFrom(s => s.EN_OrderHeader.EN_Customer.Email))
+               .ForMember(d => d.Phone, o => o.MapFrom(s => s.EN_OrderHeader.EN_Customer.Phone))
+               .ForMember(d => d.CompleteName, o => o.MapFrom(s => s.EN_OrderHeader.EN_Customer.CompleteName))
+              .ForMember(d => d.FoodId, o => o.MapFrom(s => s.EN_FoodList.FoodListId))
+              .ForMember(d => d.FoodName, o => o.MapFrom(s => s.EN_FoodList.FoodName))
+              .ForMember(d => d.Price, o => o.MapFrom(s => s.EN_FoodList.Price))
+              .ForMember(d => d.UploadImage, o => o.MapFrom(s => s.EN_FoodList.UploadImage))
+              .ForMember(d => d.UserId, o => o.MapFrom(s => s.EN_FoodList.UserId))
+              .ForMember(d => d.Status, o => o.MapFrom(s => s.EN_FoodList.Status))
+              .ForMember(d => d.CustomerId, o => o.MapFrom(s => s.EN_OrderHeader.CustomerId))
+              .ForMember(d => d.FullName, o => o.MapFrom(s => s.EN_FoodList.Store.FullName));
             CreateMap<FoodRatingResponse, EN_FoodRating>();
+
+            CreateMap<FoodRatingRequest, EN_FoodRating>();
 
             CreateMap<FoodList_Store, FoodListResponse>()
             .ForMember(d => d.FoodListId, o => o.MapFrom(s => s.foodItem.FoodListId))

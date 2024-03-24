@@ -17,4 +17,10 @@ class AppConstants{
   static const String PaymentConfirm= BASE_URL+"/api/customer/PaymentConfirm";
   static const String GetListOrderLineDetails= BASE_URL+"/api/store/GetListOrderLineDetails";
   static const String SearchFoodListByUser= BASE_URL+"/api/foodlist/SearchFoodListByUser";
+  // FoodRating
+  static const String TakeFoodsRatingByOrderHeaderId= BASE_URL+"/api/foodrating/TakeFoodsRatingByOrderHeaderId";
+  static const String CreateFoodRating= BASE_URL+"/api/foodrating/CreateFoodRating";
+  static const String UpdateFoodRating= BASE_URL+"/api/foodrating/UpdateFoodRating";
+  static const String DeleteFoodRating= BASE_URL+"/api/foodrating/DeleteFoodRating";
+
 }
