@@ -12,6 +12,7 @@ import 'package:fam/pages/profile/profile_detail_page.dart';
 import 'package:fam/pages/profile/profile_page.dart';
 import 'package:fam/pages/search/searchPage.dart';
 import 'package:fam/pages/store/details_store_page.dart';
+import 'package:fam/router/router.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/app_constants.dart';
@@ -69,71 +70,77 @@ class _MyAppState extends State<MyApp> {
   }
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp.router(
       title: AppConstants.APP_NAME,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
-        useMaterial3: true,
-      ),
-      debugShowCheckedModeBanner: false,
-      initialRoute: _locationData?.name != "" && _locationData != null ? "/" : "/getlocation",
-      defaultTransition: Transition.rightToLeft,
-      getPages: [
-        GetPage(
-          name: '/',
-          page: () => MainFoodPage(),
-        ),
-        GetPage(
-          name: '/login',
-          page: () => LoginPage(),
-        ),
-        GetPage(
-          name: '/getlocation',
-          page: () => LocationPage(link: ""),
-        ),
-        GetPage(
-          name: '/order',
-          page: () => OrderPage(),
-          middlewares: [AuthMiddleware()],
-        ),
-        GetPage(
-          name: '/orderlist',
-          page: () => OrderCustomerPage(),
-          middlewares: [AuthMiddleware()],
-        ),
-        GetPage(
-          name: '/cartdetails',
-          page: () => CartPage(),
-          // middlewares: [AuthMiddleware()],
-        ),
-        GetPage(
-          name: '/profiledetail',
-          page: () => ProfilePage(),
-          middlewares: [AuthMiddleware()],
-        ),
-        GetPage(
-          name: '/viewprofiledetail',
-          page: () => ProfileDetailPage(),
-          middlewares: [AuthMiddleware()],
-        ),
-        GetPage(
-          name: '/productdetail',
-          page: () => RecommenedFoodDetail(),
-        ),
-        GetPage(
-          name: '/storedetail',
-          page: () => StoreDetailPage(),
-        ),
-        GetPage(
-          name: '/ordedetails',
-          page: () => OrderDetailsPage(),
-        ),
-        GetPage(
-          name: '/searchpage',
-          page: () => SearchFoodPage(),
-        ),
-      ],
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
     );
+    // return GetMaterialApp(
+    //   title: AppConstants.APP_NAME,
+    //   theme: ThemeData(
+    //     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
+    //     useMaterial3: true,
+    //   ),
+    //   debugShowCheckedModeBanner: false,
+    //   initialRoute: _locationData?.name != "" && _locationData != null ? "/" : "/getlocation",
+    //   defaultTransition: Transition.rightToLeft,
+    //   getPages: [
+    //     GetPage(
+    //       name: '/',
+    //       page: () => MainFoodPage(),
+    //     ),
+    //     GetPage(
+    //       name: '/login',
+    //       page: () => LoginPage(),
+    //     ),
+    //     GetPage(
+    //       name: '/getlocation',
+    //       page: () => LocationPage(link: ""),
+    //     ),
+    //     GetPage(
+    //       name: '/order',
+    //       page: () => OrderPage(),
+    //       middlewares: [AuthMiddleware()],
+    //     ),
+    //     GetPage(
+    //       name: '/orderlist',
+    //       page: () => OrderCustomerPage(),
+    //       middlewares: [AuthMiddleware()],
+    //     ),
+    //     GetPage(
+    //       name: '/cartdetails',
+    //       page: () => CartPage(),
+    //       // middlewares: [AuthMiddleware()],
+    //     ),
+    //     GetPage(
+    //       name: '/profiledetail',
+    //       page: () => ProfilePage(),
+    //       middlewares: [AuthMiddleware()],
+    //     ),
+    //     GetPage(
+    //       name: '/viewprofiledetail',
+    //       page: () => ProfileDetailPage(),
+    //       middlewares: [AuthMiddleware()],
+    //     ),
+    //     GetPage(
+    //       name: '/productdetail',
+    //       page: () => RecommenedFoodDetail(),
+    //     ),
+    //     GetPage(
+    //       name: '/storedetail',
+    //       page: () => StoreDetailPage(),
+    //     ),
+    //     GetPage(
+    //       name: '/ordedetails',
+    //       page: () => OrderDetailsPage(),
+    //     ),
+    //     GetPage(
+    //       name: '/searchpage',
+    //       page: () => SearchFoodPage(),
+    //     ),
+    //   ],
+    // );
   }
 
 }

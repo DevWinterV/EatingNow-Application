@@ -409,9 +409,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     child:ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         // Customize the background color
-                        primary: AppColors.mainColor,
-                        // Customize the text color
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.mainColor,
                         // Add other customizations as needed
                         padding: EdgeInsets.only(right: 20.0, left: 20.0),
                         shape: RoundedRectangleBorder(
@@ -433,9 +432,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   child:ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       // Customize the background color
-                      primary: AppColors.mainColor,
-                      // Customize the text color
-                      onPrimary: Colors.white,
+                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.mainColor,
                       // Add other customizations as needed
                       padding: EdgeInsets.only(right: 20.0, left: 20.0),
                       shape: RoundedRectangleBorder(
@@ -456,9 +454,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     child:ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         // Customize the background color
-                        primary: AppColors.mainColor,
-                        // Customize the text color
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.mainColor,
                         // Add other customizations as needed
                         padding: EdgeInsets.only(right: 20.0, left: 20.0),
                         shape: RoundedRectangleBorder(

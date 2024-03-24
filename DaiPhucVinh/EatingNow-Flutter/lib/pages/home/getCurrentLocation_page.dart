@@ -220,9 +220,7 @@ class _LocationPageState extends State<LocationPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           // Customize the background color
-                          primary: AppColors.mainColor,
-                          // Customize the text color
-                          onPrimary: Colors.white,
+                          foregroundColor: Colors.white,
                           // Add other customizations as needed
                           padding: EdgeInsets.only(right: 20.0, left: 20.0),
                           shape: RoundedRectangleBorder(
@@ -239,9 +237,7 @@ class _LocationPageState extends State<LocationPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           // Customize the background color
-                          primary: AppColors.mainColor,
-                          // Customize the text color
-                          onPrimary: Colors.white,
+                          foregroundColor: AppColors.mainColor,
                           // Add other customizations as needed
                           padding: EdgeInsets.only(right: 20.0, left: 20.0),
                           shape: RoundedRectangleBorder(
