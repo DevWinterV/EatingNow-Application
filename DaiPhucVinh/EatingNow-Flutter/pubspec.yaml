@@ -60,6 +60,7 @@ dependencies:
   flutter_webview_plugin: ^0.4.0 # Launch to Web view
   speech_to_text: ^6.6.0 #Record voice
   avatar_glow: ^3.0.1
+  signals: ^4.5.1
 
 dev_dependencies:
   flutter_test:
