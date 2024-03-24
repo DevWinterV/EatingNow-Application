@@ -367,6 +367,7 @@
     <Compile Include="MainServices\AccountType\AccountTypeService.cs" />
     <Compile Include="MainServices\EN_CustomerService\IENCustomerService.cs" />
     <Compile Include="MainServices\FoodList\FoodListService.cs" />
+    <Compile Include="MainServices\FoodRating\FoodRatingService.cs" />
     <Compile Include="MainServices\Hubs\OrderNotificationHub.cs" />
     <Compile Include="MainServices\OrderHeader\OrderHeaderService.cs" />
     <Compile Include="MainServices\Store\StoreService.cs" />

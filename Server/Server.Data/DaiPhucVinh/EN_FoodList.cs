@@ -22,6 +22,8 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public string UploadImage { get; set; }
         public string Description { get; set; }
         public int UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual EN_Store Store { get; set; }
         public bool Status { get; set; }
         public int? Hint { get; set; }
         public bool? IsNew { get; set; }

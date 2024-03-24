@@ -54,6 +54,7 @@ using Microsoft.AspNet.SignalR;
 using DaiPhucVinh.Services.MainServices.Hubs;
 using Microsoft.AspNet.SignalR.Hubs;
 using DaiPhucVinh.Services.MainServices.Account;
+using DaiPhucVinh.Services.MainServices.FoodRating;
 
 namespace DaiPhucVinh.Services.Infrastructure
 {
@@ -62,9 +63,11 @@ namespace DaiPhucVinh.Services.Infrastructure
         public static void Register(Container container)
         {
             EngineContext.Current.Init(new SimpleContainer(container));
+
             //DB
             container.Register<DataContext>(Lifestyle.Scoped);
             container.Register<FesContext>(Lifestyle.Scoped);
+
             //Framework
             container.Register<ILogger, Logger>(Lifestyle.Scoped);
             container.Register<ITokenValidation, TokenValidation>(Lifestyle.Scoped);
@@ -131,6 +134,8 @@ namespace DaiPhucVinh.Services.Infrastructure
             container.Register<IOrderHeaderService, OrderHeaderService>(Lifestyle.Scoped);
             container.Register<IENCustomerService, ENCustomerService>(Lifestyle.Scoped);
             container.Register<IAccountService, AccountService>(Lifestyle.Scoped);
+
+            container.Register<IFoodRatingService, FoodRatingService>(Lifestyle.Scoped);
 
         }
         public static void ApiServerRegister(Container container)

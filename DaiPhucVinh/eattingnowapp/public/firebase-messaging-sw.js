@@ -22,10 +22,12 @@ const messaging = firebase.messaging();
 // Đăng ký sự kiện notificationclick ở cấp độ cao hơn
 self.addEventListener('notificationclick', function(event) {
   const payload = event.notification.data;
-  event.waitUntil(()=>{
-        event.notification.close(); // Đóng thông báo
-        event.waitUntil(clients.openWindow(payload.action_link));
-    }
+  event.waitUntil(
+    clients.openWindow(payload.action_link)
+      .then(function(windowClient) {
+        // Đóng thông báo sau khi mở cửa sổ thành công
+        event.notification.close();
+      })
   );
 });
 

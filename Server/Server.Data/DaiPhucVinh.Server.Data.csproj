@@ -84,6 +84,7 @@
     <Compile Include="DaiPhucVinh\EN_FavoriteFood.cs" />
     <Compile Include="DaiPhucVinh\EN_FoodList.cs" />
     <Compile Include="DaiPhucVinh\EN_Customer.cs" />
+    <Compile Include="DaiPhucVinh\EN_FoodRating.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderHeader.cs" />
     <Compile Include="DaiPhucVinh\EN_OrderLine.cs" />
     <Compile Include="DaiPhucVinh\EN_Paymentonline.cs" />
