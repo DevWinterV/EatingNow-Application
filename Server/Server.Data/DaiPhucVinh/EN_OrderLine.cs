@@ -17,6 +17,8 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         [ForeignKey("OrderHeaderId")]
         public virtual EN_OrderHeader EN_OrderHeader { get; set; }
         public int FoodListId { get; set; }
+        [ForeignKey("FoodListId")]
+        public virtual EN_FoodList EN_FoodList { get; set; }
         public int CategoryId { get; set; }
         public string FoodName { get; set; }
         public int Price { get; set; }
