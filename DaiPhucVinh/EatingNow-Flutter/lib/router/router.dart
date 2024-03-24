@@ -20,7 +20,7 @@ final router = GoRouter(
       GoRoute(
           redirect: (context, state){
             if(auth.currentUser.peek() == null){
-              return "/login";
+              return "/getlocation";
             }
             return null;
           },
