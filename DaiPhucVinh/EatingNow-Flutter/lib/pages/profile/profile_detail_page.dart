@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../data/Api/CustomerService.dart';
 
 class ProfileDetailPage extends StatefulWidget {
+  const ProfileDetailPage({Key? key}) : super(key: key);
   @override
   _ProfileDetailPageState createState() => _ProfileDetailPageState();
 }

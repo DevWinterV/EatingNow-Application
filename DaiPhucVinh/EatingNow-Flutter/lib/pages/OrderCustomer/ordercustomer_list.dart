@@ -152,7 +152,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                           if (snapshot.hasData &&
                               snapshot.data!.data!.length! > 0) {
                             return Container(
-                              height:snapshot.data!.data!.length! * 136 ,
+                              height: Dimensions.screenHeight -136 ,
                               child: ListView.builder(
                                   physics: AlwaysScrollableScrollPhysics(),
                                   itemCount: snapshot.data?.data?.length ?? 0,

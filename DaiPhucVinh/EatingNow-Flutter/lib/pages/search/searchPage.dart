@@ -62,6 +62,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   }
 
   void initStream(arguments){
+    print('arguments $arguments');
     cuisineModel = arguments['data'] as CuisineModel;
     cuisineId = arguments['IdSelected'] as int;
     _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineId, keyword: ""));

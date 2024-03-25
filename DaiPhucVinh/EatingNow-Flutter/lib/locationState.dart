@@ -5,16 +5,19 @@ import 'package:fam/storage/locationstorage.dart';
 import 'package:signals/signals_flutter.dart';
 
 class LocationState{
-  late LocationData locationData;
+  late LocationData? locationData;
 
   void getLocationData() async {
     locationData = await LocationStorage().getSavedLocation();
-    currentLocation = signal<LocationData?>(locationData);
+    save(locationData);
+    currentLocation.value = locationData;
   }
 
   final _controller = StreamController<LocationData?>();
 
-  late Signal<LocationData?> currentLocation;
+  final currentLocation = signal<LocationData?>(null);
+
+ // late Signal<LocationData?> currentLocation;
 
   late final isCheckIn = computed(() => currentLocation != null);
 
@@ -31,7 +34,7 @@ class LocationState{
     _controller.close();
   }
 
-  save(LocationData locationData){
+  save(LocationData? locationData){
     _controller.add(locationData);
   }
 

@@ -10,6 +10,7 @@ import '../../storage/cartstorage.dart';
 
 
 class CartPage extends StatefulWidget {
+  const CartPage({super.key});
   @override
   _CartPageState createState() => _CartPageState();
 }
@@ -19,10 +20,8 @@ class _CartPageState extends State<CartPage> {
   Stream<bool?> get checkSelectEditStream => _checkSelectEditController.stream;
   StreamController<List<StoreChecked>?> _checkSelectedListStoreIdController = StreamController<List<StoreChecked>?>.broadcast();
   Stream<List<StoreChecked>?> get checkSelectedListStoreIdStream => _checkSelectedListStoreIdController.stream;
-
   StreamController<List<StoreChecked>?> _checkSelectedListStoreIdRemoveController = StreamController<List<StoreChecked>?>.broadcast();
   Stream<List<StoreChecked>?> get checkSelectedListStoreIdRemoveStream => _checkSelectedListStoreIdRemoveController.stream;
-
   List<StoreUserCart> groupedCart = [];
   List<CartItem> cartItems = [];
 
