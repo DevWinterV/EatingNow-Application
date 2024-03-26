@@ -320,16 +320,19 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                         .center,
                                                     children: [
                                                       SmallText(
-                                                        text: order?.status ==
-                                                            true
-                                                            ? "Đã xác nhận"
-                                                            : "Chờ xác nhận",
-                                                        color: order?.status ==
-                                                            true
-                                                            ? Colors.green
-                                                            : Colors.red,
-                                                        size: Dimensions
-                                                            .font13,),
+                                                      text: order?.status == true && order?.shippingstatus == 3
+                                                      ? "Giao thành công"
+                                                            : order?.status == true && order?.shippingstatus == 2
+                                                      ? "Đang giao hàng"
+                                                          : order?.status == true && order?.shippingstatus == 1
+                                                      ? "Đã xác nhận"
+                                                          : order?.status == false || order?.shippingstatus == 0
+                                                      ? "Chưa xác nhận"
+                                                        :
+                                                      " ",
+                                                        color: order?.status == true ? Colors.green : Colors.red,
+                                                        size: Dimensions.font13,
+                                                      ),
                                                       SizedBox(height: 6,),
                                                       Container(
                                                         height: 20,
@@ -363,7 +366,8 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                         ),
                                                       ),
                                                       SizedBox(height: 6,),
-                                                      order?.status != true ?
+                                                      order?.status != true && order?.shippingstatus != 3
+                                                          ?
                                                       Container(
                                                         width: 100,
                                                         height: 20,
@@ -390,7 +394,28 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                         ),
                                                       )
                                                           :
-                                                      SizedBox(),
+                                                      order?.status == true && order?.shippingstatus == 3
+                                                          ?
+                                                      Container(
+                                                        width: 100,
+                                                        height: 20,
+                                                        child: ElevatedButton(
+                                                          onPressed: () {
+                                                          },
+                                                          child: BigText(text:
+                                                          'Đánh giá',
+                                                            size: 12,
+                                                            color: Colors
+                                                                .white,
+                                                          ),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor: Colors.yellow[700]
+                                                          ),
+                                                        ),
+                                                      )
+                                                          :
+                                                      SizedBox()
                                                     ],
                                                   ),
                                                 ],

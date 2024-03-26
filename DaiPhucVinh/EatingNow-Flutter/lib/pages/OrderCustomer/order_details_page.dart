@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fam/Widget/Icon_and_Text_widget.dart';
 import 'package:fam/Widget/Small_text.dart';
 import 'package:fam/models/order_details_model.dart';
 import 'package:fam/models/ordercustomerResponse_model.dart';
@@ -421,7 +422,20 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       onPressed: () {
                         // Navigator.of(context).pop();
                       },
-                      child: Text('Đã hoàn thành', style: TextStyle(fontSize: Dimensions.font16),),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SmallText(text: "Đánh giá đơn hàng", size: Dimensions.font16, color: Colors.white,),
+                              SizedBox(width: 5,),
+                              Icon(Icons.star, color: Colors.white, size: 18,)
+                            ],
+                          ),
+                          SmallText(text: "Cho XpressEat biết đánh giá của bạn về đơn hàng", color: Colors.white,)
+                        ],
+                      )
                     ), ) ,
                   padding: EdgeInsets.only(left: 10, right: 10)
               )
@@ -466,7 +480,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       onPressed: () {
                         // Navigator.of(context).pop();
                       },
-                      child: Text('Đang chờ xác nhận', style: TextStyle(fontSize: Dimensions.font16),),
+                      child: Text('Đang đợi xác nhận', style: TextStyle(fontSize: Dimensions.font16),),
                     ), ) ,
                   padding: EdgeInsets.only(left: 10, right: 10)
               )

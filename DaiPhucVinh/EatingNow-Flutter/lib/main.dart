@@ -60,13 +60,11 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
         useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,
-        initialRoute: "/",
+      debugShowCheckedModeBanner: false, initialRoute: "/getlocation",
       defaultTransition: Transition.rightToLeft,
       getPages:  mainRoutes
     );
   }
-
   final mainRoutes = [
     GetPage(
       name: '/',

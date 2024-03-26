@@ -10,7 +10,7 @@ class LocationState{
   void getLocationData() async {
     locationData = await LocationStorage().getSavedLocation();
     save(locationData);
-    currentLocation.value = locationData;
+    print('getLocationData ${locationData}');
   }
 
   final _controller = StreamController<LocationData?>();

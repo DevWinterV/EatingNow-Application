@@ -24,7 +24,6 @@ class LocationPage extends StatefulWidget {
 class _LocationPageState extends State<LocationPage> {
   final String? link;
   _LocationPageState({required this.link});
-
   String? _locationMessage;
   final googleApiService = GoogleAPIService(
       'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s');
@@ -35,36 +34,13 @@ class _LocationPageState extends State<LocationPage> {
   List<CartItem> cartItems = [];
 
 
-  // Phương thức để load danh sách món ăn từ SharedPreferences
-  void _loadCartItems() async {
-    List<CartItem> loadedItems = await CartStorage.getCartItems();
-    setState(() {
-      cartItems = loadedItems;
-    });
-  }
-
-
   @override
   initState() {
     super.initState();
     initialization();
-    print('link ${link}');
     requestLocationPermission();
-    // Tự động lấy vị trí đã sử dụng gần nhất
-    getCurrentLocation();
     locationStorage = LocationStorage();
-    _loadCartItems();
   }
-
-  // Danh sách các địa điểm đã lưu
-  List<LocationData> savedLocations = [
-    LocationData(
-      name: 'Nhà trọ bà Mười',
-      latitude: 10.3753666,
-      longitude: 105.4378349,
-      address: '9CGQ+45P, Phường Mỹ Xuyên, Thành phố Long Xuyên, An Giang, Việt Nam',
-    ),
-  ];
 
 
   // Hàm xóa SplassCreen
@@ -72,16 +48,15 @@ class _LocationPageState extends State<LocationPage> {
     FlutterNativeSplash.remove();
   }
 
-
   // yêu cầu quyền sử dụng vị trí của người dùng
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
     if (status.isGranted) {
-      // Quyền truy cập vị trí đã được cấp.
+      // Tự động lấy vị trí đã sử dụng gần nhất
+      getCurrentLocation();
     } else if (status.isDenied) {
-      // Người dùng đã từ chối quyền truy cập vị trí, bạn có thể cung cấp hướng dẫn về việc cấp quyền trong ứng dụng của bạn.
+
     } else if (status.isPermanentlyDenied) {
-      // Người dùng đã từ chối cấp quyền vĩnh viễn, bạn có thể chuyển hướng họ đến cài đặt ứng dụng để cấp quyền.
       openAppSettings();
     }
   }
@@ -97,8 +72,6 @@ class _LocationPageState extends State<LocationPage> {
       Navigator.popAndPushNamed(context, link ?? "", result: true);
     }
   }
-
-
   // Lưu vị trí khách hàng chọn giao hàng và chuyển san màn hình Home Page
   Future<void> getAddressdelivery() async {
     await locationStorage.saveLocation(
@@ -133,14 +106,6 @@ class _LocationPageState extends State<LocationPage> {
       }
 
     } catch (e) {
-      // Fluttertoast.showToast(
-      //     msg: "Đã có lỗi khi lấy vị trí của bạn. Vui lòng load lại ứng dụng.",
-      //     toastLength: Toast.LENGTH_LONG,
-      //     gravity: ToastGravity.TOP,
-      //     backgroundColor: AppColors.toastSuccess,
-      //     textColor: Colors.black54,
-      //     timeInSecForIosWeb: 1,
-      //     fontSize: 15);
     }
   }
 
@@ -185,7 +150,7 @@ class _LocationPageState extends State<LocationPage> {
                   ),
                   Row(children: [
                     Icon(Icons.location_on,
-                      size: 33,
+                      size: 30,
                       color: Colors.redAccent,),
                     Flexible(
                       child: Padding(
@@ -207,7 +172,7 @@ class _LocationPageState extends State<LocationPage> {
                   CircularProgressIndicator(color: AppColors.mainColor,),
                   SizedBox(height: Dimensions.height10),
                   // Khoảng cách giữa vòng tròn tải và văn bản
-                  Text("Đang lấy vị trí hiện tại ...", style: TextStyle(fontSize: 9),),
+                  Text("Đang lấy vị trí hiện tại", style: TextStyle(fontSize: 9),),
                 ],
               ),
             ),
