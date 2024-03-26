@@ -211,6 +211,7 @@ class _OrderPage extends State<OrderPage> {
                           labelText: 'Tên người nhận',
                           hintText: "Nhập tên người nhận hàng ...",
                           border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Điều chỉnh chiều cao
                         ),
                         maxLines: 1,
                         onChanged: (text) async {
@@ -229,6 +230,7 @@ class _OrderPage extends State<OrderPage> {
                             labelText: 'Số điện thoại',
                             hintText: "Nhập số điện thoại nhận hàng ...",
                             border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Điều chỉnh chiều cao
                           ),
                           onChanged: (text) async {
                             // Cập nhật lại dữ liệu khi thay đổi
@@ -722,7 +724,7 @@ class _OrderPage extends State<OrderPage> {
                   )
                       :
                   Center(
-                    child:ElevatedButton(
+                    child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         // Customize the background color
                         foregroundColor: Colors.white,

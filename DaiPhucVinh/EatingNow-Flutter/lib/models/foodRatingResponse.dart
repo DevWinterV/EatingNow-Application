@@ -1,3 +1,5 @@
+import 'FoodRatingRequest.dart';
+
 class FoodRatingResponse {
   bool? success;
   String? message;
@@ -120,5 +122,17 @@ class FoodRatingDTO {
     data['OrderHeaderId'] = this.orderHeaderId;
     data['reviewed'] = this.reviewed;
     return data;
+  }
+
+  FoodRatingRequest toRequest() {
+    return FoodRatingRequest(
+      foodRatingId: this.foodRatingId ?? 0,
+      customerId: this.customerId ?? '',
+      foodId: this.foodId ?? 0,
+      rating: this.rating ?? 0.0,
+      comment: this.comment ?? '',
+      addedAt: DateTime.parse(this.addedAt ?? ''),
+      orderHeaderId: this.orderHeaderId ?? '',
+    );
   }
 }

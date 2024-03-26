@@ -1,5 +1,6 @@
 import 'package:fam/Middleware/AuthMiddleware.dart';
 import 'package:fam/data/Api/firebase_api.dart';
+import 'package:fam/pages/rating_food/post_foodRating.dart';
 import 'package:permission_handler/permission_handler.dart'
 ;import 'package:fam/pages/OderFood/orderfood.dart';
 import 'package:fam/pages/OrderCustomer/order_details_page.dart';
@@ -119,6 +120,10 @@ class _MyAppState extends State<MyApp> {
     GetPage(
       name: '/searchpage',
       page: () => SearchFoodPage(),
+    ),
+    GetPage(
+      name: '/rating',
+      page: () => PostFoodRating(),
     ),
   ];
 

@@ -420,8 +420,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                       ),
                       onPressed: () {
-                        // Navigator.of(context).pop();
-                      },
+                        Navigator.of(
+                            context)
+                            .pushNamed(
+                            "/rating",
+                            arguments: {
+                              "orderID": order?.orderHeaderId ?? ""
+                            });
+                        },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

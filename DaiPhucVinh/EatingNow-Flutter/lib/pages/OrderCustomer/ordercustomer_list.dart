@@ -325,11 +325,11 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                             : order?.status == true && order?.shippingstatus == 2
                                                       ? "Đang giao hàng"
                                                           : order?.status == true && order?.shippingstatus == 1
+                                                      ? "Đang chuẩn bị"
+                                                          : order?.status == true && order?.shippingstatus == 0
                                                       ? "Đã xác nhận"
-                                                          : order?.status == false || order?.shippingstatus == 0
-                                                      ? "Chưa xác nhận"
                                                         :
-                                                      " ",
+                                                      "Chưa xác nhận ",
                                                         color: order?.status == true ? Colors.green : Colors.red,
                                                         size: Dimensions.font13,
                                                       ),
@@ -401,6 +401,13 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                         height: 20,
                                                         child: ElevatedButton(
                                                           onPressed: () {
+                                                            Navigator.of(
+                                                                context)
+                                                                .pushNamed(
+                                                                "/rating",
+                                                                arguments: {
+                                                                  "orderID": order?.orderHeaderId ?? ""
+                                                                });
                                                           },
                                                           child: BigText(text:
                                                           'Đánh giá',
