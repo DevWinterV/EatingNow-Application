@@ -48,7 +48,7 @@ class _OrderPage extends State<OrderPage> {
   String addressdelivery = '';
   String nameAddressdelivery ='';
   String paymentMethod = '';
-  late LocationData locationData;
+  late LocationData? locationData;
   late String StoreName;
   List<CartItem> cartItem = [];
 
@@ -209,7 +209,7 @@ class _OrderPage extends State<OrderPage> {
                         controller: namecontroller,
                         decoration: InputDecoration(
                           labelText: 'Tên người nhận',
-                          hintText: "Nhập tên người nhận hàng ...",
+                          hintText: "Nhập tên người nhận hàng",
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Điều chỉnh chiều cao
                         ),
@@ -228,7 +228,7 @@ class _OrderPage extends State<OrderPage> {
                           controller: phoneNumbercontroller,
                           decoration: InputDecoration(
                             labelText: 'Số điện thoại',
-                            hintText: "Nhập số điện thoại nhận hàng ...",
+                            hintText: "Nhập số điện thoại nhận hàng",
                             border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Điều chỉnh chiều cao
                           ),
@@ -287,7 +287,7 @@ class _OrderPage extends State<OrderPage> {
                                 Container(
                                   height: Dimensions.height45,
                                   width: MediaQuery.of(context).size.width - 80,
-                                  child: BigText(text: locationData.address, size: Dimensions.font16,),
+                                  child: BigText(text: locationData?.address ?? "", size: Dimensions.font16,),
                                 ),
                                 Divider(),
                               ],
@@ -619,15 +619,15 @@ class _OrderPage extends State<OrderPage> {
                         try {
                           orderRequest.TokenApp = await FirebaseApi().getFCMToken();
                           orderRequest.completeName = namecontroller.text ;
-                          orderRequest.formatAddress = locationData.address;
-                          orderRequest.nameAddress = locationData.name;
+                          orderRequest.formatAddress = locationData!.address;
+                          orderRequest.nameAddress = locationData!.name;
                           orderRequest.orderLine = cartItem;
                           orderRequest.customerId = _auth.currentUser!.uid;
                           orderRequest.intoMoney = totalAmount.toInt() + 12000;
                           orderRequest.transportFee = 12000;
                           orderRequest.totalAmt = totalAmount.toInt();
-                          orderRequest.latitude = locationData.latitude;
-                          orderRequest.longitude = locationData.longitude;
+                          orderRequest.latitude = locationData!.latitude;
+                          orderRequest.longitude = locationData!.longitude;
                           orderRequest.recipientName = namecontroller.text;
                           orderRequest.recipientPhone = phoneNumbercontroller.text;
                           orderRequest.userId = userId ?? 0;

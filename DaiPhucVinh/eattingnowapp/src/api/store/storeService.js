@@ -2,6 +2,7 @@ import { Proxy } from "../Proxy";
 import { ServerEndPoint } from "../ServerEndPoint";
 import { BaseResponse } from "../BaseResponse";
 const ServiceEndPoint = ServerEndPoint + "/store";
+const OrderServiceEndPoint = ServerEndPoint + "/orderheader";
 const API = {
   TakeAllStore: "/TakeAllStore",
   CreateNewStore: "/CreateNewStore",
@@ -16,7 +17,8 @@ const API = {
   TakeStatisticalByStoreId: "/TakeStatisticalByStoreId",
   ApproveOrder: "/ApproveOrder",
   TakeStoreLocation: "/TakeStoreLocation",
-  TakeLitsFoodSold: "/TakeLitsFoodSold"
+  TakeLitsFoodSold: "/TakeLitsFoodSold",
+  UpdateShippingStatus: "/UpdateShippingStatus",
 };
 
 const TakeAllStore = async (request) => {
@@ -180,6 +182,8 @@ const TakeLitsFoodSold = async (UserId) => {
   }
   return result;
 };
+
+
 const TakeAllFoodListByStoreId = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -198,6 +202,8 @@ const TakeAllFoodListByStoreId = async (request) => {
   }
   return result;
 };
+
+
 const TakeFoodListByStoreId = async (Id) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -302,6 +308,28 @@ const TakeStatisticalByStoreId = async (request) => {
   return result;
 };
 
+
+const UpdateShippingStatus = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      OrderServiceEndPoint + API.UpdateShippingStatus,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.message = response.data.Message;
+    }   
+   } catch (e) {
+    result.success = false;
+    result.message = e.toString();
+  }
+  return result;
+};
+
+
 export {
   TakeAllStore,
   CreateNewStore,
@@ -316,5 +344,6 @@ export {
   TakeStatisticalByStoreId,
   ApproveOrder,
   TakeStoreLocation, 
-  TakeLitsFoodSold
+  TakeLitsFoodSold,
+  UpdateShippingStatus
 };

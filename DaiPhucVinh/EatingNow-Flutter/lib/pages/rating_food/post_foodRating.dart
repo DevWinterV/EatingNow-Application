@@ -124,7 +124,7 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                     bottomRight: Radius.circular(Dimensions.radius15 * 1),
                                                   ),
                                                 ),
-                                                height: 180,
+                                                height: 190,
                                                 width: MediaQuery.of(context).size.width,
                                                 child:  StreamBuilder<double>(
                                                   initialData: itemRating?.rating ?? 0,
@@ -133,7 +133,9 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                     return Column(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        BigText(text: itemRating?.foodName ?? "", size: Dimensions.font20),
+                                                        Padding(padding: EdgeInsets.only(left: 5, right: 5, top:2),
+                                                          child: BigText(text: itemRating?.foodName ?? "", size: Dimensions.font20, maxlines: 1,),
+                                                        ),
                                                         Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                           children: List.generate( 5, (index) {
@@ -147,12 +149,13 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                                     ? Icons.star
                                                                     : Icons.star_border_outlined,
                                                                 color: index < snapshot!.data! ? Colors.orange : Colors.grey,
+                                                                size: 20
                                                               ),
                                                             );
                                                           }),
                                                         ),
                                                         Padding(
-                                                          padding: EdgeInsets.only(left: 5, right: 5, ),
+                                                          padding: EdgeInsets.only(left: 5, right: 5, bottom: 1, top: 1),
                                                           child: TextField(
                                                             controller: TextEditingController()..text = itemRating!.comment ?? "", // Set giá trị ban đầu
                                                             onChanged: (value){
@@ -166,7 +169,7 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                           ),
                                                         ),
                                                         Padding(
-                                                          padding: EdgeInsets.only(left: 5, right: 5 ,bottom: 2),
+                                                          padding: EdgeInsets.only(left: 5, right: 5 ,bottom: 6),
                                                           child: ElevatedButton(
                                                               style: ElevatedButton.styleFrom(
                                                                 // Customize the background color

@@ -40,7 +40,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   late CuisineModel cuisineModel;
   late int?  cuisineId;
   late LocationStorage prefs;
-  late LocationData locationData;
+  late LocationData? locationData;
   double latitude = 0.0;
   double longitude = 0.0;
 
@@ -108,7 +108,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     if(locationData == null){
       initLocationData();
     }
-    final response = await ProductService(apiUrl: AppConstants.SearchFoodListByUser).SearchFoodListByUser(keyword, locationData.latitude ?? 0.0, locationData.longitude ?? 0.0, cuisineId ?? 0);
+    final response = await ProductService(apiUrl: AppConstants.SearchFoodListByUser).SearchFoodListByUser(keyword, locationData?.latitude ?? 0.0, locationData?.longitude ?? 0.0, cuisineId ?? 0);
     if(response.success == true){
       _streamController.sink.add(response);
     }
@@ -120,8 +120,8 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
       if(locationData == null){
         initLocationData();
       }
-      String start = locationData.latitude.toString()+','+locationData.longitude.toString();
-      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      String start = locationData!.latitude!.toString()+','+locationData!.longitude!.toString();
+      final results = await GoogleAPIService('AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA').calculateDistanceAndTime(start, end);
       if(results != null){
         return results;
       }
@@ -273,7 +273,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                       item!.foodList!.length > 0 ?
                                       Column(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Container(
                                             height: item!.foodList!.length * 110,
@@ -365,7 +365,6 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                                           ),
                                                         )
                                                     );
-
 
                                                 }),
                                           ),

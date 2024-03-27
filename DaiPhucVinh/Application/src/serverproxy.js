@@ -37,7 +37,9 @@ app.get('/calculateDistanceAndTime', async (req, res) => {
     return res.status(400).json({ error: 'Missing origin or destination' });
   }
 
-  const apiKey = 'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
+  // const apiKey = 'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
+  // const apiKey = 'AIzaSyDEPicO6JK3TSlMl3AQajyKyQqwLO0FWUw';
+  const apiKey = 'AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA';
   const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&key=${apiKey}`;
   try {
     const response = await axios.get(apiUrl);
@@ -64,7 +66,8 @@ app.get('/search-address', async (req, res) => {
     return res.status(400).json({ error: 'Invalid search address' });
   }
   
-  const apiKey = 'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
+ // const apiKey = 'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
+  const apiKey = 'AIzaSyDEPicO6JK3TSlMl3AQajyKyQqwLO0FWUw';
   const apiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchAddress)}&region=vn&key=${apiKey}`;
 
   try {

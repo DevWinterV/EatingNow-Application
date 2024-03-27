@@ -154,6 +154,7 @@
     <Compile Include="FoodRating\FoodRatingRequest.cs" />
     <Compile Include="FoodRating\FoodRatingResponse.cs" />
     <Compile Include="OrderHeader\OrderHeaderFillterRequest.cs" />
+    <Compile Include="OrderHeader\OrderHeaderStatusRequest.cs" />
     <Compile Include="OrderHeader\OrderLineReponse.cs" />
     <Compile Include="OrderHeader\OrderLineRequest.cs" />
     <Compile Include="Payment\PaymentConfirm.cs" />

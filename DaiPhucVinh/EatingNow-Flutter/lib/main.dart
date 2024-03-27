@@ -61,7 +61,8 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
         useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false, initialRoute: "/getlocation",
+      debugShowCheckedModeBanner: false,
+        initialRoute: "/",
       defaultTransition: Transition.rightToLeft,
       getPages:  mainRoutes
     );

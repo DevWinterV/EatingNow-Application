@@ -11,11 +11,13 @@ import {
   GetListOrderLineDetails,
   ApproveOrder,
   TakeOrderHeaderByStoreId,
+  UpdateShippingStatus
+
 } from "../../api/store/storeService";
 import Swal from "sweetalert2";
 import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
 import $ from 'jquery'; // Ensure you have jQuery installed
-import { FilterListIcon } from "evergreen-ui";
+import { FilterListIcon, toaster } from "evergreen-ui";
 import { toast } from "react-toastify";
 window.jQuery = $;
 require('signalr'); // Ensure you have the SignalR library installed
@@ -24,6 +26,8 @@ let connection = $.hubConnection('http://localhost:3002/signalr/hubs');
 let proxy = connection.createHubProxy('OrderNotificationHub');
 
 const Order = () => {
+
+  // Ngày hiện tại
   const getCurrentDate = () => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -34,6 +38,13 @@ const Order = () => {
     const seconds = String(currentDate.getSeconds()).padStart(2, '0');
   
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  // Đối tượng hoặc mảng chứa các nhãn và giá trị tương ứng
+  const shippingStatusOptions = {
+    "1": "Đang chuẩn bị",
+    "2": "Đã giao cho tài xế",
+    "3": "Đã giao thành công"
   };
   const [isLoading, setIsLoading] = React.useState(false);
   const [status, setStatus] = useState('1');
@@ -54,16 +65,21 @@ const Order = () => {
     setEndDate(getCurrentDate());
   }, []);
 
-  const [requestFillter, setrequestFillter] =useState({
+  const [requestFillter, setrequestFillter] = useState({
     Id: user?.UserId,
     OrderStatus: 2,
     startDate: "",
     endDate: "",
     keyword: ""
   });
-
   const [isShown, setIsShown] = React.useState(false);
   const [orderHeaderId, setOrderHeaderId] = React.useState("");
+  const [OrderheaderStatusrequest, setOrderheaderStatusrequest] = React.useState({
+    OrderHeaderId: "",
+    ShippingStatus : 0,
+    customerId: ""
+  });
+
 
   const [notification, setNotification] = React.useState(
     {
@@ -84,12 +100,36 @@ const Order = () => {
         image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
       },
     });
-    
+    const [notificationMoibile,  setNotificationMoibile] = React.useState(
+      {
+        to: "",
+        data: 
+        {
+          body: "Đơn hàng đã được xác nhận",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+          action_link: "localhost:3001/account",
+        },
+        notification: 
+        {
+          body: "Đơn hàng đã được xác nhận",
+          title: "Thông báo",
+          icon: "https://img.icons8.com/?size=1x&id=25175&format=png",
+          image: "https://image.shutterstock.com/image-vector/chat-notification-260nw-660974722.jpg",
+        },
+      });
+      
+
+
     const [customerDetail, setCustomerDetail] = React.useState(
       {
+          customerId: "",
           customerName: "",
           customerPhone: "",
           customerAddress: "",
+          TokenApp: "",
+          TokenWeb: "",
       });
   // Xử lý khi nút "Yêu cầu tài xế" được nhấn
     async function handleButtonClick() {
@@ -116,16 +156,6 @@ const Order = () => {
         },
       });
 
-      const handleStatusChange = (event) => {
-        const selectedStatus = event.target.value;
-        setStatus(selectedStatus);
-    
-        if (selectedStatus === '2') {
-          setIsButtonEnabled(true);
-        } else {
-          setIsButtonEnabled(false);
-        }
-      };
 
     const handleFilterClick = () => {
       if(requestFillter.startDate === "" || requestFillter.endDate ===""){
@@ -139,13 +169,28 @@ const Order = () => {
   async function onViewAppearing() {
     setIsLoading(true);
     if (user) {
-
       let response = await TakeOrderHeaderByStoreId(requestFillter);
       setData(response.data);
     }
     setIsLoading(false);
   }
 
+
+  async function UpdateStatus() {
+     if(OrderheaderStatusrequest.OrderHeaderId != "" && OrderheaderStatusrequest.ShippingStatus >  0 && OrderheaderStatusrequest.customerI != ""){
+      let response  = await UpdateShippingStatus(OrderheaderStatusrequest);
+      if(response.success){
+        toast.success("Cập nhật trạng thái đơn thành công !");
+        console.log(OrderheaderStatusrequest.ShippingStatus); 
+        sendOrderNotificationUpdateStatus(OrderheaderStatusrequest.customerId);
+      }
+      else{
+        toast.danger("Đã xảy ra lỗi khi cập nhật trạng thái. Vui lòng thao tác lại!");
+      }
+    }else{
+      toast.danger("Chọn đầy đủ thông tin !");
+    }
+  }
   function formatDate(dateString) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
@@ -165,7 +210,6 @@ const Order = () => {
     }).format(amount);
   }
 
-
   async function GetOrderLineDetails() {
     setIsLoading(true);
     if (orderHeaderId != "") {
@@ -178,34 +222,12 @@ const Order = () => {
 
 // Sử dụng useEffect để theo dõi sự thay đổi trong notification và gửi thông báo khi nó thay đổi
   useEffect(() => {
-    onViewAppearing();
-    SendNotification(notificationCancle).then(
-      (response) => {
-        if (response.success) {
-          Swal.fire(
-            "Thành công!",
-            "Đã gửi thông báo hủy đơn hàng thành công.",
-            "success"
-          );
-          setNotificationCancle({...notificationCancle, to:""})
-          onViewAppearing();
-        } else {
-          Swal.fire({
-            title: "Lỗi!",
-            text: "Không thể gửi thông báo hủy đơn hàng.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-          return;
-        }
-      }
-    );
     SendNotification(notification).then(
       (response) => {
         if (response.success) {
           Swal.fire(
             "Thành công!",
-            "Đã gửi thông báo xác nhận thành công.",
+            "Đã gửi thông báo thành công.",
             "success"
           );
           setNotification({...notification, to:""})
@@ -213,7 +235,7 @@ const Order = () => {
         } else {
           Swal.fire({
             title: "Lỗi!",
-            text: "Không thể gửi thông báo xác nhận đơn hàng!",
+            text: "Không thể gửi thông báo.",
             icon: "error",
             confirmButtonText: "OK",
           });
@@ -221,8 +243,59 @@ const Order = () => {
         }
       }
     );
-  }, [notification, notificationCancle]);
+  }, [notification, notificationCancle, notificationMoibile]);
 
+  useEffect(() => {
+    SendNotification(notificationMoibile).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo thành công.",
+            "success"
+          );
+          setNotificationCancle({...notificationMoibile, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+  }, [notificationMoibile]);
+
+  useEffect(() =>{
+    UpdateStatus();
+  },[OrderheaderStatusrequest])
+
+  useEffect(() => {
+    SendNotification(notificationCancle).then(
+      (response) => {
+        if (response.success) {
+          Swal.fire(
+            "Thành công!",
+            "Đã gửi thông báo thành công.",
+            "success"
+          );
+          setNotificationCancle({...notificationCancle, to:""})
+          onViewAppearing();
+        } else {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể gửi thông báo.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+    );
+  }, [notificationCancle]);
 
 
   useEffect(() => {
@@ -233,12 +306,22 @@ const Order = () => {
     proxy
       .invoke('SendOrderNotificationToUser', 'Thông báo mới', item.CustomerId)
       .done(() => {
-        console.log('Gửi thông báo thành công');
       })
       .fail((error) => {
         console.error('Lỗi không gửi được thông báo:', error);
       });
   }
+
+  function sendOrderNotificationUpdateStatus(customerId) {
+    proxy
+      .invoke('SendOrderNotificationToUser', 'Thông báo mới', customerId)
+      .done(() => {
+      })
+      .fail((error) => {
+        console.error('Lỗi không gửi được thông báo:', error);
+      });
+  }
+
   
   useEffect(() => {
     // Set up a client method to receive order notifications
@@ -316,6 +399,7 @@ const Order = () => {
       OrderStatus: parseInt(e.target.value, 10)
     });
   };
+
   useEffect(()=>{
     onViewAppearing();
   },[requestFillter.OrderStatus, requestFillter.keyword]);
@@ -378,16 +462,15 @@ const Order = () => {
             <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
               <div
                 className="relative w-auto my-6 mx-auto max-w-7xl"
-                style={{ width: "1000px" }}
+                style={{ width: "1000px", height: "80%" }}
               >
                 {/*content*/}
                 <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-auto bg-white outline-none focus:outline-none">
                   {/*header*/}
                   <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
                     <h2 className="text-2xl font-semibold">
-                      Xem chi tiết đơn hàng
+                      Xem chi tiết đơn đặt hàng
                     </h2>
-                    
                     <button className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                       class="bg-red"
                       onClick={() => {
@@ -398,18 +481,47 @@ const Order = () => {
                   </div>
 
                   <div class="flex items-center justify-end p-6 bg-gray-200">
-                    <label for="cb_statusOrder" class="mr-2">Trạng thái:</label>
-                    <select
-                        name="cb_statusOrder"
-                        id="cb_statusOrder"
-                        className="border rounded-md px-2 py-1"
-                      >                 
-                      <option value="1">Đang chuẩn bị</option>
-                      <option value="2">Đã giao cho tài xế</option>
-                      <option value="3">Đã nhận hàng</option>
-                    </select>
-                 
+                      <label for="cb_statusOrder" class="mr-2">Trạng thái giao hàng:</label>
+                      <select
+                          name="cb_statusOrder"
+                          id="cb_statusOrder"
+                          className="border rounded-md px-2 py-1"
+                          onChange={(e) => {
+                              setOrderheaderStatusrequest({
+                                  OrderHeaderId: orderHeaderId,
+                                  ShippingStatus: e.target.value,
+                                  customerId: customerDetail.customerId
+                              });
+                              const selectedLabel = shippingStatusOptions[e.target.value]; // Nhãn tương ứng
+                              setNotification({ ...notification, 
+                                to: customerDetail.TokenWeb,
+                                data: { ...notification.data,            
+                                        body:`Đơn hàng ${orderHeaderId} ${selectedLabel}.`,
+                                        action_link:`http://localhost:3001/order/${orderHeaderId}`
+                                      }, 
+                                    notification: { ...notification.notification,            
+                                        body:`Đơn hàng ${orderHeaderId} ${selectedLabel}.`,
+                                      action_link:`http://localhost:3001/order/${orderHeaderId}`
+                                  } 
+                              });
+                              setNotificationMoibile({ ...notificationMoibile, 
+                                to: customerDetail.TokenApp,
+                                data: { ...notificationMoibile.data,            
+                                      body:`Đơn hàng ${orderHeaderId} ${selectedLabel}.`,
+                                      action_link:`http://localhost:3001/order/${orderHeaderId}`
+                                      }, 
+                                    notification: { ...notificationMoibile.notification,            
+                                      body:`Đơn hàng ${orderHeaderId} ${selectedLabel}.`,
+                                      action_link:`http://localhost:3001/order/${orderHeaderId}`
+                                  } 
+                              });
+                          }}>
+                          <option value="1">Đang chuẩn bị</option>
+                          <option value="2">Đã giao cho tài xế</option>
+                          <option value="3">Đã giao thành công</option>
+                      </select>
                   </div>
+
                   <div class="flex items-center justify-start p-6 bg-gray-200">
                     <label for="cb_statusOrder" class="mr-2">Thông tin khách hàng:</label>
                     <button
@@ -449,18 +561,23 @@ const Order = () => {
                         {/* Thêm nội dung ở đây */}
                       </div>
                     ) : (
-                      // Hiển thị nút "Yêu cầu tài xế" khi isDriverAvailabel là false
-                      <button
-                        className="bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
-                        type="button"
-                        onClick={handleButtonClick}
-                      >
-                        Yêu cầu tài xế
-                      </button>
-                    )}
-
-                    
-                
+                      <div>
+                        <button
+                          className="bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
+                          type="button"
+                          onClick={handleButtonClick}
+                        >
+                          Gửi yêu cầu tài xế
+                        </button>
+                        <button
+                          className="bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150"
+                          type="button"
+                          onClick={handleButtonClick}
+                        >
+                          Giao hàng bởi nhân viên
+                        </button>
+                      </div>
+                    )}  
                   </div>
                   {/*body*/}
                   <div className="w-full table-auto">
@@ -582,7 +699,6 @@ const Order = () => {
                 Danh Sách Đơn Hàng
               </h1>         
              </div>
-
             <div className="overflow-auto rounded-lg shadow md:block">
               <Table className="w-full table-auto">
                 <Thead className="bg-orange-50">
@@ -656,9 +772,12 @@ const Order = () => {
                               setOrderHeaderId(item.OrderHeaderId);
                               GetOrderLineDetails();
                               setCustomerDetail({
+                                customerId: item.CustomerId,
                                 customerName: item.CustomerName +"("+item.RecipientName+")",
                                 customerAddress: item.FormatAddress,
-                                customerPhone: item.RecipientPhone
+                                customerPhone: item.RecipientPhone,
+                                TokenApp: item.TokenApp,
+                                TokenWeb: item.TokenWeb,
                               })
                             }}
                           >
@@ -684,17 +803,6 @@ const Order = () => {
                                     if (response.success) {
                                       sendOrderNotification(item);
                                       setNotification({ ...notification, 
-                                        to: item.TokenApp,
-                                        data: { ...notification.data,            
-                                                body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
-                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
-                                              }, 
-                                            notification: { ...notification.notification,            
-                                              body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
-                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
-                                          } 
-                                      });
-                                      setNotification({ ...notification, 
                                         to: item.TokenWeb,
                                         data: { ...notification.data,            
                                                 body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
@@ -704,7 +812,17 @@ const Order = () => {
                                               body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
                                               action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
                                           } 
-                                          
+                                      });
+                                      setNotificationMoibile({ ...notificationMoibile, 
+                                        to: item.TokenApp,
+                                        data: { ...notificationMoibile.data,            
+                                                body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                                action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                              }, 
+                                            notification: { ...notificationMoibile.notification,            
+                                              body:`Đơn hàng ${item.OrderHeaderId} đã được xác nhận.`,
+                                              action_link:`http://localhost:3001/order/${item.OrderHeaderId}`
+                                          } 
                                       });
                                     }
                                   })

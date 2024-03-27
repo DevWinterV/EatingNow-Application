@@ -4,6 +4,7 @@ using DaiPhucVinh.Services.Framework;
 using DaiPhucVinh.Services.Helper;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.OrderHeader;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
@@ -12,6 +13,7 @@ using Microsoft.AspNet.SignalR;
 using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace DaiPhucVinh.Services.MainServices.OrderHeader
@@ -20,7 +22,7 @@ namespace DaiPhucVinh.Services.MainServices.OrderHeader
     {
         Task<BaseResponse<OrderHeaderResponse>> CreateOrderHeader(OrderHeaderRequest request);
         Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int UserId);
-
+        Task<BaseResponse<bool>> UpdateShippingStatus(OrderHeaderStatusRequest request);
     }
     public class OrderHeaderService : IOrderHeaderService
     {
@@ -58,8 +60,6 @@ namespace DaiPhucVinh.Services.MainServices.OrderHeader
             return result;
         }
 
-    
-
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int UserId)
         {
             var result = new BaseResponse<OrderHeaderResponse> { };
@@ -78,6 +78,46 @@ namespace DaiPhucVinh.Services.MainServices.OrderHeader
                 _logService.InsertLog(ex);
             }
             return result;
+        }
+
+        public async Task<BaseResponse<bool>> UpdateShippingStatus(OrderHeaderStatusRequest request)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                var checkOrdrrStatus = await _datacontext.EN_OrderHeader.FindAsync(request.OrderHeaderId ?? "");
+                if(checkOrdrrStatus == null)
+                {
+                    result.Message = "OrderNotFound";
+                    result.Success = false;
+                    return result;
+                }
+                checkOrdrrStatus.ShippingStatus = request.ShippingStatus;
+                string[] options = new string[] {"", "Đang chuẩn bị", "Đã giao cho tài xế", "Đã giao thành công" };
+                var newnotification = new EN_CustomerNotifications
+                {
+                    CustomerID = checkOrdrrStatus.CustomerId,
+                    NotificationDate = DateTime.Now,
+                    SenderName = "HỆ THỐNG",
+                    Message = "Đơn hàng " + request.OrderHeaderId + " " + options[request.ShippingStatus],
+                    IsRead = false,
+                    Action_Link = "/order/" + request.OrderHeaderId
+                };
+                _datacontext.EN_CustomerNotifications.Add(newnotification);
+                await _datacontext.SaveChangesAsync();
+                result.Success = true;
+
+                result.Message = "OK";
+                result.Success = true;
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+
         }
     }
 }

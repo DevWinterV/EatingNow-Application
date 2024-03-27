@@ -108,6 +108,7 @@ class _ProfileDetailPageState extends State<ProfileDetailPage> {
                       ),
                       SizedBox(height: 20.0),
                       TextField(
+                        enabled: false,
                         controller: _phoneController,
                         decoration: InputDecoration(
                             labelText: 'Số điện thoại',

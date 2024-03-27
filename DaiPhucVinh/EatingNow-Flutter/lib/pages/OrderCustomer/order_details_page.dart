@@ -434,12 +434,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SmallText(text: "Đánh giá đơn hàng", size: Dimensions.font16, color: Colors.white,),
+                              SmallText(text: "Đánh giá sản phẩm", size: Dimensions.font16, color: Colors.white,),
                               SizedBox(width: 5,),
                               Icon(Icons.star, color: Colors.white, size: 18,)
                             ],
                           ),
-                          SmallText(text: "Cho XpressEat biết đánh giá của bạn về đơn hàng", color: Colors.white,)
+                          SmallText(text: "Cho XpressEat biết đánh giá của bạn về sản phẩm", color: Colors.white,)
                         ],
                       )
                     ), ) ,

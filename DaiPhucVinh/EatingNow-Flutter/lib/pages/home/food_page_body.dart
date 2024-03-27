@@ -45,7 +45,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   final cuisineService = CuiSineService(apiUrl: AppConstants.TakeAllCuisine);// lấy danh sách loại hình món ăn
   late  SharedPreferences prefs;// khai báo dữ liệu localstore
   final StreamController<double> _streamPage = StreamController<double>.broadcast();  // Tạo một số ngẫu nhiên từ 2 đến 5
-  late LocationData locationData;
+  late LocationData? locationData;
 
   Random random = Random();
   ProductRecommended? products;
@@ -118,8 +118,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       if(locationData == null){
         initLocationData();
       }
-      String start = locationData.latitude.toString()+','+locationData.longitude.toString();
-      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      String start = locationData!.latitude!.toString()+','+locationData!.longitude!.toString();
+      final results = await GoogleAPIService('AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA').calculateDistanceAndTime(start, end);
       if(results != null){
         return results;
       }
@@ -404,7 +404,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                         // Phần chứa văn bản
                                         Expanded(
                                           child: Container(
-                                            height: Dimensions.listViewTextContSize,
+                                            height: Dimensions.listViewTextContSize + 6,
                                             width: Dimensions.listViewTextContSize,
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.only(
@@ -419,12 +419,12 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: [
-                                                  BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor,),
+                                                  BigText(text: (product?.foodName ?? ""), size: Dimensions.font16, color: AppColors.signColor, maxlines: 1,),
                                                   SmallText(text: (product?.storeName ?? ""), size: Dimensions.font13, color: AppColors.paraColor,),
+                                                  SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
                                                   Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
-                                                      SmallText(text: NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product?.price ?? 0),), // Thay thế bằng thuộc tính tương ứng
                                                       FutureBuilder<DistanceAndTime?>(
                                                         future: calculateDistanceAndTime(product!.latitude.toString() +","+product!.longitude.toString()),
                                                         builder: (context, snapshot) {

@@ -62,7 +62,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
     try {
       final prefss = await SharedPreferences.getInstance();
       String start = prefss.getDouble('latitude').toString()+','+ prefss.getDouble('longitude').toString();
-      final results = await GoogleAPIService('AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s').calculateDistanceAndTime(start, end);
+      final results = await GoogleAPIService('AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA').calculateDistanceAndTime(start, end);
       if(results != null){
         return results;
       }

@@ -11,7 +11,7 @@ class GoogleAPIService {
     final query = '$latitude,$longitude';
     // final baseUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
     print('${latitude},${longitude}');
-    final baseUrl2 = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s';
+    final baseUrl2 = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDEPicO6JK3TSlMl3AQajyKyQqwLO0FWUw';
     final response = await http.get(
       Uri.parse(baseUrl2),
     );

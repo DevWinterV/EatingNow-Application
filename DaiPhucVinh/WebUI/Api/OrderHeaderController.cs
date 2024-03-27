@@ -2,6 +2,7 @@
 using DaiPhucVinh.Services.MainServices.OrderHeader;
 using DaiPhucVinh.Shared.Common;
 using DaiPhucVinh.Shared.CustomerDto;
+using DaiPhucVinh.Shared.OrderHeader;
 using DaiPhucVinh.Shared.OrderHeaderResponse;
 using DaiPhucVinh.Shared.OrderLineReponse;
 using DaiPhucVinh.Shared.OrderLineResponse;
@@ -14,7 +15,8 @@ using System.Web.Http;
 
 namespace PCheck.WebUI.Api
 {
-    [RoutePrefix("api/order-header")]
+    
+    [RoutePrefix("api/orderheader")]
     public class OrderHeaderController : BaseApiController
     {
         private readonly IOrderHeaderService _orderHeaderService;
@@ -26,5 +28,8 @@ namespace PCheck.WebUI.Api
         [Route("TakeOrderHeaderByStoreId")]
         public async Task<BaseResponse<OrderHeaderResponse>> TakeOrderHeaderByStoreId(int UserId) => await _orderHeaderService.TakeOrderHeaderByStoreId(UserId);
 
-  }
+        [HttpPost]
+        [Route("UpdateShippingStatus")]
+        public async Task<BaseResponse<bool>> UpdateShippingStatus(OrderHeaderStatusRequest request) => await _orderHeaderService.UpdateShippingStatus(request);
+    }
 }
