@@ -17,13 +17,11 @@ class GoogleAPIService {
     );
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      print(jsonData);
       final result = AddressResult();
       result.formatted_address = jsonData['plus_code']['compound_code'];
       result.name_address = jsonData['plus_code']["global_code"];
       //result.formatted_address = jsonData['results'][0]['formatted_address'];
       // result.name_address = jsonData['results'][0]["address_components"][0]['long_name'];
-      print(result);
       return result;
     } else {
       throw Exception('Failed to fetch places');

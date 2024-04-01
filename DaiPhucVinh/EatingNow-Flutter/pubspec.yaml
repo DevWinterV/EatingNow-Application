@@ -32,7 +32,6 @@ dependencies:
     sdk: flutter
   get: ^4.1.4
   dots_indicator: ^2.1.1
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -42,6 +41,8 @@ dependencies:
   flutter_lints: ^2.0.0
   http: ^1.1.0 #fecth data API
   flutter_native_splash: ^2.3.2
+  geocoding: ^2.0.4
+  provider: ^6.0.2
   geolocator: ^10.1.0
   google_maps_flutter: ^2.1.8
   permission_handler: ^11.0.0
@@ -52,7 +53,7 @@ dependencies:
   intl_phone_field: ^3.2.0
   pin_input_text_field: ^4.5.1
   signalr_flutter: ^0.2.0 #SignalR Clinet
-  image_picker: ^1.0.7
+  image_picker: ^1.0.7 #PickImage
   dio: ^5.4.1 #fecth data API
   flutter_local_notifications: ^16.3.2 # notification local
   flutter_timezone: ^1.0.8
@@ -60,9 +61,7 @@ dependencies:
   flutter_webview_plugin: ^0.4.0 # Launch to Web view
   speech_to_text: ^6.6.0 #Record voice
   avatar_glow: ^3.0.1
-  signals: ^4.5.1
-  go_router: ^13.2.1
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

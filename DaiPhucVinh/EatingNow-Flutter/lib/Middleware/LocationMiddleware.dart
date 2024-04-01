@@ -1,4 +1,3 @@
-import 'package:fam/locationState.dart';
 import 'package:fam/storage/locationstorage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

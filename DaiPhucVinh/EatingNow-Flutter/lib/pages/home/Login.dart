@@ -4,9 +4,7 @@ import 'package:fam/util/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import '../../auth.dart';
 import '../../data/Api/CustomerService.dart';
 import '../../data/Api/firebase_api.dart';
 import '../../storage/UserAccountstorage.dart';
@@ -50,13 +48,11 @@ class _LoginPageState extends State<LoginPage> {
       UserAccountStorage userAccountStorage = new UserAccountStorage();
       userAccountStorage.saveUserAccount(userAccount);
       await FirebaseApi().initNotifications();
-      auth.login(userAuth.user!);
       navigateToHome();
     }
     else{
       UserAccount userAccount = new UserAccount(userId: userAuth.user?.uid ?? "", name:  "", phone: _phoneNumber ?? "");
       await FirebaseApi().initNotifications();
-      auth.login(userAuth.user!);
       navigateToNewUser();
     }
   }

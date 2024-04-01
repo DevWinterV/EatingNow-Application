@@ -9,8 +9,6 @@ import '../../data/Api/GoogleAPIService.dart';
 import '../../models/LocationData.dart';
 import '../../storage/cartstorage.dart';
 import '../../storage/locationstorage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import '../circularprogress/DottedCircularProgressIndicator.dart';
 import 'main_food_page.dart';
 
 
@@ -60,16 +58,17 @@ class _LocationPageState extends State<LocationPage> {
       openAppSettings();
     }
   }
-
-  Future<void> getAddressdeliveryOnTap(LocationData locationData) async {
+  Future<void> getAddressdeOnMapCallBack(LocationData locationData) async {
     await locationStorage.saveLocation(
-        locationData.name, locationData.latitude, locationData.longitude,
-        locationData.address);
-    if (link == "/" || link == "/order") {
+        locationData.name , locationData.latitude, locationData.longitude, locationData.address );
+    if (link != "") {
       Navigator.pop(context, true);
-    }
-    else {
-      Navigator.popAndPushNamed(context, link ?? "", result: true);
+    } else {
+      // Otherwise, go to the MainFoodPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainFoodPage()),
+      );
     }
   }
   // Lưu vị trí khách hàng chọn giao hàng và chuyển san màn hình Home Page
@@ -211,8 +210,11 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                           minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                         ),
-                        onPressed: isloadingdata ? null : () {
-                          getAddressdelivery();
+                        onPressed: () async {
+                          LocationData result = await Navigator.of(context).pushNamed("/getlocationFromMap") as LocationData;
+                          if(result != null){
+                            getAddressdeOnMapCallBack(result);
+                          }
                         },
                         child: Text('Chọn từ bản đồ', style: TextStyle(fontSize: Dimensions.font16),),
                       ),

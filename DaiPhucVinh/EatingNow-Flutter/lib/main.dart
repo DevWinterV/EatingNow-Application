@@ -1,5 +1,7 @@
 import 'package:fam/Middleware/AuthMiddleware.dart';
 import 'package:fam/data/Api/firebase_api.dart';
+import 'package:fam/pages/maps/data_handler/AppData.dart';
+import 'package:fam/pages/maps/maps_page.dart';
 import 'package:fam/pages/rating_food/post_foodRating.dart';
 import 'package:permission_handler/permission_handler.dart'
 ;import 'package:fam/pages/OderFood/orderfood.dart';
@@ -13,6 +15,7 @@ import 'package:fam/pages/store/details_store_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import '../pages/Cart/cartPage.dart';
 import '../pages/OrderCustomer/ordercustomer_list.dart';
 import '../pages/home/main_food_page.dart';
@@ -27,7 +30,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'Middleware/LocationMiddleware.dart';
 import 'firebase_options.dart';
-import 'locationState.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +40,13 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   await NotificationService.init();
   initialization();
-  runApp(const MyApp());
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AppData()),
+        // Add other providers if needed
+      ],
+      child: const MyApp()
+  ));
 }
 // Hàm xóa SplassCreen
 void initialization() async {
@@ -76,6 +84,10 @@ class _MyAppState extends State<MyApp> {
     GetPage(
       name: '/getlocation',
       page: () => LocationPage(link: ""),
+    ),
+    GetPage(
+      name: '/getlocationFromMap',
+      page: () => GoogleMapsPage(),
     ),
     GetPage(
       name: '/login',
