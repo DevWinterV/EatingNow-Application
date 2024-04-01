@@ -123,13 +123,13 @@ const CreateFoodList = () => {
         Status: state?.data.Status,
         IsNew: state?.data.IsNew,
         IsNoiBat: state?.data.IsNoiBat,
-        ExpiryDate: state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? state?.data.ExpiryDate : "",
+        ExpiryDate: state?.data.ExpiryDate ?? null,
         IsNoiBat: state?.data.IsNoiBat,
         Qtycontrolled: state?.data.Qtycontrolled,
         QtySuppliedcontrolled: state?.data.QtySuppliedcontrolled,
 
       });
-      setShowExpirationDate(state?.data.ExpiryDate != "0001-01-01T00:00:00+07:00" ? true : false);
+      setShowExpirationDate(state?.data.ExpiryDate != null  ? true : false);
       setshowIsNew(state?.data.IsNew);
       setshowIsNoiBat(state?.data.IsNoiBat);
       setshowQtySuppliedcontrolled(state?.data.QtySuppliedcontrolled);
@@ -515,7 +515,7 @@ const CreateFoodList = () => {
                           <MdDateRange className="text-xl text-gray-700" />
                           <input
                             type="date"
-                            defaultValue={request.ExpiryDate != "0001-01-01T00:00:00+07:00" ?  ConvertJsonToDate(request.ExpiryDate) : getCurrentDate()}
+                            defaultValue={request.ExpiryDate != "0001-01-01T00:00:00+07:00" || request.ExpiryDate != null ?  ConvertJsonToDate(request.ExpiryDate) : getCurrentDate()}
                             onChange={handleDateChange}
                             className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
                           />

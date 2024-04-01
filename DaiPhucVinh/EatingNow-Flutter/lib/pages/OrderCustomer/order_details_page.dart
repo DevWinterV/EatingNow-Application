@@ -85,6 +85,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         ),
         centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
         // Các thuộc tính khác của AppBar
+        // Các thuộc tính khác của AppBar
         backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
       ),
       body:  RefreshIndicator(
@@ -105,7 +106,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       //   topRight: Radius.circular(Dimensions.radius15 * 1),
                       // ),
                     ),
-                    height: 120,
+                    height: 140,
                     width: MediaQuery.of(context).size.width,
                     child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -119,13 +120,21 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
+                                    'Cửa hàng: ',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  BigText(text: order.storeName ?? "", maxlines: 1,)
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
                                     'Người nhận: ',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(
-                                    order.recipientName ?? "",
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
+                                  BigText(text: order.recipientName ?? "", maxlines: 1,)
                                 ],
                               ),
                               Row(
@@ -135,12 +144,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                     'Số điện thoại: ',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(
-                                    order?.recipientPhone  ?? "",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  BigText(text: order?.recipientPhone  ?? "", maxlines: 1,)
                                 ],
                               ),
                               Row(
@@ -165,7 +169,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                   text:
                                   order.formatAddress  ??  "",
                                   size: Dimensions.font14,
-                                  ),
+                                  maxlines: 2,),
                             ],
                           ),
                         ),
@@ -197,21 +201,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                     'Sản phẩm trong đơn: ',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(
-                                    '${orderDetails?.length.toString() ?? ""} sản phẩm',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 12
-                                    ),
-                                  ),
+                                  BigText(text:  '${orderDetails?.length.toString() ?? ""} sản phẩm', size: 12, maxlines: 1,),
                                 ],
                               ),
                             ),
-
                             Padding(
-                                padding: EdgeInsets.only(top: 0,bottom: 5),
+                                padding: EdgeInsets.only(top: 1,bottom: 5),
                                 child:   Container(
-                                  height: MediaQuery.of(context).size.height - 440,
+                                  height: MediaQuery.of(context).size.height - 450,
                                   child:
                                   orderDetails!.length > 0 ?
                                   ListView.builder(
@@ -246,7 +243,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                     Column(
                                                       children: [
                                                         SizedBox(height: 1),
-                                                        BigText(text: "Ghi chú: ${item.description }", color: Colors.black, size: Dimensions.font13),
+                                                        BigText(text: "Ghi chú: ${item.description }", color: Colors.black, size: Dimensions.font13, maxlines: 1,),
                                                       ],
                                                     ) : SizedBox(),
                                                 SizedBox(height: 1),
@@ -320,9 +317,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           'Đặt lúc: ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text(
+                        BigText(
+                          text:
                           DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse(order?.creationDate ?? "").toLocal()),
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          size: Dimensions.font14,
+                          color: Colors.black,
+                          maxlines: 1,
                         ),
                       ],
                     ),
@@ -333,12 +333,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           'Trạng thái: ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text(
+                        BigText(
+                          text:
                           order?.status == true ? "Đã xác nhận" : "Chờ xác nhận",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: order?.status == true ? Colors.green : Colors.red,
-                          ),
+                          size: Dimensions.font14,
+                          color: order?.status == true ? Colors.green : Colors.red,
+                          maxlines: 1,
                         ),
                       ],
                     ),
@@ -353,7 +353,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             text:
                             order?.paymentStatusID == 2 ? 'Đã thanh toán Online' : "Thanh toán khi nhận hàng",
                             size: Dimensions.font14,
-                            color:  order?.paymentStatusID == 2 ? Colors.green : Colors.black
+                            color:  order?.paymentStatusID == 2 ? Colors.green : Colors.black,
+                            maxlines: 1,
                         ),
                       ],
                     ),

@@ -90,27 +90,26 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                     children: [
                       StreamBuilder(
                           stream: getstreamDataRatingController,
-                          builder: (builder, snapshot){
-                            print(snapshot.data);
-                            if(snapshot.connectionState == ConnectionState.waiting){
+                          builder: (builder, snapshotList){
+                            if(snapshotList.connectionState == ConnectionState.waiting){
                                 return Center(
                                   child: CircularProgressIndicator(color: AppColors.mainColor,),
                                 );
                               }
-                              if(snapshot.data == null){
+                              if(snapshotList.data == null){
                                 return Center(
                                   child: CircularProgressIndicator(color: AppColors.mainColor,),
                                 );
                               }
-                              if(snapshot.hasData || snapshot.data!.data!.length > 0){
+                              if(snapshotList.hasData || snapshotList.data!.data!.length > 0){
                                   return Container(
                                     // height: Dimensions.screenHeight,
-                                    height: snapshot.data!.data!.length! * 210,
+                                    height: snapshotList.data!.data!.length! * 210,
                                     child: ListView.builder(
                                         physics: NeverScrollableScrollPhysics(),
-                                        itemCount: snapshot.data!.data?.length ?? 0,
+                                        itemCount: snapshotList.data!.data?.length ?? 0,
                                         itemBuilder: (itemBuilder, index){
-                                          final itemRating = snapshot.data!.data?[index] ?? null;
+                                          final itemRating = snapshotList.data!.data?[index] ?? null;
                                           final _streamStartRating = StreamController<double>();
                                             return Padding(
                                               padding: const EdgeInsets.all(2.0),
@@ -187,6 +186,8 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                                   itemRating!.reviewed = true;
                                                                   final response  = await foodRatingService.CreateFoodRating(itemRating!.toRequest());
                                                                   if(response.success == true){
+                                                                    snapshotList.data!.data![index].reviewed = true;
+                                                                    _streamDataRating.sink.add(snapshotList.data);
                                                                     // Đã gửi dữ liệu thành công
                                                                     Fluttertoast.showToast(msg: "Cảm ơn bạn đã gửi đánh giá ${itemRating?.foodName} cho cửa hàng",
                                                                         toastLength: Toast.LENGTH_LONG,
@@ -200,6 +201,8 @@ class _PostFoodRatingState extends State<PostFoodRating> {
                                                                 else{
                                                                   final response  = await foodRatingService.UpdateFoodRating(itemRating!.toRequest());
                                                                   if(response.success == true){
+                                                                    snapshotList.data!.data![index].reviewed = true;
+                                                                    _streamDataRating.sink.add(snapshotList.data);
                                                                     // Đã gửi dữ liệu thành công
                                                                     Fluttertoast.showToast(msg: "Cập nhật lại đánh giá thành công",
                                                                         toastLength: Toast.LENGTH_LONG,

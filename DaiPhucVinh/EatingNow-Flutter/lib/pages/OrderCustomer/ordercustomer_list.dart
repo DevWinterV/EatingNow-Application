@@ -269,6 +269,10 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                               .font16,),
                                                       ),
                                                       SmallText(
+                                                        text: "Cửa hàng: ${order?.storeName ?? ""}",
+                                                        color: Colors.black,
+                                                      ),
+                                                      SmallText(
                                                         text: "Đặt lúc: ${DateFormat(
                                                             'dd/MM/yyyy HH:mm:ss')
                                                             .format(
@@ -329,7 +333,7 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
                                                           : order?.status == true && order?.shippingstatus == 0
                                                       ? "Đã xác nhận"
                                                         :
-                                                      "Chưa xác nhận ",
+                                                        "Chưa xác nhận ",
                                                         color: order?.status == true ? Colors.green : Colors.red,
                                                         size: Dimensions.font13,
                                                       ),

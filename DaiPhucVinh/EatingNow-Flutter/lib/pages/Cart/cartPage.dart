@@ -128,7 +128,7 @@ class _CartPageState extends State<CartPage> {
                           builder: (builder) {
                             return AlertDialog(
                               backgroundColor: Colors.white,
-                              title: BigText(text: "Bạn có muốn các đơn hàng đã chọn không ?"),
+                              title: BigText(text: "Bạn có muốn xóa các mục đã chọn không ?"),
                               actions: [
                                 ElevatedButton(
                                   onPressed: () async {
@@ -145,7 +145,7 @@ class _CartPageState extends State<CartPage> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10.0),
                                       ),
-                                    backgroundColor: Colors.green
+                                    backgroundColor: AppColors.mainColor
                                   ),
                                 ),
                                 ElevatedButton(
@@ -245,9 +245,17 @@ class _CartPageState extends State<CartPage> {
                                     updatecheckSelectedListStoreIdRemoveControlle(snapshot.data);
                                   },
                                 ),
-                                Text(
-                                  storeUserCart.userChecked.nameStore ?? "",
-                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                GestureDetector (
+                                  onTap: () async {
+                                    await Navigator.pushReplacement(
+                                        context,
+                                        Navigator.popAndPushNamed(context, "/storedetail", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                    );
+                                  },
+                                  child: Text(
+                                    storeUserCart.userChecked.nameStore ?? "",
+                                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 GestureDetector(
                                   onTap: (){

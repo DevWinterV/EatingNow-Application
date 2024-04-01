@@ -14,46 +14,78 @@ namespace DaiPhucVinh.Services.MainServices.Hubs
 
         public void SendOrderNotification(string orderMessage)
         {
-            // Broadcast the order notification to all connected clients
-            Clients.All.ReceiveOrderNotification(orderMessage);
+            try
+            {
+                // Broadcast the order notification to all connected clients
+                Clients.All.ReceiveOrderNotification(orderMessage);
+            }
+            catch(Exception ex) { 
+            
+            }
+
         }
         public void SetCustomerId(string customerId)
         {
-            var checkuserConnection = userConnections.FirstOrDefault(x => x.UserId == customerId);
-            if(checkuserConnection != null) { 
-                userConnections.Remove(checkuserConnection);
-            }
-            // Đăng ký người dùng bằng CustomerId và ConnectionId
-            var userConnection = new UserConnection
+            try
             {
-                UserId = customerId,
-                ConnectionId = Context.ConnectionId
-            };
-            userConnections.Add(userConnection);
+                var checkuserConnection = userConnections.FirstOrDefault(x => x.UserId == customerId);
+                if (checkuserConnection != null)
+                {
+                    userConnections.Remove(checkuserConnection);
+                }
+                // Đăng ký người dùng bằng CustomerId và ConnectionId
+                var userConnection = new UserConnection
+                {
+                    UserId = customerId,
+                    ConnectionId = Context.ConnectionId
+                };
+                userConnections.Add(userConnection);
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
         public void SetUserId(string userId)
         {
-            var checkuserConnection = userConnections.FirstOrDefault(x => x.UserId == userId);
-            if (checkuserConnection != null)
+            try
             {
-                userConnections.Remove(checkuserConnection);
+                var checkuserConnection = userConnections.FirstOrDefault(x => x.UserId == userId);
+                if (checkuserConnection != null)
+                {
+                    userConnections.Remove(checkuserConnection);
+                }
+                // Đăng ký người dùng bằng CustomerId và ConnectionId
+                var userConnection = new UserConnection
+                {
+                    UserId = userId,
+                    ConnectionId = Context.ConnectionId
+                };
+                userConnections.Add(userConnection);
             }
-            // Đăng ký người dùng bằng CustomerId và ConnectionId
-            var userConnection = new UserConnection
+            catch (Exception ex)
             {
-                UserId = userId,
-                ConnectionId = Context.ConnectionId
-            };
-            userConnections.Add(userConnection);
+
+            }
+
         }
         public void RemoveUserConnection(string username)
         {
-            // Xóa thông tin UserConnection của người dùng khi đăng xuất hoặc thoát ứng dụng
-            var userConnection = userConnections.FirstOrDefault(x => x.UserId == username);
-            if (userConnection != null)
+            try
             {
-                userConnections.Remove(userConnection);
+                // Xóa thông tin UserConnection của người dùng khi đăng xuất hoặc thoát ứng dụng
+                var userConnection = userConnections.FirstOrDefault(x => x.UserId == username);
+                if (userConnection != null)
+                {
+                    userConnections.Remove(userConnection);
+                }
             }
+            catch (Exception ex)
+            {
+
+            }
+
         }
 
         /// <summary>
@@ -63,17 +95,26 @@ namespace DaiPhucVinh.Services.MainServices.Hubs
         /// <param name="username"></param>
         public void SendOrderNotificationToUser(string orderMessage, string username)
         {
-            if (userConnections != null && userConnections.Any())
+
+            try
             {
-                var userConnection = userConnections.Where(x => x.UserId == username).ToList();
-                if (userConnection != null)
+                if (userConnections != null && userConnections.Any())
                 {
-                    foreach(var connection in userConnection)
+                    var userConnection = userConnections.Where(x => x.UserId == username).ToList();
+                    if (userConnection != null)
                     {
-                        Clients.Client(connection.ConnectionId).ReceiveOrderNotificationOfUser(orderMessage);
+                        foreach (var connection in userConnection)
+                        {
+                            Clients.Client(connection.ConnectionId).ReceiveOrderNotificationOfUser(orderMessage);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+
+            }
+
         }
     }
     public class UserConnection

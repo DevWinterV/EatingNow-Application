@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fam/models/StoreDataModel.dart';
 import 'package:fam/models/storenearUser.dart';
 import 'package:fam/models/stores_model.dart';
 import 'package:fam/util/app_constants.dart';
@@ -39,6 +40,22 @@ class StoreService {
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       return ProductRecommended.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to load store data');
+    }
+  }
+
+  Future<StoreDataResponse?> TakeStoreById(int userId) async {
+    final response = await http.get(
+      Uri.parse(apiUrl+"?Id=${userId}"),
+      headers: {
+        'Content-Type': 'application/json', // Thiết lập kiểu dữ liệu của yêu cầu là JSON
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return StoreDataResponse.fromJson(jsonData);
     } else {
       throw Exception('Failed to load store data');
     }

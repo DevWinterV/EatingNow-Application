@@ -292,7 +292,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                                   foodListId: dataProduct.foodListId ?? 0,
                                   uploadImage:
                                   dataProduct.uploadImage ?? "",
-                                  description: dataProduct.description,
+                                  description: dataProduct.description ?? '',
                                   descriptionBuy: noteController.text,
                                   userId: dataProduct.userId ?? 0,
                                   storeName: dataProduct.storeName ?? ""

@@ -29,7 +29,8 @@ export default function OrderofCustomer({id, onDelete}) {
     OrderMoney: 0,
     StoreName: "",
     Status: false,
-    PaymentStatusID : 0
+    PaymentStatusID : 0,
+    StoreName: ""
   });
   const customStyles = {
     content: {
@@ -188,8 +189,6 @@ export default function OrderofCustomer({id, onDelete}) {
                   >
                   <TbCircleX className="text-2xl" />
                   </button>
-                
-    
 
                 <div className="container mt-2 mb-2">
                   <div className="row" style={{ display: "flex" }}>
@@ -199,6 +198,7 @@ export default function OrderofCustomer({id, onDelete}) {
                   </div>
                   <div className="row ">
                     <div className="col-md-6">
+                            <h1 className="order-info">Cửa hàng: {Orderheader.StoreName}</h1>
                             <h1 className="order-info">Đặt lúc: {Orderheader.Date}</h1>
                             {
                               Orderheader.PaymentStatusID == 2 ?(          
@@ -468,11 +468,14 @@ function All() {
                       Đặt lúc: {formatDate(i.CreationDate)}
                     </h6>
                     <h6 className="text-base text-gray-700 font-normal">
+                      Cửa hàng: {i.StoreName}
+                    </h6>
+                    <h6 className="text-base text-gray-700 font-normal">
                       Tổng tiền: {formatMoney(i.IntoMoney)}
                     </h6>
                         {i.PaymentStatusID == 2 ?(
                         <h6 className="text-base text-red-500 font-normal">
-                              Đã thanh toán
+                              Đã thanh toán Online
                         </h6>
                         ):(
                           <h6 className="text-base text-gray-700 font-normal">

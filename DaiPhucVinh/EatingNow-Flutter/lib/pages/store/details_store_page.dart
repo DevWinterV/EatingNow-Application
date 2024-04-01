@@ -27,20 +27,19 @@ class StoreDetailPage extends StatefulWidget {
 }
 
 class _StoreDetailState extends State<StoreDetailPage> {
+  StreamController<DataStoreNearUserModel?> _streamDataStore = StreamController<DataStoreNearUserModel?>.broadcast();
   StreamController<int?> _selectedCategoryController = StreamController<int?>.broadcast();
   final streamListProduct = StreamController<List<DataProduct>?>();
-  DataStoreNearUserModel? storeData;
+  late DataStoreNearUserModel? storeData;
   final categoryService = CategoryService(apiUrl: AppConstants.TakeCategoryByStoreId);//lấy cửa hàng gần nhất
   final storeServiceFoodListAll = StoreService(apiUrl: AppConstants.TakeAllFoodListByStoreId);// lấy danh sách tất cả món ăn
   final storeServiceFoodList = StoreService(apiUrl: AppConstants.TakeFoodListByStoreId);// lấy danh sách tất cả món ăn
-
   CategoryModel? categoryModel;
   ProductRecommended? productRecommended;
-  int categoryId = 0;
+  int categoryId = 0; // Mặc định là tất cả
 
   Future<void> fetchData(int Id) async {
     try {
-      print('storeData?.userId ${storeData?.userId}');
       final results = await Future.wait([
         Id == 0
             ? storeServiceFoodListAll.TakeAllFoodListByStoreId({
@@ -55,9 +54,9 @@ class _StoreDetailState extends State<StoreDetailPage> {
       ]);
       streamListProduct.add(results[0]!.data ?? []);
     } catch (e) {
-      print(e);
     }
   }
+
   Future<DistanceAndTime?> calculateDistanceAndTime(String end) async {
     try {
       final prefss = await SharedPreferences.getInstance();
@@ -73,11 +72,9 @@ class _StoreDetailState extends State<StoreDetailPage> {
     return null;
   }
 
-
-  Future<CategoryModel?> TakeListCategory() async {
+  Future<CategoryModel?> TakeListCategory(int? userId) async {
     try {
-      final results = await categoryService.TakeCategoryByStoreId(storeData!.userId ?? 0);
-      print("results ${results!.data![0].categoryName}");
+      final results = await categoryService.TakeCategoryByStoreId(userId ?? 0);
       if(results!.success == true){
         return results;
       }
@@ -86,6 +83,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
       print(e);
     }
   }
+
   void _launchPhoneCall(String phoneNumber) async {
     String url = 'tel:$phoneNumber';
     if (await canLaunch(url)) {
@@ -95,6 +93,7 @@ class _StoreDetailState extends State<StoreDetailPage> {
       print('Could not launch $url');
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -104,10 +103,28 @@ class _StoreDetailState extends State<StoreDetailPage> {
     });
   }
 
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    storeData = arguments['data'] as DataStoreNearUserModel; // Nhận dữ liệu store
+    if(arguments['data'] is DataStoreNearUserModel){
+      storeData = arguments['data'] as DataStoreNearUserModel; // Nhận dữ liệu store
+      Future.delayed(Duration.zero, () {
+        _streamDataStore.sink.add(storeData);
+      });
+    }
+    else
+    {
+      final response = await StoreService(apiUrl: AppConstants.TakeStoreById).TakeStoreById(arguments['data'] as int);
+      if(response != null && response.success == true || response?.item != null){
+        storeData = response?.item?.toDataStoreNearUserModel(); // Nhận dữ liệu store
+        _streamDataStore.sink.add(storeData);
+        fetchData(0); // mặc định là tất cả
+      }
+      else{
+        storeData = null;
+        _streamDataStore.sink.add(null);
+      }
+    }
   }
 
 
@@ -117,339 +134,357 @@ class _StoreDetailState extends State<StoreDetailPage> {
   }
   @override
   Widget build(BuildContext context) {
-
     return
       Stack(
         children: [
               Scaffold(
               backgroundColor: Colors.white,
-              body: CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    centerTitle: true,
-                    title:Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(0),
-                        child: Text(
-                          storeData?.fullName ?? "",
-                          maxLines: 1,
-                          style:
-                          TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold
-                          ),
-                        )
-                      ),
-                    ),
-                    toolbarHeight: 70,
-                    actions: [
-                      Container(
-                          width:Dimensions.height40,
-                          height:Dimensions.height40,
-                          child:Icon(
-                            Icons.search,
-                            color:Colors.white,
-                            size: Dimensions.iconSize16,),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Dimensions.radius15),
-                            color: AppColors.mainColor,
-                          )
-                      ),
+              body:
+               StreamBuilder(
+                  // initialData: null,
+                  stream: _streamDataStore.stream,
+                  builder: (builder,snapshot){
+                    if(snapshot.connectionState == ConnectionState.waiting){
+                      return Center(
+                        child: CircularProgressIndicator(color: AppColors.mainColor,),
+                      );
+                    }
+                    if(snapshot.data == null){
+                      return Center(
+                        child: SmallText(text: 'Không có dữ liệu',),
+                      );
+                    }
 
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     shape: BoxShape.circle,
-                      //     color: AppColors.mainColor,
-                      //   ),
-                      //   child:  Icon(
-                      //       Icons.search_outlined,
-                      //       color: Colors.white,
-                      //       size: 22,
-                      //   )),
-                      SizedBox(width: 13,)
-                    ],
-                    bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(100),
-                      // THONG TIN CỬA HÀNG
-                      child: Container(
-                        child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 5,),
-                                // TEN CUA HANG
-                                // Padding(padding: EdgeInsets.all(15),child: BigText(
-                                //     size: Dimensions.font23, text: storeData!.fullName ?? ""),
-                                // ),
-                                Padding(
-                                  padding: EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // DANH GIA, KHOANG CÁCH, THOI GIAN
-                                      FutureBuilder<DistanceAndTime?>(
-                                          future: calculateDistanceAndTime(storeData!.latitude.toString() +","+storeData!.longitude.toString()),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                              return SizedBox(); // Show a loading indicator while waiting for the result
-                                            }
-                                            else if (snapshot.hasError) {
-                                              return SizedBox();
-                                            }
-                                            else
-                                            {
-                                              return Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    // Đánh giá sao cửa hàng
-                                                    RatingStars(
-                                                      rating: 4.5,
-                                                      starSize: 15,
-                                                      starColor: AppColors.yellowColor,
-                                                      emptyStarColor: Colors.grey,
-                                                    ),
-                                                    // Khoảng cách
-                                                    IconAndTextWidget(
-                                                      icon: Icons.location_on,
-                                                      text: snapshot.data?.distance ?? " ",
-                                                      iconColor: AppColors.mainColor,),
-                                                    // Thời gian
-                                                    IconAndTextWidget(
-                                                      icon: Icons.access_time_rounded,
-                                                      text: snapshot.data?.time ?? " ",
-                                                      iconColor: AppColors.mainColor,),
-                                                  ],
-                                                );
-                                            }
-                                            return SizedBox();
-                                          }
-                                      ),
-                                      // THOG TIN DIA CHI - SO DIEN THOAI
-                                      BigText(text: "Địa chỉ: ${storeData!.address}", maxlines: 2, size: 14, color: AppColors.paraColor,),
-                                      InkWell(
-                                        onTap: () {
-                                          _launchPhoneCall(storeData!.phone ?? "");
-                                        },
-                                        child: Row(
-                                          children: [
-                                            BigText(
-                                              text: "Điện thoại: ${storeData!.phone}",
-                                              maxlines: 2,
-                                              size: 14,
-                                              color: AppColors.paraColor,
-                                            ),
-                                            SizedBox(width: 2,),
-                                            Icon(
-                                              Icons.phone,
-                                              size: 15,
-                                            )
-                                          ],
-                                        )
-                                      ),
-                                      Row(
-                                        children: [
-
-                                        ],
-                                      )
-                                    ],),
-                                )
-                              ],
-                            )
-                        ),
-                        width: double.maxFinite,
-                        padding: EdgeInsets.only(top: 5, bottom: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(Dimensions.radius15),
-                              topRight: Radius.circular(Dimensions.radius15),
-                            )),
-                      ),
-                    ),
-                    pinned: true,
-                    backgroundColor: Colors.white,
-                    expandedHeight: 300,
-                    //hÌNH ẢNH CỬA HÀNG
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: storeData!.absoluteImage != null
-                          ? Image.network(
-                        storeData!.absoluteImage ?? "",
-                        width: double.maxFinite,
-                        fit: BoxFit.cover,
-                      )
-                          : Image.asset(
-                        "assets/image/logoEN.png",
-                        width: double.maxFinite,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  // MENU CUA HANG
-
-                  SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // BigText(text: "Menu của quán", color: AppColors.mainColor, size: Dimensions.font23,),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.mainColor,
-                                borderRadius: BorderRadius.circular(10), // Adjust the radius as needed
-                              ),
-                              height: 35, // Set a fixed height for horizontal ListView
-                              child:
-                              FutureBuilder<CategoryModel?>(
-                                future: TakeListCategory(),
-                                builder: (BuildContext context, AsyncSnapshot<CategoryModel?> snapshot) {
-                                  if(snapshot.connectionState == ConnectionState.waiting){
-                                    return SizedBox();
-                                  }
-                                  if(snapshot.data!.data!.length > 0 || snapshot.hasData){
-                                    return StreamBuilder<int?>(
-                                      stream: _selectedCategoryController.stream,
-                                      initialData: null,
-                                      builder: (context, selectedSnapshot) {
-                                        // Danh loại món ăn
-                                        return ListView.separated(
-                                          itemCount: snapshot.data!.data!.length + 1, // Add 1 for the "All" item
-                                          scrollDirection: Axis.horizontal,
-                                          separatorBuilder: (context, index) => SizedBox(width: 0),
-                                          itemBuilder: (context, index) {
-                                            if (index == 0) {
-                                              // Handle the "All" item separately
-                                              return buildCategoryItem(0, "Tất cả", selectedSnapshot.data == 0);
-                                            } else {
-                                              // Handle other items in your data
-                                              final item = snapshot.data!.data![index - 1]; // Adjust index for data
-                                              return buildCategoryItem(item.categoryId ?? 0, item.categoryName ?? "", selectedSnapshot.data == item.categoryId);
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }
-                                  return Padding(
-                                    padding: EdgeInsets.only(left: 10, right: 10, top: 3, bottom: 3),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                          color: AppColors.mainColor,
-                                          borderRadius: BorderRadius.circular(5), // Adjust the radius as needed
-                                        ),
-                                        child: Text("Cửa hàng hiện chưa có nhóm sản phẩm ...", )
-                                    ),);
-                                },
+                    if(snapshot.data != null && snapshot.hasData ){
+                      return CustomScrollView(
+                        slivers: [
+                          SliverAppBar(
+                            centerTitle: true,
+                            title:Center(
+                              child: Padding(
+                                  padding: EdgeInsets.all(0),
+                                  child: Text(
+                                    snapshot.data?.fullName ?? "",
+                                    maxLines: 1,
+                                    style:
+                                    TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                  )
                               ),
                             ),
-                            Container(
-                              height: MediaQuery.of(context).size.height - 400,
-                              child:
-                              StreamBuilder<List<DataProduct>?>(
-                                stream: streamListProduct.stream,
-                                builder: (context, snapshot) {
-                                  if(snapshot.connectionState == ConnectionState.waiting){
-                                    return Center(child: CircularProgressIndicator(color: AppColors.mainColor,),);
-                                  }
-                                  if(!snapshot.hasData || snapshot.data?.length == 0 ){
-                                    return Center(
-                                      child:
-                                          Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                            toolbarHeight: 70,
+                            actions: [
+                              Container(
+                                  width:Dimensions.height40,
+                                  height:Dimensions.height40,
+                                  child:Icon(
+                                    Icons.search,
+                                    color:Colors.white,
+                                    size: Dimensions.iconSize16,),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(Dimensions.radius15),
+                                    color: AppColors.mainColor,
+                                  )
+                              ),
+                              // Container(
+                              //   decoration: BoxDecoration(
+                              //     shape: BoxShape.circle,
+                              //     color: AppColors.mainColor,
+                              //   ),
+                              //   child:  Icon(
+                              //       Icons.search_outlined,
+                              //       color: Colors.white,
+                              //       size: 22,
+                              //   )),
+                              SizedBox(width: 13,)
+                            ],
+                            bottom: PreferredSize(
+                              preferredSize: Size.fromHeight(100),
+                              // THONG TIN CỬA HÀNG
+                              child: Container(
+                                child: Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(height: 5,),
+                                        // TEN CUA HANG
+                                        // Padding(padding: EdgeInsets.all(15),child: BigText(
+                                        //     size: Dimensions.font23, text: storeData!.fullName ?? ""),
+                                        // ),
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 10),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Image.asset(
-                                                "assets/image/empty-box.png",
-                                                height: 100,
-                                                width: 100,),
-                                              BigText(text: "Cửa hàng hiện chưa có sản phẩm kinh doanh", color: Colors.grey,),
-                                            ],
-                                          )
-                                    );
-                                  }
-                                  if (snapshot.hasData) {
-                                    return ListView.builder(
-                                      itemCount: snapshot.data?.length ?? 0,
-                                      scrollDirection: Axis.vertical,
-                                      itemBuilder: (BuildContext context, int index) {
-                                        final item = snapshot.data![index];
-                                        return GestureDetector(
-                                            onTap: (){
-                                              if(item.qtycontrolled == true && item.qty! > 0 ||  item.qtycontrolled == false )
-                                              {
-                                                Navigator.pushReplacement(
-                                                    context,
-                                                    Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
-                                                );
-                                              }
-                                            },
-                                            child:
-                                                Stack(
-                                                  children: [
-                                                    Column(
-                                                      children: [
-                                                        ListTile(
-                                                            leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
-                                                            title: BigText(text: item.foodName ?? "", size: 15,),
-                                                            subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
-                                                              size: 13,
-                                                            )
-                                                        ),
-                                                        Divider(
-                                                          thickness: 1, // Adjust the thickness of the divider as needed
-                                                          color: Colors.black26, // Set the color of the divider
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Positioned(
-                                                      top: 0,
-                                                      left: 0,
-                                                      child:  Visibility(
-                                                        visible: item?.qty == 0 && item?.qtycontrolled == true,
-                                                        child: Container(
-                                                          width: 110,
-                                                          height: 76,
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.withOpacity(0.5), // Mờ đi một chút
+                                              // DANH GIA, KHOANG CÁCH, THOI GIAN
+                                              FutureBuilder<DistanceAndTime?>(
+                                                  future: calculateDistanceAndTime(snapshot.data!.latitude.toString() +","+snapshot.data!.longitude.toString()),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                                      return SizedBox(); // Show a loading indicator while waiting for the result
+                                                    }
+                                                    else if (snapshot.hasError) {
+                                                      return SizedBox();
+                                                    }
+                                                    else
+                                                    {
+                                                      return Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: [
+                                                          // Đánh giá sao cửa hàng
+                                                          RatingStars(
+                                                            rating: 4.5,
+                                                            starSize: 15,
+                                                            starColor: AppColors.yellowColor,
+                                                            emptyStarColor: Colors.grey,
                                                           ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              "Hết số lượng",
-                                                              style: TextStyle(
-                                                                color: Colors.white,
-                                                                fontSize: 12.0,
-                                                                fontWeight: FontWeight.bold,
+                                                          // Khoảng cách
+                                                          IconAndTextWidget(
+                                                            icon: Icons.location_on,
+                                                            text: snapshot.data?.distance ?? " ",
+                                                            iconColor: AppColors.mainColor,),
+                                                          // Thời gian
+                                                          IconAndTextWidget(
+                                                            icon: Icons.access_time_rounded,
+                                                            text: snapshot.data?.time ?? " ",
+                                                            iconColor: AppColors.mainColor,),
+                                                        ],
+                                                      );
+                                                    }
+                                                    return SizedBox();
+                                                  }
+                                              ),
+                                              // THOG TIN DIA CHI - SO DIEN THOAI
+                                              BigText(text: "Địa chỉ: ${snapshot.data!.address}", maxlines: 2, size: 14, color: AppColors.paraColor,),
+                                              InkWell(
+                                                  onTap: () {
+                                                    _launchPhoneCall(snapshot.data!.phone ?? "");
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      BigText(
+                                                        text: "Điện thoại: ${snapshot.data!.phone}",
+                                                        maxlines: 2,
+                                                        size: 14,
+                                                        color: AppColors.paraColor,
+                                                      ),
+                                                      SizedBox(width: 2,),
+                                                      Icon(
+                                                        Icons.phone,
+                                                        size: 15,
+                                                      )
+                                                    ],
+                                                  )
+                                              ),
+                                              Row(
+                                                children: [
+
+                                                ],
+                                              )
+                                            ],),
+                                        )
+                                      ],
+                                    )
+                                ),
+                                width: double.maxFinite,
+                                padding: EdgeInsets.only(top: 5, bottom: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(Dimensions.radius15),
+                                      topRight: Radius.circular(Dimensions.radius15),
+                                    )),
+                              ),
+                            ),
+                            pinned: true,
+                            backgroundColor: Colors.white,
+                            expandedHeight: 300,
+                            //hÌNH ẢNH CỬA HÀNG
+                            flexibleSpace: FlexibleSpaceBar(
+                              background: snapshot.data!.absoluteImage != null
+                                  ? Image.network(
+                                snapshot.data!.absoluteImage ?? "",
+                                width: double.maxFinite,
+                                fit: BoxFit.cover,
+                              )
+                                  : Image.asset(
+                                "assets/image/logoEN.png",
+                                width: double.maxFinite,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          // MENU CUA HANG
+                          SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // BigText(text: "Menu của quán", color: AppColors.mainColor, size: Dimensions.font23,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.mainColor,
+                                        borderRadius: BorderRadius.circular(10), // Adjust the radius as needed
+                                      ),
+                                      height: 35, // Set a fixed height for horizontal ListView
+                                      child:
+                                      FutureBuilder<CategoryModel?>(
+                                        future: TakeListCategory(snapshot.data!.userId ?? 0),
+                                        builder: (BuildContext context, AsyncSnapshot<CategoryModel?> snapshot) {
+                                          if(snapshot.connectionState == ConnectionState.waiting){
+                                            return SizedBox();
+                                          }
+                                          if(snapshot.data!.data!.length > 0 || snapshot.hasData){
+                                            return StreamBuilder<int?>(
+                                              stream: _selectedCategoryController.stream,
+                                              initialData: null,
+                                              builder: (context, selectedSnapshot) {
+                                                // Danh loại món ăn
+                                                return ListView.separated(
+                                                  itemCount: snapshot.data!.data!.length + 1, // Add 1 for the "All" item
+                                                  scrollDirection: Axis.horizontal,
+                                                  separatorBuilder: (context, index) => SizedBox(width: 0),
+                                                  itemBuilder: (context, index) {
+                                                    if (index == 0) {
+                                                      // Handle the "All" item separately
+                                                      return buildCategoryItem(0, "Tất cả", selectedSnapshot.data == 0);
+                                                    } else {
+                                                      // Handle other items in your data
+                                                      final item = snapshot.data!.data![index - 1]; // Adjust index for data
+                                                      return buildCategoryItem(item.categoryId ?? 0, item.categoryName ?? "", selectedSnapshot.data == item.categoryId);
+                                                    }
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          }
+                                          return Padding(
+                                            padding: EdgeInsets.only(left: 10, right: 10, top: 3, bottom: 3),
+                                            child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.mainColor,
+                                                  borderRadius: BorderRadius.circular(5), // Adjust the radius as needed
+                                                ),
+                                                child: Text("Cửa hàng hiện chưa có nhóm sản phẩm ...", )
+                                            ),);
+                                        },
+                                      ),
+                                    ),
+                                    Container(
+                                      height: MediaQuery.of(context).size.height - 400,
+                                      child:
+                                      StreamBuilder<List<DataProduct>?>(
+                                        stream: streamListProduct.stream,
+                                        builder: (context, snapshot) {
+                                          if(snapshot.connectionState == ConnectionState.waiting){
+                                            return Center(child: CircularProgressIndicator(color: AppColors.mainColor,),);
+                                          }
+                                          if(!snapshot.hasData || snapshot.data?.length == 0 ){
+                                            return Center(
+                                                child:
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/image/empty-box.png",
+                                                      height: 100,
+                                                      width: 100,),
+                                                    BigText(text: "Cửa hàng hiện chưa có sản phẩm kinh doanh", color: Colors.grey,),
+                                                  ],
+                                                )
+                                            );
+                                          }
+                                          if (snapshot.hasData) {
+                                            return ListView.builder(
+                                              itemCount: snapshot.data?.length ?? 0,
+                                              scrollDirection: Axis.vertical,
+                                              itemBuilder: (BuildContext context, int index) {
+                                                final item = snapshot.data![index];
+                                                return GestureDetector(
+                                                    onTap: (){
+                                                      if(item.qtycontrolled == true && item.qty! > 0 ||  item.qtycontrolled == false )
+                                                      {
+                                                        Navigator.pushReplacement(
+                                                            context,
+                                                            Navigator.pushNamed(context, "/productdetail", arguments: {'data': item }) as Route<Object?>
+                                                        );
+                                                      }
+                                                    },
+                                                    child:
+                                                    Stack(
+                                                      children: [
+                                                        Column(
+                                                          children: [
+                                                            ListTile(
+                                                                leading: Image.network(item.uploadImage ?? "", height: 80, width: 80,),
+                                                                title: BigText(text: item.foodName ?? "", size: 15,),
+                                                                subtitle: SmallText(text: "Đơn giá: " +NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item?.price ?? 0),
+                                                                  size: 13,
+                                                                )
+                                                            ),
+                                                            Divider(
+                                                              thickness: 1, // Adjust the thickness of the divider as needed
+                                                              color: Colors.black26, // Set the color of the divider
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Positioned(
+                                                          top: 0,
+                                                          left: 0,
+                                                          child:  Visibility(
+                                                            visible: item?.qty == 0 && item?.qtycontrolled == true,
+                                                            child: Container(
+                                                              width: 110,
+                                                              height: 76,
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.withOpacity(0.5), // Mờ đi một chút
+                                                              ),
+                                                              child: Center(
+                                                                child: Text(
+                                                                  "Hết số lượng",
+                                                                  style: TextStyle(
+                                                                    color: Colors.white,
+                                                                    fontSize: 12.0,
+                                                                    fontWeight: FontWeight.bold,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ),
+                                                        )
+                                                      ],
                                                     )
-                                                  ],
-                                                )
-                                        );
-                                      },
-                                    );
-                                  }
-                                  else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text("Đã xảy ra lỗi ... Vui lòng tải lại "),
-                                    ); // Add your error widget here
-                                  } else {
-                                    return Center(child: CircularProgressIndicator(),); // Add your loading widget here
-                                  }
-                                },
-                              ),
-                            )
-                            // StreamBuilder widget
-                          ],
-                        ),
-                      )
-                  )
-                ],
-              ),
-
+                                                );
+                                              },
+                                            );
+                                          }
+                                          else if (snapshot.hasError) {
+                                            return Center(
+                                              child: Text("Đã xảy ra lỗi ... Vui lòng tải lại "),
+                                            ); // Add your error widget here
+                                          } else {
+                                            return Center(child: CircularProgressIndicator(),); // Add your loading widget here
+                                          }
+                                        },
+                                      ),
+                                    )
+                                    // StreamBuilder widget
+                                  ],
+                                ),
+                              )
+                          )
+                        ],
+                      );
+                    }
+                    return Center(
+                      child: SmallText(text: 'Tải lại trang',),
+                    );
+                  }),
               // bottomNavigationBar: Column(
               //   mainAxisSize: MainAxisSize.min,
               //   children: [
@@ -635,7 +670,6 @@ class _StoreDetailState extends State<StoreDetailPage> {
               ),
             ),
           )
-
         ],
       );
   }
