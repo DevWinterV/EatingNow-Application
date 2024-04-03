@@ -33,15 +33,6 @@ namespace AI.FoodList
             EvaluateModel();  // Đánh giá hiệu suất của mô hình.
 
         }
-        // Thực thi 
-        public static void Execute()
-        {
-            LoadData();
-            PreProgressData();
-            CreateModel();
-            EvaluateModel();
-            Predicvalue1();
-        }
 
         // Dự đoán kết quả dựa trên danh sách đầu vào và trả về danh sách kết quả.
         public List<ResultModel> Predicvalue(List<InputData> inputdata)
@@ -54,19 +45,20 @@ namespace AI.FoodList
             // duyệt qua danh sách Inputdata
             foreach (var data in inputdata)
             {
-                //Sử dụng predictEngine để dự đoán kết quả cho mỗi đối tượng InputData trong danh sách. Kết quả được lưu vào biến resultmodel.
+                //Sử dụng predictEngine để dự đoán kết quả cho mỗi
+                //đối tượng InputData trong danh sách. Kết quả được lưu vào biến resultmodel.
                 var resultmodel = predictEngine.Predict(new InputData
                 {
                     CustomerId = data.CustomerId,
                     FoodListId = data.FoodListId
                 });
-                //Kiểm tra xem điểm số (Score) từ kết quả dự đoán có lớn hơn hoặc bằng 2.8 hay không. Nếu có, thì thêm đối tượng resultmodel vào danh sách kết quả.
+                //Kiểm tra xem điểm số (Score) từ kết quả dự đoán có lớn hơn hoặc bằng 2.8 hay không.
+                //Nếu có, thì thêm đối tượng resultmodel vào danh sách kết quả.
                 if (resultmodel.Score >= 2.8)
                 {   
                     results.Add(resultmodel);
                 }
             }
-
             // Sắp xếp danh sách kết quả theo thuộc tính Score giảm dần
             results = results.OrderByDescending(r => r.Score).ToList();
             return results;
@@ -204,13 +196,15 @@ namespace AI.FoodList
         {
             var options = new MatrixFactorizationTrainer.Options
             {
-                LabelColumnName = nameof(InputData.Rating),// Đây là tên cột trong dữ liệu đầu vào (InputData) chứa điểm đánh giá. Tùy chọn này xác định cột dùng để đo lường sự tương quan giữa các yếu tố trong ma trận đánh giá.
+                LabelColumnName = nameof(InputData.Rating),// Đây là tên cột trong dữ liệu đầu vào (InputData) chứa điểm đánh giá.
+                                                           // Tùy chọn này xác định cột dùng để đo lường sự
+                                                           // tương quan giữa các yếu tố trong ma trận đánh giá.
                 MatrixColumnIndexColumnName = "Encoded_CustomerId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
                 MatrixRowIndexColumnName = "Encoded_FoodListId",//chứa chỉ số dùng để tham chiếu đến các cột và hàng trong ma trận đánh giá
                 NumberOfIterations = 300,//Số lần lặp trong quá trình đào tạo.
                 ApproximationRank = 100,//ước tính về độ phức tạp của ma trận đánh giá được phân tách.
             };
-            var trainer = context.Recommendation().Trainers.MatrixFactorization(options);
+            var trainer = context.Recommendation().Trainers.MatrixFactorization(options); // Sử dụng MatrixFactorization S
             var pipeline = estimator.Append(trainer);
             model = pipeline.Fit(splitData.TrainSet);
         }
@@ -223,7 +217,6 @@ namespace AI.FoodList
                 outputColumnName: "Encoded_CustomerId", inputColumnName: "CustomerId")
                 .Append(context.Transforms.Conversion.MapValueToKey(
                     outputColumnName: "Encoded_FoodListId", inputColumnName: "FoodListId"));
-
             var PreProgressData = estimator.Fit(dataView).Transform(dataView);
 
             splitData = context.Data.TrainTestSplit(PreProgressData, 0.05);
@@ -236,16 +229,12 @@ namespace AI.FoodList
             {
                 // Define the connection string to your SQL Server database
                 string connectionString = @"Data Source=rangdong\dongchau;Initial Catalog=EattingNowApp;Integrated Security=True";
-
                 // Define the SQL query to retrieve data from the FoodRating table
-                string query = "SELECT CustomerId, foodid, rating FROM FoodRating";
-
+                string query = "SELECT CustomerId, foodid, AVG(rating) as rating FROM FoodRating group by CustomerId, foodid";
                 // Create a SqlConnection to connect to the database
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    // Open the connection
                     connection.Open();
-
                     // Create a SqlCommand to execute the SQL query
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -265,7 +254,6 @@ namespace AI.FoodList
                                     FoodListId = reader.GetInt32(1), // Assuming foodid is stored as an integer in the database
                                     Rating = (float)reader.GetDouble(2) // Assuming rating is stored as a double in the database and you want to cast it to float
                                 };
-
                                 // Add the InputData object to the list
                                 inputDataList.Add(inputData);
                             }
@@ -275,7 +263,6 @@ namespace AI.FoodList
                         }
                     }
                 }
-
                 // Successfully loaded data from the database
                 Console.WriteLine("Data loaded successfully.");
             }
@@ -285,7 +272,15 @@ namespace AI.FoodList
                 Console.WriteLine($"An error occurred during data loading: {ex.Message}");
             }
         }
-
+        // Thực thi 
+        public static void Execute()
+        {
+            LoadData();
+            PreProgressData();
+            CreateModel();
+            EvaluateModel();
+            Predicvalue1();
+        }
         /*
         // Load dữ liệu đầu vào 
         public static void LoadData()

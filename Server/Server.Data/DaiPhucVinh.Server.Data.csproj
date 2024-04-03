@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DaiPhucVinh\EN_OrderPromotion.cs" />
     <Compile Include="DaiPhucVinh\EN_Account.cs" />
     <Compile Include="DaiPhucVinh\EN_CategoryList.cs" />
     <Compile Include="DaiPhucVinh\EN_CategoryPayment.cs" />

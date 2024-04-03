@@ -49,13 +49,13 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
             onTap: (){
               setState(() {
                 hiddenText = !hiddenText;
-                (text == "Hiển thị thêm") ? text = "Ẩn bớt" :text = "Hiển thị thêm";
+                (text == "Xem thêm") ? text = "Ẩn bớt" : text = "Xem thêm";
               });
             },
             child: Row(
               children: [
                 SmallText(text: text, color: AppColors.mainColor,),
-                Icon(hiddenText?Icons.arrow_drop_down:Icons.arrow_drop_up, color: AppColors.mainColor,),
+                Icon(hiddenText ? Icons.arrow_drop_down : Icons.arrow_drop_up, color: AppColors.mainColor,),
               ],
             ),
           )

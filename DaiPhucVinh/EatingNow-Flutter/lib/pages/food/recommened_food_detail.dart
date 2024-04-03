@@ -137,7 +137,7 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
               children: [
                 Container(
                   child: ExpandableTextWidget(
-                      text: dataProduct?.description ?? "..."),
+                      text: dataProduct?.description ?? "  "),
                   margin: EdgeInsets.only(
                       left: Dimensions.width20, right: Dimensions.width20),
                 ),
@@ -282,8 +282,6 @@ class _RecommenedFoodDetailState extends State<RecommenedFoodDetail> {
                             onTap: () {
                               if (productSum.qty! > 0 && dataProduct != null) {
                                 double price =  dataProduct!.price!.toDouble();
-                                print('dataProduct.userId: ${dataProduct.userId}');
-                                print('dataProduct.storename: ${dataProduct.storeName}');
                                 CartItem newItem = CartItem(
                                   foodName: dataProduct.foodName ?? "",
                                   categoryId: dataProduct.categoryId ?? 0,

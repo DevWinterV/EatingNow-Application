@@ -25,6 +25,7 @@ import '../../util/app_constants.dart';
 import '../../util/dimensions.dart';
 import '../circularprogress/DottedCircularProgressIndicator.dart';
 import '../../storage/cartstorage.dart';
+import 'getCurrentLocation_page.dart';
 
 
 
@@ -78,7 +79,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         cuisineData = results[1] as CuisineModel?;
         storeNearUserModel = results[2] as StoreNearUserModel?;
       });
-
     } catch (e) {
         print(e);
     }
@@ -162,8 +162,9 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           child:
           SingleChildScrollView(
             child:
-              isloading || products == null || products!.data == null || products!.data!.length == 0
-                  ? Container(
+              isloading && products == null && storeNearUserModel == null && cuisineData == null
+                  ?
+              Container(
                 height: MediaQuery.of(context).size.height, // Đặt chiều cao bằng chiều cao của thiết bị
                 width: MediaQuery.of(context).size.width, // Đặt chiều rộng bằng chiều rộng của thiết bị
                 alignment: Alignment.center,
@@ -180,7 +181,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                     ],
                   ),
                 ),
-              ) :
+              )
+                  :
+              // Đã fecth dữ liệu thành công và  có dữ liệu cửa hàng
+              storeNearUserModel!.data!.length! > 0 ?
               Column(
                 children: [
                   _headerContainer(AppConstants.APP_NAME, "Danh mục loại món ăn 🍔", false),
@@ -206,7 +210,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                               ),
                             ),
                             DotsIndicator(
-                              dotsCount: storeNearUserModel?.data?.take(10).length ?? 1,//độ dài cửa hàng đề cử
+                              dotsCount: storeNearUserModel?.data?.take(10)?.length ?? 1,//độ dài cửa hàng đề cử
                               position: snapshotPage.data ?? 0.0,
                               decorator: DotsDecorator(
                                 activeColor: AppColors.mainColor,
@@ -218,7 +222,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                           ],
                         );
                       }),
-
                   _line(),
                   _headerContainer("Gợi ý", "Món ngon cho bạn 🧡", true),
                   // Danh sách các món ăn yêu thích của khách hàng
@@ -494,6 +497,34 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                       }),
                 ],
               )
+                  :
+              Container(
+                    height: Dimensions.screenHeight,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: BigText(
+                            text: "Không tìm thấy cửa hàng, sản phẩm tại vị trí của bạn.",
+                            size: Dimensions.font14,
+                            maxlines: 2,
+                          ),
+                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mainColor),
+                            onPressed: () async{
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => LocationPage(link: "/",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
+                              );
+                              if(result == true){
+                                Navigator.of(context).popAndPushNamed("/");
+                              }
+                            },
+                            child: SmallText(text: "Chọn vị trí khác", color: Colors.white,))
+                      ],
+                    )
+                  )
           ),
         );
   }
@@ -535,14 +566,13 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       );
 
   }
-
   Container buldCatagoryItem(){
     return !isloading ?
       Container(
         margin: EdgeInsets.only(left: Dimensions.width10, right: Dimensions.width10 ),
       height: 100,
       child: ListView.separated(
-        itemCount: cuisineData!.data!.length ,
+        itemCount: cuisineData?.data?.length  ?? 0,
         scrollDirection: Axis.horizontal,
         separatorBuilder: (context, index)=>
           SizedBox(width: 5,),

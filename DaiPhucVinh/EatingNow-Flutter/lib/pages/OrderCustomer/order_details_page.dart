@@ -163,13 +163,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                       color: Colors.blue[400],
                                       size: Dimensions.font13,
                                     ),
-                                  )                                ],
+                                  )
+                                ],
                               ),
                               BigText(
                                   text:
                                   order.formatAddress  ??  "",
                                   size: Dimensions.font14,
-                                  maxlines: 2,),
+                                  maxlines: 1,),
                             ],
                           ),
                         ),

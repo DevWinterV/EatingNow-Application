@@ -1107,40 +1107,32 @@ namespace DaiPhucVinh.Services.MainServices.Province
             var distance = R * c; // khoảng cách giữa hai điểm (km)
             return Math.Round(distance, 1);
         }
-
+        // Chuyển sang Radians
         public static double ToRadians(double degree)
         {
             return degree * Math.PI / 180;
         }
 
-
+        // Dữ liệu đầu vào là danh sách cửa hàng, tạo độ vị trí cửa người dùng, số lượng cửa hàng cần trả về
         public static List<StoreResponse> FindNearestStores(List<StoreResponse> stores, double lat, double lng, int count)
         {
             var nearestStores = new List<StoreResponse>();
-
-            // Tính khoảng cách từ điểm đầu tiên đến tất cả các điểm còn lại trong danh sách
+            // Tính khoảng cách từ tọa độ vị trí khách hàng đến tất cả các cửa hàng
             foreach (var store in stores)
             {
-                double Lat = Math.Round(store.Latitude, 7);
-                double Lon = Math.Round(store.Longitude, 7);
-                var distance = Distance(/*lat*/lat, /*lng*/ lng, Lat, Lon);
-                store.Distance = distance;
-                //store.Time = CalculateTime(distance); // Assuming you have a function to calculate time based on distance
+                double Lat = Math.Round(store.Latitude, 7); // Vĩ độ cửa hàng
+                double Lon = Math.Round(store.Longitude, 7); // Kinh độ cửa hàng
+                var distance = Distance(lat,  lng, Lat, Lon); // Tính toán khoảng cách thuật toán Haversine
+                store.Distance = distance; 
+                store.Time = CalculateTime(distance); // Tính toán thời gian di chuyển trung bình tùy vào khoảng cách
+                if(store.Distance <= 8) // Khoảng cách bé hơn hoặc bằng 8 km thêm vào danh sách cửa hàng trả về
+                    nearestStores.Add(store);
             }
-
-            foreach(var fillStore in stores)
-            {
-                if(fillStore.Distance <=10 )
-                    nearestStores.Add(fillStore);
-            }
-            nearestStores = nearestStores.OrderBy(store => store.Distance).ToList();
-
-            return nearestStores;
+            return nearestStores.OrderBy(store => store.Distance).ToList(); // Trả về danh sách cửa hàng order theo khoảng cách
         }
 
         private static double CalculateTime(double distance)
         {
-            // Assuming an average speed of 50 km/h (31 mph)
             double averageSpeed = 40; // km/h
             double time = distance / averageSpeed;
             double timeInMinutes = Math.Round(time * 60, 0);

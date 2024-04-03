@@ -31,8 +31,7 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
   LatLng? oncameramoveLatlng;
   bool isPinMarkerVisible = true;
   late Uint8List pickupMarker = Uint8List.fromList([]);
-  final googleApiService = GoogleAPIService(
-      '');
+  final googleApiService = GoogleAPIService('');
 
   // yêu cầu quyền sử dụng vị trí của người dùng
   Future<void> requestLocationPermission() async {
@@ -66,12 +65,21 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement initState
+    super.dispose();
+    _newGoogleAMapsContrller!.dispose();
+  }
+
+  @override
   void initState() {
     requestLocationPermission();
     // TODO: implement initState
     super.initState();
     InitMarker();
   }
+
+
   void InitMarker () async {
     pickupMarker = await getMarker("marker");
   }
@@ -127,23 +135,38 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
     final appdata = Provider.of<AppData>(context);
     String? placeAddress;
     if(appdata.locationData != null){
-      placeAddress = appdata.locationData?.address ?? "";
+      placeAddress = appdata.locationData?.address ?? " ";
     }
     else{
-      placeAddress = "...";
+      placeAddress = " ";
     }
     return ChangeNotifierProvider(
         create: (context) => AppData(),
         child: Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                toolbarHeight: 50,
+                title: Text(
+                  "Bản đồ",
+                  maxLines: 1,
+                  style:
+                  TextStyle(
+                      color: Colors.black,
+                      fontSize: Dimensions.font20,
+                      fontWeight: FontWeight.normal
+                  ),
+                ),
+              ),
               body:
               _inittalLatlng == null ?
-              Center(child: SmallText(text: "Đang tải dữ liệu bản đồ ...",
-              ))
+              Center(child: SmallText(text: "Đang tải dữ liệu bản đồ ...",))
                   :
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  GoogleMap(
+                  Container(
+                    height: Dimensions.screenHeight,
+                    child:  GoogleMap(
                       mapType: MapType.normal,
                       myLocationEnabled: true,
                       myLocationButtonEnabled: true,
@@ -154,14 +177,14 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
                         _CompletergooglemapController.complete(mapContrller);
                         _newGoogleAMapsContrller = mapContrller;
                       },
-                    onCameraMove: (position) async{
+                      onCameraMove: (position) async{
                         if(isPinMarkerVisible){
                           oncameramoveLatlng = await pickLocationOnMap(position);
-
                           //pickOriginPositionOnMap();
                         }
-                    },
-                    onCameraIdle: _getPinAddress,
+                      },
+                      onCameraIdle: _getPinAddress,
+                    ),
                   ),
                   Visibility(
                       visible: isPinMarkerVisible,
@@ -187,27 +210,27 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
                           borderRadius:BorderRadius.only(
                             topLeft: Radius.circular(Dimensions.radius15 * 1),
                             topRight: Radius.circular(Dimensions.radius15 * 1),
-                            bottomLeft: Radius.circular(Dimensions.radius15 * 1),
-                            bottomRight: Radius.circular(Dimensions.radius15 * 1),
                           ),
                           color: Colors.white
                         ),
                         height: 130,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Container(
                                 height: 50.0,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(35.0),
-                                  border: Border.all(color: Colors.blue, width: 1.0, style: BorderStyle.solid)
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  border: Border.all(color: AppColors.mainColor, width: 1.0, style: BorderStyle.solid)
                                 ),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    const SizedBox(width: 10.0,),
-                                    Icon(Icons.my_location_sharp, color: AppColors.mainColor,),
-                                    const SizedBox(width: 10.0,),
+                                    SizedBox(width: 5,),
+                                    Icon(Icons.my_location_sharp, color: AppColors.mainColor, size: 30),
+                                    SizedBox(width: 5,),
                                     Expanded(
                                         child: BigText(
                                           text: placeAddress,
@@ -217,19 +240,22 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 4.0,),
-                              TextButton(
-                                style: ButtonStyle(
-
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  // Customize the background color
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: AppColors.mainColor,                          // Add other customizations as needed
+                                  padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                                 ),
-                                  onPressed: () async {
-                                    Navigator.of(context).pop(appdata.locationData);
-                                  }
-                              , child: SmallText(
-                                  text: "Sử dụng vị trí này",
-                                  size: Dimensions.font16,
-                                  color: Colors.black,
-                              )),
+                                onPressed: () async {
+                                  Navigator.of(context).pop(appdata.locationData);
+                                },
+                                child: Text('Sử dụng vị trí này', style: TextStyle(fontSize: Dimensions.font16),),
+                              ),
                             ],
                           ),
                         ),

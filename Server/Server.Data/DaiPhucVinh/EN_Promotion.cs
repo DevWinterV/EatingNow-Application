@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 namespace DaiPhucVinh.Server.Data.DaiPhucVinh
 {
     [Table("Promotion")]
-
     public class EN_Promotion
     {
         [Key]
@@ -21,10 +20,11 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public int DiscountValue { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-
         public bool PromoCStatus { get; set; }
         public int UsageCount { get; set; }
-
         public int MaxUsageLimit { get; set; }
+        public bool IsPromoystem { get; set; }
+        public int StoreId { get; set; }
+        public int FoodListId { get; set; }
     }
 }
