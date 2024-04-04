@@ -18,47 +18,44 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   StreamController<bool?> _checkSelectEditController = StreamController<bool?>.broadcast();
   Stream<bool?> get checkSelectEditStream => _checkSelectEditController.stream;
+
   StreamController<List<StoreChecked>?> _checkSelectedListStoreIdController = StreamController<List<StoreChecked>?>.broadcast();
   Stream<List<StoreChecked>?> get checkSelectedListStoreIdStream => _checkSelectedListStoreIdController.stream;
+
   StreamController<List<StoreChecked>?> _checkSelectedListStoreIdRemoveController = StreamController<List<StoreChecked>?>.broadcast();
   Stream<List<StoreChecked>?> get checkSelectedListStoreIdRemoveStream => _checkSelectedListStoreIdRemoveController.stream;
-  List<StoreUserCart> groupedCart = [];
-  List<CartItem> cartItems = [];
 
+  StreamController<List<StoreUserCart>?> _streamListStoreUserCart = StreamController<List<StoreUserCart>?>.broadcast();
+  Stream<List<StoreUserCart>?> get getstreamListStoreUserCart => _streamListStoreUserCart.stream;
   @override
   void dispose() {
     _checkSelectEditController.close();
     _checkSelectedListStoreIdController.close();
+    _streamListStoreUserCart.close();
+    _checkSelectedListStoreIdRemoveController.close();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    // Khởi tạo giỏ hàng từ SharedPreferences khi màn hình được tạo
     _loadCartItems();
   }
-
   void updateCheckSelectEditController(bool? newData) {
     _checkSelectEditController.add(newData);
   }
-
   void updatecheckSelectedListStoreIdControlle(List<StoreChecked>? newList) {
     _checkSelectedListStoreIdController.add(newList);
   }
-
   void updatecheckSelectedListStoreIdRemoveControlle(List<StoreChecked>? newList) {
     _checkSelectedListStoreIdRemoveController.add(newList);
   }
+
   // Phương thức để load danh sách món ăn từ SharedPreferences
   void _loadCartItems() async {
     List<StoreUserCart> groupedCartfunct = [];
     List<CartItem> loadedItems = await CartStorage.getCartItems();
-    setState(() {
-      cartItems = loadedItems;
-    });
-
-    cartItems.forEach((item) {
+    loadedItems.forEach((item) {
       // Kiểm tra xem cặp cửa hàng và người dùng đã tồn tại trong danh sách chưa
       var existingPair = groupedCartfunct.firstWhere((pair) =>
       pair.userChecked.nameStore == item.storeName && pair.userChecked.userId == item.userId,
@@ -85,20 +82,15 @@ class _CartPageState extends State<CartPage> {
         existingPair.items.add(item);
       }
     });
-    setState(() {
-      groupedCart = groupedCartfunct;
-    });
-    print(groupedCart);
+    _streamListStoreUserCart.sink.add(groupedCartfunct);
     _checkSelectedListStoreIdRemoveController.add([]);
-    _checkSelectedListStoreIdController.sink.add(groupedCart.map((e) => e.userChecked).toList());
+    _checkSelectedListStoreIdController.sink.add(groupedCartfunct.map((e) => e.userChecked).toList());
   }
-
   // Hàm xóa item cart
   void _removeItemCart(CartItem item) {
     CartStorage.RemoveItemToCart(item);
     _loadCartItems();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,7 +162,7 @@ class _CartPageState extends State<CartPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          BigText(text: "Xóa", color: Colors.red,),
+                          BigText(text: "(${listStoreChecked.length}) Xóa", color: Colors.red,),
                           SizedBox(width: 20,),
                         ],
                       ),
@@ -181,242 +173,240 @@ class _CartPageState extends State<CartPage> {
               }
           )
         ],
-
         centerTitle: true, // Để căn giữa tiêu đề trên thanh AppBar
-        // Các thuộc tính khác của AppBar
-        // Các thuộc tính khác của AppBar
         backgroundColor: AppColors.mainColor, // Màu nền cho AppBar
       ),
       body:
-      // Chưa có sản phẩm trong giỏ hàng
-      groupedCart.length == 0 ?
-      Container(
-        child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/image/emptycart.png",
-                  height: 100,
-                  width: 100,),
-                Text(
-                  "Chưa có sản phẩm trong giỏ hàng",
-                  style: TextStyle(
-                      fontSize: Dimensions.font16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey
-                  ),
-                )
-              ],
-            )
-        ),
-      )
-          :
-      // đã có sản phẩm trong giỏ hàng
-      Container(
-        child:
-        StreamBuilder<List<StoreChecked>?>(
-          initialData: groupedCart.map((e) => e.userChecked).toList(),
-          stream: checkSelectedListStoreIdStream,
-          builder: (context, snapshot) {
-            return ListView.builder(
-              itemCount: groupedCart.length,
-              itemBuilder: (context, index) {
-                final storeUserCart = groupedCart[index];
-                final storeChecked = snapshot.data?[index];
-                double totalAmount = groupedCart[index].items.fold( 0, (total, item) => total + (item.price * item.qty));
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child:
-                        Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Checkbox(
-                                  value:  storeChecked?.ischecked,
-                                  onChanged: (value) {
-                                    snapshot.data?[index].ischecked = !storeChecked!.ischecked;
-                                    updatecheckSelectedListStoreIdControlle(snapshot.data);
-                                    updatecheckSelectedListStoreIdRemoveControlle(snapshot.data);
-                                  },
-                                ),
-                                GestureDetector (
-                                  onTap: () async {
-                                    await Navigator.pushReplacement(
-                                        context,
-                                        Navigator.popAndPushNamed(context, "/storedetail", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
-                                    );
-                                  },
-                                  child: Text(
-                                    storeUserCart.userChecked.nameStore ?? "",
-                                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: (){
-                                    Navigator.pushReplacement(
-                                        context,
-                                        Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
-                                    );
-                                  },
-                                  child:  Text(
-                                    'Đặt đơn',
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: Colors.blue[700]),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${groupedCart[index].items.length.toString()} sản phẩm',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-                                ),
-                                Text(
-                                  'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount ?? 0)}',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-                                ),
-                              ],
-                            )
-                          ],
-                        )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      child: Container(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: storeUserCart.items.length,
-                          itemBuilder: (context, itemIndex) {
-                            final item = storeUserCart.items[itemIndex];
-                            return Dismissible(
-                              key: Key(item.foodListId.toString()), // Key là một giá trị duy nhất cho mỗi món ăn
-                              background: Container(
-                                color: Colors.red, // Màu nền khi vuốt để xóa
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onDismissed: (direction) {
-                                // Xử lý khi món ăn bị xóa
-                                _removeItemCart(item);
-                              },
-                              child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
-                                    );
-                                  },
-                                  child:
-                                  Card(
-                                    color: Colors.white,
-                                    margin: EdgeInsets.only(bottom: 10),
-                                    child: ListTile(
-                                      leading: Image.network(
-                                        item.uploadImage ?? "",
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
+        Container(
+        child: StreamBuilder<List<StoreUserCart>?>(
+          stream: getstreamListStoreUserCart,
+          builder: (BuildContext context, AsyncSnapshot<List<StoreUserCart>?> snapshotListStoreUserCart) {
+            final groupedCart = snapshotListStoreUserCart.data;
+            if(groupedCart!.length > 0){
+              return StreamBuilder<List<StoreChecked>?>(
+                initialData: groupedCart!.map((e) => e.userChecked).toList(),
+                stream: checkSelectedListStoreIdStream,
+                builder: (context, snapshot) {
+                  return ListView.builder(
+                    itemCount: groupedCart.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final storeUserCart = groupedCart[index];
+                      final storeChecked = snapshot.data?[index];
+                      double totalAmount = groupedCart[index].items.fold( 0, (total, item) => total + (item.price * item.qty));
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child:
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Checkbox(
+                                        value:  storeChecked?.ischecked,
+                                        onChanged: (value) {
+                                          snapshot.data?[index].ischecked = !storeChecked!.ischecked;
+                                          updatecheckSelectedListStoreIdControlle(snapshot.data);
+                                          updatecheckSelectedListStoreIdRemoveControlle(snapshot.data);
+                                        },
                                       ),
-                                      title: Text(item.foodName),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          SizedBox(height: 1),
-                                          Row(
-                                            children: [
-                                              BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
-                                              SizedBox(width: 20),
-                                              BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
-                                            ],
-                                          ),
-                                          SizedBox(height: 1),
-                                          BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
-                                          SizedBox(height: 1),
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  final kq = await Navigator.pushNamed(
-                                                    context,
-                                                    "/productdetail",
-                                                    arguments: {'data': item},
-                                                  );
-
-                                                  if (kq != null && kq is bool) {
-                                                    setState(() {
-                                                      _loadCartItems();
-                                                    });
-                                                  }
-                                                },
-                                                child: Row(
-                                                  children: <Widget>[
-                                                    Icon(
-                                                      Icons.edit,
-                                                      color: Colors.blueAccent,
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 5),
-                                                    BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
-                                                  ],
-                                                ),
-                                              ),
-                                              SizedBox(width: 20),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  _removeItemCart(item);
-                                                },
-                                                child: Row(
-                                                  children: <Widget>[
-                                                    Icon(
-                                                      Icons.delete,
-                                                      color: Colors.redAccent,
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 5),
-                                                    BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                      GestureDetector (
+                                        onTap: () async {
+                                          await Navigator.pushReplacement(
+                                              context,
+                                              Navigator.popAndPushNamed(context, "/storedetail", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                          );
+                                        },
+                                        child: Text(
+                                          storeUserCart.userChecked.nameStore ?? "",
+                                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                        ),
                                       ),
-                                    ),
+                                      GestureDetector(
+                                        onTap: (){
+                                          Navigator.pushReplacement(
+                                              context,
+                                              Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                          );
+                                        },
+                                        child:  Text(
+                                          'Đặt đơn',
+                                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: Colors.blue[700]),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '${groupedCart[index].items.length.toString()} sản phẩm',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                                      ),
+                                      Text(
+                                        'Tổng tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(totalAmount ?? 0)}',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                                      ),
+                                    ],
                                   )
-                              ),
+                                ],
+                              )
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Container(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: storeUserCart.items.length,
+                                itemBuilder: (context, itemIndex) {
+                                  final item = storeUserCart.items[itemIndex];
+                                  return Dismissible(
+                                    key: Key(item.foodListId.toString()), // Key là một giá trị duy nhất cho mỗi món ăn
+                                    background: Container(
+                                      color: Colors.red, // Màu nền khi vuốt để xóa
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(right: 10),
+                                          child: Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    onDismissed: (direction) {
+                                      // Xử lý khi món ăn bị xóa
+                                      _removeItemCart(item);
+                                    },
+                                    child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushReplacement(
+                                              context,
+                                              Navigator.popAndPushNamed(context, "/order", arguments: {'data': storeUserCart.items[0].userId }) as Route<Object?>
+                                          );
+                                        },
+                                        child:
+                                        Card(
+                                          color: Colors.white,
+                                          margin: EdgeInsets.only(bottom: 10),
+                                          child: ListTile(
+                                            leading: Image.network(
+                                              item.uploadImage ?? "",
+                                              width: 80,
+                                              height: 80,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            title: Text(item.foodName),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                SizedBox(height: 1),
+                                                Row(
+                                                  children: [
+                                                    BigText(text: "Số lượng: ${item.qty}", color: Colors.black, size: Dimensions.font13),
+                                                    SizedBox(width: 20),
+                                                    BigText(text: "Đơn giá: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price ?? 0)}", color: Colors.black, size: Dimensions.font13),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 1),
+                                                BigText(text: "Thành tiền: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(item.price * item.qty ?? 0)}", color: AppColors.mainColor, size: Dimensions.font13),
+                                                SizedBox(height: 1),
+                                                Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        final kq = await Navigator.pushNamed(
+                                                          context,
+                                                          "/productdetail",
+                                                          arguments: {'data': item},
+                                                        );
+                                                        if (kq != null && kq is bool) {
+                                                          setState(() {
+                                                            _loadCartItems();
+                                                          });
+                                                        }
+                                                      },
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Icon(
+                                                            Icons.edit,
+                                                            color: Colors.blueAccent,
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          BigText(text: "Chỉnh sửa", color: Colors.blueAccent, size: Dimensions.font13),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 20),
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        _removeItemCart(item);
+                                                      },
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Icon(
+                                                            Icons.delete,
+                                                            color: Colors.redAccent,
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          BigText(text: "Xóa", color: Colors.redAccent, size: Dimensions.font13),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                    ),
 
-                            );
-                          },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          Divider(
+                            thickness: 5, // Adjust the thickness of the divider as needed
+                            color: Colors.white,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            }
+            else{
+              return  Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "assets/image/emptycart.png",
+                        height: 80,
+                        width: 80,),
+                      Text(
+                        "Chưa có sản phẩm trong giỏ hàng",
+                        style: TextStyle(
+                            fontSize: Dimensions.font16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey
                         ),
-                      ),
-                    ),
-                    Divider(
-                      thickness: 5, // Adjust the thickness of the divider as needed
-                      color: Colors.white,
-                    ),
-                  ],
-                );
-              },
-            );
+                      )
+                    ],
+                  )
+              );
+            }
           },
         )
-
       ),
     );
   }

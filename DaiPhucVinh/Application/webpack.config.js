@@ -3,7 +3,8 @@ const webpack = require("webpack");
 module.exports = {
   entry: "./app.js",
   output: {
-    path: path.join(__dirname, "./../WebUI/assets/js"),
+    path: path.join(__dirname, "./../WebUI/asset
+    s/js"),
     filename: "app.bundle.js",
     clean: true,
   },
