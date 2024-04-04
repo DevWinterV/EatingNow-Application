@@ -6,6 +6,7 @@ import 'package:fam/util/Colors.dart';
 import 'package:fam/util/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:tap_debouncer/tap_debouncer.dart';
 
 class CustomSearchBar extends StatefulWidget {
   final Function(String) onSubmitted;
@@ -145,13 +146,20 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (snapshotsearch.data == true)
-                                  IconButton(
-                                    icon: Icon(Icons.search, color: Colors.grey),
-                                    onPressed: () {
-                                      if (_controller.text.isNotEmpty) {
-                                        widget.onSubmitted(_controller.text);
+                                  TapDebouncer(
+                                      cooldown: const Duration(milliseconds: 2500), // Thời gian chờ giữa các lần nhấn
+                                      onTap: () async {
+                                        if (_controller.text.isNotEmpty) {
+                                          widget.onSubmitted(_controller.text);
+                                        }
+                                      },
+                                      builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                        return
+                                          IconButton(
+                                            icon: Icon(Icons.search, color: Colors.grey),
+                                            onPressed: onTap,
+                                          );
                                       }
-                                    },
                                   ),
                                   Container(
                                     height: 36,
@@ -163,25 +171,42 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                       glowRadiusFactor: 1,
                                       glowShape: BoxShape.circle,
                                       animate: snapshotRecord?.data! ?? false,
-                                      child:  IconButton(
-                                        icon: Icon( Icons.mic ,color:  snapshotRecord?.data! == true ? Colors.red : Colors.grey,),
-                                        onPressed: () {
-                                          if(snapshotRecord.data != null && snapshotRecord.data! == true )
-                                            _stopSpeech();
-                                          if(snapshotRecord.data == null || snapshotRecord.data! == false  ){
-                                            _listen();
+                                      child:  TapDebouncer(
+                                          cooldown: const Duration(milliseconds: 300), // Thời gian chờ giữa các lần nhấn
+                                          onTap: () async {
+                                            if(snapshotRecord.data != null && snapshotRecord.data! == true )
+                                              _stopSpeech();
+                                            if(snapshotRecord.data == null || snapshotRecord.data! == false  ){
+                                              _listen();
+                                            }
+                                          },
+                                          builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                            return
+                                              IconButton(
+                                                icon: Icon( Icons.mic ,color:  snapshotRecord?.data! == true ? Colors.red : Colors.grey,),
+                                                onPressed: onTap,
+                                              );
                                           }
-                                        },
-                                      ),),),
+                                      ),
+                                    ),
+                                    ),
                                   ),
                                 snapshotRecord.data == false ?
-                                IconButton(
-                                  icon: Icon(Icons.clear, color: Colors.grey),
-                                  onPressed: () {
-                                    widget.onSubmitted("");
-                                    _controller.clear();
-                                  },
-                                ) : SizedBox()
+                                TapDebouncer(
+                                    cooldown: const Duration(milliseconds: 2500), // Thời gian chờ giữa các lần nhấn
+                                    onTap: () async {
+                                      widget.onSubmitted("");
+                                      _controller.clear();
+                                    },
+                                    builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                      return
+                                        IconButton(
+                                          icon: Icon(Icons.clear, color: Colors.grey),
+                                          onPressed: onTap
+                                        );
+                                    }
+                                )
+                                 : SizedBox()
                               ],
                             );
                           },

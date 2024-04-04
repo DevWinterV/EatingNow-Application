@@ -13,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:tap_debouncer/tap_debouncer.dart';
 
 import '../../Widget/Icon_and_Text_widget.dart';
 import '../../Widget/customSearch.dart';
@@ -447,59 +448,72 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                       return
                         Stack(
                           children: [
-                            GestureDetector(
-                                onTap: (){
-                                  print(cuisineItem!.cuisineId);
-                                  print(snapshot!.data!.data?[position].cuisineId);
-                                  _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineItem!.cuisineId ?? 0 ,keyword: keyword ));
-                                  SearchFoodListByUser(keyword, cuisineItem!.cuisineId ?? 0);
+                            TapDebouncer(
+                                cooldown: const Duration(milliseconds: 2000), // Thời gian chờ giữa các lần nhấn
+                                onTap: () async {
+                                _streamCuisineIdController.sink.add(SearchItem(cuisineId: cuisineItem!.cuisineId ?? 0 ,keyword: keyword ));
+                                SearchFoodListByUser(keyword, cuisineItem!.cuisineId ?? 0);
                                 },
-                                child: Container(
-                                  margin: EdgeInsets.only(left: 2),
-                                  height: 100,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    color: (position % 2 == 0) ? Colors.orange[50] : Colors.amber[100], // Chọn màu sắc dựa trên điều kiện
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Container(
-                                        width: 80,
-                                        height: 80,
+                                builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                  return
+                                    GestureDetector(
+                                      onTap: onTap,  // Sử dụng onTap từ callback builder
+                                      child: Container(
+                                        margin: EdgeInsets.only(left: 2),
+                                        height: 100,
+                                        width: 100,
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(Dimensions.radius20),
-                                            color: Colors.transparent,
-                                            image: DecorationImage(
-                                              fit: BoxFit.fitWidth,
-                                              image: //AssetImage("assets/image/logoEN.png"),
-                                              NetworkImage(cuisineItem?.absoluteImage ?? ""),
-                                            )
+                                          color: (position % 2 == 0) ? Colors.orange[50] : Colors.amber[100],
+                                          borderRadius: BorderRadius.circular(15),
                                         ),
-
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Container(
+                                              width: 80,
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(Dimensions.radius20),
+                                                  color: Colors.transparent,
+                                                  image: DecorationImage(
+                                                    fit: BoxFit.fitWidth,
+                                                    image: NetworkImage(cuisineItem?.absoluteImage ?? ""),
+                                                  )
+                                              ),
+                                            ),
+                                            Text(
+                                              cuisineItem?.name ?? " ",
+                                              style: TextStyle(fontSize: 12, color: AppColors.paraColor),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            )
+                                          ],
+                                        ),
                                       ),
-                                      Text(cuisineItem?.name ?? " ",
-                                        style: TextStyle(fontSize: 12, color: AppColors.paraColor),
-                                        overflow: TextOverflow.ellipsis,
-                                        // Sẽ hiển thị dấu ba chấm (...) nếu văn bản quá dài
-                                        maxLines: 1, // Số dòng tối đa hiển thị (có thể điều chỉnh theo nhu cầu của bạn)
-                                      )
-                                    ],
-                                  ),
-                                )),
+                                    );
+                                  }),
                             cuisineItem?.cuisineId == cuisineId ?
                             Positioned(
-                              top: 2,
-                              right: 2,
-                              child: GestureDetector(
-                                onTap: (){
-                                  _streamCuisineIdController.sink.add(SearchItem(cuisineId: 0 ,keyword: keyword ));
-                                  SearchFoodListByUser(keyword, 0);
+                                  top: 2,
+                                  right: 2,
+                                  child:
+                                  TapDebouncer(
+                                    cooldown: const Duration(milliseconds: 2500), // Thời gian chờ giữa các lần nhấn
+                                    onTap: () async {
+                                        _streamCuisineIdController.sink.add(SearchItem(cuisineId: 0 ,keyword: keyword ));
+                                        SearchFoodListByUser(keyword, 0);
                                     },
-                                  child: Icon(Icons.check_circle, color: Colors.green,),
-                                ),
-                            ) : SizedBox()
+                                    builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                      return
+                                        GestureDetector(
+                                          onTap: onTap,
+                                          child: Icon(Icons.check_circle, color: Colors.green,),
+                                      );
+                                    }
+                                  )
+                                )
+                                :
+                            SizedBox(),
                           ],
                         );
                     }
