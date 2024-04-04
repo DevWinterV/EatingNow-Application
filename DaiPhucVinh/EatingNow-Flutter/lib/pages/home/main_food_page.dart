@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:fam/Widget/Big_text.dart';
+import 'package:fam/models/LocationData.dart';
+import 'package:fam/storage/locationstorage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,32 +22,28 @@ class MainFoodPage extends StatefulWidget {
 
 class _MainFoodPageState extends State<MainFoodPage> {
   bool isLoading = true; // Biến để kiểm tra xem đang lấy dữ liệu hay chưa
-  String addressdelivery = '';
-  String nameAddressdelivery ='';
+  final _streamLocationData = StreamController<LocationData?>.broadcast();
   late  SharedPreferences prefs;
 
   @override
   initState() {
     super.initState();
     initialization();
-    getAddressDelivery();
+    initDeleveryAddress();
     listtenToNotification();
     listtenToNotificationBack();
     }
-  void getAddressDelivery() async {
-    prefs = await SharedPreferences.getInstance();
-    setState(() {
-      addressdelivery = prefs.getString('address') ?? '';
-      nameAddressdelivery =prefs.getString('name') ?? '';
-    });
+  void initDeleveryAddress() async {
+    LocationData? locationData = await LocationStorage().getSavedLocation();
+    _streamLocationData.sink.add(locationData);
   }
+
   void initialization() async {
     FlutterNativeSplash.remove();
   }
 
   listtenToNotification(){
     NotificationService.onclickNotification.stream.listen((event) {
-      print("Lăng nghe ");
       if(event != "null")
         Navigator.pushNamed(context, "/orderlist");
     });
@@ -51,7 +51,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
 
   listtenToNotificationBack(){
     NotificationService.onclickNotificationBack.stream.listen((event) {
-      print("Lăng nghe nền ");
       if(event != "null")
         Navigator.pushNamed(context, "/orderlist");
     });
@@ -72,34 +71,63 @@ class _MainFoodPageState extends State<MainFoodPage> {
                        child: Row(
                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                          children: [
-                           Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               BigText(text: "Giao tới: ${nameAddressdelivery}", color: AppColors.mainColor),
-                               GestureDetector(
-                                 onTap: () async {
-                                   final result = await Navigator.push(
-                                     context,
-                                     MaterialPageRoute(builder: (context) => LocationPage(link: "/",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
-                                   );
-                                   if(result == true){
-                                      Navigator.of(context).popAndPushNamed("/");
-                                   }
-                                 },
-                                 child: Row(
-                                   children: [
-                                     Container(
-                                       height: Dimensions.height45,
-                                       width: Dimensions.screenWidth - 150,
-                                       child: BigText(text: addressdelivery, size: Dimensions.font13,),
+                           StreamBuilder(
+                               stream: _streamLocationData.stream,
+                               builder: (builder, snapshot){
+                                 if(snapshot.data == null){
+                                   return GestureDetector(
+                                     onTap: () async {
+                                       final result = await Navigator.push(
+                                         context,
+                                         MaterialPageRoute(builder: (context) => LocationPage(link: "/",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
+                                       );
+                                       if(result == true){
+                                         Navigator.of(context).popAndPushNamed("/");
+                                       }
+                                     },
+                                     child: Row(
+                                       children: [
+                                         Container(
+                                           height: Dimensions.height45,
+                                           width: Dimensions.screenWidth - 150,
+                                           child: BigText(text: "Vui lòng chọn vị trí của bạn", size: Dimensions.font13,),
+                                         ),
+                                         Icon(Icons.arrow_drop_down_rounded)
+                                       ],
                                      ),
-                                     Icon(Icons.arrow_drop_down_rounded)
-                                   ],
-                                 ),
-                               )
-                             ],
-                           ),
-                            Row(
+                                   );
+                                 }
+                                 else{
+                                   return Column(
+                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                     children: [
+                                       BigText(text: "Giao tới: ${snapshot.data!.name}", color: AppColors.mainColor),
+                                       GestureDetector(
+                                         onTap: () async {
+                                           final result = await Navigator.push(
+                                             context,
+                                             MaterialPageRoute(builder: (context) => LocationPage(link: "/",)), // Thay thế 'LocationPage' bằng tên trang thực tế của bạn
+                                           );
+                                           if(result == true){
+                                             Navigator.of(context).popAndPushNamed("/");
+                                           }
+                                         },
+                                         child: Row(
+                                           children: [
+                                             Container(
+                                               height: Dimensions.height45,
+                                               width: Dimensions.screenWidth - 150,
+                                               child: BigText(text: snapshot.data!.address, size: Dimensions.font13,),
+                                             ),
+                                             Icon(Icons.arrow_drop_down_rounded)
+                                           ],
+                                         ),
+                                       )
+                                     ],
+                                   );
+                               }
+                           }),
+                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 // Tìm kiếm
@@ -146,7 +174,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                    )
                ),
                //showing the body
-               Expanded(child: FoodPageBody(),
+               Expanded(child: const FoodPageBody(),
                ),
              ],
            ),
