@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tap_debouncer/tap_debouncer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../Widget/Icon_and_Text_widget.dart';
 import '../../Widget/RatingStars.dart';
@@ -676,23 +677,31 @@ class _StoreDetailState extends State<StoreDetailPage> {
   Widget buildCategoryItem(int categoryId, String categoryName, bool isSelected) {
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-      child: GestureDetector(
-        onTap: () {
-          _selectedCategoryController.add(categoryId);
-          fetchData(categoryId);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.orange : AppColors.mainColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              BigText(text: categoryName, size: 15, color: isSelected ? Colors.white : Colors.white, maxlines: 2),
-            ],
-          ),
-        ),
+      child:
+        TapDebouncer(
+          cooldown: const Duration(milliseconds: 2500), // Thời gian chờ giữa các lần nhấn
+          onTap: () async {
+            _selectedCategoryController.add(categoryId);
+            fetchData(categoryId);
+          },
+          builder: (BuildContext context, TapDebouncerFunc? onTap) {
+            return
+              GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.orange : AppColors.mainColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BigText(text: categoryName, size: 15, color: isSelected ? Colors.white : Colors.white, maxlines: 2),
+                    ],
+                  ),
+                ),
+              );
+          }
       ),
     );
   }
