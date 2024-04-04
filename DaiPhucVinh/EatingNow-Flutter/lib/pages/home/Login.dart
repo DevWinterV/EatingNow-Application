@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fam/storage/UserAccountstorage.dart';
 import 'package:fam/util/Colors.dart';
 import 'package:fam/util/dimensions.dart';
@@ -12,7 +14,6 @@ import '../../util/app_constants.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -22,10 +23,12 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _otpController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
   String _verificationId = "";
-  String _phoneNumber = "";
+  final _streamPhonenumber = StreamController<String>.broadcast();
+  final _streamOTP = StreamController<String>.broadcast();
   bool _isCodeSent = false;
   FocusNode focusNode = FocusNode();
   late UserAccountStorage prefs ;
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     FlutterNativeSplash.remove();
   }
 
-  void SaveDataUser(PhoneAuthCredential credential) async {
+  void SaveDataUser(PhoneAuthCredential credential, String _phoneNumber) async {
     final userAuth = await _auth.signInWithCredential(credential);
     final result = await customerService.fecthUserData({
       "CustomerId": userAuth.user?.uid ?? "",
@@ -62,10 +65,10 @@ class _LoginPageState extends State<LoginPage> {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-             SaveDataUser(credential);
+             SaveDataUser(credential, phoneNumber);
           },
         verificationFailed: (FirebaseAuthException e) {
-          print('Verification failed: $e');
+
         },
         codeSent: (String verificationId, int? resendToken) {
           setState(() {
@@ -76,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
-      print('An error occurred: $e');
+
     }
   }
 
@@ -85,25 +88,24 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
     }
   }
+
   void navigateToNewUser() {
     if (_auth.currentUser?.uid != null) {
       Navigator.pushReplacementNamed(context, "/");
     }
   }
 
-
-
-  Future<void> _login() async {
+  Future<void> _login(String phoneNumber, String OTP) async {
     try {
       if (_isCodeSent) {
           PhoneAuthCredential credential = PhoneAuthProvider.credential(
             verificationId: _verificationId,
-            smsCode: _otpController.text,
+            smsCode: OTP,
           );
-          SaveDataUser(credential);
+          SaveDataUser(credential, phoneNumber);
       }
     } catch (e) {
-      print('Đăng nhập không thành công: $e');
+
     }
   }
 
@@ -114,72 +116,84 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: _isCodeSent == false
-            ? Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Chào mừng bạn đến với",style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
-            Text(AppConstants.APP_NAME,style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
-            SizedBox(height: 16.0),
-            IntlPhoneField(
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: "Nhập số điện thoại",
-                labelText: 'Số điện thoại',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(),
+      body:
+      StreamBuilder<String>(
+        stream: _streamPhonenumber.stream,
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          String _phoneNumber = snapshot.data ?? "";
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: _isCodeSent == false
+                ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Chào mừng bạn đến với",style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
+                Text(AppConstants.APP_NAME,style: TextStyle(color: AppColors.mainColor, fontSize: Dimensions.font26, fontWeight: FontWeight.bold),),
+                SizedBox(height: 16.0),
+                IntlPhoneField(
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: "Nhập số điện thoại",
+                    labelText: 'Số điện thoại',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    ),
+                  ),
+                  languageCode: "vi",
+                  initialCountryCode: "VN",
+                  onChanged: (phone) {
+                    _streamPhonenumber.sink.add(phone.completeNumber);
+                  },
+                  onCountryChanged: (country) {
+
+                  },
                 ),
-              ),
-              languageCode: "vi",
-              initialCountryCode: "VN",
-              onChanged: (phone) {
-                setState(() {
-                  _phoneNumber = phone.completeNumber;
-                });
-                print(phone.completeNumber);
-              },
-              onCountryChanged: (country) {},
-            ),
-            SizedBox(height: 18.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.mainColor,
-              ),
-              onPressed: () {
-                _signInWithPhoneNumber(_phoneNumber);
-              },
-              child: Text('Gửi mã OTP', style: TextStyle(color: Colors.white),),
-            ),
-          ],
-        )
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _otpController,
-              decoration: InputDecoration(
-                hintText: "Nhập mã OTP đã gửi qua SMS",
-                labelText: 'Nhập mã OTP',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(),
+                SizedBox(height: 18.0),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mainColor,
+                  ),
+                  onPressed: _phoneNumber.isNotEmpty && _phoneNumber.length >= 10 ?  () {
+                    _signInWithPhoneNumber(_phoneNumber);
+                  } : null,
+                  child: Text('Nhận mã OTP', style: TextStyle(color: Colors.white),),
                 ),
-              ),
-            ),
-            SizedBox(height: 18.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.mainColor,
-              ),
-              onPressed: () {
-                _login();
-              },
-              child: Text('Đăng nhập', style: TextStyle(color: Colors.white),),
-            ),
-          ],
-        ),
-      ),
+              ],
+            )
+                :
+            StreamBuilder<String>(stream: _streamOTP.stream, builder: (builder,snapshotOtp){
+                final Otp = snapshotOtp.data ?? "";
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: "Nhập mã OTP 6 chữ số",
+                        labelText: 'Nhập mã OTP',
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(),
+                        ),
+                      ),
+                      onChanged: (otp){
+                        _streamOTP.sink.add(otp);
+                      },
+                    ),
+                    SizedBox(height: 18.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mainColor,
+                      ),
+                      onPressed: Otp.length == 6 ? () {
+                        _login(_phoneNumber, Otp);
+                      } : null,
+                      child: Text('Đăng nhập', style: TextStyle(color: Colors.white),),
+                    ),
+                  ],
+                );
+            }),
+          );
+        }
+      )
     );
   }
 }
