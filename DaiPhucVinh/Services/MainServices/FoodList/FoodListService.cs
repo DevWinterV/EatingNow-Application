@@ -542,13 +542,13 @@ namespace DaiPhucVinh.Services.MainServices.FoodList
             try
             {
                 var query = _datacontext.EN_Store
-                    .Include(x => x.Cuisine)
-                    .Include(x => x.Province)
-                    .AsQueryable();
+                 .Include(x => x.Cuisine)
+                 .Include(x => x.Province)
+                 .AsQueryable();
 
-                if (cuisineId > 0 && cuisineId != null)
+                if (cuisineId > 0)
                 {
-                    query = query.Where(x => x.CuisineId.Equals(cuisineId));
+                    query = query.Where(x => x.CuisineId == cuisineId);
                 }
 
                 var listStore = await query.ToListAsync();
