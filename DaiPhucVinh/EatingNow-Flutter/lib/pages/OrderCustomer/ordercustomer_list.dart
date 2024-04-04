@@ -462,14 +462,14 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
   }
   Widget buildCategoryItem(int index, int ordertype, String status, String tabname) {
     bool isSelected = index == selectedIndex;
-    final _streamSelectedIndex = StreamController<bool>.broadcast();
-    _streamSelectedIndex.sink.add(isSelected);
     return  Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
       child: GestureDetector(
         onTap: () {
+          setState(() {
+            selectedIndex = index;
+          });
           _initStreamOrderList(ordertype, status);
-          _streamSelectedIndex.sink.add(isSelected);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -478,52 +478,18 @@ class _OrderCustomerPageState extends State<OrderCustomerPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              StreamBuilder(stream: _streamSelectedIndex.stream, builder: (builder, snapshot){
-                return BigText(
-                  text: tabname,
-                  size: 15,
-                  color: snapshot.data! ? AppColors.mainColor : Colors.black,
-                  // Change text color based on isSelected
-                  maxlines: 2,
-                );
-              })
+              BigText(
+                text: tabname,
+                size: 15,
+                color: isSelected ? AppColors.mainColor : Colors.black,
+                // Change text color based on isSelected
+                maxlines: 2,
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  // Widget buildCategoryItem(int index, int ordertype, String status, String tabname) {
-  //   bool isSelected = index == selectedIndex;
-  //   return  Padding(
-  //     padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-  //     child: GestureDetector(
-  //       onTap: () {
-  //         setState(() {
-  //           selectedIndex = index;
-  //         });
-  //         _initStreamOrderList(ordertype, status);
-  //       },
-  //       child: Container(
-  //         decoration: BoxDecoration(
-  //           borderRadius: BorderRadius.circular(5),
-  //         ),
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             BigText(
-  //               text: tabname,
-  //               size: 15,
-  //               color: isSelected ? AppColors.mainColor : Colors.black,
-  //               // Change text color based on isSelected
-  //               maxlines: 2,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }
 
