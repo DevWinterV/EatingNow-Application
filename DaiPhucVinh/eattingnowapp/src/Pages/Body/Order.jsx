@@ -74,6 +74,7 @@ const Order = () => {
   });
   const [isShown, setIsShown] = React.useState(false);
   const [orderHeaderId, setOrderHeaderId] = React.useState("");
+  const [orderInfo, setorderInfo] = React.useState(null);
   const [OrderheaderStatusrequest, setOrderheaderStatusrequest] = React.useState({
     OrderHeaderId: "",
     ShippingStatus : 0,
@@ -198,7 +199,7 @@ const Order = () => {
     const year = String(date.getFullYear());
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    //return `${year}-${month}-${day}`;
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
@@ -233,12 +234,13 @@ const Order = () => {
           setNotification({...notification, to:""})
           onViewAppearing();
         } else {
-          Swal.fire({
-            title: "Lỗi!",
-            text: "Không thể gửi thông báo.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
+          // Swal.fire({
+          //   title: "Lỗi!",
+          //   text: "Không thể gửi thông báo.",
+          //   icon: "error",
+          //   confirmButtonText: "OK",
+          // });
+          onViewAppearing();
           return;
         }
       }
@@ -257,12 +259,13 @@ const Order = () => {
           setNotificationCancle({...notificationMoibile, to:""})
           onViewAppearing();
         } else {
-          Swal.fire({
-            title: "Lỗi!",
-            text: "Không thể gửi thông báo.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
+          // Swal.fire({
+          //   title: "Lỗi!",
+          //   text: "Không thể gửi thông báo.",
+          //   icon: "error",
+          //   confirmButtonText: "OK",
+          // });
+          onViewAppearing();
           return;
         }
       }
@@ -285,12 +288,13 @@ const Order = () => {
           setNotificationCancle({...notificationCancle, to:""})
           onViewAppearing();
         } else {
-          Swal.fire({
-            title: "Lỗi!",
-            text: "Không thể gửi thông báo.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
+          // Swal.fire({
+          //   title: "Lỗi!",
+          //   text: "Không thể gửi thông báo.",
+          //   icon: "error",
+          //   confirmButtonText: "OK",
+          // });
+          onViewAppearing();
           return;
         }
       }
@@ -404,7 +408,7 @@ const Order = () => {
     onViewAppearing();
   },[requestFillter.OrderStatus, requestFillter.keyword]);
 
-  
+
   return (
     <div className="bg-white-50 h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
       <ToastContainer/>
@@ -478,15 +482,19 @@ const Order = () => {
                       }}>
                           <TbCircleX className="text-2xl" />
                  </button>
-                  </div>
-
-                  <div class="flex items-center justify-end p-6 bg-gray-200">
+                </div>
+                  <div class="flex items-center justify-end pl-6 pr-6 pt-2 bg-gray-200">
                       <label for="cb_statusOrder" class="mr-2">Trạng thái giao hàng:</label>
                       <select
+                         value={orderInfo.ShippingStatus}
                           name="cb_statusOrder"
                           id="cb_statusOrder"
                           className="border rounded-md px-2 py-1"
                           onChange={(e) => {
+                              setorderInfo({
+                                ...orderInfo,
+                                ShippingStatus: e.target.value
+                              });
                               setOrderheaderStatusrequest({
                                   OrderHeaderId: orderHeaderId,
                                   ShippingStatus: e.target.value,
@@ -521,9 +529,38 @@ const Order = () => {
                           <option value="3">Đã giao thành công</option>
                       </select>
                   </div>
+                  <div className="bg-gray-200 pl-4">
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Mã đơn hàng:</label>
+                      <span>{orderInfo.OrderHeaderId}</span>
+                  </div>
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Đặt lúc:</label>
+                      <span>{orderInfo.CreationDate}</span>
+                  </div>
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Tổng tiền sản phẩm:</label>
+                      <span>{formatMoney(orderInfo.TotalAmt)}</span>
+                  </div>
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Phí giao hàng:</label>
+                      <span>{formatMoney(orderInfo.TransportFee)}</span>
+                  </div>
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Tổng tiền đơn hàng:</label>
+                      <span>{formatMoney(orderInfo.IntoMoney)}</span>
+                  </div>
+                  <div className="flex items-center justify-start mb-2">
+                      <label className="mr-2 font-bold">Trạng thái:</label>
+                      <span>{orderInfo.Status === true ? "Đã xác nhận" : "Chưa xác nhận"}</span>
+                  </div>
+              </div>
 
-                  <div class="flex items-center justify-start p-6 bg-gray-200">
-                    <label for="cb_statusOrder" class="mr-2">Thông tin khách hàng:</label>
+
+      
+                 
+                  <div class="flex items-center justify-start pl-4 pr-6 bg-gray-200">
+                    <label className="font-bold">Thông tin khách hàng:</label>
                     <button
                       className={"bg-orange-900 text-white font-bold uppercase text-sm px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ml-2 mb-1 ease-linear transition-all duration-150 "}
                       type="button"
@@ -553,8 +590,9 @@ const Order = () => {
                       </a>
                     </button>
                   </div>
-                  <div class="flex items-center justify-start p-6 bg-gray-200">
-                    <label for="cb_statusOrder" class="mr-2">Thông tin tài xế:</label>
+                 
+                  <div class="flex items-center justify-start pl-4  p-6 bg-gray-200">
+                    <label className="font-bold">Thông tin tài xế:</label>
                     {isDriverAvailabel ? (
                       // Hiển thị nội dung khi isDriverAvailabel là true
                       <div>
@@ -578,7 +616,7 @@ const Order = () => {
                         </button>
                       </div>
                     )}  
-                  </div>
+                  </div>                  
                   {/*body*/}
                   <div className="w-full table-auto">
                     <div>
@@ -719,7 +757,7 @@ const Order = () => {
                       Tổng tiền
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
-                      Ngày tạo
+                      Ngày tạo đơn
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-center">
                       Thanh toán
@@ -770,6 +808,7 @@ const Order = () => {
                             className="p-1.5 text-xs font-medium uppercase tracking-wider text-green-800 bg-green-200 rounded-lg bg-opacity-50"
                             onClick={() => {
                               setOrderHeaderId(item.OrderHeaderId);
+                              setorderInfo(item);
                               GetOrderLineDetails();
                               setCustomerDetail({
                                 customerId: item.CustomerId,
