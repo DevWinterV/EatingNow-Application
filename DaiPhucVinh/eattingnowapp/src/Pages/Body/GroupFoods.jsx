@@ -25,9 +25,13 @@ import { MdClose } from "react-icons/md";
 const Statistical = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
+  const [dataFillter, setdataFillter] = React.useState([]);
   const [{ user }] = useStateValue();
   const [showModal, setShowModal] = React.useState(false);
   const [checkEdit, setCheckEdit] = React.useState(null);
+  const [keyword, setkeyword] = React.useState('');
+
+  
   const [request, setRequest] = React.useState({
     CategoryId: 0,
     CategoryName: "",
@@ -39,6 +43,8 @@ const Statistical = () => {
     if (user) {
       let response = await TakeCategoryByStoreId(user?.UserId);
       setData(response.data);
+      setdataFillter(response.data);
+
     }
     setIsLoading(false);
   }
@@ -73,6 +79,20 @@ const Statistical = () => {
     onViewAppearing();
   }, []);
 
+
+
+  useEffect(() => {
+    if (keyword && keyword.trim() !== "") {
+      const filteredData = data.filter(item =>
+        item.CategoryName.toLowerCase().includes(keyword.toLowerCase())
+      );
+      setdataFillter(filteredData);
+    } else {
+      setdataFillter(data);
+
+    }
+  }, [keyword]);
+  
   const [currentItem, setCurrentItem] = React.useState({
     CategoryId: 0,
     CategoryName: "",
@@ -106,15 +126,16 @@ const Statistical = () => {
     }
   }
 
+  const handleChangkeyWord = (e) => {
+    const keyword = e.target.value;
+    setkeyword(keyword);
+  };
+
   return (
     <div className="bg-white h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
       <div className="flex items-center justify-end">
         <div className="flex items-center border-b-2 pb-2 basis-2/2 gap-2">
-          <input
-            type="text"
-            placeholder="Nhập tên nhóm món ăn ... "
-            className="border-none outline-none placeholder:text-sm focus:outline-none"
-          />
+            <input id="searchInput" value={keyword} type="text" onChange={handleChangkeyWord} placeholder="Nhập tên sản phẩm" class="search-input" />
           <BsSearch className="text-hoverColor text-[20px] cursor-pointer" />
         </div>
 
@@ -132,7 +153,7 @@ const Statistical = () => {
           <div className="p-5 h-screen bg-white">
             <div className="flex justify-between pb-4 items-center">
               <h1 className="text-xl mb-2 text-orange-900 font-bold">
-                Danh Sách Nhóm Món Ăn
+                Danh Sách Nhóm Sản Phẩm
               </h1>
               <button
                 type="button"
@@ -153,7 +174,7 @@ const Statistical = () => {
                         {/*header*/}
                         <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
                           <h2 className="text-2xl font-semibold">
-                            Thêm nhóm món ăn mới
+                            Thêm nhóm sản phẩm mới
                           </h2>
                           <button
                             className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
@@ -167,12 +188,12 @@ const Statistical = () => {
                         <div className="p-4">
                           <div>
                             <label className="block mb-2 text-sm font-medium text-black">
-                              Tên Nhóm Món Ăn
+                              Tên Nhóm Sản Phẩm
                             </label>
                             <input
                               type="text"
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-500 dark:placeholder-gray-400 text-black"
-                              placeholder="Nhập tên nhóm món ăn mới ..."
+                              placeholder="Nhập tên nhóm sản phẩm mới ..."
                               onChange={(e) => {
                                 setRequest({
                                   ...request,
@@ -215,7 +236,7 @@ const Statistical = () => {
                       STT
                     </Th>
                     <Th className="p-3 text-orange-900 text-sm font-bold tracking-wide text-left text-center">
-                      Tên Nhóm Món
+                      Tên Nhóm Sản Phẩm
                     </Th>
                     <Th
                       colspan="2"
@@ -230,8 +251,8 @@ const Statistical = () => {
                     <Td colspan="4" className="text-center">
                       <Loader />
                     </Td>
-                  ) : data && data.length > 0 ? (
-                    data.map((item, index) => (
+                  ) : dataFillter && dataFillter.length > 0 ? (
+                    dataFillter.map((item, index) => (
                       <Tr key={item.CategoryId} className="bg-orange-50">
                         <Td className="p-3 text-sm text-orange-900 whitespace-nowrap text-center">
                           <p className="font-bold text-orange-900 hover:underline">
@@ -289,8 +310,8 @@ const Statistical = () => {
                             className="p-1.5 text-xs font-medium uppercase tracking-wider text-red-800 bg-red-200 rounded-lg bg-opacity-50"
                             onClick={() => {
                               Swal.fire({
-                                title: "Xóa nhóm món ăn ?",
-                                text: "Bạn muốn xóa nhóm món ăn này ra khỏi danh sách !",
+                                title: "Xóa nhóm sản phẩm?",
+                                text: "Bạn muốn xóa nhóm sản phẩm này ra khỏi danh sách !",
                                 icon: "warning",
                                 showCancelButton: true,
                                 confirmButtonColor: "#3085d6",
@@ -310,7 +331,7 @@ const Statistical = () => {
                                       } else {
                                         Swal.fire({
                                           title: "Lỗi!",
-                                          text: "Không thể xóa. Nhóm món ăn này đã tồn tại sản phẩm!",
+                                          text: "Không thể xóa. Nhóm sản phẩm này đã tồn tại sản phẩm!",
                                           icon: "error",
                                           confirmButtonText: "OK",
                                         });
@@ -329,7 +350,7 @@ const Statistical = () => {
                     ))
                   ) : (
                     <div className="text-center">
-                      <span>Không có dữ liệu!</span>
+                      <span>Không có dữ liệu nhóm sản phẩm!</span>
                     </div>
                   )}
                 </Tbody>
