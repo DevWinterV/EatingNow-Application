@@ -75,15 +75,54 @@ export default function DetailOrderPage() {
       */}
       <div className="row">
           <h6>
-            Mã đơn hàng: {state?.data.OrderHeaderId}
+            Mã đơn hàng: {state?.data.OrderHeaderId ?? ""}
           </h6>
           <h6>
-            Đặt lúc: {formatDate(state?.data.CreationDate)}
+            Đặt lúc: {formatDate(state?.data.CreationDate ?? "")}
           </h6>
+          <div className="row">
+            <div className="col-md-3">
+              <h6>
+                Cửa hàng kinh doanh: {state?.data.StoreName ?? ""} 
+              </h6>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-3">
+              <h6>
+                Khách hàng: {state?.data.RecipientName ?? ""} 
+              </h6>
+            </div>
+            <div className="col-md-3">
+              <h6>
+                Số điện thoại: {state?.data.RecipientPhone ?? ""} 
+              </h6>
+            </div>
+            <div className="col-md-6">
+              <h6>
+                Địa chỉ nhận hàng: {state?.data.FormatAddress ?? ""}
+              </h6>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-3">
+              <h6>
+                Trạng thái: {state?.data.Status == true ? "Đã xác nhận" : "Chưa xác nhận"}
+              </h6>
+            </div>
+            <div className="col-md-3">
+              <h6>
+                Trạng thái giao hàng: {state?.data.ShippingStatus == 1 ? "Đang chuẩn bị"  : state?.data.ShippingStatus == 2 ? "Đang giao hàng" : "Đã giao thành công"}
+              </h6>
+            </div>
+          </div>
 
       </div>
       <div className="card" style={{ fontSize: "12px" }}>
         <div className="card-body">
+          <h6>
+            Danh sách sản phẩm
+          </h6>
           <Table className="table table-striped">
             <Thead className="table-light">
               <Tr>
