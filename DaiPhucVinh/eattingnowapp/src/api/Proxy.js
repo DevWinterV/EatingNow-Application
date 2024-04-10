@@ -8,8 +8,12 @@ export const Proxy = async (method, api, request) => {
       };
       const reponse = await axios.get(api, requestMethod || {});
       return reponse.data;
-    } else {
+    } else if (method.toLowerCase() === "post") {
       const reponse = await axios.post(api, request || {});
+      return reponse;
+    }
+    else{
+      const reponse = await axios.put(api, request || {});
       return reponse;
     }
   } catch (err) {
