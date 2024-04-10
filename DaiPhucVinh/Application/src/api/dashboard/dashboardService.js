@@ -3,40 +3,23 @@ import { ServerEndPoint } from "../ServerEndPoint";
 import { BaseResponse } from "../BaseResponse";
 const ServiceEndPoint = ServerEndPoint + "/dashboard";
 const API = {
-  TotalRevenue_Chart: "/TotalRevenue_Chart",
-  TotalPriceQuote: "/TotalPriceQuote",
+  TotalRevenueStatistics: "/TotalRevenueStatistics",
+  TakeProductStatistics: "/TakeProductStatistics"
 };
 
-const TotalRevenue_Chart = async (request) => {
+const TotalRevenueStatistics = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
       "post",
-      ServiceEndPoint + API.TotalRevenue_Chart,
+      ServiceEndPoint + API.TotalRevenueStatistics,
       request,
       true
     );
     if (response.data.Success) {
       result.success = true;
-      result.data = response.data.Data;
-    }
-  } catch (e) {
-    result.message = e.toString();
-  }
-  return result;
-};
-const TotalPriceQuote = async (request) => {
-  let result = new BaseResponse(false, "", null);
-  try {
-    let response = await Proxy(
-      "post",
-      ServiceEndPoint + API.TotalPriceQuote,
-      request,
-      true
-    );
-    if (response.data.Success) {
-      result.success = true;
-      result.data = response.data.Data;
+      result.item = response.data.Item;
+      result.message = response.data.Message;
     }
   } catch (e) {
     result.message = e.toString();
@@ -44,4 +27,23 @@ const TotalPriceQuote = async (request) => {
   return result;
 };
 
-export { TotalRevenue_Chart, TotalPriceQuote };
+const TakeProductStatistics = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeProductStatistics,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.item = response.data.Item;
+      result.message = response.data.Message;
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+export {  TotalRevenueStatistics, TakeProductStatistics };
