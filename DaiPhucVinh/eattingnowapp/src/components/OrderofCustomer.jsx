@@ -55,6 +55,8 @@ export default function OrderofCustomer({id, onDelete}) {
   const [countWaiting, setcountWaiting] = useState(0);
   const [{  customer }, dispatch] = useStateValue();
   const [isloading, setIsloading] = useState(false);
+ 
+ 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if(tab ==="all"){
@@ -442,103 +444,103 @@ export default function OrderofCustomer({id, onDelete}) {
                 <h1 className="text-center">Không có đơn hàng</h1>
               </>
             )}
-          </div>          
+            </div>          
         )
         }
 
     </div>
   );
 
-function Delivering() {
-  return <h2>Đang giao hàng</h2>;
-}
-function All() {
-    return (
-        <div>
-        <ul className="bg-pink p-1 m-0">
-        { data &&
-              data.map((i, index) => (
-                // Check if address is not null before rendering
-                i !== null && (
-                  <li key={index} className="mb-4 border p-2 rounded-lg border-gray">
-                    <h6 className="order-info text-base text-gray-700 font-normal">
-                      Mã đơn hàng: {i.OrderHeaderId}
-                    </h6>
-                    <h6 className="text-base text-gray-700 font-normal">
-                      Đặt lúc: {formatDate(i.CreationDate)}
-                    </h6>
-                    <h6 className="text-base text-gray-700 font-normal">
-                      Cửa hàng: {i.StoreName}
-                    </h6>
-                    <h6 className="text-base text-gray-700 font-normal">
-                      Tổng tiền: {formatMoney(i.IntoMoney)}
-                    </h6>
-                        {i.PaymentStatusID == 2 ?(
-                        <h6 className="text-base text-red-500 font-normal">
-                              Đã thanh toán Online
-                        </h6>
-                        ):(
-                          <h6 className="text-base text-gray-700 font-normal">
-                               Thanh toán khi nhận hàng
+  function Delivering() {
+    return <h2>Đang giao hàng</h2>;
+  }
+  function All() {
+      return (
+          <div>
+          <ul className="bg-pink p-1 m-0">
+          { data &&
+                data.map((i, index) => (
+                  // Check if address is not null before rendering
+                  i !== null && (
+                    <li key={index} className="mb-4 border p-2 rounded-lg border-gray">
+                      <h6 className="order-info text-base text-gray-700 font-normal">
+                        Mã đơn hàng: {i.OrderHeaderId}
+                      </h6>
+                      <h6 className="text-base text-gray-700 font-normal">
+                        Đặt lúc: {formatDate(i.CreationDate)}
+                      </h6>
+                      <h6 className="text-base text-gray-700 font-normal">
+                        Cửa hàng: {i.StoreName}
+                      </h6>
+                      <h6 className="text-base text-gray-700 font-normal">
+                        Tổng tiền: {formatMoney(i.IntoMoney)}
+                      </h6>
+                          {i.PaymentStatusID == 2 ?(
+                          <h6 className="text-base text-red-500 font-normal">
+                                Đã thanh toán Online
                           </h6>
-                        )}
-                
-                        <div className="row">
-                        <button
-                        onClick={() => {
-                            setOrderHeaderId(i.OrderHeaderId);  
-                            setOrderheader({
-                              Id: i.OrderHeaderId,
-                              Date: formatDate(i.CreationDate),
-                              TotalMoney: formatMoney(i.IntoMoney),
-                              Ship: formatMoney(i.TransportFee),
-                              OrderMoney: formatMoney(i.TotalAmt),
-                              StoreName: i.StoreName,
-                              Status: i.Status,       
-                              PaymentStatusID: i.PaymentStatusID
-                            });
-                            setAddress({
-                              RecipientName: i.RecipientName,
-                              RecipientPhone: i.RecipientPhone,
-                              FormatAddress: i.FormatAddress,
-                              NameAddress: i.NameAddress
-                            });
-                            setIsOpen(true);
-                            }}
-                            className="btn btn-primary btn-sm"
-                            style={{ border: "1px solid grey", backgroundColor: "white" }}
-                            >
-                            <p className="text-sm text-red-500 p-1">Xem chi tiết
-                            </p>                   
-                        </button>
-                        {
-                            !i.Status ?(
-                                <button
-                                onClick={() => {
-                                
-                                    }}
-                                    className="btn btn-primary btn-sm ml-2"
-                                    style={{ border: "1px solid grey", backgroundColor: "white" }}
-                                    >
-                                    <p className="text-sm text-red-500 p-1 ">Hủy đơn hàng
-                                    </p>                   
-                                </button>
-                            ):(
-                                null
-                            )
-                        }
-                        </div>
-                      
+                          ):(
+                            <h6 className="text-base text-gray-700 font-normal">
+                                Thanh toán khi nhận hàng
+                            </h6>
+                          )}
+                  
+                          <div className="row">
+                          <button
+                          onClick={() => {
+                              setOrderHeaderId(i.OrderHeaderId);  
+                              setOrderheader({
+                                Id: i.OrderHeaderId,
+                                Date: formatDate(i.CreationDate),
+                                TotalMoney: formatMoney(i.IntoMoney),
+                                Ship: formatMoney(i.TransportFee),
+                                OrderMoney: formatMoney(i.TotalAmt),
+                                StoreName: i.StoreName,
+                                Status: i.Status,       
+                                PaymentStatusID: i.PaymentStatusID
+                              });
+                              setAddress({
+                                RecipientName: i.RecipientName,
+                                RecipientPhone: i.RecipientPhone,
+                                FormatAddress: i.FormatAddress,
+                                NameAddress: i.NameAddress
+                              });
+                              setIsOpen(true);
+                              }}
+                              className="btn btn-primary btn-sm"
+                              style={{ border: "1px solid grey", backgroundColor: "white" }}
+                              >
+                              <p className="text-sm text-red-500 p-1">Xem chi tiết
+                              </p>                   
+                          </button>
+                          {
+                              !i.Status ?(
+                                  <button
+                                  onClick={() => {
+                                  
+                                      }}
+                                      className="btn btn-primary btn-sm ml-2"
+                                      style={{ border: "1px solid grey", backgroundColor: "white" }}
+                                      >
+                                      <p className="text-sm text-red-500 p-1 ">Hủy đơn hàng
+                                      </p>                   
+                                  </button>
+                              ):(
+                                  null
+                              )
+                          }
+                          </div>
                         
-                  </li>
-                )
-              ))
-            }
-            </ul>
-        </div>
-    )
-}
-function Complete() {
-    return <h2>Hoàn thành</h2>;
-}
+                          
+                    </li>
+                  )
+                ))
+              }
+              </ul>
+          </div>
+      )
+  }
+  function Complete() {
+      return <h2>Hoàn thành</h2>;
+  }
 }
