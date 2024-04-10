@@ -11,14 +11,35 @@ import DoughnutLocationChart from "../components/doughnutLocationChart";
 import BarProvinceChart from "../components/barProvinceChart";
 import HorizontalEmployeeChart from "../components/horizontalEmployeeChart";
 import {
-  TotalRevenue_Chart,
-  TotalPriceQuote,
+  TakeProductStatistics,
+  TotalRevenueStatistics
 } from "../../api/dashboard/dashboardService";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Legend,
+} from "chart.js";
+import { ResponsiveContainer, Tooltip, PieChart, Pie, LineChart, Line, XAxis, YAxis} from "recharts";
+import { Label } from "recharts";
+import { Bar, Doughnut } from "react-chartjs-2";
+import {
+  TakeAllProvince
+} from "../../api/province/provinceService";
+
 import { decrypt } from "../../framework/encrypt";
 
 export default function HomePage() {
   const history = useNavigate();
   const [dataChart, setDataChart] = React.useState([]);
+  const [selectedProvince, setselectedProvince] = React.useState({
+    value: 0,
+    label: "Tất cả",
+  });
+  const [DataTotalRevenueStatistics, setDataTotalRevenueStatistics] = React.useState([]);
+  const backgroundColors = ["#FF5733", "#33FFC0", "#3366FF", "#FF33E9", "#33FF57", "#3391FF"];
+
   const select = [
     {
       value: 1,
@@ -45,13 +66,55 @@ export default function HomePage() {
       label: "Năm trước",
     },
   ];
+  const [thongKeDoanhThu, setthongKeDoanhThu] = React.useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+      },
+    ],
+  });
+
+  const [thongkeSoLuongSanPham, setthongkeSoLuongSanPham] = React.useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+      },
+    ],
+  });
+
+
+  async function onFillItemProvince() {
+    let itemProvinceResponse = await TakeAllProvince();
+    if (itemProvinceResponse.success) {
+      setprovinceData([
+        {
+          value: 0,
+          label: "Tất cả",
+        },
+        ...itemProvinceResponse.data.map((e) => {
+          return {
+            value: e.ProvinceId,
+            label: e.Name,
+          };
+        }),
+      ]);
+    }
+  }
+
+  const [provinceData, setprovinceData] = React.useState([]);
+
   const [loading, setLoading] = React.useState(false);
   const [defaultSelect, setDefaultSelect] = React.useState(select[0]);
   const [isMonth, setIsMonth] = React.useState(false);
+
   const [request, setRequest] = React.useState({
+    IdZone: 1,
     FromDt: moment().date(1),
     ToDt: moment().date(moment().daysInMonth()),
   });
+
   const [data, setData] = React.useState({
     SL_HopDong: 0,
     SL_BaoGia: 0,
@@ -190,43 +253,66 @@ export default function HomePage() {
       history("/login");
     }
   }
-  async function onViewAppearing() {
+
+
+  async function onViewAppearingTakeProductStatistics() {
     setLoading(true);
-    let response_Revenue = await TotalRevenue_Chart(request);
-    if (response_Revenue.success) {
-      var amtHD = _.sumBy(response_Revenue.data, "TongTien");
-      var Item = [];
-      response_Revenue.data.forEach((e) => {
-        Item = [...Item, ...e.Item];
+    let responseTakeProductStatistics = await TakeProductStatistics(request);
+    if (responseTakeProductStatistics.success) {
+      console.table(responseTakeProductStatistics.item);
+        const chartLabelsFoodName =  responseTakeProductStatistics.item.map(
+            (item) => (`${item.FoodName}`)
+          );
+        const dataChartSoluongDaBan = responseTakeProductStatistics.item.map(
+            (item) => item.CountBuy
+          );
+        setthongkeSoLuongSanPham({
+        labels: chartLabelsFoodName,
+        datasets: [
+            {
+              label: `Sản phẩm`,
+              data: dataChartSoluongDaBan,
+              backgroundColor: backgroundColors,
+            },
+        ],
       });
-      var SL_SP = _.sumBy(Item, "SoLuong");
-      let response_PriceQuote = await TotalPriceQuote(request);
-      var amtBG = _.sumBy(response_PriceQuote.data, "Amt");
-      setData({
-        ...data,
-        SL_HopDong: response_Revenue.data.length,
-        TongTien_DoanhThu: amtHD,
-        SL_BaoGia: response_PriceQuote.data.length,
-        TongTien_BaoGia: amtBG,
-        SL_SanPham: SL_SP,
-      });
-      setDataChart(response_Revenue.data);
     }
     setLoading(false);
   }
+  async function onViewAppearing() {
+    setLoading(true);
+    let responseTotalRevenueStatistics = await TotalRevenueStatistics(request);
+    if (responseTotalRevenueStatistics.success) {
+      setDataTotalRevenueStatistics(responseTotalRevenueStatistics.item);
+      const chartLabelsNameStore =  responseTotalRevenueStatistics.item.ListItemStatisticsResponse.map(
+          (item) => (`${item.FullName} - ${item.Percentagerevenue}%`)
+        );
+      const dataChartDoanhthu = responseTotalRevenueStatistics.item.ListItemStatisticsResponse.map(
+          (item) => item.Total
+        );
+      setthongKeDoanhThu({
+      labels: chartLabelsNameStore,
+      datasets: [
+          {
+            label: `Doanh thu`,
+            data: dataChartDoanhthu,
+            backgroundColor: backgroundColors,
+          },
+      ],
+    });
+    }
+    setLoading(false);
+  }
+
+  React.useEffect(() =>{
+    onFillItemProvince();
+  },[])
+
   React.useEffect(() => {
     isUserComback();
     onViewAppearing();
-    return () => {
-      setData({
-        SL_HopDong: 0,
-        SL_BaoGia: 0,
-        SL_SanPham: 0,
-        TongTien_BaoGia: 0,
-        TongTien_DoanhThu: 0,
-      });
-    };
-  }, [request.FromDt, request.ToDt]);
+    onViewAppearingTakeProductStatistics();
+  }, [request.FromDt, request.ToDt, request.IdZone]);
 
   return (
     <>
@@ -240,12 +326,39 @@ export default function HomePage() {
               className="page-title-box d-sm-flex align-items-center justify-content-between"
               style={{ marginTop: "8px" }}
             >
-              <h4 className="mb-sm-0 font-size-18">Tổng quan</h4>
+              <h4 className="mb-sm-0 font-size-18">Tổng quan hệ thống</h4>
             </div>
           </div>
+
           <div className="col-lg-8">
             <div className="row" style={{ marginRight: "-25px" }}>
-              <div className="col-lg-4">
+              <div className="col-lg-3">
+                <div
+                  className="mb-3"
+                  style={{
+                    zIndex: "999",
+                    position: "inherit",
+                  }}
+                >
+                  <Select
+                    options={provinceData}
+                    value={selectedProvince}
+                    onChange={(e) => {
+                      setselectedProvince({
+                        value: e.value,
+                        label: e.label,
+                      });
+                      setRequest({
+                        ...request,
+                        IdZone: e.value
+                      })
+                    }}
+                    isDisabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="col-lg-3">
                 <div
                   className="mb-3"
                   style={{
@@ -264,7 +377,8 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <div className="col-lg-4">
+
+              <div className="col-lg-3">
                 <div className="mb-3">
                   <input
                     className="form-control"
@@ -281,7 +395,8 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <div className="col-lg-4">
+
+              <div className="col-lg-3">
                 <div className="mb-3">
                   <input
                     className="form-control"
@@ -300,6 +415,8 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
+
         </div>
         <div className="row" style={{ marginTop: "-10px" }}>
           <div className="col-lg-2">
@@ -321,18 +438,18 @@ export default function HomePage() {
                     display: "block",
                   }}
                 >
-                  <span className="sr-only">Loading...</span>
+                  <span className="sr-only">Đang tải ...</span>
                 </div>
               ) : (
-                <h6 className="mb-2 fw-bold" style={{ color: "red" }}>
+                <h6 className="mb-2 fw-bold" style={{ color: "red", fontSize: "20px"}}>
                   {Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                  }).format(data.TongTien_DoanhThu)}
+                  }).format(DataTotalRevenueStatistics.Totalsystemrevenue)}
                 </h6>
               )}
 
-              <p className="text-muted fw-medium fw-bold mb-0">Doanh thu</p>
+              <p className="text-muted fw-medium fw-bold mb-0">Tổng doanh thu</p>
             </div>
             <div
               className="card-body bg-white alert alert-info mb-3 flex-grow-1"
@@ -352,47 +469,16 @@ export default function HomePage() {
                     display: "block",
                   }}
                 >
-                  <span className="sr-only">Loading...</span>
-                </div>
-              ) : (
-                <h6 className="mb-2 fw-bold" style={{ color: "red" }}>
-                  {Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(data.TongTien_BaoGia)}
-                </h6>
-              )}
-
-              <p className="text-muted fw-medium fw-bold mb-0">Tiền báo giá</p>
-            </div>
-            <div
-              className="card-body bg-white alert alert-info mb-3 flex-grow-1"
-              style={{
-                borderRadius: "10px",
-                borderColor: "#2b78e4",
-                textAlign: "center",
-                height: "80px",
-              }}
-            >
-              {loading ? (
-                <div
-                  className="spinner-border text-info m-1 mx-auto  text-center"
-                  role="status"
-                  style={{
-                    alignSelf: "center",
-                    display: "block",
-                  }}
-                >
-                  <span className="sr-only">Loading...</span>
+                  <span className="sr-only">Đang tải ...</span>
                 </div>
               ) : (
                 <h4 className="mb-2 fw-bold" style={{ color: "green" }}>
-                  {Intl.NumberFormat("vi-VN").format(data.SL_SanPham)}
+                  {Intl.NumberFormat("vi-VN").format(DataTotalRevenueStatistics.TotalCountCustomersystem)}
                 </h4>
               )}
 
               <p className="text-muted fw-medium fw-bold mb-0">
-                Sản phẩm đã bán
+                Số lượng khách hàng hệ thống
               </p>
             </div>
             <div
@@ -413,15 +499,16 @@ export default function HomePage() {
                     display: "block",
                   }}
                 >
-                  <span className="sr-only">Loading...</span>
+                  <span className="sr-only">Đang tải ...</span>
                 </div>
               ) : (
                 <h4 className="mb-2 fw-bold" style={{ color: "green" }}>
-                  {Intl.NumberFormat("vi-VN").format(data.SL_HopDong)}
+                  {Intl.NumberFormat("vi-VN").format(DataTotalRevenueStatistics.TotalCountStoresystem)}
                 </h4>
               )}
-              <p className="text-muted fw-medium fw-bold mb-0">SL hợp đồng</p>
+              <p className="text-muted fw-medium fw-bold mb-0">Số lượng cửa hàng khu vực {selectedProvince.value > 0 ? selectedProvince.label : ""}</p>
             </div>
+            {/* 
             <div
               className="card-body bg-white alert alert-info mb-3 flex-grow-1"
               style={{
@@ -449,197 +536,81 @@ export default function HomePage() {
               )}
 
               <p className="text-muted fw-medium fw-bold mb-0">SL báo giá</p>
-            </div>
+            </div> */}
           </div>
           <div className="col-lg-10">
-            <div className="row">
-              <div className="col-lg-6">
-                <div className="card" style={{ width: "103%" }}>
-                  <div
-                    className="d-sm-flex flex-wrap alert alert-info"
-                    style={{
-                      height: "30px",
-                      marginBottom: "0px",
-                      backgroundColor: "#2b78e4",
-                      borderRadius: "10px 10px 0px 0px",
-                      borderColor: "#2b78e4",
-                    }}
-                  >
-                    <h6 style={{ color: "white", marginTop: "-5px" }}>
-                      Tổng doanh thu (Triệu đồng)
-                    </h6>
-                  </div>
-                  <div
-                    className="card-body bg-white alert alert-info mb-0"
-                    style={{
-                      zIndex: "1",
-                      borderColor: "#2b78e4",
-                      borderRadius: "0px 0px 10px 10px",
-                    }}
-                  >
-                    {loading ? (
-                      <div
-                        className="spinner-border text-info"
-                        role="status"
-                        style={{
-                          position: "relative",
-                          top: "50%",
-                          left: "50%",
+              <div className="row">
+                <p className="text-muted fw-medium fw-bold mb-0">Thống kê doanh thu theo khu vực {selectedProvince.value > 0 ? selectedProvince.label : ""}</p>
+              </div>
+              <div className="row">
+                <div className="w-full">
+                  <React.Fragment>
+                    <ResponsiveContainer width="100%" aspect={4} >
+                      <Bar
+                        height="auto"
+                        data={thongKeDoanhThu}
+                        options={{
+                          indexAxis: "x",
+                          plugins: {
+                            title: {
+                              display: true,
+                              text: `Danh thu khu vực ${selectedProvince.label}`,
+                              font: {
+                                size: 15,
+                              },
+                            },
+                            legend: {
+                              display: true,
+                              position: "bottom",
+                              labels: {
+                                usePointStyle: true, //for style circle
+                              },
+                            },
+                          },
                         }}
-                      >
-                        <span className="sr-only"></span>
-                      </div>
-                    ) : dataChart && dataChart.length > 0 ? (
-                      <BarChart sources={[...dataChart, isMonth]} />
-                    ) : (
-                      <h6 style={{ marginTop: "-5px", textAlign: "center" }}>
-                        Không có doanh thu
-                      </h6>
-                    )}
-                  </div>
+                      />
+                    </ResponsiveContainer>
+                  </React.Fragment>   
                 </div>
               </div>
-              <div className="col-lg-6">
-                <div className="card" style={{ width: "103%" }}>
-                  <div
-                    className="d-sm-flex flex-wrap alert alert-info"
-                    style={{
-                      height: "30px",
-                      marginBottom: "0px",
-                      backgroundColor: "#2b78e4",
-                      borderRadius: "10px 10px 0px 0px",
-                      borderColor: "#2b78e4",
-                    }}
-                  >
-                    <h6 style={{ color: "white", marginTop: "-5px" }}>
-                      Doanh thu tỉnh thành (Triệu đồng)
-                    </h6>
-                  </div>
-                  <div
-                    className="card-body bg-white alert alert-info mb-0"
-                    style={{
-                      zIndex: "1",
-                      borderColor: "#2b78e4",
-                      borderRadius: "0px 0px 10px 10px",
-                    }}
-                  >
-                    {loading ? (
-                      <div
-                        className="spinner-border text-info"
-                        role="status"
-                        style={{
-                          position: "relative",
-                          top: "50%",
-                          left: "50%",
+          </div>
+
+          <div className="col-lg-12">
+              <div className="row">
+                <p className="text-muted fw-medium fw-bold mb-0">Thống kê số lượng sản phẩm bán theo khu vực  {selectedProvince.value > 0 ? selectedProvince.label : ""}</p>
+              </div>
+
+              <div className="row">
+                <div className="w-full">
+                  <React.Fragment>
+                    <ResponsiveContainer width="100%" aspect={4} >
+                      <Bar
+                        height="auto"
+                        data={thongkeSoLuongSanPham}
+                        options={{
+                          indexAxis: "x",
+                          plugins: {
+                            title: {
+                              display: true,
+                              text: `Thống kê sản phẩm khu vực ${selectedProvince.label}`,
+                              font: {
+                                size: 15,
+                              },
+                            },
+                            legend: {
+                              display: true,
+                              position: "bottom",
+                              labels: {
+                                usePointStyle: true, //for style circle
+                              },
+                            },
+                          },
                         }}
-                      >
-                        <span className="sr-only"></span>
-                      </div>
-                    ) : dataChart && dataChart.length > 0 ? (
-                      <BarProvinceChart sources={dataChart} />
-                    ) : (
-                      <h6 style={{ marginTop: "-5px", textAlign: "center" }}>
-                        Không có doanh thu
-                      </h6>
-                    )}
-                  </div>
+                      />
+                    </ResponsiveContainer>
+                  </React.Fragment>   
                 </div>
               </div>
-            </div>
-            <div className="row" style={{ marginTop: "-15px" }}>
-              <div className="col-lg-6">
-                <div className="card" style={{ width: "103%" }}>
-                  <div
-                    className="d-sm-flex flex-wrap alert alert-info"
-                    style={{
-                      height: "30px",
-                      marginBottom: "0px",
-                      backgroundColor: "#2b78e4",
-                      borderRadius: "10px 10px 0px 0px",
-                      borderColor: "#2b78e4",
-                    }}
-                  >
-                    <h6 style={{ color: "white", marginTop: "-5px" }}>
-                      Doanh thu chi nhánh (Triệu đồng)
-                    </h6>
-                  </div>
-                  <div
-                    className="card-body bg-white alert alert-info mb-0"
-                    style={{
-                      zIndex: "1",
-                      borderRadius: "0px 0px 10px 10px",
-                      borderColor: "#2b78e4",
-                    }}
-                  >
-                    {loading ? (
-                      <div
-                        className="spinner-border text-info"
-                        role="status"
-                        style={{
-                          position: "relative",
-                          top: "50%",
-                          left: "50%",
-                        }}
-                      >
-                        <span className="sr-only"></span>
-                      </div>
-                    ) : dataChart && dataChart.length > 0 ? (
-                      <DoughnutLocationChart sources={dataChart} />
-                    ) : (
-                      <h6 style={{ marginTop: "-5px", textAlign: "center" }}>
-                        Không có doanh thu
-                      </h6>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-6">
-                <div className="card" style={{ width: "103%" }}>
-                  <div
-                    className="d-sm-flex flex-wrap alert alert-info"
-                    style={{
-                      height: "30px",
-                      marginBottom: "0px",
-                      backgroundColor: "#2b78e4",
-                      borderRadius: "10px 10px 0px 0px",
-                      borderColor: "#2b78e4",
-                    }}
-                  >
-                    <h6 style={{ color: "white", marginTop: "-5px" }}>
-                      Doanh thu nhân viên (Triệu đồng)
-                    </h6>
-                  </div>
-                  <div
-                    className="card-body bg-white alert alert-info mb-0"
-                    style={{
-                      zIndex: "1",
-                      borderColor: "#2b78e4",
-                      borderRadius: "0px 0px 10px 10px",
-                    }}
-                  >
-                    {loading ? (
-                      <div
-                        className="spinner-border text-info"
-                        role="status"
-                        style={{
-                          position: "relative",
-                          top: "50%",
-                          left: "50%",
-                        }}
-                      >
-                        <span className="sr-only"></span>
-                      </div>
-                    ) : dataChart && dataChart.length > 0 ? (
-                      <HorizontalEmployeeChart sources={dataChart} />
-                    ) : (
-                      <h6 style={{ marginTop: "-5px", textAlign: "center" }}>
-                        Không có doanh thu
-                      </h6>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
