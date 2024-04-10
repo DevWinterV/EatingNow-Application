@@ -12,18 +12,24 @@ import Select from "react-select";
 import { TakeAllCuisine } from "../../api/categoryItem/categoryItemService";
 import { CreateNewStore, UpdateNewStore, TakeStoreById } from "../../api/store/storeService";
 import {  searchAddress} from "../../api/googleSearchApi/googleApiService";
+//import TimePicker from '@ashwinthomas/react-time-picker-dropdown';
+import TimePicker from 'react-times';
+// use material theme
+import 'react-times/css/material/default.css';
+// or you can use classic theme
+import 'react-times/css/classic/default.css';
 
 export default function CreateProvince() {
   const [latitude, setLatitude] = React.useState("");
   const [longitude, setLongitude] = React.useState("");
   const [storeaddress, setStoreaddress] = React.useState("");
-
   const [itemCuisine, setItemCuisine] = React.useState([]);
   const [locationStore, setLocationStore] = React.useState({lat:0, lng:0});
   const [defaultItemCategory, setDefaultItemCategory] = React.useState({
     value: "0",
     label: "Vui lòng chọn loại hình món ăn",
   });
+
   async function onFillItemCategory() {
     let itemCategoryResponse = await TakeAllCuisine();
     if (itemCategoryResponse.success) {
@@ -109,6 +115,8 @@ export default function CreateProvince() {
     Latitude: "",
     Longitude: "",
     Status: 1,
+    TimeOpen: "05:00:00",
+    TimeClose: "23:00:00"
   });
 
   function onBack() {
@@ -116,68 +124,147 @@ export default function CreateProvince() {
   }
   //
   async function onSubmit() {
+    if(CheckData(request.TimeOpen, request.TimeClose) === false)
+      return;
     if (request.UserId == 0) {
-      let data = new FormData();
-      if (selectedImage !== undefined) {
-        data.append("file[]", selectedImage, selectedImage.name);
-      }
-      data.append("form", JSON.stringify(request));
-      let response = await CreateNewStore(data);
-      if (!response.success) {
-        Swal.fire({
-          title: "Lỗi!",
-          text: "Lưu dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
-          icon: "error",
+        let data = new FormData();
+        if (selectedImage !== undefined) {
+          data.append("file[]", selectedImage, selectedImage.name);
+        }
+        data.append("form", JSON.stringify(request));
+        
+        let response = await CreateNewStore(data);
+        if (!response.success) {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Lưu dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+        let confirm = await Swal.fire({
+          title: "Thành công!",
+          text: "Lưu dữ liệu thành công!",
+          icon: "success",
           confirmButtonText: "OK",
         });
-        return;
-      }
-      let confirm = await Swal.fire({
-        title: "Thành công!",
-        text: "Lưu dữ liệu thành công!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-      if (confirm.isConfirmed) {
-        if (request.UserId == 0) {
-          onBack();
-        } else {
-          // ở lại trang
+        if (confirm.isConfirmed) {
+          if (request.UserId == 0) {
+            onBack();
+          } else {
+            // ở lại trang
+          }
         }
-      }
-    } else {
-      let data = new FormData();
-      console.log(request)
-      if (selectedImage !== undefined) {
-        data.append("file[]", selectedImage, selectedImage.name);
-      }
-      data.append("form", JSON.stringify(request));
-      let response = await CreateNewStore(data);
-      if (!response.success) {
-        Swal.fire({
-          title: "Lỗi!",
-          text: "Cập nhật dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
-          icon: "error",
+    } 
+    else {
+        let data = new FormData();
+        if (selectedImage !== undefined) {
+          data.append("file[]", selectedImage, selectedImage.name);
+        }
+        data.append("form", JSON.stringify(request));
+        let response = await CreateNewStore(data);
+        if (!response.success) {
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Cập nhật dữ liệu không thành công, vui lòng kiểm tra lại dữ liệu đã nhập !",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+        let confirm = await Swal.fire({
+          title: "Thành công!",
+          text: "Cập nhật dữ liệu thành công!",
+          icon: "success",
           confirmButtonText: "OK",
         });
-        return;
-      }
-      let confirm = await Swal.fire({
-        title: "Thành công!",
-        text: "Cập nhật dữ liệu thành công!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-      if (confirm.isConfirmed) {
-        if (request.CuisineId == 0) {
-          onBack();
-        } else {
-          onViewAppearing();
-          // ở lại trang
+        if (confirm.isConfirmed) {
+          if (request.CuisineId == 0) {
+            onBack();
+          } else {
+            onViewAppearing();
+            // ở lại trang
+          }
         }
-      }
     }
   }
+
+
+  function CheckData(openingTime, closingTime) {
+    if(request.Phone === "" || request.Phone.length > 11 || request.Phone.length < 10 ){
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Số điện thoại không hợp lệ",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+    if(request.Phone === "" || request.OwnerName.length < 2  ){
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Tên người đại diện không hợp lệ",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+    if(request.FullName === ""){
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Tên cửa hàng không hợp lệ",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+
+
+    if(openingTime == "" || openingTime == null){
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Vui lòng chọn giờ mở cửa",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+    if(closingTime == "" || closingTime == null){
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Vui lòng chọn giờ đóng cửa",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+    // Chuyển đổi các giờ từ chuỗi sang số nguyên để so sánh
+    const openingHour = parseInt(openingTime.split(':')[0]);
+    const openingMinute = parseInt(openingTime.split(':')[1]);
+    const closingHour = parseInt(closingTime.split(':')[0]);
+    const closingMinute = parseInt(closingTime.split(':')[1]);
+    // So sánh giờ và phút
+    if (openingHour < closingHour || (openingHour === closingHour && openingMinute < closingMinute)) {
+      // Giờ mở cửa nhỏ hơn giờ đóng cửa
+      return true;
+    } else {
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Giờ mở cửa phải nhỏ hơn giờ đóng cửa",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      // Giờ mở cửa không nhỏ hơn giờ đóng cửa
+      return false;
+    }
+  }
+  
 
   async function onViewAppearing() {
     if (id != 0) {
@@ -202,6 +289,8 @@ export default function CreateProvince() {
           Latitude:  response.item.Latitude,
           Longitude:  response.item.Longitude,
           Status:  response.item.Status,
+          TimeClose:  response.item.TimeClose,
+          TimeOpen:  response.item.TimeOpen,
         });
         setselectedImageURL(response.item.AbsoluteImage);
         setDefaultItemProvince({
@@ -244,6 +333,18 @@ export default function CreateProvince() {
     });
   }
 
+  const handlechangeTimeOpen = (e) => {
+      setRequest({
+        ...request,
+        TimeOpen: `${e.hour}:${e.minute}:${e.meridiem??"00"}`
+      });
+  }
+  const handlechangeTimeClose = (e) => {
+    setRequest({
+      ...request,
+       TimeClose: `${e.hour}:${e.minute}:${e.meridiem??"00"}`
+    })
+  }
 
 
   React.useEffect(() => {
@@ -294,24 +395,42 @@ export default function CreateProvince() {
                 />
               </div>
             </div>
-            <div className="col-lg-3">
-              <div className="mb-3">
-                <label className="form-label fw-bold">Giờ mở cửa</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Giờ mở cửa..."
-                  defaultValue={request.OpenTime}
-                  onChange={(e) => {
-                    setRequest({
-                      ...request,
-                      OpenTime: e.target.value,
-                    });
+          
+             <div className="col-lg-3">
+              <div className="mb-6">
+                <label className="form-label fw-bold">Giờ mở cửa</label>
+                <TimePicker
+                  theme="classic"
+                  onTimeChange={handlechangeTimeOpen}
+                  time={request.TimeOpen ?? "00:00"}
+                  timeConfig={{
+                    minTime: "00:00",
+                    maxTime: "23:59",
+                    step: 10, // Bước nhảy cho giờ và phút
+                    showSecond: false, // Hiển thị giây hoặc không
+                    use12Hours: false, // Sử dụng định dạng 12 giờ hoặc không
+                    format: 'HH:mm' // Định dạng hiển thị cho giờ và phút
                   }}
-                  style={{ fontSize: "12px" }}
-                />
+                  />
               </div>
-            </div>
+              <div className="mb-6">
+                <label className="form-label fw-bold">Giờ đóng cửa</label>
+                  <TimePicker
+                    theme="classic"
+                    onTimeChange={handlechangeTimeClose}
+                    time={request.TimeClose ?? "23:59"}
+                    timeConfig={{
+                      minTime: "00:00",
+                      maxTime: "23:59",
+                      step: 10, // Bước nhảy cho giờ và phút
+                      showSecond: false, // Hiển thị giây hoặc không
+                      use12Hours: false, // Sử dụng định dạng 12 giờ hoặc không
+                      format: 'HH:mm' // Định dạng hiển thị cho giờ và phút
+                    }}
+                  />          
+                  </div>
+            </div> 
+
             <div className="col-lg-3">
               <div className="mb-3">
                 <label className="form-label fw-bold">Tỉnh thành</label>
@@ -332,6 +451,7 @@ export default function CreateProvince() {
                 />
               </div>
             </div>
+
             <div className="col-lg-3">
               <div className="mb-3">
                 <label className="form-label fw-bold">Email</label>
