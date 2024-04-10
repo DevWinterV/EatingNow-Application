@@ -15,6 +15,7 @@ import { colors } from "@material-ui/core";
 
 const Body = () => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [keyword, setkeyword] = useState('');
   const history = useNavigate();
   const [filter, setFilter] = useState("");
   const [categories, setCategories] = useState([]);
@@ -28,6 +29,7 @@ const Body = () => {
     keyWord: "",
     filter: filter
   });
+
   async function onViewAppearing() {
     setIsLoading(true);
     if (user) {
@@ -62,6 +64,7 @@ const Body = () => {
       Qtycontrolled: parseInt(e.target.value, 10)
     });
   };
+
   const handleChangkeyWord = (e) => {
     setrequestfilter({
       ...requestfilter,
@@ -71,6 +74,8 @@ const Body = () => {
 
   return (
     <div className="bg-white h-[100%] basis-80 p-8 overflow-auto no-scrollbar py-5 px-5">
+      
+{/*       
       <div className="flex items-center justify-start">
         <div className="flex items-center border-b-2 pb-2 basis-2/3 gap-2">
             <label htmlFor="">Kiểm soát số lượng tồn:</label>
@@ -149,7 +154,7 @@ const Body = () => {
             Xem tất cả
           </div>
         </button>
-      </div>
+      </div> */}
 
 
       {/* Title Div */}
@@ -157,17 +162,17 @@ const Body = () => {
         <div className="title">
           <div className="flex justify-between pb-4 items-center">
             <h1 className="text-xl mb-2 text-orange-900 font-bold">
-              Danh Sách Món Ăn
+              Danh Sách Sản Phẩm
             </h1>
             <button
               type="button"
               className="text-red-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
               onClick={() => {
-                history("/createfoodlist");
+                  history("/createfoodlist");
               }}
             >
               <span className="justify-between flex items-center">
-                Thêm Món Ăn Mới
+                Thêm Sản Phẩm Mới
                 <BsPlusLg className="text-2xl pl-2 font-bold" />
               </span>
             </button>
@@ -186,7 +191,7 @@ const Body = () => {
             <motion.div
               whileTap={{ scale: 0.75 }}
               className={`group ${
-                filter === ""
+               requestfilter.filter === ""
                   ? "bg-orange-200 border-4 border-orange-300"
                   : " bg-card border-2 border-stone-100"
               } w-24 min-w-[94px] h-28 cursor-pointer rounded-lg drop-shadow-xl flex flex-col gap-3 items-center justify-center hover:bg-orange-200 hover:border-4 hover:border-orange-300`}
@@ -203,18 +208,18 @@ const Body = () => {
               }}  >
               <div
                 className={`w-10 h-10 rounded-full shadow-lg ${
-                  filter === "" ? "bg-orange-400" : "bg-orange-200"
+                  requestfilter.filter === "" ? "bg-orange-400" : "bg-orange-200"
                 } group-hover:bg-orange-400 flex items-center justify-center`}
               >
                 <IoFastFood
                   className={`${
-                    filter === "" ? "text-orange-900" : "text-orange-700"
+                    requestfilter.filter === "" ? "text-orange-900" : "text-orange-700"
                   } group-hover:text-orange-900 text-lg`}
                 />
               </div>
               <p
                 className={`text-sm text-center ${
-                  filter === "" ? "text-orange-900" : "text-orange-700"
+                  requestfilter.filter === "" ? "text-orange-900" : "text-orange-700"
                 } group-hover:text-orange-900 font-bold`}
               >
                 Tất cả
@@ -227,7 +232,7 @@ const Body = () => {
                   whileTap={{ scale: 0.75 }}
                   key={category.CategoryId}
                   className={`group ${
-                    filter === category.CategoryId
+                    requestfilter.filter === category.CategoryId
                       ? "bg-orange-200 border-4 border-orange-300"
                       : " bg-card border-2 border-stone-100"
                   } w-24 min-w-[94px] h-28 cursor-pointer rounded-lg drop-shadow-xl flex flex-col gap-3 items-center justify-center hover:bg-orange-200 hover:border-4 hover:border-orange-300`}
@@ -246,14 +251,14 @@ const Body = () => {
                 >
                   <div
                     className={`w-10 h-10 rounded-full shadow-lg ${
-                      filter === category.CategoryId
+                      requestfilter.filter === category.CategoryId
                         ? "bg-orange-400"
                         : "bg-orange-200"
                     } group-hover:bg-orange-400 flex items-center justify-center`}
                   >
                     <IoFastFood
                       className={`${
-                        filter === category.CategoryId
+                        requestfilter.filter === category.CategoryId
                           ? "text-orange-900"
                           : "text-orange-700"
                       } group-hover:text-orange-900 text-lg`}
@@ -261,7 +266,7 @@ const Body = () => {
                   </div>
                   <p
                     className={`text-sm text-center ${
-                      filter === category.CategoryId
+                      requestfilter.filter === category.CategoryId
                         ? "text-orange-900"
                         : "text-orange-700"
                     } group-hover:text-orange-900 font-bold`}
@@ -273,7 +278,7 @@ const Body = () => {
           </>
         )}
       </div>
-                      {/**Danh sách */}
+     {/**Danh sách */}
       <div className="w-full">
         {isLoading ? (
           <div className="text-center pt-20">
@@ -286,5 +291,4 @@ const Body = () => {
     </div>
   );
 };
-
 export default Body;
