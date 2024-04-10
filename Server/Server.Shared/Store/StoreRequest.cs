@@ -1,4 +1,5 @@
 ﻿using DaiPhucVinh.Shared.Common;
+using System;
 using System.Collections.Generic;
 
 namespace DaiPhucVinh.Shared.Store
@@ -19,5 +20,7 @@ namespace DaiPhucVinh.Shared.Store
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public bool Status { get; set; }
+        public TimeSpan TimeOpen { get; set; }
+        public TimeSpan TimeClose { get; set; }
     }
 }

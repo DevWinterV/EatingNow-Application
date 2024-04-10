@@ -462,6 +462,8 @@ namespace DaiPhucVinh.Services.Infrastructure
     
             CreateMap<EN_Customer, EN_CustomerResponse>();
 
+            CreateMap<EN_Store, StoreInfoTakeByStoreManagerResponse>().ReverseMap();
+
             CreateMap<EN_OrderLine, OrderLineReponse>()
                 .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.qty * s.Price));
             CreateMap<EN_DeliveryDiver, DeliveryDriverResponse>()
@@ -473,6 +475,32 @@ namespace DaiPhucVinh.Services.Infrastructure
                 .ForMember(d => d.DistrictName, o => o.MapFrom(s => s.District.Name))
                 .ForMember(d => d.WardName, o => o.MapFrom(s => s.Ward.Name));
             CreateMap<EN_CustomerNotifications, EN_CustomerNotificationResponse>();
+
+
+
+            CreateMap<FoodList_Store, FoodListResponse>()
+                .ForMember(d => d.FoodListId, o => o.MapFrom(s => s.foodItem.FoodListId))
+                .ForMember(d => d.Category, o => o.MapFrom(s => s.foodItem.Category.CategoryName))
+                .ForMember(d => d.CategoryId, o => o.MapFrom(s => s.foodItem.CategoryId))
+                .ForMember(d => d.FoodName, o => o.MapFrom(s => s.foodItem.FoodName))
+                .ForMember(d => d.Price, o => o.MapFrom(s => s.foodItem.Price))
+                .ForMember(d => d.qty, o => o.MapFrom(s => s.foodItem.qty))
+                .ForMember(d => d.UploadImage, o => o.MapFrom(s => s.foodItem.UploadImage))
+                .ForMember(d => d.Description, o => o.MapFrom(s => s.foodItem.Description))
+                .ForMember(d => d.UserId, o => o.MapFrom(s => s.foodItem.UserId))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.foodItem.Status))
+                .ForMember(d => d.Hint, o => o.MapFrom(s => s.foodItem.Hint))
+                .ForMember(d => d.IsNew, o => o.MapFrom(s => s.foodItem.IsNew))
+                .ForMember(d => d.IsNoiBat, o => o.MapFrom(s => s.foodItem.IsNoiBat))
+                .ForMember(d => d.QuantitySupplied, o => o.MapFrom(s => s.foodItem.QuantitySupplied))
+                .ForMember(d => d.ExpiryDate, o => o.MapFrom(s => s.foodItem.ExpiryDate))
+                .ForMember(d => d.Qtycontrolled, o => o.MapFrom(s => s.foodItem.Qtycontrolled))
+                .ForMember(d => d.QtySuppliedcontrolled, o => o.MapFrom(s => s.foodItem.QtySuppliedcontrolled))
+                .ForMember(d => d.Latitude, o => o.MapFrom(s => s.Storeitem.Latitude))
+                .ForMember(d => d.Longitude, o => o.MapFrom(s => s.Storeitem.Longitude))
+                .ForMember(d => d.foodItemQtyAvailable, o => o.MapFrom(s => s.foodItemQtyAvailable))
+                .ForMember(d => d.storeName, o => o.MapFrom(s => s.Storeitem.FullName));
+
         }
         #region private methods
         private byte[] FindImgFromId(WMS_InventoryItem item)

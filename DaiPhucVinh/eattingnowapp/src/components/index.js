@@ -29,6 +29,8 @@ export { default as LeafletMapStore } from "./LeafletMapStore";
 export { default as SearchBarContainer } from "./SearchBarContainer";
 export { default as SearchPage } from "./SearchPage";
 export { default as SearchBarContainerMobile } from "./SearchBarContainerMobile";
+export { default as ChartComponent  } from "./ChartComponent";
+
 
 
 

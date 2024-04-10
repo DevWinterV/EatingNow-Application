@@ -26,6 +26,7 @@ namespace DaiPhucVinh.Shared.FoodList
         public DateTime? ExpiryDate { get; set; }
         public bool Qtycontrolled { get; set; }
         public bool QtySuppliedcontrolled { get; set; }
+        public int foodItemQtyAvailable { get; set; }   
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }

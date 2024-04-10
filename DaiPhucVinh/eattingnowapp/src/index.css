@@ -106,6 +106,8 @@ body {
   border-radius: 50%; /* Biến marker thành hình tròn */
   margin-right: 8px; /* Khoảng cách giữa marker và tiêu đề */
 }
+
+
 .nav {
   display: flex;
   justify-content: left;
@@ -131,7 +133,7 @@ body {
   -webkit-overflow-scrolling: touch; /* Tối ưu hóa cảm ứng trên iOS */
   scroll-behavior: smooth; /* Thêm hiệu ứng cuộn mượt (tùy chọn) */
   white-space: nowrap; /* Ngăn các nút chuyển dòng */
-  padding-bottom: 10px; /* Khoảng cách dưới thanh cuộn */
+  padding: 10px; /* Khoảng cách dưới thanh cuộn */
 }
 
 .nav ul li {
@@ -166,18 +168,89 @@ body {
   color: #007bff; /* Màu chữ mới cho tab đã được chọn */
   
 }
+
+
 .active-tab {
   background-color: bisque;
   color: #007bff;
 }
 
-.nav button.active {
+
+
+.navstore {
+  display: flex;
+  justify-content: left;
+  border: 2px solid grey;
+  border-radius: 5px;
+}
+
+.navstore ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+}
+
+.navstore li {
+  margin: 5px;
+  border-radius: 5px;
+
+}
+.navstore ul {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* Hiển thị thanh cuộn ngang khi cần */
+  -webkit-overflow-scrolling: touch; /* Tối ưu hóa cảm ứng trên iOS */
+  scroll-behavior: smooth; /* Thêm hiệu ứng cuộn mượt (tùy chọn) */
+  white-space: nowrap; /* Ngăn các nút chuyển dòng */
+  padding: 10px; /* Khoảng cách dưới thanh cuộn */
+}
+
+.navstore ul li {
+  margin-right: 10px; /* Khoảng cách giữa các mục */
+}
+
+/* Thêm media query để bật thanh cuộn chỉ khi kích thước điện thoại */
+@media screen and (max-width: 768px) {
+  .navstore ul {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+  }
+
+  .navstore ul li {
+    margin-right: 10px;
+  }
+}
+
+.navstore button {
+  border-radius: 5px;
+  padding: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.navstore button:focus {
+  outline: none; /* Loại bỏ viền khi focus */
+  background-color:#ccc;
+  color:sienna;/* Màu chữ mới cho tab đã được chọn */
+  
+}
+.active-tabStore {
+  background-color:#ccc;
+  color:sienna;
+}
+
+.navstore button.active {
   color: #007bff; /* Màu chữ mới cho tab đã được chọn */
 }
 
-.nav button:hover {
+.navstore button:hover {
   padding: 7px;
 }
+
+
 /* CSS file (styles.css) */
 .address-container {
   border: 1px solid #ccc;
@@ -617,3 +690,73 @@ body {
 @media only screen and (max-width: 768px) {
 
 }
+
+
+.custom-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 0.3rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quantity-control-container {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem; /* Added margin for better spacing */
+}
+
+.label {
+  color: #333;
+  margin-right: 0.5rem;
+}
+
+.select {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  color: #333;
+}
+
+.refresh-button {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.refresh-content {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-input-container {
+  position: relative;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background-color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  padding-left: 1rem; /* Add padding for search icon */
+  margin-right: 5px;
+}
+
+
+/* Settting*/

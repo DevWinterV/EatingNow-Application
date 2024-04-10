@@ -30,5 +30,8 @@ namespace DaiPhucVinh.Server.Data.DaiPhucVinh
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public bool Status { get; set; }
+        public TimeSpan TimeOpen { get; set; }
+        public TimeSpan TimeClose { get; set; }
+
     }
 }

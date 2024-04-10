@@ -1,4 +1,5 @@
 ﻿using DaiPhucVinh.Shared.Common;
+using System;
 
 namespace DaiPhucVinh.Shared.Store
 {
@@ -23,5 +24,8 @@ namespace DaiPhucVinh.Shared.Store
         public double Distance { get; set; }
         public double Time { get; set; }
         public double similarity { get; set; }
+        public TimeSpan TimeOpen { get; set; }
+        public TimeSpan TimeClose { get; set; }
+
     }
 }

@@ -14,6 +14,7 @@ using DaiPhucVinh.Shared.Store;
 using DaiPhucVinh.Shared.User;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -54,6 +55,7 @@ namespace PCheck.WebUI.Api
         [HttpPost]
         [Route("ApproveDelvery")]
         public async Task<BaseResponse<bool>> ApproveDelvery([FromBody] DeliveryDriverRequest request) => await _storeService.ApproveDelvery(request);
+       
         [Authorize]
         [HttpPost]
         [Route("CreateNewStore")]
@@ -70,6 +72,14 @@ namespace PCheck.WebUI.Api
             {
                 var jsonRequest = httpRequest.Form[0];
 
+                var settings = new JsonSerializerSettings
+                {
+                    Converters = new List<JsonConverter> { new Conversion.TimeSpanConverter() }
+                };
+
+                //var storeTime = JsonConvert.DeserializeObject<StoreTime>(jsonString, settings);
+
+                //var request = JsonConvert.DeserializeObject<StoreRequest>(jsonRequest, settings);
                 var request = JsonConvert.DeserializeObject<StoreRequest>(jsonRequest);
                 return await _storeService.CreateNewStore(request, img);
             }
@@ -79,6 +89,8 @@ namespace PCheck.WebUI.Api
                 Message = "File not found!"
             };
         }
+
+
         [Authorize]
         [HttpPost]
         [Route("CreateNewDeliver")]
@@ -147,6 +159,10 @@ namespace PCheck.WebUI.Api
         public async Task<BaseResponse<StatisticalResponse>> TakeStatisticalByStoreId([FromBody] StatisticalRequest request) => await _storeService.TakeStatisticalByStoreId(request);
 
         [HttpPost]
+        [Route("TakeProductTrackingByStoreId")]
+        public async Task<BaseResponse<FoodListResponse>> TakeProductTrackingByStoreId([FromBody] StatisticalRequest request) => await _storeService.TakeProductTrackingByStoreId(request);
+
+        [HttpPost]
         [Route("TakeStoreByUserLogin")]
         public async Task<BaseResponse<StoreResponse>> TakeStoreByUserLogin(FilterStoreByCusineRequest filter) => await _storeService.TakeStoreByUserLogin(filter);
         
@@ -176,6 +192,36 @@ namespace PCheck.WebUI.Api
         [Route("TakeLitsFoodSold")]
         public async Task<BaseResponse<ListOfProductSold>> TakeLitsFoodSold(int UserId) => await _storeService.TakeLitsFoodSold(UserId);
 
+        [HttpGet]
+        [Route("TakeStoreInfoByStoreManager")]
+        public async Task<BaseResponse<StoreInfoTakeByStoreManagerResponse>> TakeStoreInfoByStoreManager(int UserId) => await _storeService.TakeStoreInfoByStoreManager(UserId);
+        //[Authorize]
+       
+        
+        [HttpPut]
+        [Route("UpdateStoreInfoByStoreManager")]
+        public async Task<BaseResponse<bool>> UpdateStoreInfoByStoreManager()
+        {
+            var httpRequest = HttpContext.Current.Request;
+            HttpPostedFile img = null;
+            //file
+            if (httpRequest.Files.Count > 0)
+            {
+                img = httpRequest.Files[0];
+            }
+            if (httpRequest.Form.Count > 0)
+            {
+                var jsonRequest = httpRequest.Form[0];
+
+                var request = JsonConvert.DeserializeObject<StoreInfoTakeByStoreManagerRequest>(jsonRequest);
+                return await _storeService.UpdateStoreInfoByStoreManager(request, img);
+            }
+            else return new BaseResponse<bool>
+            {
+                Success = false,
+                Message = "File not found!"
+            };
+        }
 
     }
 }

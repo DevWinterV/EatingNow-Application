@@ -42,6 +42,7 @@ using DaiPhucVinh.Services.MainServices.EN_CustomerService;
 using System.Xml.Linq;
 using DaiPhucVinh.Shared.OrderHeader;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using System.ComponentModel;
 
 namespace DaiPhucVinh.Services.MainServices.Province
 {
@@ -76,7 +77,11 @@ namespace DaiPhucVinh.Services.MainServices.Province
         Task<BaseResponse<bool>> RemoveDriverr(DeliveryDriverRequest request);
         Task<BaseResponse<StoreResponse>> TakeStoreLocation(StoreRequest request);
         Task<BaseResponse<ListOfProductSold>> TakeLitsFoodSold(int UserId);
+        Task<BaseResponse<FoodListResponse>> TakeProductTrackingByStoreId(StatisticalRequest request);
 
+        Task<BaseResponse<StoreInfoTakeByStoreManagerResponse>> TakeStoreInfoByStoreManager(int UserId);
+        Task<BaseResponse<bool>> UpdateStoreInfoByStoreManager(StoreInfoTakeByStoreManagerRequest request, HttpPostedFile file);
+        
     }
     public class StoreService : IStoreService
     {
@@ -97,6 +102,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
             _settingService = settingService;
             _logger = logger;
         }
+
+
         /// <summary>
         /// Lấy tất cả các tài xế trên hệ thống
         /// </summary>
@@ -536,6 +543,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
                             Longitude = request.Longitude,
                             AbsoluteImage = HostAddress + GenAbsolutePath(relativePath),
                             Description = request.Description,
+                            TimeOpen = request.TimeOpen,
+                            TimeClose = request.TimeClose,
                             Status = false,
 
                     };
@@ -563,6 +572,8 @@ namespace DaiPhucVinh.Services.MainServices.Province
                             storeUpdate.Description = request.Description;
                             storeUpdate.OpenTime = request.OpenTime;
                             storeUpdate.Status = request.Status;
+                            storeUpdate.TimeOpen = request.TimeOpen;
+                            storeUpdate.TimeClose = request.TimeClose;
                             result.Message = "Update Success";
                         }
                     }
@@ -1376,7 +1387,7 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 }
                 catch
                 {
-                    result.Message = "Không thể xóa!";
+                    result.Message = "Failed";
                     result.Success = false;
                 }
             }
@@ -1398,33 +1409,158 @@ namespace DaiPhucVinh.Services.MainServices.Province
                 if(store != null)
                 {
                     var data = new List<ListOfProductSold>();
-                    var query = from od in _datacontext.EN_OrderHeader
-                                where od.Status == true 
-                                join odl in _datacontext.EN_OrderLine on od.OrderHeaderId equals odl.OrderHeaderId
-                                join ctm in _datacontext.EN_Customer on od.CustomerId equals ctm.CustomerId
-                                join fl in _datacontext.EN_FoodList on odl.FoodListId equals fl.FoodListId
-                                where od.UserId == UserId
-                                group fl by new { fl.FoodName, fl.FoodListId } into g
-                                select new ListOfProductSold
-                                {
-                                    FoodListId = g.Key.FoodListId,
-                                    FoodName = g.Key.FoodName,
-                                    FoodCount = g.Count()
-                                };
-
-                    var resultquery = await query.Take(10).ToListAsync(); 
-                    result.Message = "Get Success";
+                    var newquery = from odl in _datacontext.EN_OrderLine
+                                   join od in _datacontext.EN_OrderHeader on odl.OrderHeaderId equals od.OrderHeaderId
+                                   where od.UserId == UserId && od.Status == true  && od.ShippingStatus == 3
+                                   group odl by new { odl.FoodName, odl.FoodListId } into g
+                                   select new ListOfProductSold
+                                   {
+                                       FoodListId = g.Key.FoodListId,
+                                       FoodName = g.Key.FoodName,
+                                       FoodCount = g.Sum(x => x.qty)
+                                   };
+                    // Sắp xếp giảm dần theo số lượng bán
+                    var resultquery = await newquery.Take(10).OrderByDescending(x => x.FoodCount).ToListAsync(); 
+                    result.Message = "GetSuccess";
                     result.Success = true;
                     result.Data = resultquery;
                     result.DataCount = resultquery.Count;
                 }
                 else
                 {
-                    result.Message = "Cửa hàng không có trên hệ thống";
+                    result.Message = "StoreNotFound";
                     result.Success = false;
                 }
 
             }catch(Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+        public async Task<BaseResponse<FoodListResponse>> TakeProductTrackingByStoreId(StatisticalRequest request)
+        {
+            var result = new BaseResponse<FoodListResponse> { };
+            try
+            {
+                var query = _datacontext.EN_FoodList.Include(x => x.Category).AsQueryable();
+                query = query.Where(d => d.UserId == request.storeId);
+                result.DataCount = await query.CountAsync();
+                var data = await query.ToListAsync();
+                var resultList = data.MapTo<FoodListResponse>();
+                result.Data = resultList;
+                result.Success = true;
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<StoreInfoTakeByStoreManagerResponse>> TakeStoreInfoByStoreManager(int UserId)
+        {
+            var result = new BaseResponse<StoreInfoTakeByStoreManagerResponse> { };
+            try
+            {
+                if(UserId == 0){
+                    return result;
+                }
+                var store = await _datacontext.EN_Store.FindAsync(UserId);
+                if(store == null)
+                {
+                    result.Message = "Store Not Found";
+                    return result;
+
+                }
+                var storeReponse = new StoreInfoTakeByStoreManagerResponse
+                {
+                    AbsoluteImage = store.AbsoluteImage,
+                    UserId = store.UserId,
+                    FullName = store.FullName,
+                    Description = store.Description,
+                    OpenTime = store.OpenTime,
+                    Email = store.Email,
+                    Address = store.Address,
+                    OwnerName = store.OwnerName,
+                    Phone = store.Phone,
+                    TimeOpen = store.TimeOpen,
+                    TimeClose = store.TimeClose
+                };
+                result.Item = storeReponse;
+                result.Success = true;
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.ToString();
+                _logService.InsertLog(ex);
+            }
+            return result;
+        }
+
+        public async Task<BaseResponse<bool>> UpdateStoreInfoByStoreManager(StoreInfoTakeByStoreManagerRequest request, HttpPostedFile file)
+        {
+            var result = new BaseResponse<bool> { };
+            try
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    if (request.UserId == 0)
+                    {
+                        return result;
+                    }
+                    var store = await _datacontext.EN_Store.FindAsync(request.UserId);
+                    if (store == null)
+                    {
+                        result.Message = "Store Not Found";
+                        return result;
+
+                    }
+
+                    var relativePath = "";
+                    if (file != null)
+                    {
+                        file.InputStream.CopyTo(ms);
+                        byte[] pictureBinary = ms.GetBuffer();
+                        string storeName = "DaiPhucVinh\\image";
+                        var storageFolder = $@"\uploads\{storeName}";
+                        if (!Directory.Exists(LocalMapPath(storageFolder)))
+                            Directory.CreateDirectory(LocalMapPath(storageFolder));
+
+                        string fileName = Path.GetFileName(file.FileName);
+
+                        string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}" + "-" + $"{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
+                        var storageFolderPath = Path.Combine(LocalMapPath(storageFolder), newFileName);
+                        File.WriteAllBytes(storageFolderPath, pictureBinary);
+                        relativePath = Path.Combine(storageFolder, newFileName);
+                    }
+                    if (store.AbsoluteImage != request.AbsoluteImage)
+                    {
+                        store.AbsoluteImage = HostAddress + GenAbsolutePath(relativePath);
+                    }
+                    store.FullName = request.FullName;
+                    store.Description = request.Description;
+                    store.OpenTime = request.OpenTime;
+                    store.Email = request.Email;
+                    store.Address = request.Address;
+                    store.OwnerName = request.OwnerName;
+                    store.Phone = request.Phone;
+                    store.TimeOpen = request.TimeOpen;
+                    store.TimeClose = request.TimeClose;
+                    await _datacontext.SaveChangesAsync();
+                    result.Item = true;
+                    result.Success = true;
+
+                }
+
+            
+
+            }
+            catch (Exception ex)
             {
                 result.Message = ex.ToString();
                 _logService.InsertLog(ex);

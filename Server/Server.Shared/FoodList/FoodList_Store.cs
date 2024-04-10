@@ -11,5 +11,6 @@ namespace DaiPhucVinh.Shared.FoodList
     {
         public EN_FoodList foodItem {  get; set; }  
         public EN_Store Storeitem { get; set; }
+        public int foodItemQtyAvailable { get; set; }   
     }
 }

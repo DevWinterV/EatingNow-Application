@@ -583,7 +583,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             return result;
         }
 
-        //Kiểm soát khả năng cung ứng món ăn khi khách đặt
+        //Kiểm tra số lượng cung ứng
         private async Task<int> _checkQuantitySupplied(int FoodId)
         {
             var food = await _datacontext.EN_FoodList.FirstOrDefaultAsync(x => x.FoodListId.Equals(FoodId));
@@ -591,7 +591,13 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             if (food.QtySuppliedcontrolled)
             {
                 var quantitySupplied = food.QuantitySupplied;
-                var listFoodSaled = await _datacontext.EN_OrderLine.Include(x => x.EN_OrderHeader).Where(x => x.EN_OrderHeader.CreationDate < DateTime.Now && x.FoodListId.Equals(FoodId)).ToListAsync();
+                var yesterday = DateTime.Today.AddDays(-1); // Lấy thời điểm 24 giờ trước
+                var Endtoday = DateTime.Today.AddDays(1);
+                var listFoodSaled = await _datacontext.EN_OrderLine
+                    .Include(x => x.EN_OrderHeader)
+                    .Where(x => x.EN_OrderHeader.CreationDate >= DateTime.Today && x.EN_OrderHeader.CreationDate < Endtoday
+                     && x.FoodListId.Equals(FoodId))
+                    .ToListAsync();
                 int? SumQuantitySaled = 0;
                 foreach (var item in listFoodSaled)
                 {
@@ -606,10 +612,7 @@ namespace DaiPhucVinh.Services.MainServices.EN_CustomerService
             {
                 return 9999;
             }
-
-
         }
-
         //Kiểm soát số lượng tồn của món ăn khi khách đặt
         private async Task<int?> _checkQuantity(int FoodId, int qtyBy)
         {

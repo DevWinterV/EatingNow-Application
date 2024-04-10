@@ -107,6 +107,8 @@
     <Compile Include="Chart\RevenueResponse.cs" />
     <Compile Include="Chart\ChartRequest.cs" />
     <Compile Include="Chart\PriceQuoteResponse.cs" />
+    <Compile Include="Chart\RevenuestatisticsResponse.cs" />
+    <Compile Include="Chart\StatisticRequest.cs" />
     <Compile Include="ChatRoom\ChatDescriptionRequest.cs" />
     <Compile Include="ChatRoom\ChatDescriptionResponse.cs" />
     <Compile Include="ChatRoom\ChatRoomRequest.cs" />
@@ -151,6 +153,7 @@
     <Compile Include="AccountType\AccountTypeResponse.cs" />
     <Compile Include="FoodList\FoodListSearchResponse.cs" />
     <Compile Include="FoodList\FoodList_Store.cs" />
+    <Compile Include="FoodList\ProductTrackingListResponse.cs" />
     <Compile Include="FoodRating\FoodRatingRequest.cs" />
     <Compile Include="FoodRating\FoodRatingResponse.cs" />
     <Compile Include="OrderHeader\OrderHeaderFillterRequest.cs" />
@@ -165,6 +168,8 @@
     <Compile Include="Store\StatisticalChart.cs" />
     <Compile Include="Store\StatisticalRequest.cs" />
     <Compile Include="Store\StatisticalResponse.cs" />
+    <Compile Include="Store\StoreInfoTakeByStoreManagerRequest.cs" />
+    <Compile Include="Store\StoreInfoTakeByStoreManagerResponse.cs" />
     <Compile Include="Store\StoreRequest.cs" />
     <Compile Include="Store\StoreResponse.cs" />
     <Compile Include="User\SimpleUserRequest.cs" />
