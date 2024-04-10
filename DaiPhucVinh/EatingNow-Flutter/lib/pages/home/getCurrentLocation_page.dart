@@ -23,8 +23,7 @@ class _LocationPageState extends State<LocationPage> {
   final String? link;
   _LocationPageState({required this.link});
   String? _locationMessage;
-  final googleApiService = GoogleAPIService(
-      'AIzaSyAG61NrUZkmMW8AS9F7B8mCdT9KQhgG95s');
+  final googleApiService = GoogleAPIService();
   late final LocationStorage locationStorage;
   late bool isloadingdata = true;
   late AddressResult addressResult;

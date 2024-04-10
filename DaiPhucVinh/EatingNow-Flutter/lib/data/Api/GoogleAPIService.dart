@@ -1,17 +1,14 @@
 import 'dart:convert';
+import 'package:fam/util/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 
 class GoogleAPIService {
-  final String apiKey;
-
-  GoogleAPIService(this.apiKey);
-
   Future<AddressResult> fetchPlacesFromLocation(double latitude, double longitude) async {
     final query = '$latitude,$longitude';
     // final baseUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
     print('${latitude},${longitude}');
-    final baseUrl2 = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDEPicO6JK3TSlMl3AQajyKyQqwLO0FWUw';
+    final baseUrl2 = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${AppConstants.API_KEY1}';
     final response = await http.get(
       Uri.parse(baseUrl2),
     );
@@ -40,7 +37,7 @@ class GoogleAPIService {
   }
 
   Future<DistanceAndTime> calculateDistanceAndTime(String origin, String destination) async {
-    final apiUrl = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}'; // Thay YOUR_API_KEY bằng key của bạn
+    final apiUrl = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${AppConstants.API_KEY2}'; // Thay YOUR_API_KEY bằng key của bạn
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {

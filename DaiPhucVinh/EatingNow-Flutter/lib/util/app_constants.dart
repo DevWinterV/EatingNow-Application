@@ -1,4 +1,6 @@
 class AppConstants{
+  static const String API_KEY1 = "AIzaSyDEPicO6JK3TSlMl3AQajyKyQqwLO0FWUw";
+  static const String API_KEY2 = "AIzaSyDeFN4A3eenCTIUYvCI7dViF-N-V5X8RgA";
   static const String APP_NAME="XpressEat.";
   //static const String PageNotFound="PageNotFound.";
   static const double APP_VERSION = 1.0;

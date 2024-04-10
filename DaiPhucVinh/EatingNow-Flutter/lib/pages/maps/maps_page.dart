@@ -31,7 +31,7 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
   LatLng? oncameramoveLatlng;
   bool isPinMarkerVisible = true;
   late Uint8List pickupMarker = Uint8List.fromList([]);
-  final googleApiService = GoogleAPIService('');
+  final googleApiService = GoogleAPIService();
 
   // yêu cầu quyền sử dụng vị trí của người dùng
   Future<void> requestLocationPermission() async {
