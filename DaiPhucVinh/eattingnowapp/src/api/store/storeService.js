@@ -19,6 +19,9 @@ const API = {
   TakeStoreLocation: "/TakeStoreLocation",
   TakeLitsFoodSold: "/TakeLitsFoodSold",
   UpdateShippingStatus: "/UpdateShippingStatus",
+  TakeProductTrackingByStoreId: "/TakeProductTrackingByStoreId",
+  TakeStoreInfoByStoreManager: "/TakeStoreInfoByStoreManager",
+  UpdateStoreInfoByStoreManager: "/UpdateStoreInfoByStoreManager"
 };
 
 const TakeAllStore = async (request) => {
@@ -60,6 +63,7 @@ const TakeStoreLocation = async (request) => {
   }
   return result;
 };
+
 const CreateNewStore = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
@@ -177,6 +181,25 @@ const TakeLitsFoodSold = async (UserId) => {
     result.message = response.Message;
     result.dataCount = response.DataCount;
     result.data = response.Data;
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+
+const TakeStoreInfoByStoreManager = async (UserId) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "get",
+      ServiceEndPoint + API.TakeStoreInfoByStoreManager,
+      { params: { UserId: UserId } },
+      true
+    );
+    result.success = response.Success;
+    result.message = response.Message;
+    result.item = response.Item;
   } catch (e) {
     result.message = e.toString();
   }
@@ -309,12 +332,54 @@ const TakeStatisticalByStoreId = async (request) => {
 };
 
 
+const TakeProductTrackingByStoreId = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "post",
+      ServiceEndPoint + API.TakeProductTrackingByStoreId,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.data = response.data.Data;
+      result.dataCount = response.data.DataCount;
+
+    }
+  } catch (e) {
+    result.message = e.toString();
+  }
+  return result;
+};
+
+
 const UpdateShippingStatus = async (request) => {
   let result = new BaseResponse(false, "", null);
   try {
     let response = await Proxy(
       "post",
       OrderServiceEndPoint + API.UpdateShippingStatus,
+      request,
+      true
+    );
+    if (response.data.Success) {
+      result.success = true;
+      result.message = response.data.Message;
+    }   
+   } catch (e) {
+    result.success = false;
+    result.message = e.toString();
+  }
+  return result;
+};
+
+const UpdateStoreInfoByStoreManager = async (request) => {
+  let result = new BaseResponse(false, "", null);
+  try {
+    let response = await Proxy(
+      "put",
+      ServiceEndPoint + API.UpdateStoreInfoByStoreManager,
       request,
       true
     );
@@ -345,5 +410,8 @@ export {
   ApproveOrder,
   TakeStoreLocation, 
   TakeLitsFoodSold,
-  UpdateShippingStatus
+  UpdateShippingStatus,
+  TakeProductTrackingByStoreId,
+  TakeStoreInfoByStoreManager,
+  UpdateStoreInfoByStoreManager
 };
