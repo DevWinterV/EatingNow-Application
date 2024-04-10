@@ -1,12 +1,13 @@
 import React from "react";
 import { IoFastFood, IoFastFoodSharp } from "react-icons/io5";
-import { AiFillHome, AiFillSetting } from "react-icons/ai";
-import { BiRestaurant, BiLogOut, BiShoppingBag, BiFoodTag, BiFoodMenu } from "react-icons/bi";
+import { AiFillAccountBook, AiFillHome, AiFillProfile, AiFillSetting } from "react-icons/ai";
+import { BiRestaurant, BiLogOut, BiShoppingBag, BiFoodTag, BiFoodMenu, BiStats } from "react-icons/bi";
 import { GiFoodChain, GiFruitBowl } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { useStateValue } from "../../context/StateProvider";
 import { actionType } from "../../context/reducer";
 import Swal from "sweetalert2";
+import mylogo from '../../assets/img/logoXpressEat.png'; // Importing the image
 
 const   SideMenu = () => {
   const history = useNavigate();
@@ -41,13 +42,13 @@ const   SideMenu = () => {
     });
   };
   return (
-    <div className="bg-primary relative h-[100%] basis-20 p-4">
+    <div className="bg-primary relative h-[100%] basis-20">
       {/* Logo Div */}
       <div
         onClick={handleHome}
         className="logo mt-4 gap-2 text-orange-900 font-bold flex items-center justify-center m-auto cursor-pointer"
       >
-        <IoFastFoodSharp  className="text-[30px]" />
+        <img src={mylogo} alt="XpressEat Logo" style={{ height: '50px', width: '50px' }} />
         <h1 className="text-[20px] align-center justify-center font-black">
           XpressEat.
         </h1>
@@ -70,6 +71,7 @@ const   SideMenu = () => {
 
       {/* Simple menu */}
       <div className="m-auto grid justify-center mt-4">
+      {/* Xem thống kê*/}
         <li
           onClick={() => {
             history("/statistical");
@@ -79,6 +81,7 @@ const   SideMenu = () => {
           <AiFillHome className="text-orange-900 font-bold" />
           <span className="text-orange-900 font-bold">Dashboard</span>
         </li>
+      {/* Xem nhóm món ăn*/}
         <li
           onClick={() => {
             history("/groupfoods/");
@@ -86,8 +89,9 @@ const   SideMenu = () => {
           className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
         >
           <BiRestaurant className="text-orange-900 font-bold" />
-          <span className="text-orange-900 font-bold">Nhóm món ăn</span>
+          <span className="text-orange-900 font-bold">Nhóm sản phẩm</span>
         </li>
+      {/* Xem DS món ăn*/}
         <li
           onClick={() => {
             history("/foodlists/");
@@ -95,8 +99,19 @@ const   SideMenu = () => {
           className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
         >
           <GiFruitBowl className="text-orange-900 font-bold" />
-          <span className="text-orange-900 font-bold">Món ăn</span>
+          <span className="text-orange-900 font-bold">Sản phẩm</span>
         </li>
+      {/* Theo dõi sản phẩm tổng hợp*/}
+        <li
+          onClick={() => {
+            history("/producttracking/");
+          }}
+          className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
+        >
+          <BiStats className="text-orange-900 font-bold" />
+          <span className="text-orange-900 font-bold">Theo dõi sản phẩm</span>
+        </li>
+       {/* Xem DS đơn hàng*/}       
         <li
           onClick={() => {
             history("/orders");
@@ -106,6 +121,17 @@ const   SideMenu = () => {
           <BiShoppingBag className="text-orange-900 font-bold" />
           <span className="text-orange-900 font-bold">Đơn hàng</span>
         </li>
+           {/* Tài khoản nhân viên*/}       
+        <li
+          onClick={() => {
+            history("/manageraccount");
+          }}
+          className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
+        >
+          <AiFillProfile className="text-orange-900 font-bold" />
+          <span className="text-orange-900 font-bold">Tài khoản nhân viên</span>
+        </li>
+        {/* Cài đặt*/}       
         <li
           onClick={() => {
             history("/settings");
@@ -115,6 +141,7 @@ const   SideMenu = () => {
           <AiFillSetting className="text-orange-900 font-bold" />
           <span className="text-orange-900 font-bold">Cài đặt</span>
         </li>
+        {/* Đăng xuất*/}       
         <li
           onClick={handleLogout}
           className="flex pt-3 pb-3 opacity-70 gap-2 hover:opacity-100 items-center cursor-pointer"
