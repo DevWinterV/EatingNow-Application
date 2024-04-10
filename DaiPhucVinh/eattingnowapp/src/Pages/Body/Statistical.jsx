@@ -16,6 +16,7 @@ import { TakeStatisticalByStoreId, TakeLitsFoodSold } from "../../api/store/stor
 import { useState } from "react";
 import { sampleSize } from "lodash";
 import { toast } from "react-toastify";
+import { ChartComponent } from "../../components";
 ChartJS.register(CategoryScale, LinearScale, BarElement,  Legend);
 const Statistical = () => {
 
@@ -247,9 +248,10 @@ const Statistical = () => {
             </div>
           </button>
         </div>
+        
       <div className="w-full">
         <React.Fragment>
-          <ResponsiveContainer width="100%" aspect={2} >
+          <ResponsiveContainer width="100%" aspect={3} >
             <Bar
               height="auto"
               data={thongKeThang}
@@ -276,35 +278,14 @@ const Statistical = () => {
           </ResponsiveContainer>
         </React.Fragment>   
       </div>
+
+
       <h1 className="text-[15px] text-titleColor tracking-[1px] font-black">
-        Biểu đồ 10 sản phẩm bán chạy của cửa hàng
+        Biểu đồ 10 sản phẩm đang bán chạy nhất của cửa hàng
       </h1>
       <div className="flex">
-            <div>
-              {datachart != null ? (
-                <React.Fragment>
-                      <ResponsiveContainer width="100%" height={600} aspect={2}>
-                    <PieChart>
-                      <Tooltip formatter={(value) => `${value} số lượng`} />
-                      <Pie
-                        data={datachart}
-                        dataKey="count"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        fill="#8884d8"
-                        label 
-                        onClick={handlePieClick}
-                      >
-                        <Label valueKey="name" position="insideBottom" offset={-10} fill="#fff" />
-                      </Pie>
-                      <Legend align="center" verticalAlign="bottom" height={36} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </React.Fragment>
-              ) : null}
-            </div>
-            <div>
+          <ChartComponent datachart={datachart} handlePieClick={handlePieClick} />
+          <div>
               {selectedData && (
                 <div className="details-container">
                   <h2 className="text-italic">Chi tiết số lượng</h2>
@@ -316,31 +297,39 @@ const Statistical = () => {
                     <span className="detail-label">Số lượng đã bán:</span>
                     <span className="detail-value">{`${selectedData.count}`}</span>
                   </div>
-                  {/* Add more details if needed */}
                 </div>
               )}
-            </div>
+          </div>
       </div>
       <h1 className="text-[15px] text-titleColor tracking-[1px] font-black">
-        Bảng 10 sản phẩm bán chạy của cửa hàng
+      Bảng 10 sản phẩm đang bán chạy nhất của cửa hàng
       </h1>
       <div>
           <table className="styled-table">
            <thead>
                   <tr>
-                    <th>ID</th>
+                    <th>STT</th>
+                    <th>ID Sản phẩm</th>
                     <th>Tên mặt hàng</th>
                     <th>Số lượng đã bán</th>
                   </tr>
            </thead>
            <tbody>
-                {ListFoodSold.sort((a, b) => b.FoodCount - a.FoodCount).map((item, index) => (
+                {
+                  ListFoodSold ??  ListFoodSold.length > 0 ?
+                 ListFoodSold.sort((a, b) => b.FoodCount - a.FoodCount).map((item, index) => (
                     <tr key={index}>
+                      <td>{index + 1}</td>
                       <td>{item.FoodListId}</td>
                       <td>{item.FoodName}</td>
                       <td>{item.FoodCount}</td>
                     </tr>
-                  ))}
+                  ))
+                  :
+                  <div>
+                    Không có dữ liệu thống kê
+                  </div>
+                }
            </tbody>
          </table>
       </div>
