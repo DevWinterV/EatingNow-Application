@@ -4,3 +4,4 @@ export { default as Body } from "./Body";
 export { default as Order } from "./Order";
 export { default as Setting } from "./Setting";
 export { default as CreateFoodList } from "./CreateFoodList";
+export { default as ProductTracking } from "./ProductTracking";
