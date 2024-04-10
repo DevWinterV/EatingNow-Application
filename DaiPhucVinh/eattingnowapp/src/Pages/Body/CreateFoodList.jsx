@@ -39,7 +39,6 @@ const CreateFoodList = () => {
   const [showIsNew, setshowIsNew] = useState(false);
   const [showQtycontrolled, setshowQtycontrolled] = useState(false);
   const [showQtySuppliedcontrolled, setshowQtySuppliedcontrolled] = useState(false);
-
   const [showIsNoiBat, setshowIsNoiBat] = useState(false);
 
   const handleCheckboxChange = () => {
@@ -65,6 +64,7 @@ const CreateFoodList = () => {
       IsNoiBat: !showIsNoiBat,
     });
   };
+
   const handleCheckSoluong = () => {
     setshowQtycontrolled(!showQtycontrolled);
     setRequest({
@@ -179,7 +179,7 @@ const CreateFoodList = () => {
       request.qty === "" &&
       request.Qtycontrolled === true )
       {
-        toast.warning('Vui lòng nhập số lượng tồn !', {
+        toast.warning('Vui lòng nhập số lượng tồn sản phẩm !', {
           position: 'top-right',
           autoClose: 3000, // 5 seconds
           hideProgressBar: false,
@@ -194,7 +194,7 @@ const CreateFoodList = () => {
         request.QuantitySupplied === "" &&
         request.QtySuppliedcontrolled === true )
         {
-          toast.warning('Vui lòng nhập số lượng khả năng cung ứng !', {
+          toast.warning('Vui lòng nhập số lượng khả năng cung ứng trong ngày cho sản phẩm !', {
             position: 'top-right',
             autoClose: 3000, // 5 seconds
             hideProgressBar: false,
@@ -204,8 +204,6 @@ const CreateFoodList = () => {
           });
           return;
         }
-  
-
       if (
         request.FoodName === "" ||
         request.Price === "" ||
@@ -213,7 +211,15 @@ const CreateFoodList = () => {
         request.UploadImage === "" 
       ) {
         setFields(true);
-        setMsg("Bạn phải nhập đầy đủ thông tin");
+        setMsg("Bạn phải nhập đầy đủ thông tin cho sản phẩm");
+        toast.warning('Bạn phải nhập đầy đủ thông tin cho sản phẩm.', {
+          position: 'top-right',
+          autoClose: 3000, // 5 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setAlertStatus("danger");
         setTimeout(() => {
           setFields(false);
@@ -227,7 +233,7 @@ const CreateFoodList = () => {
         let response = await CreateFoodItem(data);
         if (!response.success) {
           setFields(true);
-          setMsg("Đã xảy ra lỗi khi thêm mới ...");
+          setMsg("Đã xảy ra lỗi khi thêm mới sản phẩm. Vui lòng thử lại!");
           setAlertStatus("danger");
           setTimeout(() => {
             setFields(false);
@@ -251,7 +257,7 @@ const CreateFoodList = () => {
           IsNew: 0,
           IsNoiBat: 0,
         });
-        toast.success('Thêm sản phẩm thành công', {
+        toast.success('Thêm mới sản phẩm thành công', {
           position: 'top-right',
           autoClose: 3000, // 5 seconds
           hideProgressBar: false,
@@ -269,8 +275,16 @@ const CreateFoodList = () => {
         copyimg === ""
       ) {
         setFields(true);
-        setMsg("Phải nhập đầy đủ thông tin");
+        setMsg("Bạn phải nhập đầy đủ thông tin");
         setAlertStatus("danger");
+        toast.success('Bạn phải nhập đầy đủ thông tin', {
+          position: 'top-right',
+          autoClose: 3000, // 5 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setTimeout(() => {
           setFields(false);
         }, 4000);
@@ -283,7 +297,7 @@ const CreateFoodList = () => {
         let response = await UpdateFoodList(data);
         if (!response.success) {
           setFields(true);
-          setMsg("Cập nhật không thành công");
+          setMsg("Cập nhật không thành công. Vui lòng thử lại!");
           setAlertStatus("danger");
           setTimeout(() => {
             setFields(false);
@@ -307,7 +321,7 @@ const CreateFoodList = () => {
           IsNew: 0,
           IsNoiBat: 0,
         });
-        toast.success('Cập nhật thành công !', {
+        toast.success('Cập nhật sản phẩm thành công', {
           position: 'top-right',
           autoClose: 3000, // 5 seconds
           hideProgressBar: false,
@@ -328,7 +342,14 @@ const CreateFoodList = () => {
   }
 
   function onback() {
-    history("/foodlist");
+    var CallBackLink = localStorage.getItem("callbackLink");
+    if(localStorage.getItem("callbackLink") == null){
+      history("/foodlist");
+    }
+    else{
+       localStorage.setItem("callbackLink", null);
+       history(CallBackLink);
+     }
   }
 
   const getCurrentDate = () => {
@@ -347,7 +368,7 @@ const CreateFoodList = () => {
     const currentDateObject = new Date(currentDate);
   
     if (selectedDateObject < currentDateObject) {
-      toast.warn('Ngày hết hạn không được bé hơn ngày hiện tại ...', {
+      toast.warn('Ngày hết hạn không được nhỏ hơn ngày hiện tại ', {
         position: 'top-right',
         autoClose: 5000, // 5 seconds
         hideProgressBar: false,
@@ -371,7 +392,6 @@ const CreateFoodList = () => {
     const year = dateObject.getFullYear();
     const month = String(dateObject.getMonth() + 1).padStart(2, '0');
     const day = String(dateObject.getDate()).padStart(2, '0');
-    console.log(`ngày sau khi chuyển đổi .... ${dateObject}`);
     return `${year}-${month}-${day}`;
   }
   
@@ -418,7 +438,7 @@ const CreateFoodList = () => {
                   FoodName: e.target.value,
                 });
               }}
-              placeholder="Nhập tên món ăn . . ."
+              placeholder="Nhập tên sản phẩm"
               className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
             />
           </div>
@@ -433,7 +453,7 @@ const CreateFoodList = () => {
                   Description: e.target.value,
                 });
               }}
-              placeholder="Nhập mô tả món ăn . . ."
+              placeholder="Nhập mô tả cho sản phẩm"
               className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
             />
           </div>
@@ -460,7 +480,7 @@ const CreateFoodList = () => {
                                  qty: e.target.value,
                                });
                              }}
-                             placeholder="Nhập số lượng "
+                             placeholder="Nhập số lượng tồn"
                              className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
                            />
                   </div>
@@ -504,12 +524,13 @@ const CreateFoodList = () => {
               checked={showExpirationDate}
               id="expirationCheckbox"
             />
-            <label htmlFor="expirationCheckbox">CÓ HẠN SỬ DỤNG</label>
+            <label htmlFor="expirationCheckbox">Có hạn sử dụng</label>
           </div>
 
           <div className="flex">
             {showExpirationDate && (
               <div className="date-picker-container">
+                    <label htmlFor="">Vui lòng chọn hạn sử dụng: </label>
                      {showExpirationDate && (
                         <div className="w-[100%] py-2 flex items-start gap-2">
                           <MdDateRange className="text-xl text-gray-700" />
@@ -524,12 +545,10 @@ const CreateFoodList = () => {
               </div>
             )}
           </div>
-
-
           <div className="flex checkbox-group">
             <div className="row">
               <div className="w-full">
-                Trạng thái
+                Trạng thái sản phẩm:
                 {
                   request.Status === true ?
                   <select
@@ -568,29 +587,32 @@ const CreateFoodList = () => {
                 }
               </div>
             </div>
-                     
             <div>
-              <input
-                type="checkbox"
-                onChange={handleCheckNoiBat}
-                checked={showIsNoiBat}
-                id="noiBatCheckbox"
-              />
-              <label htmlFor="noiBatCheckbox">Sản phẩm nổi bật</label>
+              Trạng thái khác cho sản phẩm:
+              <div className="row">
+                <div>
+                  <input
+                    type="checkbox"
+                    onChange={handleCheckNoiBat}
+                    checked={showIsNoiBat}
+                    id="noiBatCheckbox"
+                  />
+                  <label htmlFor="noiBatCheckbox">Sản phẩm nổi bật</label>
+                </div>
+              </div>   
+              <div className="row">
+                <div>
+                  <input
+                    type="checkbox"
+                    onChange={handleCheckNew}
+                    checked={showIsNew}
+                    id="newCheckbox"
+                  />
+                  <label htmlFor="newCheckbox">Sản phẩm mới</label>
+                </div>
+              </div>  
             </div>
-
-            <div>
-              <input
-                type="checkbox"
-                onChange={handleCheckNew}
-                checked={showIsNew}
-                id="newCheckbox"
-              />
-              <label htmlFor="newCheckbox">Sản phẩm mới</label>
-            </div>
-
           </div>
-      
           <div className="w-full">
             <select
               onChange={(e) => {
@@ -602,7 +624,7 @@ const CreateFoodList = () => {
               className="outline-none w-full text-base border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
             >
               <option value="other" className="bg-white capitalize">
-                Chọn nhóm món ăn
+                Vui lòng chọn nhóm sản phẩm
               </option>
               {categoriesFood &&
                 categoriesFood.map((item) =>
@@ -640,7 +662,7 @@ const CreateFoodList = () => {
                           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                             <MdCloudUpload className="text-green-500 text-3xl hover:text-green-700" />
                             <p className="text-gray-500 hover:text-gray-700">
-                              Chọn ảnh món ăn
+                              Chọn hình ảnh cho sản phẩm
                             </p>
                           </div>
                           <input
@@ -705,7 +727,7 @@ const CreateFoodList = () => {
                     Price: e.target.value,
                   });
                 }}
-                placeholder="Nhập vào giá món ăn . . ."
+                placeholder="Nhập vào giá bán của sản phẩm"
                 className="w-full h-full text-lg bg-transparent outline-none border-none placeholder:text-gray-400 text-textColor"
               />
             </div>
@@ -718,7 +740,7 @@ const CreateFoodList = () => {
               } px-12 py-2 rounded-lg text-lg text-white font-semibold`}
               onClick={SaveFoodList}
             >
-              {request.FoodListId == 0 ? "Lưu" : "Cập nhật"}
+              {request.FoodListId == 0 ? "Lưu mới sản phẩm" : "Cập nhật sản phẩm"}
             </button>
           </div>
         </div>

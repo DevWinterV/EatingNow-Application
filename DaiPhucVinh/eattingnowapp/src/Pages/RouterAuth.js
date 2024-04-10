@@ -6,6 +6,7 @@ import {
   CreateFoodList,
   GroupFoods,
   Order,
+  ProductTracking,
   Setting,
   Statistical,
 } from "./Body";
@@ -14,6 +15,7 @@ import {  CheckStatusAccout } from "../api/auth/authService";
 import { toaster } from "evergreen-ui";
 import { actionType } from "../context/reducer";
 import { useStateValue } from "../context/StateProvider";
+import { NotFound } from "../assets";
 
 const RouterAuth = () => {
   const [{ customer, linked, token ,user}, dispatch] = useStateValue();
@@ -52,6 +54,7 @@ const RouterAuth = () => {
               <Route path="/settings" element={<Setting />} />
               <Route path="/createfoodlist" element={<CreateFoodList />} />
               <Route path="/editfoodlist/:id" element={<CreateFoodList />} />
+              <Route path="/producttracking" element={<ProductTracking />} />
             </Routes>
           </div>
           </div>
@@ -64,6 +67,7 @@ const RouterAuth = () => {
               <Route path="/statistical" element={<Statistical />} />
               <Route path="/foodlists" element={<Body />} />
               <Route path="/orders" element={<Order />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
           </div>
