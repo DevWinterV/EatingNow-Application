@@ -251,7 +251,7 @@ class _GoogleMapsPageState extends State<GoogleMapsPage> {
                                   ),
                                   minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
                                 ),
-                                onPressed: () async {
+                                onPressed: appdata.locationData == null ? null : () async {
                                   Navigator.of(context).pop(appdata.locationData);
                                 },
                                 child: Text('Sử dụng vị trí này', style: TextStyle(fontSize: Dimensions.font16),),
