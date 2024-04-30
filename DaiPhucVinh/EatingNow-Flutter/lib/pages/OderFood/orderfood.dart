@@ -22,8 +22,7 @@ import '../../util/Colors.dart';
 import '../../util/dimensions.dart';
 import '../home/getCurrentLocation_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-
+import 'package:tap_debouncer/tap_debouncer.dart';
 
 class OrderPage extends StatefulWidget {
 
@@ -109,8 +108,8 @@ class _OrderPage extends State<OrderPage> {
     // await signalRClient.setCustomerId(FirebaseAuth.instance.currentUser?.uid ?? "");
   }
 
-  void SendOrderNotificationToUser(String UserId) async {
-    await signalRClient.SendOrderNotificationToUser(UserId);
+  void SendOrderNotificationToUser(String UserId, String msg) async {
+    await signalRClient.SendOrderNotificationToUser(UserId, msg);
   }
 
   Future<void> _launchInWebView(Uri url) async {
@@ -595,136 +594,141 @@ class _OrderPage extends State<OrderPage> {
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child:   cartItem.length > 0 ?
                           Center(
-                            child:
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                // Customize the background color
-                                foregroundColor: Colors.white,
-                                backgroundColor: AppColors.mainColor,
-                                // Add other customizations as needed
-                                padding: EdgeInsets.only(right: 20.0, left: 20.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
-                              ),
-                              onPressed: () async {
-                                if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
-                                {
-                                  Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.BOTTOM_LEFT,
-                                      backgroundColor: Colors.red[400],
-                                      textColor: Colors.black54,
-                                      timeInSecForIosWeb: 2,
-                                      fontSize: Dimensions.font13);
-                                  return;
-                                }
-                                try {
-                                  orderRequest.TokenApp = await FirebaseApi().getFCMToken();
-                                  orderRequest.completeName = namecontroller.text ;
-                                  orderRequest.formatAddress = locationData!.address;
-                                  orderRequest.nameAddress = locationData!.name;
-                                  orderRequest.orderLine = cartItem;
-                                  orderRequest.customerId = _auth.currentUser!.uid;
-                                  orderRequest.intoMoney = totalAmount.toInt() + 12000;
-                                  orderRequest.transportFee = 12000;
-                                  orderRequest.totalAmt = totalAmount.toInt();
-                                  orderRequest.latitude = locationData!.latitude;
-                                  orderRequest.longitude = locationData!.longitude;
-                                  orderRequest.recipientName = namecontroller.text;
-                                  orderRequest.recipientPhone = phoneNumbercontroller.text;
-                                  orderRequest.userId = userId ?? 0;
-                                  final responseBody = await orderservice.postOrder(orderRequest);
-                                  // Xử lý kết quả trả về từ API
-                                  if (responseBody.success == true) {
-                                    if(responseBody.Message != ""){
-                                      final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-                                      flutterWebviewPlugin.launch(responseBody.Message ?? "");
-                                      flutterWebviewPlugin.onUrlChanged.listen((url) async {
-                                        if (url.contains('vnp_ResponseCode')) {
-                                          final params = Uri.parse(url).queryParameters;
-                                          if (params['vnp_ResponseCode'] == '00')
-                                          {
-                                            flutterWebviewPlugin.close();
-                                            final payment_request = PaymentTransaction(Vnp_Amount: params['vnp_Amount'] ?? '', Vnp_BankCode: params['vnp_BankCode'] ?? '', Vnp_BankTranNo: params['vnp_BankTranNo'] ?? '', Vnp_CardType:  params['vnp_CardType'] ?? '', Vnp_OrderInfo: params['vnp_OrderInfo'] ?? '', Vnp_PayDate: params['vnp_PayDate'] ?? '', Vnp_ResponseCode:  params['vnp_ResponseCode'] ?? '', Vnp_SecureHash: params['vnp_SecureHash'] ?? '', Vnp_TmnCode: params['vnp_TmnCode'] ?? '', Vnp_TransactionNo: params['vnp_TransactionNo'] ?? '', Vnp_TransactionStatus: params['vnp_TransactionStatus'] ?? '', Vnp_TxnRef: params['vnp_TxnRef'] ?? '', requestOrder: orderRequest);
-                                            final responsePayment = await orderservice.PaymentConfirm(payment_request);
-                                            if (responsePayment.success) {
-                                              await CartStorage.ClearCartByUserId(userId ?? 0);
-                                              final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
-                                              await userAccountStorage.saveUserAccount(user);
-                                              SendOrderNotificationToUser(userId.toString());
-                                              Fluttertoast.showToast(msg: responsePayment.Message ?? "",
-                                                  toastLength: Toast.LENGTH_LONG,
-                                                  gravity: ToastGravity.BOTTOM_LEFT,
-                                                  backgroundColor: AppColors.toastSuccess,
-                                                  textColor: Colors.black54,
-                                                  timeInSecForIosWeb: 1,
-                                                  fontSize: Dimensions.font13);
-                                              Navigator.of(context).pop();
-                                            }
-                                            else{
-                                              flutterWebviewPlugin.close();
-                                              Fluttertoast.showToast(msg: responsePayment.Message ?? "",
-                                                  toastLength: Toast.LENGTH_LONG,
-                                                  gravity: ToastGravity.BOTTOM_LEFT,
-                                                  backgroundColor: AppColors.toastSuccess,
-                                                  textColor: Colors.black54,
-                                                  timeInSecForIosWeb: 1,
-                                                  fontSize: Dimensions.font13);
-                                            }
-                                          }
-                                          else {
-                                            flutterWebviewPlugin.close();
-                                            Fluttertoast.showToast(msg: "Đã xảy ra lỗi trong quá trình thanh toán! Vui lòng thử lại.",
-                                                toastLength: Toast.LENGTH_LONG,
-                                                gravity: ToastGravity.BOTTOM_LEFT,
-                                                backgroundColor: AppColors.toastSuccess,
-                                                textColor: Colors.black54,
-                                                timeInSecForIosWeb: 1,
-                                                fontSize: Dimensions.font13);
-                                          }
-                                        }
-                                      });
-                                    }
-                                    else {
-                                      await CartStorage.ClearCartByUserId(userId ?? 0);
-                                      final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
-                                      await userAccountStorage.saveUserAccount(user);
-                                      SendOrderNotificationToUser(userId.toString());
-                                      Fluttertoast.showToast(msg: "Đặt đơn hàng thành công",
-                                          toastLength: Toast.LENGTH_LONG,
-                                          gravity: ToastGravity.BOTTOM_LEFT,
-                                          backgroundColor: AppColors.toastSuccess,
-                                          textColor: Colors.black54,
-                                          timeInSecForIosWeb: 1,
-                                          fontSize: Dimensions.font13);
-                                      Navigator.of(context).pop();
-                                    }
-                                  } else{
-                                    if(responseBody.CustomData != null){
-                                      Fluttertoast.showToast(msg: responseBody.Message!,
-                                          toastLength: Toast.LENGTH_LONG,
-                                          gravity: ToastGravity.BOTTOM_LEFT,
-                                          backgroundColor: AppColors.toastSuccess,
-                                          textColor: Colors.black54,
-                                          timeInSecForIosWeb: 1,
-                                          fontSize: Dimensions.font13);
-                                    }
+                            child: TapDebouncer(
+                                cooldown: const Duration(milliseconds: 5000), // Thời gian chờ giữa các lần nhấn
+                                onTap: () async {
+                                  if(namecontroller.text == "" || phoneNumbercontroller.text == "" )
+                                  {
+                                    Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin !",
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.BOTTOM_LEFT,
+                                        backgroundColor: Colors.red[400],
+                                        textColor: Colors.black54,
+                                        timeInSecForIosWeb: 2,
+                                        fontSize: Dimensions.font13);
+                                    return;
                                   }
-                                } catch (e) {
-                                  // Xử lý lỗi kết nối hoặc lỗi khác
-                                  Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
-                                      toastLength: Toast.LENGTH_LONG,
-                                      gravity: ToastGravity.BOTTOM_LEFT,
-                                      backgroundColor: Colors.red[400],
-                                      textColor: Colors.black54,
-                                      timeInSecForIosWeb: 1,
-                                      fontSize: Dimensions.font13);
+                                  try {
+                                    orderRequest.TokenApp = await FirebaseApi().getFCMToken();
+                                    orderRequest.completeName = namecontroller.text ;
+                                    orderRequest.formatAddress = locationData!.address;
+                                    orderRequest.nameAddress = locationData!.name;
+                                    orderRequest.orderLine = cartItem;
+                                    orderRequest.customerId = _auth.currentUser!.uid;
+                                    orderRequest.intoMoney = totalAmount.toInt() + 12000;
+                                    orderRequest.transportFee = 12000;
+                                    orderRequest.totalAmt = totalAmount.toInt();
+                                    orderRequest.latitude = locationData!.latitude;
+                                    orderRequest.longitude = locationData!.longitude;
+                                    orderRequest.recipientName = namecontroller.text;
+                                    orderRequest.recipientPhone = phoneNumbercontroller.text;
+                                    orderRequest.userId = userId ?? 0;
+                                    final responseBody = await orderservice.postOrder(orderRequest);
+                                    // Xử lý kết quả trả về từ API
+                                    if (responseBody.success == true) {
+                                      if(responseBody.Message != ""){
+                                        final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
+                                        flutterWebviewPlugin.launch(responseBody.Message ?? "");
+                                        flutterWebviewPlugin.onUrlChanged.listen((url) async {
+                                          if (url.contains('vnp_ResponseCode')) {
+                                            final params = Uri.parse(url).queryParameters;
+                                            if (params['vnp_ResponseCode'] == '00')
+                                            {
+                                              flutterWebviewPlugin.close();
+                                              final payment_request = PaymentTransaction(Vnp_Amount: params['vnp_Amount'] ?? '', Vnp_BankCode: params['vnp_BankCode'] ?? '', Vnp_BankTranNo: params['vnp_BankTranNo'] ?? '', Vnp_CardType:  params['vnp_CardType'] ?? '', Vnp_OrderInfo: params['vnp_OrderInfo'] ?? '', Vnp_PayDate: params['vnp_PayDate'] ?? '', Vnp_ResponseCode:  params['vnp_ResponseCode'] ?? '', Vnp_SecureHash: params['vnp_SecureHash'] ?? '', Vnp_TmnCode: params['vnp_TmnCode'] ?? '', Vnp_TransactionNo: params['vnp_TransactionNo'] ?? '', Vnp_TransactionStatus: params['vnp_TransactionStatus'] ?? '', Vnp_TxnRef: params['vnp_TxnRef'] ?? '', requestOrder: orderRequest);
+                                              final responsePayment = await orderservice.PaymentConfirm(payment_request);
+                                              if (responsePayment.success) {
+                                                await CartStorage.ClearCartByUserId(userId ?? 0);
+                                                final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
+                                                await userAccountStorage.saveUserAccount(user);
+                                                SendOrderNotificationToUser(userId.toString(), "Thông báo đơn đặt hàng mới");
+                                                Fluttertoast.showToast(msg: responsePayment.Message ?? "",
+                                                    toastLength: Toast.LENGTH_LONG,
+                                                    gravity: ToastGravity.BOTTOM_LEFT,
+                                                    backgroundColor: AppColors.toastSuccess,
+                                                    textColor: Colors.black54,
+                                                    timeInSecForIosWeb: 1,
+                                                    fontSize: Dimensions.font13);
+                                                Navigator.of(context).pop();
+                                              }
+                                              else{
+                                                flutterWebviewPlugin.close();
+                                                Fluttertoast.showToast(msg: responsePayment.Message ?? "",
+                                                    toastLength: Toast.LENGTH_LONG,
+                                                    gravity: ToastGravity.BOTTOM_LEFT,
+                                                    backgroundColor: AppColors.toastSuccess,
+                                                    textColor: Colors.black54,
+                                                    timeInSecForIosWeb: 1,
+                                                    fontSize: Dimensions.font13);
+                                              }
+                                            }
+                                            else {
+                                              flutterWebviewPlugin.close();
+                                              Fluttertoast.showToast(msg: "Đã xảy ra lỗi trong quá trình thanh toán! Vui lòng thử lại.",
+                                                  toastLength: Toast.LENGTH_LONG,
+                                                  gravity: ToastGravity.BOTTOM_LEFT,
+                                                  backgroundColor: AppColors.toastSuccess,
+                                                  textColor: Colors.black54,
+                                                  timeInSecForIosWeb: 1,
+                                                  fontSize: Dimensions.font13);
+                                            }
+                                          }
+                                        });
+                                      }
+                                      else {
+                                        await CartStorage.ClearCartByUserId(userId ?? 0);
+                                        final user = UserAccount(userId: _auth.currentUser!.uid, name: namecontroller.text, phone: phoneNumbercontroller.text);
+                                        await userAccountStorage.saveUserAccount(user);
+                                        SendOrderNotificationToUser(userId.toString(), "Thông báo đơn đặt hàng mới");
+                                        Fluttertoast.showToast(msg: "Đặt đơn hàng thành công",
+                                            toastLength: Toast.LENGTH_LONG,
+                                            gravity: ToastGravity.BOTTOM_LEFT,
+                                            backgroundColor: AppColors.toastSuccess,
+                                            textColor: Colors.black54,
+                                            timeInSecForIosWeb: 1,
+                                            fontSize: Dimensions.font13);
+                                        Navigator.of(context).pop();
+                                      }
+                                    } else{
+                                      if(responseBody.CustomData != null){
+                                        Fluttertoast.showToast(msg: responseBody.Message!,
+                                            toastLength: Toast.LENGTH_LONG,
+                                            gravity: ToastGravity.BOTTOM_LEFT,
+                                            backgroundColor: AppColors.toastSuccess,
+                                            textColor: Colors.black54,
+                                            timeInSecForIosWeb: 1,
+                                            fontSize: Dimensions.font13);
+                                      }
+                                    }
+                                  } catch (e) {
+                                    // Xử lý lỗi kết nối hoặc lỗi khác
+                                    Fluttertoast.showToast(msg: "Đã xảy ra lỗi khi đặt đơn hàng",
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.BOTTOM_LEFT,
+                                        backgroundColor: Colors.red[400],
+                                        textColor: Colors.black54,
+                                        timeInSecForIosWeb: 1,
+                                        fontSize: Dimensions.font13);
+                                  }
+                                },
+                                builder: (BuildContext context, TapDebouncerFunc? onTap) {
+                                  return
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          // Customize the background color
+                                          foregroundColor: Colors.white,
+                                          backgroundColor: AppColors.mainColor,
+                                          // Add other customizations as needed
+                                          padding: EdgeInsets.only(right: 20.0, left: 20.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                          ),
+                                          minimumSize: Size(double.infinity, 50), // Đặt kích thước tối thiểu cho nút
+                                        ),
+                                        onPressed: onTap,
+                                        child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)));
                                 }
-                              },
-                              child: Text('Đặt đơn', style: TextStyle(fontSize: Dimensions.font16, fontWeight: FontWeight.normal)),
-                            ),
+                            )
                           )
                               :
                           Center(
